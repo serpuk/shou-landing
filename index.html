@@ -159,6 +159,20 @@
     font-size:14px;color:var(--text-dim);
     margin-top:6px;
   }
+  .consent{
+    font-size:12.5px;color:var(--text-dim);
+    margin:-6px auto 0;max-width:420px;line-height:1.5;
+  }
+  .notify-done{
+    max-width:440px;margin:0 auto 18px;
+    padding:15px 18px;
+    background:rgba(70,224,210,0.08);
+    border:1px solid rgba(70,224,210,0.25);
+    border-radius:13px;
+    color:var(--text);font-size:15px;
+    display:none;
+  }
+  .notify-done.show{display:block}
   .beta-line a{
     color:var(--cyan);
     text-decoration:none;
@@ -217,10 +231,13 @@
       in your language, near you. We're putting the finishing touches on it.
     </p>
 
+    <div class="notify-done" id="notifyDone">Thanks — you're on the list. We'll let you know the moment shou launches.</div>
+
     <form class="notify" id="notifyForm">
       <input type="email" id="email" placeholder="your@email.com" aria-label="Email address" required>
-      <button type="submit">Notify me</button>
+      <button type="submit" id="notifyBtn">Notify me</button>
     </form>
+    <p class="consent" id="consentNote">We'll email you once — when shou launches. No spam, unsubscribe anytime.</p>
 
     <p class="beta-line">
       Curious now? <a href="https://beta.shou.be">Try the beta →</a>
@@ -234,16 +251,45 @@
   </footer>
 
   <script>
-    // Email capture: opens a pre-filled email to the team. No backend required —
-    // honest and functional. Swap for a stored waitlist (table + /api/waitlist)
-    // post-launch if you want addresses collected automatically.
-    document.getElementById('notifyForm').addEventListener('submit', function(e){
+    // Waitlist capture: POSTs the email to the backend, which stores it with a
+    // consent timestamp (lawful basis for the launch email). Frictionless — no
+    // email client, no app chooser. On success, swap the form for a thank-you.
+    // The backend lives on the app's API domain (separate from this landing page).
+    var API = 'https://shou-backend.vercel.app/api/waitlist';
+    var form = document.getElementById('notifyForm');
+    var btn  = document.getElementById('notifyBtn');
+    var done = document.getElementById('notifyDone');
+    var note = document.getElementById('consentNote');
+
+    form.addEventListener('submit', async function(e){
       e.preventDefault();
       var email = document.getElementById('email').value.trim();
       if(!email) return;
-      var subject = encodeURIComponent('shou — notify me at launch');
-      var body = encodeURIComponent('Please let me know when shou launches. My email: ' + email);
-      window.location.href = 'mailto:hello@shou.be?subject=' + subject + '&body=' + body;
+
+      btn.disabled = true;
+      var original = btn.textContent;
+      btn.textContent = '…';
+
+      try {
+        var resp = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email }),
+        });
+        if (resp.ok) {
+          form.style.display = 'none';
+          if (note) note.style.display = 'none';
+          done.classList.add('show');
+        } else {
+          btn.disabled = false;
+          btn.textContent = original;
+          if (note) note.textContent = 'Something went wrong — please try again.';
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = original;
+        if (note) note.textContent = 'Network error — please try again.';
+      }
     });
   </script>
 </body>
