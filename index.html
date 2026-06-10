@@ -8,6 +8,10 @@
 <meta property="og:title" content="shou — belgium after dark">
 <meta property="og:description" content="After-dark events discovery across Brussels and Belgium. Launching soon.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://shou.be/">
+<meta property="og:image" content="https://shou.be/og-this-week.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://shou.be/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -198,6 +202,7 @@
     opacity:0;transform:translateY(16px);
     animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
   }
+  .tw-line{animation-delay:.60s;margin-top:4px}
   .eyebrow{animation-delay:.05s}
   .logo{animation-delay:.13s}
   .tag{animation-delay:.24s}
@@ -206,7 +211,7 @@
   .beta-line{animation-delay:.52s}
   @keyframes rise{to{opacity:1;transform:none}}
   @media(prefers-reduced-motion:reduce){
-    .eyebrow,.logo,.tag,.blurb,.notify,.beta-line{animation:none;opacity:1;transform:none}
+    .eyebrow,.logo,.tag,.blurb,.notify,.beta-line,.tw-line{animation:none;opacity:1;transform:none}
     .orb,.eyebrow .dot{animation:none}
   }
 
@@ -242,13 +247,17 @@
     <p class="beta-line">
       Curious now? <a href="https://beta.shou.be">Try the beta →</a>
     </p>
+    <p class="beta-line tw-line">
+      Or see <a href="/this-week">this week's top concerts &amp; parties →</a>
+    </p>
   </main>
 
   <footer>
     <span>© 2026 ABSS Analytics · shou</span>
     <span class="sep">·</span>
     <a href="https://shou.be/privacy">Privacy</a>
-    <a href="/this-week">Top concerts &amp; nightlife this week →</a>
+    <span class="sep">·</span>
+    <a href="/this-week">This week</a>
   </footer>
 
   <script>
