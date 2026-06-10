@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/privacy", "destination": "/privacy.html" }
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/this-week", "destination": "https://shou-backend.vercel.app/api/this-week" }
   ]
 }
