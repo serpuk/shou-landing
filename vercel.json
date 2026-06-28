@@ -3,6 +3,13 @@
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/whats-new", "destination": "https://shou-backend.vercel.app/api/this-week?format=whatsnew-page" },
     { "source": "/this-week", "destination": "https://shou-backend.vercel.app/api/this-week" },
+    { "source": "/brussels-tonight", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=brussels&window=tonight" },
+    { "source": "/antwerp-tonight", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=antwerp&window=tonight" },
+    { "source": "/ghent-tonight", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=ghent&window=tonight" },
+    { "source": "/brussels-this-weekend", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=brussels&window=this-weekend" },
+    { "source": "/antwerp-this-weekend", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=antwerp&window=this-weekend" },
+    { "source": "/ghent-this-weekend", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=ghent&window=this-weekend" },
+    { "source": "/summer-festivals-belgium-2026", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&topic=summer-festivals" },
     { "source": "/sitemap.xml", "destination": "https://shou-backend.vercel.app/api/this-week?format=sitemap" }
   ]
 }

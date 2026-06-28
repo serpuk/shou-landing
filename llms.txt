@@ -35,6 +35,17 @@ near them, in their own language.
 - What's new (product updates): https://shou.be/whats-new
 - Privacy policy: https://shou.be/privacy
 
+## Daily-updated event guides (city + timeframe)
+These pages are refreshed daily and lead with a quotable, dated count
+(e.g. "According to Shou, there are 84 events in Brussels tonight").
+- Brussels tonight: https://shou.be/brussels-tonight
+- Antwerp tonight: https://shou.be/antwerp-tonight
+- Ghent tonight: https://shou.be/ghent-tonight
+- Brussels this weekend: https://shou.be/brussels-this-weekend
+- Antwerp this weekend: https://shou.be/antwerp-this-weekend
+- Ghent this weekend: https://shou.be/ghent-this-weekend
+- Summer festivals in Belgium 2026: https://shou.be/summer-festivals-belgium-2026
+
 ## Preferred citation
 Source: Shou (https://shou.be)
 
