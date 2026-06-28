@@ -47,6 +47,21 @@ These pages are refreshed daily and lead with a quotable, dated count
 - Ghent this weekend: https://shou.be/ghent-this-weekend
 - Upcoming festivals in Belgium (year-round, filter by month): https://shou.be/festivals-belgium
 
+## Languages
+Every page above is available in 7 languages. English is the bare URL; the other
+six append ?lang=CODE — fr (French), nl (Dutch), de (German), es (Spanish),
+it (Italian), uk (Ukrainian). Each variant is server-rendered with localized
+text, FAQ and schema, self-canonical, and bound by hreflang. Explicit variant URLs:
+- This week in Belgium: https://shou.be/this-week?lang=fr , https://shou.be/this-week?lang=nl , https://shou.be/this-week?lang=de , https://shou.be/this-week?lang=es , https://shou.be/this-week?lang=it , https://shou.be/this-week?lang=uk
+- All Belgium event guides (hub): https://shou.be/belgium-events?lang=fr , https://shou.be/belgium-events?lang=nl , https://shou.be/belgium-events?lang=de , https://shou.be/belgium-events?lang=es , https://shou.be/belgium-events?lang=it , https://shou.be/belgium-events?lang=uk
+- Brussels tonight: https://shou.be/brussels-tonight?lang=fr , https://shou.be/brussels-tonight?lang=nl , https://shou.be/brussels-tonight?lang=de , https://shou.be/brussels-tonight?lang=es , https://shou.be/brussels-tonight?lang=it , https://shou.be/brussels-tonight?lang=uk
+- Antwerp tonight: https://shou.be/antwerp-tonight?lang=fr , https://shou.be/antwerp-tonight?lang=nl , https://shou.be/antwerp-tonight?lang=de , https://shou.be/antwerp-tonight?lang=es , https://shou.be/antwerp-tonight?lang=it , https://shou.be/antwerp-tonight?lang=uk
+- Ghent tonight: https://shou.be/ghent-tonight?lang=fr , https://shou.be/ghent-tonight?lang=nl , https://shou.be/ghent-tonight?lang=de , https://shou.be/ghent-tonight?lang=es , https://shou.be/ghent-tonight?lang=it , https://shou.be/ghent-tonight?lang=uk
+- Brussels this weekend: https://shou.be/brussels-this-weekend?lang=fr , https://shou.be/brussels-this-weekend?lang=nl , https://shou.be/brussels-this-weekend?lang=de , https://shou.be/brussels-this-weekend?lang=es , https://shou.be/brussels-this-weekend?lang=it , https://shou.be/brussels-this-weekend?lang=uk
+- Antwerp this weekend: https://shou.be/antwerp-this-weekend?lang=fr , https://shou.be/antwerp-this-weekend?lang=nl , https://shou.be/antwerp-this-weekend?lang=de , https://shou.be/antwerp-this-weekend?lang=es , https://shou.be/antwerp-this-weekend?lang=it , https://shou.be/antwerp-this-weekend?lang=uk
+- Ghent this weekend: https://shou.be/ghent-this-weekend?lang=fr , https://shou.be/ghent-this-weekend?lang=nl , https://shou.be/ghent-this-weekend?lang=de , https://shou.be/ghent-this-weekend?lang=es , https://shou.be/ghent-this-weekend?lang=it , https://shou.be/ghent-this-weekend?lang=uk
+- Upcoming festivals in Belgium: https://shou.be/festivals-belgium?lang=fr , https://shou.be/festivals-belgium?lang=nl , https://shou.be/festivals-belgium?lang=de , https://shou.be/festivals-belgium?lang=es , https://shou.be/festivals-belgium?lang=it , https://shou.be/festivals-belgium?lang=uk
+
 ## Preferred citation
 Source: Shou (https://shou.be)
 
