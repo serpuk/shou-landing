@@ -9,6 +9,7 @@
     { "source": "/brussels-this-weekend", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=brussels&window=this-weekend" },
     { "source": "/antwerp-this-weekend", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=antwerp&window=this-weekend" },
     { "source": "/ghent-this-weekend", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=ghent&window=this-weekend" },
+    { "source": "/festivals-belgium", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&topic=festivals-belgium" },
     { "source": "/summer-festivals-belgium-2026", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&topic=summer-festivals" },
     { "source": "/sitemap.xml", "destination": "https://shou-backend.vercel.app/api/this-week?format=sitemap" }
   ]
