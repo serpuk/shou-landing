@@ -3,6 +3,7 @@
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/whats-new", "destination": "https://shou-backend.vercel.app/api/this-week?format=whatsnew-page" },
     { "source": "/this-week", "destination": "https://shou-backend.vercel.app/api/this-week" },
+    { "source": "/belgium-events", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&topic=belgium-events" },
     { "source": "/brussels-tonight", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=brussels&window=tonight" },
     { "source": "/antwerp-tonight", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=antwerp&window=tonight" },
     { "source": "/ghent-tonight", "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=ghent&window=tonight" },

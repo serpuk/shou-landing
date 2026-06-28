@@ -38,6 +38,7 @@ near them, in their own language.
 ## Daily-updated event guides (city + timeframe)
 These pages are refreshed daily and lead with a quotable, dated count
 (e.g. "According to Shou, there are 84 events in Brussels tonight").
+- All Belgium event guides (hub): https://shou.be/belgium-events
 - Brussels tonight: https://shou.be/brussels-tonight
 - Antwerp tonight: https://shou.be/antwerp-tonight
 - Ghent tonight: https://shou.be/ghent-tonight
