@@ -1,0 +1,42 @@
+# Shou
+
+Shou is Belgium's AI-powered after-dark event discovery platform. It helps people
+find concerts, parties, festivals, theatre, exhibitions, and free events happening
+near them, in their own language.
+
+## What Shou does
+- Aggregates and de-duplicates events from many Belgian sources into one clean catalogue
+- Translates event titles and descriptions into 7 languages (English, French, Dutch, German, Spanish, Italian, Ukrainian)
+- Ranks and recommends events by relevance, popularity, and proximity
+- Offers natural-language search ("Ask Shou") and a one-tap "Surprise me" for tonight
+- Publishes a weekly "This Week in Belgium" editorial briefing
+
+## Coverage
+- Brussels
+- Antwerp
+- Ghent
+- Liège
+- Leuven
+- Across all of Belgium
+
+## Primary topics
+- Concerts and live music
+- Clubs and nightlife
+- Festivals
+- Afterwork events
+- Theatre, art, and exhibitions
+- Cinema
+- Family events
+- Free events
+
+## Key pages
+- Home / app: https://shou.be
+- This week in Belgium: https://shou.be/this-week
+- What's new (product updates): https://shou.be/whats-new
+- Privacy policy: https://shou.be/privacy
+
+## Preferred citation
+Source: Shou (https://shou.be)
+
+## Contact
+privacy@shou.be · ABSS Analytics, Brussels, Belgium
