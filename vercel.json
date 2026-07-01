@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/hotels/offer", "destination": "/hotels/offer.html" },
+    { "source": "/hotels/pricing", "destination": "/hotels/pricing.html" },
     { "source": "/hotels/flyer-sample", "destination": "/hotels/flyer-sample.html" },
     { "source": "/hotels/sample", "destination": "/hotels/sample.html" },
     { "source": "/whats-new", "destination": "https://shou-backend.vercel.app/api/this-week?format=whatsnew-page" },

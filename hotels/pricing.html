@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — AI Concierge for Hotels · shou</title>
+<meta name="description" content="Simple pricing for shou's AI concierge for hotels: €99/month + €199 one-time setup (+VAT), cancel anytime. Summer launch rate for our first hotels. Custom work at €100/hour + VAT.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Pricing — AI Concierge for Hotels · shou">
+<meta property="og:description" content="€99/month + €199 setup (+VAT), cancel anytime. Summer launch rate for our first hotels. Custom work €100/hour + VAT.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shou.be/hotels/pricing">
+<meta property="og:image" content="https://shou.be/og-this-week.png">
+<link rel="canonical" href="https://shou.be/hotels/pricing">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..800;1,9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Palette matches shou.be/this-week + /hotels/offer — light editorial theme. */
+  :root{
+    --ink:#15101b; --text:#1a1622; --text-soft:#5b5566; --text-dim:#8a8494;
+    --bg:#ffffff; --panel:#ffffff; --panel-soft:#faf8fc;
+    --line:rgba(20,16,30,0.10);
+    --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
+    --grad:linear-gradient(105deg,var(--pink),var(--orange));
+    --grad-cool:linear-gradient(120deg,var(--violet),var(--pink));
+    --shadow:0 1px 3px rgba(20,16,30,.06);
+    --shadow-lift:0 14px 34px -14px rgba(20,16,30,.22);
+    --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative;line-height:1.6}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.015em;line-height:1.1;color:var(--ink)}
+  a{color:inherit}
+  .bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(760px 560px at 14% -8%, rgba(255,61,139,0.06), transparent 60%),
+      radial-gradient(720px 540px at 98% 0%, rgba(255,155,61,0.05), transparent 58%),
+      radial-gradient(900px 700px at 50% 122%, rgba(70,224,210,0.05), transparent 62%);}
+  .wrap{position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:0 24px}
+  section{position:relative;z-index:2;padding:60px 0}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:rgba(255,255,255,0.82);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1120px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{font-family:'Fraunces',serif;font-weight:700;font-size:26px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:-0.02em}
+  .brand small{font-family:'Inter';font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);-webkit-text-fill-color:var(--text-dim);margin-left:9px}
+  .nav-links{display:flex;align-items:center;gap:20px}
+  .nav-links a.txt{font-size:14px;font-weight:600;color:var(--text-soft);text-decoration:none}
+  .nav-links a.txt:hover{color:var(--pink)}
+  .nav-cta{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:999px;text-decoration:none;transition:transform .15s,filter .2s;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(255,61,139,.5)}
+  .nav-cta:hover{transform:translateY(-1px);filter:brightness(1.05)}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:15.5px;padding:15px 26px;border-radius:14px;text-decoration:none;cursor:pointer;border:none;transition:transform .15s,filter .2s,border-color .2s}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 24px -10px rgba(255,61,139,.55)}
+  .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:rgba(255,61,139,0.55);color:var(--pink);transform:translateY(-1px)}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-soft);border:1px solid var(--line);border-radius:999px;padding:7px 15px;background:#fff}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--grad);animation:pulse 2.4s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,61,139,.5)}70%{box-shadow:0 0 0 8px rgba(255,61,139,0)}100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* HERO */
+  .phead{text-align:center;max-width:720px;margin:0 auto;padding:56px 0 4px}
+  .phead h1{font-size:clamp(34px,5.4vw,54px);margin:20px 0 14px}
+  .phead p{color:var(--text-soft);font-size:18px}
+
+  /* Summer promo strip */
+  .promo{max-width:900px;margin:26px auto 0;display:flex;gap:14px;align-items:flex-start;
+    background:linear-gradient(120deg,rgba(255,61,139,.09),rgba(255,155,61,.07));
+    border:1px solid rgba(255,61,139,.28);border-radius:16px;padding:16px 20px}
+  .promo .em{font-size:22px;line-height:1;flex:none}
+  .promo b{color:var(--ink)}
+  .promo p{color:var(--text-soft);font-size:14.5px}
+
+  /* Pricing grid */
+  .price-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;max-width:960px;margin:44px auto 0;align-items:start}
+  .plan{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:34px 32px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .plan.main{background:linear-gradient(165deg,rgba(255,61,139,.07),rgba(255,155,61,.05));border-color:rgba(255,61,139,.28);box-shadow:0 24px 60px -30px rgba(255,61,139,.4)}
+  .plan .badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--pink);border:1px solid rgba(255,61,139,.35);border-radius:999px;padding:6px 14px;margin-bottom:20px;background:#fff}
+  .plan .badge.calm{color:var(--cyan);border-color:rgba(14,154,141,.35)}
+  .plan h2{font-size:22px;margin-bottom:6px}
+  .plan .lede{color:var(--text-soft);font-size:14.5px;margin-bottom:20px}
+  .amount{font-family:'Fraunces';font-size:54px;font-weight:600;line-height:1;color:var(--ink)}
+  .amount .per{font-size:18px;color:var(--text-soft);font-family:'Inter';font-weight:500}
+  .setup{color:var(--text-soft);font-size:15px;margin-top:12px}
+  .setup b{color:var(--ink);font-weight:700}
+  .plan ul{list-style:none;margin:22px 0 24px;display:flex;flex-direction:column;gap:11px}
+  .plan li{font-size:14.5px;color:var(--text-soft);padding-left:26px;position:relative}
+  .plan li::before{content:'✓';position:absolute;left:0;color:var(--cyan);font-weight:800}
+  .plan .btn{width:100%;justify-content:center}
+  .plan .fine{color:var(--text-dim);font-size:12.5px;margin-top:16px}
+  .plan .fine a{color:var(--cyan);text-decoration:none}
+  .plan.custom .amount{color:var(--ink)}
+  .plan.custom .exwrap{margin:20px 0 22px}
+  .plan.custom .exwrap .lbl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
+  .plan.custom .ex{display:flex;gap:9px;align-items:flex-start;font-size:14px;color:var(--text-soft);margin-bottom:8px}
+  .plan.custom .ex::before{content:'→';color:var(--violet);font-weight:700;flex:none}
+
+  /* included note */
+  .note{max-width:900px;margin:30px auto 0;text-align:center;color:var(--text-dim);font-size:13.5px}
+  .note b{color:var(--text-soft)}
+
+  /* FAQ */
+  .faq{max-width:760px;margin:0 auto}
+  .faq h2{text-align:center;font-size:clamp(26px,4vw,36px);margin-bottom:30px}
+  .faq details{border:1px solid var(--line);border-radius:14px;background:#fff;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+  .faq summary{list-style:none;cursor:pointer;padding:18px 22px;font-weight:600;font-size:16px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:'+';font-size:22px;color:var(--pink);font-weight:400;transition:transform .2s}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq .a{padding:0 22px 20px;color:var(--text-soft);font-size:15px}
+
+  /* CTA band */
+  .cta{text-align:center;max-width:640px;margin:0 auto}
+  .cta h2{font-size:clamp(26px,4.4vw,40px);margin-bottom:14px}
+  .cta p{color:var(--text-soft);font-size:17px;margin-bottom:26px}
+
+  footer{position:relative;z-index:2;text-align:center;padding:40px 24px;color:var(--text-dim);font-size:13px;border-top:1px solid var(--line)}
+  footer a{color:var(--text-dim);text-decoration:none;border-bottom:1px solid var(--line)}
+  footer a:hover{color:var(--text-soft)}
+  .sep{margin:0 9px;opacity:.5}
+
+  @media(max-width:760px){ .price-grid{grid-template-columns:1fr} .nav-links a.txt{display:none} }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="https://shou.be">shou <small>for hotels</small></a>
+    <div class="nav-links">
+      <a class="txt" href="/hotels/offer">Overview</a>
+      <a class="txt" href="/hotels/sample" target="_blank" rel="noopener">Live demo</a>
+      <a class="nav-cta" href="/hotels/offer#apply">Become a pilot hotel</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="wrap">
+  <div class="phead">
+    <span class="eyebrow"><span class="dot"></span>Summer launch offer</span>
+    <h1>Simple pricing, <span class="grad-text">locked in for our first hotels.</span></h1>
+    <p>One flat monthly fee. No commission, no per-guest charge, cancel any time. Everything below is <b>+ VAT</b>.</p>
+  </div>
+
+  <div class="promo">
+    <span class="em">☀️</span>
+    <p><b>These are launch prices — reserved for the first few hotels that join this summer.</b> Come on board now and you keep this rate for as long as you stay with us. Standard pricing will be higher once the pilot group is full.</p>
+  </div>
+</div>
+
+<!-- PRICING -->
+<section style="padding-top:20px"><div class="wrap">
+  <div class="price-grid">
+
+    <!-- Main plan -->
+    <div class="plan main">
+      <span class="badge">Summer launch · first hotels</span>
+      <h2>Your branded concierge</h2>
+      <p class="lede">Everything a hotel needs — set up for you, running on autopilot.</p>
+      <div class="amount">€99<span class="per"> / month + VAT</span></div>
+      <div class="setup">from the second month · <b>€199 one-time setup + VAT</b></div>
+      <ul>
+        <li>Branded concierge page in 7 languages</li>
+        <li>Custom scrolls curated for your guests</li>
+        <li>AI events concierge, 24/7</li>
+        <li>“This week near my hotel” — live, hourly updates</li>
+        <li>Your logo, map &amp; your own links</li>
+        <li>QR codes &amp; a print-ready in-room flyer</li>
+        <li>Nothing to maintain · cancel any time</li>
+      </ul>
+      <a class="btn btn-primary" href="/hotels/offer#apply">Become a pilot hotel →</a>
+      <div class="fine">First month free while we set you up. Prefer to talk first? <a href="mailto:hotels@shou.be">hotels@shou.be</a></div>
+    </div>
+
+    <!-- Custom work -->
+    <div class="plan custom">
+      <span class="badge calm">Bespoke work</span>
+      <h2>Custom &amp; unique requests</h2>
+      <p class="lede">Anything beyond the standard set-up above.</p>
+      <div class="amount">€100<span class="per"> / hour + VAT</span></div>
+      <div class="setup">quoted upfront · billed by the hour</div>
+      <div class="exwrap">
+        <div class="lbl">For example</div>
+        <div class="ex">Bespoke scrolls or filters unique to your hotel</div>
+        <div class="ex">Custom design, colours &amp; layout</div>
+        <div class="ex">Extra languages beyond the standard 7</div>
+        <div class="ex">Integrations — PMS, booking, your own data feeds</div>
+        <div class="ex">A custom domain or deeper white-labelling</div>
+      </div>
+      <a class="btn btn-ghost" href="mailto:hotels@shou.be?subject=Custom%20request%20—%20shou%20concierge">Tell us what you need →</a>
+      <div class="fine">We'll scope it, give you a fixed estimate, and only start once you approve.</div>
+    </div>
+
+  </div>
+
+  <p class="note">The standard monthly plan covers everything on the <a href="/hotels/offer" style="color:var(--cyan);text-decoration:none">overview</a> — <b>only genuinely bespoke work is billed hourly.</b></p>
+</div></section>
+
+<!-- FAQ -->
+<section style="padding-top:20px"><div class="wrap faq">
+  <h2>Questions</h2>
+  <details>
+    <summary>Why is it so affordable right now?</summary>
+    <div class="a">We're onboarding our first hotels this summer and want them to become great references. The €99/month + €199 setup rate is our launch price — early hotels lock it in for as long as they stay. Once the pilot group fills, standard pricing will be higher.</div>
+  </details>
+  <details>
+    <summary>Are prices including VAT?</summary>
+    <div class="a">All prices are excluding VAT (+ 21% Belgian VAT where applicable). You'll receive a proper invoice from ABSS Analytics each month.</div>
+  </details>
+  <details>
+    <summary>Is there a contract or lock-in?</summary>
+    <div class="a">No lock-in — it's month-to-month and you can cancel any time. The €199 setup is a one-time fee for building and branding your page.</div>
+  </details>
+  <details>
+    <summary>What counts as “custom work”?</summary>
+    <div class="a">The monthly plan already includes your branded page, curated scrolls, the AI concierge, hourly updates and your own links. Custom work is anything bespoke on top of that — special integrations, a custom domain, extra languages, unique features or design. That's billed at €100/hour + VAT, always quoted and approved before we start.</div>
+  </details>
+  <details>
+    <summary>How long does setup take?</summary>
+    <div class="a">Usually a few days. Send us your logo, address and the links you'd like to feature, and we'll build your branded concierge and send you the QR codes and print-ready flyer.</div>
+  </details>
+</div></section>
+
+<!-- CTA -->
+<section style="padding-top:20px"><div class="wrap cta">
+  <span class="eyebrow"><span class="dot"></span>Limited pilot</span>
+  <h2 style="margin-top:20px">Lock in the launch rate.</h2>
+  <p>We're onboarding our first few hotels now. Tell us about yours and we'll set up your branded concierge.</p>
+  <a class="btn btn-primary" href="/hotels/offer#apply">Become a pilot hotel →</a>
+</div></section>
+
+<footer>
+  <span>© 2026 ABSS Analytics · shou</span>
+  <span class="sep">·</span>
+  <a href="/hotels/offer">For hotels</a>
+  <span class="sep">·</span>
+  <a href="https://shou.be">shou.be</a>
+  <span class="sep">·</span>
+  <a href="https://shou.be/privacy">Privacy</a>
+</footer>
+</body>
+</html>
