@@ -116,7 +116,7 @@
   .date{font-weight:700;font-size:12.5px;color:var(--cyan);letter-spacing:.02em}
   .venue{color:var(--soft);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
   .venue .dist{color:var(--cyan);font-weight:600;white-space:nowrap}
-  .skel{flex:0 0 290px;height:116px;border-radius:16px;background:linear-gradient(100deg,var(--panel-soft),#efeaf3,var(--panel-soft));background-size:200% 100%;animation:sh 1.2s infinite}
+  .skel{flex:0 0 290px;height:170px;border-radius:16px;background:linear-gradient(100deg,var(--panel-soft),#efeaf3,var(--panel-soft));background-size:200% 100%;animation:sh 1.2s infinite}
   @keyframes sh{to{background-position:-200% 0}}
   .empty{text-align:center;color:var(--dim);padding:30px 0}
 
@@ -401,16 +401,24 @@ function nextOccurrence(e){
   if(e.date&&e.date<t&&end&&end>=t)return t;           // ongoing run → today
   return e.date;
 }
+// Shared event card (This week rails + concierge results): thumb, category
+// pill, title, short description, date, venue · distance. Opens the modal.
 function evCard(e,showDate){
   const dist=distLabel(e), tr=fmtTimeRange(e), time=tr?' · '+tr:'';
   const d=showDate||e.date;
+  const seg=e.seg||catLabel(e.categorySlug)||'';
+  const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
   const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
-  return `<a class="ev" data-date="${esc(d||'')}" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
+  const desc=(e.desc||'').trim();
+  const venue=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
+  return `<a class="ev ev-res" data-date="${esc(d||'')}" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
     <span class="thumb">${img}</span>
     <span class="meta">
+      ${seg?`<span class="qpill" style="background:${segColor}">${esc(seg)}</span>`:''}
       <span class="t">${esc(cleanTitle(e.name))}</span>
+      ${desc?`<span class="qdesc">${esc(desc)}</span>`:''}
       <span class="date">${esc(fmtDate(d))}${esc(time)}</span>
-      <span class="venue">${esc(e.venue||e.city||'')}${dist?` · <span class="dist">${dist}</span>`:''}</span>
+      <span class="venue">${esc(venue||'TBA')}${dist?` · <span class="dist">${esc(dist)}</span>`:''}</span>
     </span></a>`;
 }
 function hotelCard(c){const href=c.url||'#';const ext=c.url?' target="_blank" rel="noopener"':'';return `<a class="ev" href="${esc(href)}"${ext}><span class="thumb hotelthumb">${c.i}</span><span class="meta"><span class="t">${esc(t(c.k))}</span><span class="venue">${esc(c.n||t('fromHotel'))}</span></span></a>`;}
@@ -746,26 +754,8 @@ function setChips(open){chipsOpen=open;
   document.getElementById('exsToggle').setAttribute('aria-expanded',open?'true':'false');}
 document.getElementById('exsToggle').onclick=()=>setChips(!chipsOpen);
 function addMsg(cls,html){const el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;msgs.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el;}
-// concierge result card — the same horizontal card as the This week rails
-// (shared .ev component + size), plus a category pill and a short description
-// for query context. Opens the shared modal.
-function chatCard(e){
-  const dist=distLabel(e), tr=fmtTimeRange(e), time=tr?' · '+tr:'';
-  const seg=e.seg||catLabel(e.categorySlug)||'';
-  const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
-  const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
-  const desc=(e.desc||'').trim();
-  const venue=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
-  return `<a class="ev ev-res" data-id="${esc(e.id||'')}" data-date="${esc(e.date||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
-    <span class="thumb">${img}</span>
-    <span class="meta">
-      ${seg?`<span class="qpill" style="background:${segColor}">${esc(seg)}</span>`:''}
-      <span class="t">${esc(cleanTitle(e.name))}</span>
-      ${desc?`<span class="qdesc">${esc(desc)}</span>`:''}
-      <span class="date">${esc(fmtDate(e.date))}${esc(time)}</span>
-      <span class="venue">${esc(venue||'TBA')}${dist?` · <span class="dist">${esc(dist)}</span>`:''}</span>
-    </span></a>`;
-}
+// concierge result card — identical to the This week card (shared builder)
+function chatCard(e){ return evCard(e,e.date); }
 async function ask(q){
   if(!q||!q.trim()||asking)return;            // guard: ignore empty + double-sends while a request is in flight
   asking=true;
