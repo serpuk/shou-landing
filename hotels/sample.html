@@ -162,8 +162,13 @@
   #ask{display:none}#ask.on{display:block}
   .chat{max-width:720px;margin:8px auto 0}
   .chat-intro{text-align:center;color:var(--soft);font-size:15px;margin-bottom:18px}
-  /* suggestion chips — wrap so all stay visible, docked above the input */
+  /* suggestion chips — collapsible strip docked above the input */
+  .exs-toggle{display:flex;align-items:center;gap:6px;margin:0 auto 8px;background:none;border:none;color:var(--soft);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:999px}
+  .exs-toggle:hover{color:var(--pink)}
+  .exs-toggle .chev{display:inline-block;transition:transform .2s;font-size:11px}
+  .exs-toggle[aria-expanded="false"] .chev{transform:rotate(-90deg)}
   .exs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:2px 1px 10px}
+  .exs.collapsed{display:none}
   .ex{font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer;transition:.15s;white-space:nowrap;flex:none}
   .ex:hover{border-color:rgba(255,61,139,.45);color:var(--pink)}
   .ex-surprise{background:var(--grad);color:#fff;border-color:transparent;font-weight:700}
@@ -241,6 +246,7 @@
         <p class="chat-intro" data-i="chatIntro">Ask me anything about what to do near the hotel — in any language.</p>
         <div class="msgs" id="msgs"></div>
         <div class="chat-dock">
+          <button class="exs-toggle" id="exsToggle" aria-expanded="true" aria-controls="exs"><span id="ideasLbl">Ideas</span> <span class="chev">▾</span></button>
           <div class="exs" id="exs"></div>
           <form class="chat-form" id="chatForm">
             <input id="chatInput" autocomplete="off" data-i-ph="askPh" placeholder="What should we do tonight?">
@@ -279,6 +285,7 @@ const ml=k=>(ML[lang]||ML.en)[k];
 const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
 const SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--orange)',exhibition:'var(--violet)',theatre:'var(--violet)',dance:'var(--violet)',comedy:'var(--violet)',family:'var(--cyan)',sports:'var(--cyan)',sport:'var(--cyan)'};
 const SURPRISE_L={en:'Surprise me tonight',fr:'Surprends-moi ce soir',nl:'Verras me vanavond',de:'Überrasch mich heute Abend',es:'Sorpréndeme esta noche',it:'Sorprendimi stasera',uk:'Здивуй мене сьогодні ввечері'};
+const IDEAS_L={en:'Ideas',fr:'Idées',nl:'Ideeën',de:'Ideen',es:'Ideas',it:'Idee',uk:'Ідеї'};
 
 const T={
   en:{pow:'Local concierge · powered by shou',eyebrow:'Welcome to Brussels',welcome:'Your evening, sorted.',sub:'Discover the best concerts, dining, art and hidden gems near your hotel — in your language, updated every hour.',steps:'steps from the Grand-Place',tabWeek:'This week',tabAsk:'Ask the concierge',near:'This week near your hotel',fromHotel:'From your hotel',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:'Ask me anything about what to do near the hotel — in any language.',askPh:'What should we do tonight?',send:'Ask',foot:'Ask anything, in any language — concerts, dining, hidden gems near you.',thinking:'Finding the best options near the hotel…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',book:'Book a room',dine:'Restaurant',bar:'Cocktail bar',spa:'Spa & wellness',dir:'Directions',walk:'min walk',ex:['What should we do tonight?','Best jazz near the hotel?','Something to do with kids tomorrow','Free activities this evening','Indoor activities today','Authentic Belgian experience nearby']},
@@ -592,6 +599,12 @@ document.getElementById('tabAskBtn').onclick=()=>setTab(false);
 // same event cards, ranked in the order the backend returns (matching, then suggested).
 const msgs=document.getElementById('msgs');
 let asking=false;
+// collapsible suggestion chips — save screen space, esp. on mobile
+let chipsOpen=true;
+function setChips(open){chipsOpen=open;
+  document.getElementById('exs').classList.toggle('collapsed',!open);
+  document.getElementById('exsToggle').setAttribute('aria-expanded',open?'true':'false');}
+document.getElementById('exsToggle').onclick=()=>setChips(!chipsOpen);
 function addMsg(cls,html){const el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;msgs.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el;}
 // app-style result card (image-top, seg·genre pill, title, desc, meta) — opens the shared modal
 function chatCard(e){
@@ -616,6 +629,7 @@ function chatCard(e){
 async function ask(q){
   if(!q||!q.trim()||asking)return;            // guard: ignore empty + double-sends while a request is in flight
   asking=true;
+  setChips(false);                            // collapse suggestions once a query is sent — frees the screen
   const btn=document.getElementById('chatBtn'); if(btn)btn.disabled=true;
   addMsg('me',esc(q));
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
@@ -670,6 +684,7 @@ function applyChrome(){
   const chips=[`<button class="ex ex-surprise" data-q="${esc(sq)}">✨ ${esc(sq)}</button>`]
     .concat((t('ex')||[]).map(q=>`<button class="ex" data-q="${esc(q)}">${esc(q)}</button>`));
   document.getElementById('exs').innerHTML=chips.join('');
+  document.getElementById('ideasLbl').textContent=IDEAS_L[lang]||IDEAS_L.en;
   document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;ask(q);});
 }
 document.getElementById('langSel').onchange=async e=>{
