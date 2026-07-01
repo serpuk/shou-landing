@@ -250,6 +250,7 @@ const HOTEL={name:'Your Hotel',lat:50.8466,lng:4.3517};
 const CATS=['music','exhibition','theatre','family','festival'];  // fetched per-category & merged, for real day-coverage
 let lang='en', catalog=[];
 const evById={};                                                  // id -> event, for the click-through modal
+const chatEv={};                                                  // id -> search result (keeps occurrence-resolved date; catalog reloads can't clobber it)
 // modal chrome labels (Date / Venue / Price / Free / See more·less / About) per language
 const ML={
   en:{date:'Date',venue:'Venue',price:'Price',free:'Free',more:'See more',less:'See less',about:'About'},
@@ -530,13 +531,18 @@ async function ask(q){
   try{
     const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng})});
     const d=await r.json(); typing.remove();
-    const ids=[...(d.matchingIds||[]),...(d.suggestedIds||[])].filter((v,i,a)=>a.indexOf(v)===i).slice(0,9);
     addMsg('ai',esc(d.reasoning||'')||t('none'));
-    if(ids.length){
-      const evs=(await Promise.all(ids.map(id=>fetch(`${API}/events?id=${id}&lang=${lang}`).then(x=>x.json()).then(x=>x.events&&x.events[0]).catch(()=>null)))).filter(Boolean);
-      indexEvents(evs);
-      const cards=dedupe(evs).map(chatCard).join('');
-      if(cards){const grid=document.createElement('div');grid.className='res';grid.innerHTML=cards;msgs.appendChild(grid);grid.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    // Use the events the search returns directly (matching first, then suggested) —
+    // same data/ordering as the main site. Crucially, search already resolves each
+    // recurring event's date to the queried occurrence (e.g. tomorrow), which a
+    // by-id re-fetch would overwrite with the raw start_date.
+    const byId={};
+    for(const e of [...(d.events||[]),...(d.suggestedEvents||[])]) if(e&&e.id&&e.name&&!byId[e.id])byId[e.id]=e;
+    const list=dedupe(Object.values(byId)).slice(0,9);
+    if(list.length){
+      indexEvents(list); list.forEach(e=>{chatEv[e.id]=e;});
+      const grid=document.createElement('div');grid.className='res';grid.innerHTML=list.map(chatCard).join('');
+      msgs.appendChild(grid);grid.scrollIntoView({behavior:'smooth',block:'nearest'});
     }
   }catch(e){typing.remove();addMsg('ai',t('none'));}
   finally{asking=false;if(btn)btn.disabled=false;}
@@ -550,9 +556,16 @@ async function retranslateChatCards(){
   for(const grid of grids){
     const ids=[...grid.querySelectorAll('.qcard[data-id]')].map(c=>c.getAttribute('data-id')).filter(Boolean);
     if(!ids.length)continue;
-    const evs=(await Promise.all(ids.map(id=>fetch(`${API}/events?id=${id}&lang=${lang}`).then(x=>x.json()).then(x=>x.events&&x.events[0]).catch(()=>null)))).filter(Boolean);
-    indexEvents(evs);
-    const byId={};evs.forEach(e=>byId[e.id]=e);
+    const byId={};
+    await Promise.all(ids.map(async id=>{
+      const prev=chatEv[id]||evById[id]||{};   // chatEv holds the search result's occurrence-resolved date
+      const fresh=await fetch(`${API}/events?id=${id}&lang=${lang}`).then(x=>x.json()).then(x=>x.events&&x.events[0]).catch(()=>null);
+      if(!fresh)return;
+      // keep the search's occurrence-resolved date/time (language-invariant); only text translates
+      const merged={...fresh,date:prev.date??fresh.date,time:prev.time??fresh.time,endTime:prev.endTime??fresh.endTime,endDate:prev.endDate??fresh.endDate};
+      byId[id]=merged; chatEv[id]=merged;
+    }));
+    indexEvents(Object.values(byId));
     grid.innerHTML=ids.map(id=>byId[id]?chatCard(byId[id]):'').join('');
   }
 }
