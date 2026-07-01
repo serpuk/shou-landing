@@ -106,8 +106,16 @@
   /* event modal — the app's rich card, opened in-page (keeps the guest on the hotel page) */
   .mv{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;background:rgba(20,16,30,.55);backdrop-filter:blur(3px)}
   .mv.on{display:flex}
-  .mv-card{background:var(--card);width:100%;max-width:560px;max-height:94vh;overflow-y:auto;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(20,16,30,.3);animation:mvup .25s ease;-webkit-overflow-scrolling:touch}
-  @media(min-width:640px){.mv{align-items:center;padding:20px}.mv-card{border-radius:22px;animation:mvin .2s ease}}
+  /* Swipe track (mirrors the main app): a horizontal window clipping a 3-pane
+     row [prev][current][next]; we translate the track to follow the thumb. */
+  .mv-clip{width:100%;max-width:560px;overflow-x:hidden}
+  .mv-track{display:flex;width:300%;transform:translateX(-33.3333%);align-items:flex-end;will-change:transform}
+  .mv-track.mv-track-anim{transition:transform 280ms cubic-bezier(.2,.8,.2,1)}
+  .mv-track.mv-track-drag{transition:none}          /* 1:1 finger tracking */
+  .mv-pane{flex:0 0 33.3333%;width:33.3333%;min-width:0}
+  .mv-card{background:var(--card);width:100%;max-width:560px;max-height:94vh;overflow-y:auto;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(20,16,30,.3);-webkit-overflow-scrolling:touch}
+  #mvCur>.mv-card{animation:mvup .25s ease}
+  @media(min-width:640px){.mv{align-items:center;padding:20px}.mv-track{align-items:center}.mv-card{border-radius:22px}#mvCur>.mv-card{animation:mvin .2s ease}}
   @keyframes mvup{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
   @keyframes mvin{from{transform:scale(.97);opacity:.6}to{transform:none;opacity:1}}
   .mv-hero{position:relative;height:230px;background:linear-gradient(135deg,var(--violet),var(--pink));overflow:hidden}
@@ -507,8 +515,9 @@ function descHtml(e){const d=(e.desc||'').trim();if(!d)return '';
   if(d.length<=240)return `<div class="mv-about">${head}<p>${esc(d)}</p></div>`;
   return `<div class="mv-about">${head}<p class="mv-clamp">${esc(d)}</p><button class="mv-more" type="button">${esc(ml('more'))}</button></div>`;
 }
-function showModal(){
-  const id=modalList[modalIdx], e=evById[id]; if(!e){closeModal();return;}
+// Build the rich card HTML for a given index into modalList/modalDates.
+function buildCardHTML(idx){
+  const id=modalList[idx], e=evById[id]; if(!e)return '';
   const time=fmtTimeRange(e);
   const dist=distLabel(e);
   const hasCoord=Number.isFinite(e.lat)&&Number.isFinite(e.lng);
@@ -518,15 +527,11 @@ function showModal(){
   const genre=(e.genre&&e.genre.toLowerCase()!==String(e.seg||'').toLowerCase())?' · '+e.genre:'';
   const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
   const sub=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
-  const showDate=modalDates[modalIdx]||e.date;      // occurrence date from the clicked card (recurring runs)
+  const showDate=modalDates[idx]||e.date;      // occurrence date from the clicked card (recurring runs)
   const dateV=[fmtDate(showDate),time].filter(Boolean).join(' · ')||'—';
   const map=hasCoord?`<div class="mv-map"><iframe loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${(e.lng-0.006).toFixed(4)}%2C${(e.lat-0.004).toFixed(4)}%2C${(e.lng+0.006).toFixed(4)}%2C${(e.lat+0.004).toFixed(4)}&layer=mapnik&marker=${e.lat}%2C${e.lng}"></iframe><a class="mv-map-cta" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))} ↗</a></div>`:'';
   const cta=e.url?`<a class="mv-cta" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(t('tickets'))}</a>`:'';
-  const showNav=modalList.length>1;
-  mv.innerHTML=`
-  <button class="mv-x" aria-label="Close">✕</button>
-  ${showNav?'<button class="mv-nav mv-prev" aria-label="Previous">‹</button>':''}
-  <div class="mv-card" role="dialog" aria-modal="true">
+  return `<div class="mv-card" role="dialog" aria-modal="true">
     <div class="mv-hero">${hero}<div class="mv-scrim"></div>${calChip(showDate)}<span class="mv-pill" style="background:${segColor}">${esc(seg)}${esc(genre)}</span></div>
     <div class="mv-b">
       <div class="mv-title">${esc(cleanTitle(e.name))}</div>
@@ -538,16 +543,116 @@ function showModal(){
       </div>
       ${recurrenceHtml(e)}${occurrenceDatesHtml(e)}${descHtml(e)}${map}${cta}
     </div>
-  </div>
+  </div>`;
+}
+// Render the modal: a 3-pane track [prev][current][next]; neighbours stay empty
+// until a drag starts (so the resting scrim area still closes on tap).
+function showModal(noAnim){
+  if(!evById[modalList[modalIdx]]){closeModal();return;}
+  const showNav=modalList.length>1;
+  mv.innerHTML=`
+  <button class="mv-x" aria-label="Close">✕</button>
+  ${showNav?'<button class="mv-nav mv-prev" aria-label="Previous">‹</button>':''}
+  <div class="mv-clip" id="mvClip"><div class="mv-track" id="mvTrack"><div class="mv-pane" id="mvPrev"></div><div class="mv-pane" id="mvCur">${buildCardHTML(modalIdx)}</div><div class="mv-pane" id="mvNext"></div></div></div>
   ${showNav?'<button class="mv-nav mv-next" aria-label="Next">›</button>':''}`;
   const prev=mv.querySelector('.mv-prev'), next=mv.querySelector('.mv-next');
   if(prev)prev.style.visibility=modalIdx>0?'visible':'hidden';
   if(next)next.style.visibility=modalIdx<modalList.length-1?'visible':'hidden';
   mv.classList.add('on'); mv.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
-  const mc=mv.querySelector('.mv-card'); if(mc)mc.scrollTop=0;
+  const mc=mv.querySelector('#mvCur .mv-card'); if(mc){mc.scrollTop=0; if(noAnim)mc.style.animation='none';}
 }
 function openModal(id){modalList=[id];modalDates=[evById[id]?nextOccurrence(evById[id]):''];modalIdx=0;showModal();}
-function navModal(delta){const n=modalIdx+delta;if(n<0||n>=modalList.length)return;modalIdx=n;showModal();}
+
+// ---- swipe navigation (mirrors the main app: 1:1 track drag following the
+//      thumb, commit by distance OR velocity flick, rubber-band at the edges,
+//      velocity-scaled settle). Buttons/arrow keys glide via the same track. ----
+let swBusy=false;
+function mvTrackEl(){return document.getElementById('mvTrack');}
+function havePrevEv(){return modalIdx>0;}
+function haveNextEv(){return modalIdx<modalList.length-1;}
+function populateNeighbors(){
+  const p=document.getElementById('mvPrev'), n=document.getElementById('mvNext');
+  if(!p||!n)return;
+  p.innerHTML=havePrevEv()?buildCardHTML(modalIdx-1):'';
+  n.innerHTML=haveNextEv()?buildCardHTML(modalIdx+1):'';
+}
+function clearNeighbors(){
+  const p=document.getElementById('mvPrev'), n=document.getElementById('mvNext');
+  if(p)p.innerHTML=''; if(n)n.innerHTML='';
+}
+function setTrackPx(px){const t=mvTrackEl();if(t)t.style.transform=`translateX(calc(-33.3333% + ${px}px))`;}
+function commitDir(dir,settleMs){        // dir: -1 prev, +1 next
+  const t=mvTrackEl(); if(!t){modalIdx+=dir;showModal();return;}
+  swBusy=true;
+  if(!t.style.transform){                                // button/keyboard: no drag start yet —
+    t.classList.add('mv-track-drag');                    // pin an explicit start (no transition)…
+    t.style.transform='translateX(-33.3333%)';
+    void t.offsetWidth;                                  // …and commit it so the glide actually animates
+  }
+  t.classList.remove('mv-track-drag'); t.classList.add('mv-track-anim');
+  t.style.transitionDuration=(settleMs||280)+'ms';
+  t.style.transform=dir<0?'translateX(0%)':'translateX(-66.6667%)';
+  let done=false;
+  const finish=()=>{ if(done)return; done=true; t.removeEventListener('transitionend',finish);
+    modalIdx+=dir; showModal(true); swBusy=false; };   // rebuild at new index (no re-entrance anim)
+  t.addEventListener('transitionend',finish);
+  setTimeout(finish,(settleMs||280)+80);               // safety net
+}
+function snapBack(settleMs){
+  const t=mvTrackEl(); if(!t)return;
+  t.classList.remove('mv-track-drag'); t.classList.add('mv-track-anim');
+  t.style.transitionDuration=(settleMs||280)+'ms';
+  t.style.transform='';
+  const done=()=>{ t.removeEventListener('transitionend',done); t.classList.remove('mv-track-anim'); t.style.transitionDuration=''; clearNeighbors(); };
+  t.addEventListener('transitionend',done);
+  setTimeout(done,(settleMs||280)+80);
+}
+function navModal(delta){        // buttons + arrow keys
+  if(swBusy)return;
+  const n=modalIdx+delta; if(n<0||n>=modalList.length)return;
+  populateNeighbors();            // fill the target pane; commitDir reflows before gliding
+  commitDir(delta,280);
+}
+(function initSwipe(){
+  let sx=0,sy=0,st=0,lx=0,lt=0,vx=0,dragging=false,decided=false,pv=false,nx=false;
+  mv.addEventListener('touchstart',ev=>{
+    if(swBusy||ev.touches.length!==1)return;
+    sx=lx=ev.touches[0].clientX; sy=ev.touches[0].clientY; st=lt=Date.now(); vx=0; dragging=false; decided=false;
+  },{passive:true});
+  mv.addEventListener('touchmove',ev=>{
+    if(swBusy||!st||ev.touches.length!==1)return;
+    const tc=ev.touches[0], dx=tc.clientX-sx, dy=tc.clientY-sy;
+    if(!decided){
+      const adx=Math.abs(dx),ady=Math.abs(dy);
+      if(adx<10&&ady<10)return;
+      decided=true;
+      dragging=(adx>ady*1.2)&&modalList.length>1;      // horizontal intent + something to navigate to
+      if(dragging){ populateNeighbors(); pv=havePrevEv(); nx=haveNextEv(); const t=mvTrackEl(); if(t){t.classList.remove('mv-track-anim');t.classList.add('mv-track-drag');} }
+    }
+    if(!dragging)return;
+    if(ev.cancelable)ev.preventDefault();              // lock the gesture; let vertical scroll pass otherwise
+    const now=Date.now(),dt=now-lt;
+    if(dt>0){vx=vx*0.7+((tc.clientX-lx)/dt)*0.3;lx=tc.clientX;lt=now;}
+    let d=dx; if((dx>0&&!pv)||(dx<0&&!nx))d=dx*0.32;   // rubber-band toward an empty edge
+    setTrackPx(d);
+  },{passive:false});
+  mv.addEventListener('touchend',ev=>{
+    if(swBusy)return;
+    const wasDragging=dragging; st=0; dragging=false; decided=false;
+    const t=mvTrackEl();
+    if(!wasDragging){ if(t){t.classList.remove('mv-track-drag','mv-track-anim');t.style.transform='';} return; }
+    const tc=ev.changedTouches[0];
+    const dx=tc?tc.clientX-sx:0, adx=Math.abs(dx), width=window.innerWidth||400;
+    const distanceCommit=adx>width*0.28;
+    const velocityCommit=Math.abs(vx)>0.5&&adx>40&&(Math.sign(vx)===Math.sign(dx));
+    const wantsPrev=dx>0, hasNeighbor=wantsPrev?pv:nx;
+    const commit=(distanceCommit||velocityCommit)&&hasNeighbor;
+    const SMIN=170,SMAX=340,speed=Math.abs(vx);
+    const settleMs=Math.round(SMAX-Math.min(speed/2,1)*(SMAX-SMIN));   // fast flick → snappy, slow drag → gentle
+    if(commit)commitDir(wantsPrev?-1:1,settleMs); else snapBack(settleMs);
+  },{passive:true});
+  mv.addEventListener('touchcancel',()=>{ if(dragging){dragging=false;decided=false;st=0;snapBack(280);} },{passive:true});
+})();
 function closeModal(){mv.classList.remove('on');mv.setAttribute('aria-hidden','true');document.body.style.overflow='';mv.innerHTML='';}
 mv.addEventListener('click',e=>{
   if(e.target.closest('.mv-prev')){e.stopPropagation();navModal(-1);return;}
