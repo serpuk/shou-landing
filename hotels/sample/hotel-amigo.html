@@ -9,82 +9,102 @@
 <link rel="canonical" href="https://shou.be/hotels/sample/hotel-amigo">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..800;1,9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* Matches shou.be/this-week — light editorial theme, cards, rails & arrows. */
   :root{
-    --ink:#15101b; --text:#1a1622; --text-soft:#5b5566; --text-dim:#8a8494;
-    --bg:#ffffff; --panel:#ffffff; --panel-soft:#f7f5fa;
-    --line:rgba(20,16,30,0.10); --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
+    --ink:#15101b; --text:#1a1622; --soft:#5b5566; --dim:#8a8494;
+    --bg:#ffffff; --card:#ffffff; --panel-soft:#f7f5fa; --line:rgba(20,16,30,0.10);
+    --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
     --grad:linear-gradient(105deg,var(--pink),var(--orange));
     --grad-cool:linear-gradient(120deg,var(--violet),var(--pink));
-    --shadow:0 1px 3px rgba(20,16,30,.06); --shadow-lift:0 14px 34px -14px rgba(20,16,30,.22);
+    --shadow:0 1px 3px rgba(20,16,30,.06);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
-  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.015em;line-height:1.1;color:var(--ink)}
+  h1,h2{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.015em;line-height:1.1;color:var(--ink)}
   a{color:inherit}
   .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
 
-  /* sample ribbon */
   .ribbon{background:linear-gradient(105deg,rgba(255,61,139,.10),rgba(255,155,61,.08));border-bottom:1px solid var(--line);
-    text-align:center;font-size:12.5px;color:var(--text-soft);padding:8px 16px}
+    text-align:center;font-size:12.5px;color:var(--soft);padding:8px 16px}
   .ribbon a{color:var(--pink);text-decoration:none;font-weight:600}
 
-  /* top bar */
   header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
   .bar{display:flex;align-items:center;gap:13px;padding:12px 20px;max-width:1040px;margin:0 auto}
   .hlogo{width:44px;height:44px;border-radius:12px;background:var(--grad-cool);display:grid;place-items:center;font-family:'Fraunces';font-weight:700;color:#fff;font-size:20px;flex:none}
   .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
-  .hpow{font-size:11px;color:var(--text-dim)}
+  .hpow{font-size:11px;color:var(--dim)}
   .lang{margin-left:auto}
   .lang select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;outline:none}
 
-  /* welcome */
-  .welcome{padding:36px 0 10px;display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
-  .welcome .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink)}
+  .welcome{padding:36px 0 4px;display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+  .welcome .eyebrow{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink)}
   .welcome h1{font-size:clamp(28px,4.4vw,40px);margin:12px 0 12px}
-  .welcome p{color:var(--text-soft);font-size:16px;max-width:480px}
+  .welcome p{color:var(--soft);font-size:16px;max-width:480px}
   .hlinks{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}
   .hlink{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;text-decoration:none;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
   .hlink:hover{transform:translateY(-1px);border-color:rgba(255,61,139,.4)}
   .mapcard{border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);background:var(--panel-soft)}
   .mapcard iframe{width:100%;height:240px;border:0;display:block;filter:grayscale(.15) contrast(1.02)}
-  .mapcard .addr{padding:11px 15px;font-size:12.5px;color:var(--text-soft);border-top:1px solid var(--line)}
+  .mapcard .addr{padding:11px 15px;font-size:12.5px;color:var(--soft);border-top:1px solid var(--line)}
   .mapcard .addr b{color:var(--ink)}
 
-  /* tabs */
-  .tabs{display:flex;gap:6px;padding:6px;background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;width:fit-content;margin:26px auto 30px}
-  .tab{font-size:14px;font-weight:600;padding:9px 20px;border-radius:999px;color:var(--text-soft);cursor:pointer;border:none;background:none;font-family:inherit;transition:.15s}
+  .tabs{display:flex;gap:6px;padding:6px;background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;width:fit-content;margin:26px auto 8px}
+  .tab{font-size:14px;font-weight:600;padding:9px 20px;border-radius:999px;color:var(--soft);cursor:pointer;border:none;background:none;font-family:inherit;transition:.15s}
   .tab.on{background:var(--grad);color:#fff;box-shadow:0 6px 16px -8px rgba(255,61,139,.6)}
 
-  /* scrolls */
-  .scroll-sec{margin-bottom:30px}
-  .scroll-head{display:flex;align-items:baseline;gap:10px;margin-bottom:13px}
-  .scroll-head h2{font-size:20px}
-  .scroll-head .pin{color:var(--cyan);font-size:12px}
-  .scroll-head .cnt{font-size:12.5px;color:var(--text-dim);margin-left:auto}
-  .row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 12px;-webkit-overflow-scrolling:touch}
-  .row::-webkit-scrollbar{height:6px}.row::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
-  .ev{flex:none;width:230px;scroll-snap-align:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s,border-color .15s}
-  .ev:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:rgba(255,61,139,.3)}
-  .ev .thumb{height:120px;background-size:cover;background-position:center;position:relative}
-  .ev .cat{position:absolute;left:9px;bottom:9px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(20,16,30,.55);backdrop-filter:blur(4px);padding:3px 8px;border-radius:999px}
-  .ev .body{padding:12px 13px 14px}
-  .ev .t{font-family:'Fraunces';font-weight:600;font-size:14.5px;line-height:1.2;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .ev .m{font-size:12px;color:var(--text-soft);margin-top:7px;display:flex;gap:5px;align-items:center}
-  .ev .m .dist{color:var(--cyan);font-weight:600;white-space:nowrap}
-  .ev .date{color:var(--cyan);font-weight:600}
-  .ev.hotelcard{background:linear-gradient(150deg,rgba(255,61,139,.06),rgba(255,155,61,.05))}
-  .ev.hotelcard .thumb{display:flex;align-items:center;justify-content:center;font-size:34px}
-  .skel{flex:none;width:230px;height:210px;border-radius:16px;background:linear-gradient(100deg,var(--panel-soft),#efeaf3,var(--panel-soft));background-size:200% 100%;animation:sh 1.2s infinite}
+  /* Day filter timeline (matches this-week) */
+  .tl-wrap{display:flex;align-items:center;gap:12px;margin:22px 0 6px}
+  .tl-lbl{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .tl-reset{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--cyan);background:none;border:none;cursor:pointer;font-family:inherit;visibility:hidden}
+  .tl-reset.show{visibility:visible}
+  .wk-timeline{display:flex;gap:6px;justify-content:space-between;align-items:flex-end;margin:0 0 6px}
+  .tl-day{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 2px;border-radius:12px;transition:background .15s;font-family:inherit}
+  .tl-day:hover{background:rgba(20,16,30,.04)}
+  .tl-day.active{background:rgba(155,92,255,.12)}
+  .tl-wd{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--dim);text-transform:uppercase}
+  .tl-dd{font-size:16px;font-weight:700;color:var(--ink);font-family:'Fraunces'}
+  .tl-bar{width:58%;max-width:32px;min-height:6px;border-radius:6px 6px 3px 3px;background:linear-gradient(to top,var(--violet),var(--pink));opacity:.45}
+  .tl-day.hot .tl-bar{opacity:1;background:var(--grad)}
+  .tl-day.active .tl-wd{color:var(--ink)}
+  .tl-n{font-size:11px;font-weight:700;color:var(--soft);font-variant-numeric:tabular-nums;min-height:14px}
+
+  /* Section header + rail + card (this-week) */
+  .wk-h{font-family:'Fraunces',serif;font-weight:600;font-size:24px;letter-spacing:-.01em;margin:36px 0 16px;display:flex;align-items:center;gap:10px;color:var(--ink);position:relative;padding-bottom:12px;scroll-margin-top:18px}
+  .wk-h::after{content:'';position:absolute;left:0;bottom:0;width:46px;height:3px;border-radius:2px;background:var(--grad)}
+  .wk-emoji{font-size:20px}
+  .wk-h .cnt{font-size:13px;font-weight:700;color:var(--soft);background:rgba(20,16,30,.05);border-radius:999px;padding:2px 10px;margin-left:auto}
+  .wk-rail{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;scrollbar-width:none;scroll-behavior:smooth}
+  .wk-rail::-webkit-scrollbar{display:none}
+  .wk-rail>*{flex-shrink:0}
+  .wk-rail .ev{flex:0 0 290px;scroll-snap-align:start}
+  .wk-railwrap{position:relative}
+  .wk-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);color:var(--ink);box-shadow:0 4px 14px rgba(20,16,30,.14);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .15s}
+  .wk-arrow.left{left:4px}.wk-arrow.right{right:4px}
+  .wk-railwrap:hover .wk-arrow.show{opacity:1;pointer-events:auto}
+  .wk-arrow:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+  @media(hover:none){.wk-arrow{display:none}}
+  .ev{display:flex;gap:16px;align-items:center;padding:15px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
+  .ev:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);border-color:rgba(20,16,30,.14);transform:translateY(-2px)}
+  .ev:hover .t{color:var(--pink)}
+  .thumb{width:84px;height:84px;border-radius:14px;flex:none;overflow:hidden;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff' fill-opacity='0.5'%3E%3Crect x='3' y='13' width='3' height='8' rx='1.5'/%3E%3Crect x='8' y='9' width='3' height='12' rx='1.5'/%3E%3Crect x='13' y='6' width='3' height='15' rx='1.5'/%3E%3Crect x='18' y='11' width='3' height='10' rx='1.5'/%3E%3C/svg%3E") center / 40px no-repeat, linear-gradient(135deg,var(--violet),var(--pink))}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb.hotelthumb{display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,rgba(255,61,139,.16),rgba(255,155,61,.13))}
+  .meta{min-width:0;display:flex;flex-direction:column;gap:5px}
+  .t{font-family:'Fraunces',serif;font-weight:600;font-size:20px;line-height:1.18;color:var(--ink);transition:color .15s;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .date{font-weight:700;font-size:12.5px;color:var(--cyan);letter-spacing:.02em}
+  .venue{color:var(--soft);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .venue .dist{color:var(--cyan);font-weight:600;white-space:nowrap}
+  .skel{flex:0 0 290px;height:116px;border-radius:16px;background:linear-gradient(100deg,var(--panel-soft),#efeaf3,var(--panel-soft));background-size:200% 100%;animation:sh 1.2s infinite}
   @keyframes sh{to{background-position:-200% 0}}
+  .empty{text-align:center;color:var(--dim);padding:30px 0}
 
   /* chat */
-  #ask{display:none}
-  #ask.on{display:block}
-  .chat{max-width:720px;margin:0 auto}
-  .chat-intro{text-align:center;color:var(--text-soft);font-size:15px;margin-bottom:18px}
+  #ask{display:none}#ask.on{display:block}
+  .chat{max-width:720px;margin:8px auto 0}
+  .chat-intro{text-align:center;color:var(--soft);font-size:15px;margin-bottom:18px}
   .exs{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:20px}
   .ex{font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer;transition:.15s}
   .ex:hover{border-color:rgba(255,61,139,.45);color:var(--pink)}
@@ -97,20 +117,19 @@
   .res-ev:hover{border-color:rgba(255,61,139,.35)}
   .res-ev .rt{width:52px;height:52px;border-radius:9px;flex:none;background-size:cover;background-position:center}
   .res-ev .rtt{font-weight:700;font-size:13px;color:var(--ink);line-height:1.2}
-  .res-ev .rtm{font-size:11.5px;color:var(--text-dim);margin-top:3px}
-  .typing{align-self:flex-start;color:var(--text-dim);font-size:13px;padding:8px 4px}
+  .res-ev .rtm{font-size:11.5px;color:var(--dim);margin-top:3px}
+  .typing{align-self:flex-start;color:var(--dim);font-size:13px;padding:8px 4px}
   .chat-form{display:flex;gap:10px;position:sticky;bottom:16px}
   .chat-form input{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-family:inherit;font-size:15px;color:var(--text);outline:none;box-shadow:var(--shadow);transition:border-color .2s}
   .chat-form input:focus{border-color:rgba(255,61,139,.5)}
   .chat-form button{background:var(--grad);color:#fff;border:none;border-radius:14px;padding:0 22px;font-weight:700;font-size:15px;cursor:pointer;transition:transform .15s,filter .2s}
   .chat-form button:hover{transform:translateY(-1px);filter:brightness(1.05)}
-  .chat-form button:disabled{opacity:.6;cursor:default}
 
-  footer{text-align:center;padding:40px 20px;color:var(--text-dim);font-size:13px;border-top:1px solid var(--line);margin-top:24px}
+  footer{text-align:center;padding:40px 20px;color:var(--dim);font-size:13px;border-top:1px solid var(--line);margin-top:24px}
   footer b{font-family:'Fraunces';font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  footer a{color:var(--text-dim);text-decoration:none;border-bottom:1px solid var(--line)}
+  footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
 
-  @media(max-width:760px){ .welcome{grid-template-columns:1fr;gap:22px} }
+  @media(max-width:760px){ .welcome{grid-template-columns:1fr;gap:22px} .wk-rail .ev{flex:0 0 82vw} }
 </style>
 </head>
 <body>
@@ -118,19 +137,11 @@
 
   <header><div class="bar">
     <div class="hlogo">A</div>
-    <div>
-      <div class="hname">Hotel Amigo</div>
-      <div class="hpow" data-i="pow">Local concierge · powered by shou</div>
-    </div>
+    <div><div class="hname">Hotel Amigo</div><div class="hpow" data-i="pow">Local concierge · powered by shou</div></div>
     <div class="lang">
       <select id="langSel" aria-label="Language">
-        <option value="en">🇬🇧 English</option>
-        <option value="fr">🇫🇷 Français</option>
-        <option value="nl">🇳🇱 Nederlands</option>
-        <option value="de">🇩🇪 Deutsch</option>
-        <option value="es">🇪🇸 Español</option>
-        <option value="it">🇮🇹 Italiano</option>
-        <option value="uk">🇺🇦 Українська</option>
+        <option value="en">🇬🇧 English</option><option value="fr">🇫🇷 Français</option><option value="nl">🇳🇱 Nederlands</option>
+        <option value="de">🇩🇪 Deutsch</option><option value="es">🇪🇸 Español</option><option value="it">🇮🇹 Italiano</option><option value="uk">🇺🇦 Українська</option>
       </select>
     </div>
   </div></header>
@@ -179,90 +190,134 @@ const API='https://shou-backend.vercel.app/api';
 const HOTEL={name:'Hotel Amigo',lat:50.8466,lng:4.3517};
 let lang='en', catalog=[];
 
-// ── i18n (chrome only — event content is translated by the backend) ──────────
 const T={
-  en:{pow:'Local concierge · powered by shou',eyebrow:'Welcome to Brussels',welcome:'Your evening, sorted.',sub:'Discover the best concerts, dining, art and hidden gems near Hotel Amigo — in your language, updated every hour.',steps:'steps from the Grand-Place',tabWeek:'This week',tabAsk:'Ask the concierge',near:'This week near your hotel',fromHotel:'From Hotel Amigo',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:'Ask me anything about what to do near the hotel — in any language.',askPh:'What should we do tonight?',send:'Ask',foot:'Ask anything, in any language — concerts, dining, hidden gems near you.',thinking:'Finding the best options near the hotel…',none:'Nothing came up for that — try another question.',tickets:'Details →',book:'Book a room',dine:'Restaurant Bocconi',bar:'Cocktail bar',spa:'Spa & wellness',dir:'Directions',ex:['What should we do tonight?','Best jazz near the hotel?','Something to do with kids tomorrow','Free activities this evening','Most authentic Belgian experience within walking distance']},
-  fr:{pow:'Concierge local · propulsé par shou',eyebrow:'Bienvenue à Bruxelles',welcome:'Votre soirée, réglée.',sub:'Découvrez les meilleurs concerts, restaurants, expos et trésors cachés près du Hotel Amigo — dans votre langue, mis à jour chaque heure.',steps:'à deux pas de la Grand-Place',tabWeek:'Cette semaine',tabAsk:'Demander au concierge',near:'Cette semaine près de votre hôtel',fromHotel:'Depuis le Hotel Amigo',music:'Concerts',art:'Art & expositions',theatre:'Théâtre & spectacles',chatIntro:'Demandez-moi quoi faire près de l\'hôtel — dans n\'importe quelle langue.',askPh:'Que faire ce soir ?',send:'Demander',foot:'Demandez ce que vous voulez, dans votre langue — concerts, restaurants, trésors cachés près de vous.',thinking:'Je cherche les meilleures options près de l\'hôtel…',none:'Rien trouvé pour cela — posez une autre question.',tickets:'Détails →',book:'Réserver',dine:'Restaurant Bocconi',bar:'Bar à cocktails',spa:'Spa & bien-être',dir:'Itinéraire',ex:['Que faire ce soir ?','Le meilleur jazz près de l\'hôtel ?','Une activité avec les enfants demain','Activités gratuites ce soir','L\'expérience belge la plus authentique à pied']},
-  nl:{pow:'Lokale concierge · powered by shou',eyebrow:'Welkom in Brussel',welcome:'Je avond, geregeld.',sub:'Ontdek de beste concerten, restaurants, kunst en verborgen parels dicht bij Hotel Amigo — in jouw taal, elk uur bijgewerkt.',steps:'op een steenworp van de Grote Markt',tabWeek:'Deze week',tabAsk:'Vraag de concierge',near:'Deze week dicht bij je hotel',fromHotel:'Van Hotel Amigo',music:'Livemuziek',art:'Kunst & tentoonstellingen',theatre:'Theater & voorstellingen',chatIntro:'Vraag me alles over wat te doen dicht bij het hotel — in elke taal.',askPh:'Wat kunnen we vanavond doen?',send:'Vraag',foot:'Vraag alles, in jouw taal — concerten, restaurants, verborgen parels dicht bij jou.',thinking:'Ik zoek de beste opties dicht bij het hotel…',none:'Niets gevonden — probeer een andere vraag.',tickets:'Details →',book:'Kamer boeken',dine:'Restaurant Bocconi',bar:'Cocktailbar',spa:'Spa & wellness',dir:'Route',ex:['Wat kunnen we vanavond doen?','Beste jazz dicht bij het hotel?','Iets met de kinderen morgen','Gratis activiteiten vanavond','Meest authentieke Belgische ervaring op loopafstand']},
-  de:{pow:'Lokaler Concierge · powered by shou',eyebrow:'Willkommen in Brüssel',welcome:'Ihr Abend, geregelt.',sub:'Entdecken Sie die besten Konzerte, Restaurants, Kunst und Geheimtipps in der Nähe des Hotel Amigo — in Ihrer Sprache, stündlich aktualisiert.',steps:'wenige Schritte vom Grand-Place',tabWeek:'Diese Woche',tabAsk:'Concierge fragen',near:'Diese Woche in Hotelnähe',fromHotel:'Vom Hotel Amigo',music:'Livemusik',art:'Kunst & Ausstellungen',theatre:'Theater & Bühne',chatIntro:'Fragen Sie mich alles zu Aktivitäten in Hotelnähe — in jeder Sprache.',askPh:'Was können wir heute Abend machen?',send:'Fragen',foot:'Fragen Sie alles, in Ihrer Sprache — Konzerte, Restaurants, Geheimtipps in Ihrer Nähe.',thinking:'Ich suche die besten Optionen in Hotelnähe…',none:'Nichts gefunden — stellen Sie eine andere Frage.',tickets:'Details →',book:'Zimmer buchen',dine:'Restaurant Bocconi',bar:'Cocktailbar',spa:'Spa & Wellness',dir:'Route',ex:['Was können wir heute Abend machen?','Bester Jazz in Hotelnähe?','Etwas mit Kindern morgen','Kostenlose Aktivitäten heute Abend','Authentischstes belgisches Erlebnis zu Fuß']},
-  es:{pow:'Conserje local · con tecnología shou',eyebrow:'Bienvenido a Bruselas',welcome:'Tu noche, resuelta.',sub:'Descubre los mejores conciertos, restaurantes, arte y joyas ocultas cerca del Hotel Amigo — en tu idioma, actualizado cada hora.',steps:'a pasos de la Grand-Place',tabWeek:'Esta semana',tabAsk:'Pregunta al conserje',near:'Esta semana cerca de tu hotel',fromHotel:'Desde el Hotel Amigo',music:'Música en vivo',art:'Arte y exposiciones',theatre:'Teatro y espectáculos',chatIntro:'Pregúntame qué hacer cerca del hotel — en cualquier idioma.',askPh:'¿Qué hacemos esta noche?',send:'Preguntar',foot:'Pregunta lo que quieras, en tu idioma — conciertos, restaurantes, joyas ocultas cerca de ti.',thinking:'Buscando las mejores opciones cerca del hotel…',none:'No encontré nada — prueba otra pregunta.',tickets:'Detalles →',book:'Reservar',dine:'Restaurante Bocconi',bar:'Coctelería',spa:'Spa y bienestar',dir:'Cómo llegar',ex:['¿Qué hacemos esta noche?','¿El mejor jazz cerca del hotel?','Algo para hacer con niños mañana','Actividades gratis esta noche','La experiencia belga más auténtica a pie']},
-  it:{pow:'Concierge locale · powered by shou',eyebrow:'Benvenuto a Bruxelles',welcome:'La tua serata, risolta.',sub:'Scopri i migliori concerti, ristoranti, arte e gemme nascoste vicino all\'Hotel Amigo — nella tua lingua, aggiornato ogni ora.',steps:'a pochi passi dalla Grand-Place',tabWeek:'Questa settimana',tabAsk:'Chiedi al concierge',near:'Questa settimana vicino al tuo hotel',fromHotel:'Dall\'Hotel Amigo',music:'Musica dal vivo',art:'Arte e mostre',theatre:'Teatro e spettacoli',chatIntro:'Chiedimi cosa fare vicino all\'hotel — in qualsiasi lingua.',askPh:'Cosa facciamo stasera?',send:'Chiedi',foot:'Chiedi qualsiasi cosa, nella tua lingua — concerti, ristoranti, gemme nascoste vicino a te.',thinking:'Sto cercando le migliori opzioni vicino all\'hotel…',none:'Nessun risultato — prova un\'altra domanda.',tickets:'Dettagli →',book:'Prenota',dine:'Ristorante Bocconi',bar:'Cocktail bar',spa:'Spa & benessere',dir:'Indicazioni',ex:['Cosa facciamo stasera?','Il miglior jazz vicino all\'hotel?','Qualcosa da fare con i bambini domani','Attività gratuite stasera','L\'esperienza belga più autentica a piedi']},
-  uk:{pow:'Локальний консьєрж · powered by shou',eyebrow:'Ласкаво просимо до Брюсселя',welcome:'Ваш вечір — вирішено.',sub:'Відкрийте найкращі концерти, ресторани, мистецтво та приховані перлини біля Hotel Amigo — вашою мовою, оновлюється щогодини.',steps:'за кілька кроків від Гран-Пляс',tabWeek:'Цього тижня',tabAsk:'Запитати консьєржа',near:'Цього тижня біля вашого готелю',fromHotel:'Від Hotel Amigo',music:'Жива музика',art:'Мистецтво та виставки',theatre:'Театр і вистави',chatIntro:'Запитайте мене про що завгодно поруч із готелем — будь-якою мовою.',askPh:'Що робити сьогодні ввечері?',send:'Запитати',foot:'Запитуйте будь-що, вашою мовою — концерти, ресторани, приховані перлини поруч.',thinking:'Шукаю найкращі варіанти біля готелю…',none:'Нічого не знайдено — спробуйте інше запитання.',tickets:'Деталі →',book:'Забронювати',dine:'Ресторан Bocconi',bar:'Коктейль-бар',spa:'Спа та велнес',dir:'Маршрут',ex:['Що робити сьогодні ввечері?','Найкращий джаз біля готелю?','Чим зайнятися з дітьми завтра','Безкоштовні активності сьогодні','Найавтентичніший бельгійський досвід пішки']},
+  en:{pow:'Local concierge · powered by shou',eyebrow:'Welcome to Brussels',welcome:'Your evening, sorted.',sub:'Discover the best concerts, dining, art and hidden gems near Hotel Amigo — in your language, updated every hour.',steps:'steps from the Grand-Place',tabWeek:'This week',tabAsk:'Ask the concierge',near:'This week near your hotel',fromHotel:'From Hotel Amigo',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:'Ask me anything about what to do near the hotel — in any language.',askPh:'What should we do tonight?',send:'Ask',foot:'Ask anything, in any language — concerts, dining, hidden gems near you.',thinking:'Finding the best options near the hotel…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',book:'Book a room',dine:'Restaurant Bocconi',bar:'Cocktail bar',spa:'Spa & wellness',dir:'Directions',walk:'min walk',ex:['What should we do tonight?','Best jazz near the hotel?','Something to do with kids tomorrow','Free activities this evening','Most authentic Belgian experience within walking distance']},
+  fr:{pow:'Concierge local · propulsé par shou',eyebrow:'Bienvenue à Bruxelles',welcome:'Votre soirée, réglée.',sub:'Découvrez les meilleurs concerts, restaurants, expos et trésors cachés près du Hotel Amigo — dans votre langue, mis à jour chaque heure.',steps:'à deux pas de la Grand-Place',tabWeek:'Cette semaine',tabAsk:'Demander au concierge',near:'Cette semaine près de votre hôtel',fromHotel:'Depuis le Hotel Amigo',music:'Concerts',art:'Art & expositions',theatre:'Théâtre & spectacles',chatIntro:'Demandez-moi quoi faire près de l\'hôtel — dans n\'importe quelle langue.',askPh:'Que faire ce soir ?',send:'Demander',foot:'Demandez ce que vous voulez, dans votre langue — concerts, restaurants, trésors cachés près de vous.',thinking:'Je cherche les meilleures options près de l\'hôtel…',none:'Rien trouvé pour cela — posez une autre question.',tickets:'Détails →',filterLbl:'Filtrer par jour',allDays:'Tous les jours',book:'Réserver',dine:'Restaurant Bocconi',bar:'Bar à cocktails',spa:'Spa & bien-être',dir:'Itinéraire',walk:'min à pied',ex:['Que faire ce soir ?','Le meilleur jazz près de l\'hôtel ?','Une activité avec les enfants demain','Activités gratuites ce soir','L\'expérience belge la plus authentique à pied']},
+  nl:{pow:'Lokale concierge · powered by shou',eyebrow:'Welkom in Brussel',welcome:'Je avond, geregeld.',sub:'Ontdek de beste concerten, restaurants, kunst en verborgen parels dicht bij Hotel Amigo — in jouw taal, elk uur bijgewerkt.',steps:'op een steenworp van de Grote Markt',tabWeek:'Deze week',tabAsk:'Vraag de concierge',near:'Deze week dicht bij je hotel',fromHotel:'Van Hotel Amigo',music:'Livemuziek',art:'Kunst & tentoonstellingen',theatre:'Theater & voorstellingen',chatIntro:'Vraag me alles over wat te doen dicht bij het hotel — in elke taal.',askPh:'Wat kunnen we vanavond doen?',send:'Vraag',foot:'Vraag alles, in jouw taal — concerten, restaurants, verborgen parels dicht bij jou.',thinking:'Ik zoek de beste opties dicht bij het hotel…',none:'Niets gevonden — probeer een andere vraag.',tickets:'Details →',filterLbl:'Filter op dag',allDays:'Alle dagen',book:'Kamer boeken',dine:'Restaurant Bocconi',bar:'Cocktailbar',spa:'Spa & wellness',dir:'Route',walk:'min lopen',ex:['Wat kunnen we vanavond doen?','Beste jazz dicht bij het hotel?','Iets met de kinderen morgen','Gratis activiteiten vanavond','Meest authentieke Belgische ervaring op loopafstand']},
+  de:{pow:'Lokaler Concierge · powered by shou',eyebrow:'Willkommen in Brüssel',welcome:'Ihr Abend, geregelt.',sub:'Entdecken Sie die besten Konzerte, Restaurants, Kunst und Geheimtipps in der Nähe des Hotel Amigo — in Ihrer Sprache, stündlich aktualisiert.',steps:'wenige Schritte vom Grand-Place',tabWeek:'Diese Woche',tabAsk:'Concierge fragen',near:'Diese Woche in Hotelnähe',fromHotel:'Vom Hotel Amigo',music:'Livemusik',art:'Kunst & Ausstellungen',theatre:'Theater & Bühne',chatIntro:'Fragen Sie mich alles zu Aktivitäten in Hotelnähe — in jeder Sprache.',askPh:'Was können wir heute Abend machen?',send:'Fragen',foot:'Fragen Sie alles, in Ihrer Sprache — Konzerte, Restaurants, Geheimtipps in Ihrer Nähe.',thinking:'Ich suche die besten Optionen in Hotelnähe…',none:'Nichts gefunden — stellen Sie eine andere Frage.',tickets:'Details →',filterLbl:'Nach Tag filtern',allDays:'Alle Tage',book:'Zimmer buchen',dine:'Restaurant Bocconi',bar:'Cocktailbar',spa:'Spa & Wellness',dir:'Route',walk:'Min zu Fuß',ex:['Was können wir heute Abend machen?','Bester Jazz in Hotelnähe?','Etwas mit Kindern morgen','Kostenlose Aktivitäten heute Abend','Authentischstes belgisches Erlebnis zu Fuß']},
+  es:{pow:'Conserje local · con tecnología shou',eyebrow:'Bienvenido a Bruselas',welcome:'Tu noche, resuelta.',sub:'Descubre los mejores conciertos, restaurantes, arte y joyas ocultas cerca del Hotel Amigo — en tu idioma, actualizado cada hora.',steps:'a pasos de la Grand-Place',tabWeek:'Esta semana',tabAsk:'Pregunta al conserje',near:'Esta semana cerca de tu hotel',fromHotel:'Desde el Hotel Amigo',music:'Música en vivo',art:'Arte y exposiciones',theatre:'Teatro y espectáculos',chatIntro:'Pregúntame qué hacer cerca del hotel — en cualquier idioma.',askPh:'¿Qué hacemos esta noche?',send:'Preguntar',foot:'Pregunta lo que quieras, en tu idioma — conciertos, restaurantes, joyas ocultas cerca de ti.',thinking:'Buscando las mejores opciones cerca del hotel…',none:'No encontré nada — prueba otra pregunta.',tickets:'Detalles →',filterLbl:'Filtrar por día',allDays:'Todos los días',book:'Reservar',dine:'Restaurante Bocconi',bar:'Coctelería',spa:'Spa y bienestar',dir:'Cómo llegar',walk:'min a pie',ex:['¿Qué hacemos esta noche?','¿El mejor jazz cerca del hotel?','Algo para hacer con niños mañana','Actividades gratis esta noche','La experiencia belga más auténtica a pie']},
+  it:{pow:'Concierge locale · powered by shou',eyebrow:'Benvenuto a Bruxelles',welcome:'La tua serata, risolta.',sub:'Scopri i migliori concerti, ristoranti, arte e gemme nascoste vicino all\'Hotel Amigo — nella tua lingua, aggiornato ogni ora.',steps:'a pochi passi dalla Grand-Place',tabWeek:'Questa settimana',tabAsk:'Chiedi al concierge',near:'Questa settimana vicino al tuo hotel',fromHotel:'Dall\'Hotel Amigo',music:'Musica dal vivo',art:'Arte e mostre',theatre:'Teatro e spettacoli',chatIntro:'Chiedimi cosa fare vicino all\'hotel — in qualsiasi lingua.',askPh:'Cosa facciamo stasera?',send:'Chiedi',foot:'Chiedi qualsiasi cosa, nella tua lingua — concerti, ristoranti, gemme nascoste vicino a te.',thinking:'Sto cercando le migliori opzioni vicino all\'hotel…',none:'Nessun risultato — prova un\'altra domanda.',tickets:'Dettagli →',filterLbl:'Filtra per giorno',allDays:'Tutti i giorni',book:'Prenota',dine:'Ristorante Bocconi',bar:'Cocktail bar',spa:'Spa & benessere',dir:'Indicazioni',walk:'min a piedi',ex:['Cosa facciamo stasera?','Il miglior jazz vicino all\'hotel?','Qualcosa da fare con i bambini domani','Attività gratuite stasera','L\'esperienza belga più autentica a piedi']},
+  uk:{pow:'Локальний консьєрж · powered by shou',eyebrow:'Ласкаво просимо до Брюсселя',welcome:'Ваш вечір — вирішено.',sub:'Відкрийте найкращі концерти, ресторани, мистецтво та приховані перлини біля Hotel Amigo — вашою мовою, оновлюється щогодини.',steps:'за кілька кроків від Гран-Пляс',tabWeek:'Цього тижня',tabAsk:'Запитати консьєржа',near:'Цього тижня біля вашого готелю',fromHotel:'Від Hotel Amigo',music:'Жива музика',art:'Мистецтво та виставки',theatre:'Театр і вистави',chatIntro:'Запитайте мене про що завгодно поруч із готелем — будь-якою мовою.',askPh:'Що робити сьогодні ввечері?',send:'Запитати',foot:'Запитуйте будь-що, вашою мовою — концерти, ресторани, приховані перлини поруч.',thinking:'Шукаю найкращі варіанти біля готелю…',none:'Нічого не знайдено — спробуйте інше запитання.',tickets:'Деталі →',filterLbl:'Фільтр за днем',allDays:'Усі дні',book:'Забронювати',dine:'Ресторан Bocconi',bar:'Коктейль-бар',spa:'Спа та велнес',dir:'Маршрут',walk:'хв пішки',ex:['Що робити сьогодні ввечері?','Найкращий джаз біля готелю?','Чим зайнятися з дітьми завтра','Безкоштовні активності сьогодні','Найавтентичніший бельгійський досвід пішки']},
 };
 const t=k=>(T[lang]||T.en)[k];
 
-// hotel-provided cards (static — link to the hotel's own resources)
-const HOTEL_LINKS=()=>[
-  {i:'🛏',k:'book'},{i:'🍽',k:'dine'},{i:'🍸',k:'bar'},{i:'💆',k:'spa'},
-  {i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination='+HOTEL.lat+','+HOTEL.lng}
-];
-const HOTEL_CARDS=()=>[
-  {i:'🍽',k:'dine',cat:'HOTEL'},{i:'🍸',k:'bar',cat:'HOTEL'},{i:'💆',k:'spa',cat:'HOTEL'}
-];
+const HOTEL_LINKS=()=>[{i:'🛏',k:'book'},{i:'🍽',k:'dine'},{i:'🍸',k:'bar'},{i:'💆',k:'spa'},{i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination='+HOTEL.lat+','+HOTEL.lng}];
+const HOTEL_CARDS=()=>[{i:'🍽',k:'dine'},{i:'🍸',k:'bar'},{i:'💆',k:'spa'}];
 
-function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
-function distLabel(e){if(!Number.isFinite(e.lat)||!Number.isFinite(e.lng))return '';const km=haversine(HOTEL.lat,HOTEL.lng,e.lat,e.lng);if(km>60)return '';if(km<1.1)return Math.max(1,Math.round(km*12))+' min walk';return km.toFixed(1)+' km';}
-const _WD={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fr:['dim','lun','mar','mer','jeu','ven','sam'],nl:['zo','ma','di','wo','do','vr','za']};
+const _WD={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fr:['dim','lun','mar','mer','jeu','ven','sam'],nl:['zo','ma','di','wo','do','vr','za'],de:['So','Mo','Di','Mi','Do','Fr','Sa'],es:['dom','lun','mar','mié','jue','vie','sáb'],it:['dom','lun','mar','mer','gio','ven','sab'],uk:['нд','пн','вт','ср','чт','пт','сб']};
 const _MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function fmtDate(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return d;const wd=(_WD[lang]||_WD.en)[dt.getDay()];return wd+' '+dt.getDate()+' '+_MO[dt.getMonth()];}
-function grad(cat){const g={music:'linear-gradient(135deg,#ff3d8b,#9b5cff)',exhibition:'linear-gradient(135deg,#46e0d2,#3d7bff)',theatre:'linear-gradient(135deg,#ff9b3d,#ff3d8b)',cinema:'linear-gradient(135deg,#9b5cff,#46e0d2)'};return g[cat]||'linear-gradient(135deg,#ff3d8b,#ff9b3d)';}
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
+function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
+function km(e){return (Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine(HOTEL.lat,HOTEL.lng,e.lat,e.lng):999;}
+function distLabel(e){const k=km(e);if(k>60)return '';if(k<1.1)return Math.max(1,Math.round(k*12))+' '+t('walk');return k.toFixed(1)+' km';}
+function fmtDate(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return d;return (_WD[lang]||_WD.en)[dt.getDay()]+' '+dt.getDate()+' '+_MO[dt.getMonth()];}
+
+// clean ticket-tier / day-variant tails ("Rock Werchter 2026 | Saturday" → "Rock Werchter 2026")
+function cleanTitle(x){
+  let s=String(x||'').trim();
+  const p=s.indexOf(' | '); if(p>0)s=s.slice(0,p).trim();
+  s=s.replace(/\s*[-–]\s*(day\s*ticket|\d+\s*-?\s*day\s*pass|weekend\s*(pass|ticket)|combi\s*ticket|pass(es)?|vip|early\s*bird|terras?|parking\w*|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b.*$/i,'').trim();
+  return s||String(x||'').trim();
+}
+function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
 
 function evCard(e){
-  const d=distLabel(e);
-  const thumb=e.img?`background-image:url('${esc(e.img)}')`:`background:${grad(e.categorySlug)}`;
-  const time=(e.time&&e.time!=='TBA')?' · '+e.time:'';
-  return `<a class="ev" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
-    <div class="thumb" style="${thumb}"><span class="cat">${esc(e.seg||e.categorySlug||'')}</span></div>
-    <div class="body">
-      <div class="t">${esc(e.name)}</div>
-      <div class="m">📍 ${esc(e.venue||e.city||'')}${d?` · <span class="dist">${d}</span>`:''}</div>
-      <div class="m"><span class="date">${fmtDate(e.date)}${time}</span></div>
-    </div></a>`;
+  const dist=distLabel(e), time=(e.time&&e.time!=='TBA')?' · '+e.time:'';
+  const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
+  return `<a class="ev" data-date="${esc(e.date||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
+    <span class="thumb">${img}</span>
+    <span class="meta">
+      <span class="t">${esc(cleanTitle(e.name))}</span>
+      <span class="date">${esc(fmtDate(e.date))}${esc(time)}</span>
+      <span class="venue">${esc(e.venue||e.city||'')}${dist?` · <span class="dist">${dist}</span>`:''}</span>
+    </span></a>`;
 }
-function hotelCard(c){
-  return `<a class="ev hotelcard" href="#">
-    <div class="thumb" style="background:${grad('')}">${c.i}</div>
-    <div class="body"><div class="t">${esc(t(c.k))}</div><div class="m">${esc(t('fromHotel'))}</div></div></a>`;
-}
-function section(title,pin,cards){
-  if(!cards.length)return '';
-  return `<div class="scroll-sec"><div class="scroll-head">${pin?'<span class="pin">●</span>':''}<h2>${esc(title)}</h2><span class="cnt">${cards.length}</span></div><div class="row">${cards.join('')}</div></div>`;
+function hotelCard(c){return `<a class="ev" href="#"><span class="thumb hotelthumb">${c.i}</span><span class="meta"><span class="t">${esc(t(c.k))}</span><span class="venue">${esc(t('fromHotel'))}</span></span></a>`;}
+function section(emoji,title,cards){if(!cards.length)return '';return `<h2 class="wk-h"><span class="wk-emoji">${emoji}</span>${esc(title)}<span class="cnt">${cards.length}</span></h2><div class="wk-rail">${cards.join('')}</div>`;}
+
+function timelineHTML(){
+  const today=new Date(); const days=[];
+  for(let i=0;i<7;i++){const d=new Date(today);d.setDate(today.getDate()+i);
+    const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    days.push({iso,d,cnt:catalog.filter(e=>e.date===iso).length});}
+  const max=Math.max(1,...days.map(x=>x.cnt));
+  const bars=days.map(x=>{const h=6+Math.round((x.cnt/max)*38);
+    return `<button class="tl-day${x.cnt===max&&x.cnt>0?' hot':''}" data-date="${x.iso}"><span class="tl-wd">${(_WD[lang]||_WD.en)[x.d.getDay()]}</span><span class="tl-dd">${x.d.getDate()}</span><span class="tl-bar" style="height:${h}px"></span><span class="tl-n">${x.cnt||''}</span></button>`;}).join('');
+  return `<div class="tl-wrap"><span class="tl-lbl">${esc(t('filterLbl'))}</span><button class="tl-reset" id="tlReset">${esc(t('allDays'))} ✕</button></div><div class="wk-timeline" id="tl">${bars}</div>`;
 }
 
 function renderWeek(){
-  const near=[...catalog].map(e=>({e,d:(Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine(HOTEL.lat,HOTEL.lng,e.lat,e.lng):999}))
-    .sort((a,b)=>a.d-b.d).slice(0,10).map(x=>evCard(x.e));
+  const near=[...catalog].sort((a,b)=>km(a)-km(b)).slice(0,10).map(evCard);
   const byCat=c=>catalog.filter(e=>e.categorySlug===c).slice(0,10).map(evCard);
-  let html='';
-  html+=section(t('near'),true,near);
-  html+=section(t('fromHotel'),false,HOTEL_CARDS().map(hotelCard));
-  html+=section(t('music'),false,byCat('music'));
-  html+=section(t('art'),false,byCat('exhibition'));
-  html+=section(t('theatre'),false,byCat('theatre'));
-  document.getElementById('week').innerHTML=html || `<p style="text-align:center;color:var(--text-dim);padding:30px">—</p>`;
+  let html=timelineHTML();
+  html+=section('📍',t('near'),near);
+  html+=section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
+  html+=section('🎶',t('music'),byCat('music'));
+  html+=section('🎨',t('art'),byCat('exhibition'));
+  html+=section('🎭',t('theatre'),byCat('theatre'));
+  document.getElementById('week').innerHTML=html||`<p class="empty">—</p>`;
+  setupArrows(); setupDayFilter();
+}
+
+// scroll arrows (this-week behaviour)
+function setupArrows(){
+  const L='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
+  const R='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  const page=el=>Math.max(el.clientWidth*0.85,240);
+  document.querySelectorAll('#week .wk-rail').forEach(el=>{
+    el.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;if(el.scrollWidth<=el.clientWidth)return;e.preventDefault();el.scrollLeft+=e.deltaY;},{passive:false});
+    if(el.scrollWidth<=el.clientWidth+4)return;
+    const wrap=document.createElement('div');wrap.className='wk-railwrap';el.parentNode.insertBefore(wrap,el);wrap.appendChild(el);
+    const l=document.createElement('button');l.className='wk-arrow left';l.setAttribute('aria-label','Scroll left');l.innerHTML=L;
+    const r=document.createElement('button');r.className='wk-arrow right';r.setAttribute('aria-label','Scroll right');r.innerHTML=R;
+    wrap.appendChild(l);wrap.appendChild(r);
+    const upd=()=>{const max=el.scrollWidth-el.clientWidth-2;l.classList.toggle('show',el.scrollLeft>4);r.classList.toggle('show',el.scrollLeft<max);};
+    l.addEventListener('click',()=>el.scrollBy({left:-page(el),behavior:'smooth'}));
+    r.addEventListener('click',()=>el.scrollBy({left:page(el),behavior:'smooth'}));
+    el.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+  });
+}
+
+// day filter (this-week behaviour): filter dated cards, hide empty rails+headers
+function setupDayFilter(){
+  const tl=document.getElementById('tl'); if(!tl)return;
+  const reset=document.getElementById('tlReset');
+  const cards=[].slice.call(document.querySelectorAll('#week .ev[data-date]'));
+  let active=null;
+  function apply(){
+    cards.forEach(c=>{const d=c.getAttribute('data-date');c.style.display=(!active||d===active)?'':'none';});
+    document.querySelectorAll('#week .wk-rail').forEach(rail=>{
+      const vis=[].some.call(rail.querySelectorAll('.ev'),ch=>ch.style.display!=='none');
+      const wrap=rail.closest('.wk-railwrap')||rail;
+      wrap.style.display=vis?'':'none';
+      const hdr=wrap.previousElementSibling;
+      if(hdr&&hdr.classList.contains('wk-h'))hdr.style.display=vis?'':'none';
+    });
+    if(reset)reset.classList.toggle('show',!!active);
+    window.dispatchEvent(new Event('resize'));
+  }
+  tl.querySelectorAll('.tl-day').forEach(btn=>btn.addEventListener('click',()=>{
+    const d=btn.getAttribute('data-date');
+    if(active===d){active=null;btn.classList.remove('active');}
+    else{active=d;tl.querySelectorAll('.tl-day').forEach(b=>b.classList.toggle('active',b===btn));}
+    apply();
+  }));
+  if(reset)reset.addEventListener('click',()=>{active=null;tl.querySelectorAll('.tl-day').forEach(b=>b.classList.remove('active'));apply();});
 }
 
 async function loadCatalog(){
-  document.getElementById('week').innerHTML=`<div class="scroll-sec"><div class="row">${'<div class="skel"></div>'.repeat(4)}</div></div>`;
-  try{
-    const r=await fetch(`${API}/events?lang=${lang}&limit=200`);
-    const d=await r.json();
-    catalog=(d.events||[]).filter(e=>e.name);
-  }catch(e){catalog=[];}
+  document.getElementById('week').innerHTML=`<div class="wk-rail" style="margin-top:20px">${'<div class="skel"></div>'.repeat(4)}</div>`;
+  try{const r=await fetch(`${API}/events?lang=${lang}&limit=200`);const d=await r.json();catalog=dedupe((d.events||[]).filter(e=>e.name));}
+  catch(e){catalog=[];}
   renderWeek();
 }
 
 // tabs
-function setTab(which){
-  const w=which==='week';
-  document.getElementById('tabWeekBtn').classList.toggle('on',w);
-  document.getElementById('tabAskBtn').classList.toggle('on',!w);
-  document.getElementById('week').style.display=w?'block':'none';
-  document.getElementById('ask').classList.toggle('on',!w);
-}
-document.getElementById('tabWeekBtn').onclick=()=>setTab('week');
-document.getElementById('tabAskBtn').onclick=()=>setTab('ask');
+function setTab(w){document.getElementById('tabWeekBtn').classList.toggle('on',w);document.getElementById('tabAskBtn').classList.toggle('on',!w);
+  document.getElementById('week').style.display=w?'block':'none';document.getElementById('ask').classList.toggle('on',!w);}
+document.getElementById('tabWeekBtn').onclick=()=>setTab(true);
+document.getElementById('tabAskBtn').onclick=()=>setTab(false);
 
 // chat
 const msgs=document.getElementById('msgs');
@@ -272,26 +327,20 @@ async function ask(q){
   addMsg('me',esc(q));
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
   try{
-    const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng})});
-    const d=await r.json();
-    typing.remove();
+    const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng})});
+    const d=await r.json(); typing.remove();
     const ids=[...(d.matchingIds||[]),...(d.suggestedIds||[])].slice(0,4);
     let cards='';
     if(ids.length){
-      const evs=await Promise.all(ids.map(id=>fetch(`${API}/events?id=${id}&lang=${lang}`).then(x=>x.json()).then(x=>x.events&&x.events[0]).catch(()=>null)));
-      cards=evs.filter(Boolean).map(e=>{
-        const d2=distLabel(e),thumb=e.img?`background-image:url('${esc(e.img)}')`:`background:${grad(e.categorySlug)}`;
-        return `<a class="res-ev" href="${esc(e.url||'#')}" target="_blank" rel="noopener"><div class="rt" style="${thumb}"></div><div><div class="rtt">${esc(e.name)}</div><div class="rtm">${esc(e.venue||e.city||'')}${d2?' · '+d2:''} · ${fmtDate(e.date)}</div></div></a>`;
-      }).join('');
+      const evs=(await Promise.all(ids.map(id=>fetch(`${API}/events?id=${id}&lang=${lang}`).then(x=>x.json()).then(x=>x.events&&x.events[0]).catch(()=>null)))).filter(Boolean);
+      cards=dedupe(evs).map(e=>{const dl=distLabel(e),th=e.img?`background-image:url('${esc(e.img)}')`:`background:linear-gradient(135deg,#ff3d8b,#9b5cff)`;
+        return `<a class="res-ev" href="${esc(e.url||'#')}" target="_blank" rel="noopener"><div class="rt" style="${th}"></div><div><div class="rtt">${esc(cleanTitle(e.name))}</div><div class="rtm">${esc(e.venue||e.city||'')}${dl?' · '+dl:''} · ${esc(fmtDate(e.date))}</div></div></a>`;}).join('');
     }
-    const reason=esc(d.reasoning||'')||t('none');
-    addMsg('ai',`${reason}${cards?`<div class="res">${cards}</div>`:''}`);
+    addMsg('ai',`${esc(d.reasoning||'')||t('none')}${cards?`<div class="res">${cards}</div>`:''}`);
   }catch(e){typing.remove();addMsg('ai',t('none'));}
 }
 document.getElementById('chatForm').onsubmit=e=>{e.preventDefault();const i=document.getElementById('chatInput');const v=i.value;i.value='';ask(v);};
 
-// i18n apply
 function applyChrome(){
   document.documentElement.lang=lang;
   document.querySelectorAll('[data-i]').forEach(el=>{const v=t(el.getAttribute('data-i'));if(v)el.textContent=v;});
@@ -300,12 +349,9 @@ function applyChrome(){
   document.getElementById('exs').innerHTML=(t('ex')||[]).map(q=>`<button class="ex">${esc(q)}</button>`).join('');
   document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{document.getElementById('chatInput').value=b.textContent;ask(b.textContent);});
 }
+document.getElementById('langSel').onchange=e=>{lang=e.target.value;applyChrome();loadCatalog();};
 
-document.getElementById('langSel').onchange=e=>{lang=e.target.value;applyChrome();renderWeek();loadCatalog();};
-
-// init
-applyChrome();
-loadCatalog();
+applyChrome(); loadCatalog();
 </script>
 </body>
 </html>
