@@ -101,6 +101,31 @@
   @keyframes sh{to{background-position:-200% 0}}
   .empty{text-align:center;color:var(--dim);padding:30px 0}
 
+  /* event modal (opens on card click — keeps the guest in the hotel's page) */
+  .mv{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;background:rgba(20,16,30,.55);backdrop-filter:blur(3px)}
+  .mv.on{display:flex}
+  .mv-card{background:var(--card);width:100%;max-width:540px;max-height:92vh;overflow-y:auto;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(20,16,30,.3);animation:mvup .25s ease}
+  @media(min-width:640px){.mv{align-items:center;padding:20px}.mv-card{border-radius:22px;animation:mvin .2s ease}}
+  @keyframes mvup{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+  @keyframes mvin{from{transform:scale(.97);opacity:.6}to{transform:none;opacity:1}}
+  .mv-hero{position:relative;height:210px;background:linear-gradient(135deg,var(--violet),var(--pink));overflow:hidden}
+  .mv-hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .mv-x{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--ink);font-size:19px;cursor:pointer;display:grid;place-items:center;box-shadow:0 2px 10px rgba(20,16,30,.2)}
+  .mv-badge{position:absolute;left:14px;bottom:12px;background:rgba(255,255,255,.94);color:var(--ink);font-weight:700;font-size:12.5px;padding:6px 12px;border-radius:999px;box-shadow:0 2px 10px rgba(20,16,30,.18)}
+  .mv-body{padding:20px 22px 26px}
+  .mv-cat{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pink);margin-bottom:8px}
+  .mv-title{font-family:'Fraunces',serif;font-weight:600;font-size:26px;line-height:1.14;color:var(--ink);margin-bottom:14px}
+  .mv-row{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--soft);margin-bottom:9px}
+  .mv-row .ic{flex:none;width:18px;text-align:center}
+  .mv-row b{color:var(--ink);font-weight:600}
+  .mv-dir{color:var(--cyan);font-weight:600;text-decoration:none;white-space:nowrap;margin-left:6px}
+  .mv-about{font-size:14.5px;line-height:1.6;color:var(--text);margin:16px 0 4px;white-space:pre-line}
+  .mv-about h4{font-family:'Fraunces',serif;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+  .mv-cta{display:block;text-align:center;background:var(--grad);color:#fff;font-weight:700;font-size:15px;padding:14px;border-radius:14px;text-decoration:none;margin-top:20px;box-shadow:0 8px 20px -8px rgba(255,61,139,.6)}
+  .mv-src{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+  .mv-src a{font-size:12px;font-weight:600;color:var(--soft);background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;padding:5px 11px;text-decoration:none}
+  .mv-src a:hover{border-color:rgba(255,61,139,.4);color:var(--pink)}
+
   /* chat */
   #ask{display:none}#ask.on{display:block}
   .chat{max-width:720px;margin:8px auto 0}
@@ -185,10 +210,16 @@
     <b>shou.be</b> · belgium after dark · <a href="/hotels/offer">for hotels</a>
   </footer>
 
+  <div class="mv" id="mv" aria-hidden="true"></div>
+
 <script>
 const API='https://shou-backend.vercel.app/api';
 const HOTEL={name:'Hotel Amigo',lat:50.8466,lng:4.3517};
+const CATS=['music','exhibition','theatre','family','festival'];  // fetched per-category & merged, for real day-coverage
 let lang='en', catalog=[];
+const evById={};                                                  // id -> event, for the click-through modal
+const ABOUT_L={en:'About',fr:'À propos',nl:'Over',de:'Über',es:'Acerca de',it:'Informazioni',uk:'Про подію'};
+const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
 
 const T={
   en:{pow:'Local concierge · powered by shou',eyebrow:'Welcome to Brussels',welcome:'Your evening, sorted.',sub:'Discover the best concerts, dining, art and hidden gems near Hotel Amigo — in your language, updated every hour.',steps:'steps from the Grand-Place',tabWeek:'This week',tabAsk:'Ask the concierge',near:'This week near your hotel',fromHotel:'From Hotel Amigo',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:'Ask me anything about what to do near the hotel — in any language.',askPh:'What should we do tonight?',send:'Ask',foot:'Ask anything, in any language — concerts, dining, hidden gems near you.',thinking:'Finding the best options near the hotel…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',book:'Book a room',dine:'Restaurant Bocconi',bar:'Cocktail bar',spa:'Spa & wellness',dir:'Directions',walk:'min walk',ex:['What should we do tonight?','Best jazz near the hotel?','Something to do with kids tomorrow','Free activities this evening','Most authentic Belgian experience within walking distance']},
@@ -225,7 +256,7 @@ function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=n
 function evCard(e){
   const dist=distLabel(e), time=(e.time&&e.time!=='TBA')?' · '+e.time:'';
   const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
-  return `<a class="ev" data-date="${esc(e.date||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
+  return `<a class="ev" data-date="${esc(e.date||'')}" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
     <span class="thumb">${img}</span>
     <span class="meta">
       <span class="t">${esc(cleanTitle(e.name))}</span>
@@ -236,20 +267,36 @@ function evCard(e){
 function hotelCard(c){return `<a class="ev" href="#"><span class="thumb hotelthumb">${c.i}</span><span class="meta"><span class="t">${esc(t(c.k))}</span><span class="venue">${esc(t('fromHotel'))}</span></span></a>`;}
 function section(emoji,title,cards){if(!cards.length)return '';return `<h2 class="wk-h"><span class="wk-emoji">${emoji}</span>${esc(title)}<span class="cnt">${cards.length}</span></h2><div class="wk-rail">${cards.join('')}</div>`;}
 
+function weekDays(){const today=new Date();const out=[];
+  for(let i=0;i<7;i++){const d=new Date(today);d.setDate(today.getDate()+i);
+    out.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));}
+  return out;}
+
 function timelineHTML(){
   const today=new Date(); const days=[];
   for(let i=0;i<7;i++){const d=new Date(today);d.setDate(today.getDate()+i);
     const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     days.push({iso,d,cnt:catalog.filter(e=>e.date===iso).length});}
   const max=Math.max(1,...days.map(x=>x.cnt));
-  const bars=days.map(x=>{const h=6+Math.round((x.cnt/max)*38);
-    return `<button class="tl-day${x.cnt===max&&x.cnt>0?' hot':''}" data-date="${x.iso}"><span class="tl-wd">${(_WD[lang]||_WD.en)[x.d.getDay()]}</span><span class="tl-dd">${x.d.getDate()}</span><span class="tl-bar" style="height:${h}px"></span><span class="tl-n">${x.cnt||''}</span></button>`;}).join('');
-  return `<div class="tl-wrap"><span class="tl-lbl">${esc(t('filterLbl'))}</span><button class="tl-reset" id="tlReset">${esc(t('allDays'))} ✕</button></div><div class="wk-timeline" id="tl">${bars}</div>`;
+  const bars=days.map(x=>{const h=6+Math.round((x.cnt/max)*38);const act=x.iso===activeDay?' active':'';
+    return `<button class="tl-day${x.cnt===max&&x.cnt>0?' hot':''}${act}" data-date="${x.iso}"><span class="tl-wd">${(_WD[lang]||_WD.en)[x.d.getDay()]}</span><span class="tl-dd">${x.d.getDate()}</span><span class="tl-bar" style="height:${h}px"></span><span class="tl-n">${x.cnt||''}</span></button>`;}).join('');
+  return `<div class="tl-wrap"><span class="tl-lbl">${esc(t('filterLbl'))}</span><button class="tl-reset${activeDay?' show':''}" id="tlReset">${esc(t('allDays'))} ✕</button></div><div class="wk-timeline" id="tl">${bars}</div>`;
 }
 
+let activeDay=null;
 function renderWeek(){
-  const near=[...catalog].sort((a,b)=>km(a)-km(b)).slice(0,10).map(evCard);
-  const byCat=c=>catalog.filter(e=>e.categorySlug===c).slice(0,10).map(evCard);
+  const wk=new Set(weekDays());
+  const byDate=(a,b)=>String(a.date||'').localeCompare(String(b.date||''))||(km(a)-km(b));
+  const onDay=e=>e.date===activeDay;
+  // "This week near your hotel": events in the next 7 days, nearest first
+  // (when a specific day is picked, scope to that day; else fall back to nearest overall if sparse)
+  let nearPool;
+  if(activeDay){nearPool=catalog.filter(onDay).sort((a,b)=>km(a)-km(b));}
+  else{nearPool=catalog.filter(e=>wk.has(e.date)).sort((a,b)=>km(a)-km(b));
+       if(nearPool.length<6)nearPool=[...catalog].sort((a,b)=>km(a)-km(b));}
+  const near=nearPool.slice(0,10).map(evCard);
+  // themed: up to 10 of that category — soonest by default, or that day's when a day is picked
+  const byCat=c=>{let a=catalog.filter(e=>e.categorySlug===c);if(activeDay)a=a.filter(onDay);return a.sort(byDate).slice(0,10).map(evCard);};
   let html=timelineHTML();
   html+=section('📍',t('near'),near);
   html+=section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
@@ -257,7 +304,7 @@ function renderWeek(){
   html+=section('🎨',t('art'),byCat('exhibition'));
   html+=section('🎭',t('theatre'),byCat('theatre'));
   document.getElementById('week').innerHTML=html||`<p class="empty">—</p>`;
-  setupArrows(); setupDayFilter();
+  setupArrows(); bindTimeline();
 }
 
 // scroll arrows (this-week behaviour)
@@ -279,37 +326,67 @@ function setupArrows(){
   });
 }
 
-// day filter (this-week behaviour): filter dated cards, hide empty rails+headers
-function setupDayFilter(){
+// day filter: picking a day re-renders each carousel from the full catalog for that day
+// (so later days show real content, not just whatever survived the default top-10 slice)
+function bindTimeline(){
   const tl=document.getElementById('tl'); if(!tl)return;
-  const reset=document.getElementById('tlReset');
-  const cards=[].slice.call(document.querySelectorAll('#week .ev[data-date]'));
-  let active=null;
-  function apply(){
-    cards.forEach(c=>{const d=c.getAttribute('data-date');c.style.display=(!active||d===active)?'':'none';});
-    document.querySelectorAll('#week .wk-rail').forEach(rail=>{
-      const vis=[].some.call(rail.querySelectorAll('.ev'),ch=>ch.style.display!=='none');
-      const wrap=rail.closest('.wk-railwrap')||rail;
-      wrap.style.display=vis?'':'none';
-      const hdr=wrap.previousElementSibling;
-      if(hdr&&hdr.classList.contains('wk-h'))hdr.style.display=vis?'':'none';
-    });
-    if(reset)reset.classList.toggle('show',!!active);
-    window.dispatchEvent(new Event('resize'));
-  }
   tl.querySelectorAll('.tl-day').forEach(btn=>btn.addEventListener('click',()=>{
-    const d=btn.getAttribute('data-date');
-    if(active===d){active=null;btn.classList.remove('active');}
-    else{active=d;tl.querySelectorAll('.tl-day').forEach(b=>b.classList.toggle('active',b===btn));}
-    apply();
+    const d=btn.getAttribute('data-date'); activeDay=(activeDay===d)?null:d; renderWeek();
   }));
-  if(reset)reset.addEventListener('click',()=>{active=null;tl.querySelectorAll('.tl-day').forEach(b=>b.classList.remove('active'));apply();});
+  const reset=document.getElementById('tlReset');
+  if(reset)reset.addEventListener('click',()=>{activeDay=null;renderWeek();});
 }
 
+// ---- event modal (same click-to-open experience as the app) ----
+const mv=document.getElementById('mv');
+function catLabel(slug){if(!slug)return '';const k=CAT_L[slug];return k?t(k):slug.charAt(0).toUpperCase()+slug.slice(1);}
+function openModal(id){
+  const e=evById[id]; if(!e)return;
+  const time=(e.time&&e.time!=='TBA')?e.time:'';
+  const dist=distLabel(e);
+  const hasCoord=Number.isFinite(e.lat)&&Number.isFinite(e.lng);
+  const dirUrl='https://www.google.com/maps/dir/?api=1&destination='+(hasCoord?e.lat+','+e.lng:encodeURIComponent(((e.venue||'')+' '+(e.city||'')).trim()||'Brussels'));
+  const hero=e.img?`<img src="${esc(e.img)}" alt="">`:'';
+  const cat=catLabel(e.categorySlug);
+  const dateLine=[fmtDate(e.date),time].filter(Boolean).join(' · ');
+  const venueLine=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', ');
+  const about=(e.desc&&String(e.desc).trim())?`<div class="mv-about"><h4>${esc(ABOUT_L[lang]||ABOUT_L.en)}</h4>${esc(String(e.desc).trim())}</div>`:'';
+  const cta=e.url?`<a class="mv-cta" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(t('tickets'))}</a>`:'';
+  mv.innerHTML=`<div class="mv-card" role="dialog" aria-modal="true">
+    <div class="mv-hero">${hero}<button class="mv-x" aria-label="Close">✕</button>${dateLine?`<span class="mv-badge">${esc(dateLine)}</span>`:''}</div>
+    <div class="mv-body">
+      ${cat?`<span class="mv-cat">${esc(cat)}</span>`:''}
+      <h2 class="mv-title">${esc(cleanTitle(e.name))}</h2>
+      ${venueLine?`<div class="mv-row"><span class="ic">📍</span><span><b>${esc(venueLine)}</b>${dist?' · '+esc(dist):''}<a class="mv-dir" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))} →</a></span></div>`:''}
+      ${about}${cta}
+    </div></div>`;
+  mv.classList.add('on'); mv.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+}
+function closeModal(){mv.classList.remove('on');mv.setAttribute('aria-hidden','true');document.body.style.overflow='';mv.innerHTML='';}
+mv.addEventListener('click',e=>{if(e.target===mv||e.target.closest('.mv-x'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mv.classList.contains('on'))closeModal();});
+document.addEventListener('click',e=>{
+  const card=e.target.closest('.ev,.res-ev'); if(!card)return;
+  const id=card.getAttribute('data-id');
+  if(!id||!evById[id]){ if(card.classList.contains('ev')&&(!card.getAttribute('href')||card.getAttribute('href')==='#'))e.preventDefault(); return; }
+  e.preventDefault(); openModal(id);
+});
+
+function indexEvents(list){for(const e of list){if(e&&e.id)evById[e.id]=e;}}
 async function loadCatalog(){
+  activeDay=null;
   document.getElementById('week').innerHTML=`<div class="wk-rail" style="margin-top:20px">${'<div class="skel"></div>'.repeat(4)}</div>`;
-  try{const r=await fetch(`${API}/events?lang=${lang}&limit=200`);const d=await r.json();catalog=dedupe((d.events||[]).filter(e=>e.name));}
-  catch(e){catalog=[];}
+  try{
+    // one date-sorted pull PER category so every category spans the week (each is soonest-first),
+    // then merge — this is what gives the day filter real coverage for days after today.
+    const parts=await Promise.all(CATS.map(c=>
+      fetch(`${API}/events?lang=${lang}&category=${c}&sort=date&limit=100&lat=${HOTEL.lat}&lng=${HOTEL.lng}`)
+        .then(r=>r.json()).then(d=>d.events||[]).catch(()=>[])));
+    const merged=[]; const seenId=new Set();
+    for(const arr of parts)for(const e of arr){if(e&&e.name&&e.id&&!seenId.has(e.id)){seenId.add(e.id);merged.push(e);}}
+    catalog=dedupe(merged.filter(e=>e.name));
+  }catch(e){catalog=[];}
+  indexEvents(catalog);
   renderWeek();
 }
 
@@ -333,8 +410,9 @@ async function ask(q){
     let cards='';
     if(ids.length){
       const evs=(await Promise.all(ids.map(id=>fetch(`${API}/events?id=${id}&lang=${lang}`).then(x=>x.json()).then(x=>x.events&&x.events[0]).catch(()=>null)))).filter(Boolean);
+      indexEvents(evs);
       cards=dedupe(evs).map(e=>{const dl=distLabel(e),th=e.img?`background-image:url('${esc(e.img)}')`:`background:linear-gradient(135deg,#ff3d8b,#9b5cff)`;
-        return `<a class="res-ev" href="${esc(e.url||'#')}" target="_blank" rel="noopener"><div class="rt" style="${th}"></div><div><div class="rtt">${esc(cleanTitle(e.name))}</div><div class="rtm">${esc(e.venue||e.city||'')}${dl?' · '+dl:''} · ${esc(fmtDate(e.date))}</div></div></a>`;}).join('');
+        return `<a class="res-ev" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener"><div class="rt" style="${th}"></div><div><div class="rtt">${esc(cleanTitle(e.name))}</div><div class="rtm">${esc(e.venue||e.city||'')}${dl?' · '+dl:''} · ${esc(fmtDate(e.date))}</div></div></a>`;}).join('');
     }
     addMsg('ai',`${esc(d.reasoning||'')||t('none')}${cards?`<div class="res">${cards}</div>`:''}`);
   }catch(e){typing.remove();addMsg('ai',t('none'));}
