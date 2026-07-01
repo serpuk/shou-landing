@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hotel Amigo — Local Concierge · powered by shou</title>
-<meta name="description" content="Hotel Amigo's local concierge — discover concerts, dining, art and hidden gems near the hotel, in your own language, 24/7. Powered by shou.">
+<title>Your Hotel — Local Concierge · powered by shou</title>
+<meta name="description" content="A sample of the branded local concierge shou builds for your hotel — concerts, dining, art and hidden gems near the hotel, in the guest's own language, 24/7.">
 <meta name="robots" content="noindex,follow">
-<link rel="canonical" href="https://shou.be/hotels/sample/hotel-amigo">
+<link rel="canonical" href="https://shou.be/hotels/sample">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -101,30 +101,47 @@
   @keyframes sh{to{background-position:-200% 0}}
   .empty{text-align:center;color:var(--dim);padding:30px 0}
 
-  /* event modal (opens on card click — keeps the guest in the hotel's page) */
+  /* event modal — the app's rich card, opened in-page (keeps the guest on the hotel page) */
   .mv{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;background:rgba(20,16,30,.55);backdrop-filter:blur(3px)}
   .mv.on{display:flex}
-  .mv-card{background:var(--card);width:100%;max-width:540px;max-height:92vh;overflow-y:auto;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(20,16,30,.3);animation:mvup .25s ease}
+  .mv-card{background:var(--card);width:100%;max-width:560px;max-height:94vh;overflow-y:auto;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(20,16,30,.3);animation:mvup .25s ease;-webkit-overflow-scrolling:touch}
   @media(min-width:640px){.mv{align-items:center;padding:20px}.mv-card{border-radius:22px;animation:mvin .2s ease}}
   @keyframes mvup{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
   @keyframes mvin{from{transform:scale(.97);opacity:.6}to{transform:none;opacity:1}}
-  .mv-hero{position:relative;height:210px;background:linear-gradient(135deg,var(--violet),var(--pink));overflow:hidden}
+  .mv-hero{position:relative;height:230px;background:linear-gradient(135deg,var(--violet),var(--pink));overflow:hidden}
   .mv-hero img{width:100%;height:100%;object-fit:cover;display:block}
-  .mv-x{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--ink);font-size:19px;cursor:pointer;display:grid;place-items:center;box-shadow:0 2px 10px rgba(20,16,30,.2)}
-  .mv-badge{position:absolute;left:14px;bottom:12px;background:rgba(255,255,255,.94);color:var(--ink);font-weight:700;font-size:12.5px;padding:6px 12px;border-radius:999px;box-shadow:0 2px 10px rgba(20,16,30,.18)}
-  .mv-body{padding:20px 22px 26px}
-  .mv-cat{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pink);margin-bottom:8px}
-  .mv-title{font-family:'Fraunces',serif;font-weight:600;font-size:26px;line-height:1.14;color:var(--ink);margin-bottom:14px}
-  .mv-row{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--soft);margin-bottom:9px}
-  .mv-row .ic{flex:none;width:18px;text-align:center}
-  .mv-row b{color:var(--ink);font-weight:600}
-  .mv-dir{color:var(--cyan);font-weight:600;text-decoration:none;white-space:nowrap;margin-left:6px}
-  .mv-about{font-size:14.5px;line-height:1.6;color:var(--text);margin:16px 0 4px;white-space:pre-line}
-  .mv-about h4{font-family:'Fraunces',serif;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-  .mv-cta{display:block;text-align:center;background:var(--grad);color:#fff;font-weight:700;font-size:15px;padding:14px;border-radius:14px;text-decoration:none;margin-top:20px;box-shadow:0 8px 20px -8px rgba(255,61,139,.6)}
-  .mv-src{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
-  .mv-src a{font-size:12px;font-weight:600;color:var(--soft);background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;padding:5px 11px;text-decoration:none}
-  .mv-src a:hover{border-color:rgba(255,61,139,.4);color:var(--pink)}
+  .mv-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,16,30,.55),rgba(20,16,30,0) 55%)}
+  .mv-x{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--ink);font-size:19px;cursor:pointer;display:grid;place-items:center;box-shadow:0 2px 10px rgba(20,16,30,.2);z-index:2}
+  .mv-cal{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.95);border-radius:12px;padding:7px 11px;display:flex;flex-direction:column;align-items:center;line-height:1.05;box-shadow:0 2px 10px rgba(20,16,30,.18);z-index:2}
+  .mv-cal span{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--soft);text-transform:uppercase}
+  .mv-cal b{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink)}
+  .mv-pill{position:absolute;left:14px;bottom:14px;color:#fff;font-weight:700;font-size:11.5px;letter-spacing:.03em;padding:5px 12px;border-radius:999px;box-shadow:0 2px 10px rgba(20,16,30,.22);z-index:2;max-width:calc(100% - 28px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mv-b{padding:20px 22px 26px}
+  .mv-title{font-family:'Fraunces',serif;font-weight:600;font-size:26px;line-height:1.14;color:var(--ink)}
+  .mv-sub{color:var(--soft);font-size:14px;margin-top:5px}
+  .mv-rows{display:flex;flex-direction:column;gap:14px;margin:18px 0 4px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .mv-row{display:flex;gap:12px;align-items:flex-start}
+  .mv-row .ic{flex:none;width:22px;text-align:center;font-size:15px;opacity:.9}
+  .mv-tx .k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+  .mv-tx .v{font-size:14.5px;color:var(--ink);font-weight:500}
+  .mv-dist{color:var(--cyan);font-weight:600;white-space:nowrap;margin-left:4px}
+  .mv-dir,.mv-link{color:var(--cyan);font-weight:600;text-decoration:none;white-space:nowrap;margin-left:8px}
+  .mv-dir:hover,.mv-link:hover{text-decoration:underline}
+  .mv-about{margin:18px 0 4px}
+  .mv-about h4{font-family:'Fraunces',serif;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+  .mv-about p{font-size:14.5px;line-height:1.62;color:var(--text);white-space:pre-line}
+  .mv-about p.mv-clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+  .mv-more{margin-top:7px;background:none;border:none;color:var(--cyan);font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit;padding:0}
+  .mv-map{position:relative;margin:18px 0 4px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+  .mv-map iframe{width:100%;height:180px;border:0;display:block;filter:grayscale(.12) contrast(1.02)}
+  .mv-map-cta{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,.95);color:var(--ink);font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;text-decoration:none;box-shadow:0 2px 10px rgba(20,16,30,.2)}
+  .mv-cta{display:block;text-align:center;background:var(--grad);color:#fff;font-weight:700;font-size:15px;padding:15px;border-radius:14px;text-decoration:none;margin-top:20px;box-shadow:0 8px 20px -8px rgba(255,61,139,.6)}
+  .mv-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,.95);color:var(--ink);font-size:26px;font-weight:400;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(20,16,30,.24);transition:transform .12s,background .15s}
+  .mv-prev{left:max(16px,calc(50% - 560px/2 - 62px))}
+  .mv-next{right:max(16px,calc(50% - 560px/2 - 62px))}
+  .mv-nav:hover{background:var(--pink);color:#fff}
+  .mv-nav:active{transform:translateY(-50%) scale(.93)}
+  @media(max-width:639px){.mv-nav{top:auto;bottom:calc(94vh - 200px);transform:none;width:42px;height:42px;font-size:22px;background:rgba(255,255,255,.92)}.mv-prev{left:16px}.mv-next{right:16px}.mv-nav:active{transform:scale(.93)}}
 
   /* chat */
   #ask{display:none}#ask.on{display:block}
@@ -161,8 +178,8 @@
   <div class="ribbon">Sample concierge page — this is the experience a guest opens when they scan the QR. <a href="/hotels/offer">See the offer →</a></div>
 
   <header><div class="bar">
-    <div class="hlogo">A</div>
-    <div><div class="hname">Hotel Amigo</div><div class="hpow" data-i="pow">Local concierge · powered by shou</div></div>
+    <div class="hlogo">H</div>
+    <div><div class="hname">Your Hotel</div><div class="hpow" data-i="pow">Local concierge · powered by shou</div></div>
     <div class="lang">
       <select id="langSel" aria-label="Language">
         <option value="en">🇬🇧 English</option><option value="fr">🇫🇷 Français</option><option value="nl">🇳🇱 Nederlands</option>
@@ -176,12 +193,12 @@
       <div>
         <span class="eyebrow" data-i="eyebrow">Welcome to Brussels</span>
         <h1 data-i="welcome">Your evening, sorted.</h1>
-        <p data-i="sub">Discover the best concerts, dining, art and hidden gems near Hotel Amigo — in your language, updated every hour.</p>
+        <p data-i="sub">Discover the best concerts, dining, art and hidden gems near your hotel — in your language, updated every hour.</p>
         <div class="hlinks" id="hlinks"></div>
       </div>
       <div class="mapcard">
         <iframe title="Map" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=4.3417%2C50.8416%2C4.3617%2C50.8516&layer=mapnik&marker=50.8466%2C4.3517"></iframe>
-        <div class="addr"><b>Hotel Amigo</b> · Rue de l'Amigo 1–3, 1000 Brussels · <span data-i="steps">steps from the Grand-Place</span></div>
+        <div class="addr"><b>Your Hotel</b> · City centre, 1000 Brussels · <span data-i="steps">steps from the Grand-Place</span></div>
       </div>
     </section>
 
@@ -214,21 +231,32 @@
 
 <script>
 const API='https://shou-backend.vercel.app/api';
-const HOTEL={name:'Hotel Amigo',lat:50.8466,lng:4.3517};
+const HOTEL={name:'Your Hotel',lat:50.8466,lng:4.3517};
 const CATS=['music','exhibition','theatre','family','festival'];  // fetched per-category & merged, for real day-coverage
 let lang='en', catalog=[];
 const evById={};                                                  // id -> event, for the click-through modal
-const ABOUT_L={en:'About',fr:'À propos',nl:'Over',de:'Über',es:'Acerca de',it:'Informazioni',uk:'Про подію'};
+// modal chrome labels (Date / Venue / Price / Free / See more·less / About) per language
+const ML={
+  en:{date:'Date',venue:'Venue',price:'Price',free:'Free',more:'See more',less:'See less',about:'About'},
+  fr:{date:'Date',venue:'Lieu',price:'Prix',free:'Gratuit',more:'Voir plus',less:'Voir moins',about:'À propos'},
+  nl:{date:'Datum',venue:'Locatie',price:'Prijs',free:'Gratis',more:'Meer',less:'Minder',about:'Over'},
+  de:{date:'Datum',venue:'Ort',price:'Preis',free:'Kostenlos',more:'Mehr',less:'Weniger',about:'Über'},
+  es:{date:'Fecha',venue:'Lugar',price:'Precio',free:'Gratis',more:'Ver más',less:'Ver menos',about:'Acerca de'},
+  it:{date:'Data',venue:'Luogo',price:'Prezzo',free:'Gratis',more:'Mostra altro',less:'Mostra meno',about:'Informazioni'},
+  uk:{date:'Дата',venue:'Місце',price:'Ціна',free:'Безкоштовно',more:'Більше',less:'Менше',about:'Про подію'},
+};
+const ml=k=>(ML[lang]||ML.en)[k];
 const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
+const SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--orange)',exhibition:'var(--violet)',theatre:'var(--violet)',dance:'var(--violet)',comedy:'var(--violet)',family:'var(--cyan)',sports:'var(--cyan)',sport:'var(--cyan)'};
 
 const T={
-  en:{pow:'Local concierge · powered by shou',eyebrow:'Welcome to Brussels',welcome:'Your evening, sorted.',sub:'Discover the best concerts, dining, art and hidden gems near Hotel Amigo — in your language, updated every hour.',steps:'steps from the Grand-Place',tabWeek:'This week',tabAsk:'Ask the concierge',near:'This week near your hotel',fromHotel:'From Hotel Amigo',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:'Ask me anything about what to do near the hotel — in any language.',askPh:'What should we do tonight?',send:'Ask',foot:'Ask anything, in any language — concerts, dining, hidden gems near you.',thinking:'Finding the best options near the hotel…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',book:'Book a room',dine:'Restaurant Bocconi',bar:'Cocktail bar',spa:'Spa & wellness',dir:'Directions',walk:'min walk',ex:['What should we do tonight?','Best jazz near the hotel?','Something to do with kids tomorrow','Free activities this evening','Most authentic Belgian experience within walking distance']},
-  fr:{pow:'Concierge local · propulsé par shou',eyebrow:'Bienvenue à Bruxelles',welcome:'Votre soirée, réglée.',sub:'Découvrez les meilleurs concerts, restaurants, expos et trésors cachés près du Hotel Amigo — dans votre langue, mis à jour chaque heure.',steps:'à deux pas de la Grand-Place',tabWeek:'Cette semaine',tabAsk:'Demander au concierge',near:'Cette semaine près de votre hôtel',fromHotel:'Depuis le Hotel Amigo',music:'Concerts',art:'Art & expositions',theatre:'Théâtre & spectacles',chatIntro:'Demandez-moi quoi faire près de l\'hôtel — dans n\'importe quelle langue.',askPh:'Que faire ce soir ?',send:'Demander',foot:'Demandez ce que vous voulez, dans votre langue — concerts, restaurants, trésors cachés près de vous.',thinking:'Je cherche les meilleures options près de l\'hôtel…',none:'Rien trouvé pour cela — posez une autre question.',tickets:'Détails →',filterLbl:'Filtrer par jour',allDays:'Tous les jours',book:'Réserver',dine:'Restaurant Bocconi',bar:'Bar à cocktails',spa:'Spa & bien-être',dir:'Itinéraire',walk:'min à pied',ex:['Que faire ce soir ?','Le meilleur jazz près de l\'hôtel ?','Une activité avec les enfants demain','Activités gratuites ce soir','L\'expérience belge la plus authentique à pied']},
-  nl:{pow:'Lokale concierge · powered by shou',eyebrow:'Welkom in Brussel',welcome:'Je avond, geregeld.',sub:'Ontdek de beste concerten, restaurants, kunst en verborgen parels dicht bij Hotel Amigo — in jouw taal, elk uur bijgewerkt.',steps:'op een steenworp van de Grote Markt',tabWeek:'Deze week',tabAsk:'Vraag de concierge',near:'Deze week dicht bij je hotel',fromHotel:'Van Hotel Amigo',music:'Livemuziek',art:'Kunst & tentoonstellingen',theatre:'Theater & voorstellingen',chatIntro:'Vraag me alles over wat te doen dicht bij het hotel — in elke taal.',askPh:'Wat kunnen we vanavond doen?',send:'Vraag',foot:'Vraag alles, in jouw taal — concerten, restaurants, verborgen parels dicht bij jou.',thinking:'Ik zoek de beste opties dicht bij het hotel…',none:'Niets gevonden — probeer een andere vraag.',tickets:'Details →',filterLbl:'Filter op dag',allDays:'Alle dagen',book:'Kamer boeken',dine:'Restaurant Bocconi',bar:'Cocktailbar',spa:'Spa & wellness',dir:'Route',walk:'min lopen',ex:['Wat kunnen we vanavond doen?','Beste jazz dicht bij het hotel?','Iets met de kinderen morgen','Gratis activiteiten vanavond','Meest authentieke Belgische ervaring op loopafstand']},
-  de:{pow:'Lokaler Concierge · powered by shou',eyebrow:'Willkommen in Brüssel',welcome:'Ihr Abend, geregelt.',sub:'Entdecken Sie die besten Konzerte, Restaurants, Kunst und Geheimtipps in der Nähe des Hotel Amigo — in Ihrer Sprache, stündlich aktualisiert.',steps:'wenige Schritte vom Grand-Place',tabWeek:'Diese Woche',tabAsk:'Concierge fragen',near:'Diese Woche in Hotelnähe',fromHotel:'Vom Hotel Amigo',music:'Livemusik',art:'Kunst & Ausstellungen',theatre:'Theater & Bühne',chatIntro:'Fragen Sie mich alles zu Aktivitäten in Hotelnähe — in jeder Sprache.',askPh:'Was können wir heute Abend machen?',send:'Fragen',foot:'Fragen Sie alles, in Ihrer Sprache — Konzerte, Restaurants, Geheimtipps in Ihrer Nähe.',thinking:'Ich suche die besten Optionen in Hotelnähe…',none:'Nichts gefunden — stellen Sie eine andere Frage.',tickets:'Details →',filterLbl:'Nach Tag filtern',allDays:'Alle Tage',book:'Zimmer buchen',dine:'Restaurant Bocconi',bar:'Cocktailbar',spa:'Spa & Wellness',dir:'Route',walk:'Min zu Fuß',ex:['Was können wir heute Abend machen?','Bester Jazz in Hotelnähe?','Etwas mit Kindern morgen','Kostenlose Aktivitäten heute Abend','Authentischstes belgisches Erlebnis zu Fuß']},
-  es:{pow:'Conserje local · con tecnología shou',eyebrow:'Bienvenido a Bruselas',welcome:'Tu noche, resuelta.',sub:'Descubre los mejores conciertos, restaurantes, arte y joyas ocultas cerca del Hotel Amigo — en tu idioma, actualizado cada hora.',steps:'a pasos de la Grand-Place',tabWeek:'Esta semana',tabAsk:'Pregunta al conserje',near:'Esta semana cerca de tu hotel',fromHotel:'Desde el Hotel Amigo',music:'Música en vivo',art:'Arte y exposiciones',theatre:'Teatro y espectáculos',chatIntro:'Pregúntame qué hacer cerca del hotel — en cualquier idioma.',askPh:'¿Qué hacemos esta noche?',send:'Preguntar',foot:'Pregunta lo que quieras, en tu idioma — conciertos, restaurantes, joyas ocultas cerca de ti.',thinking:'Buscando las mejores opciones cerca del hotel…',none:'No encontré nada — prueba otra pregunta.',tickets:'Detalles →',filterLbl:'Filtrar por día',allDays:'Todos los días',book:'Reservar',dine:'Restaurante Bocconi',bar:'Coctelería',spa:'Spa y bienestar',dir:'Cómo llegar',walk:'min a pie',ex:['¿Qué hacemos esta noche?','¿El mejor jazz cerca del hotel?','Algo para hacer con niños mañana','Actividades gratis esta noche','La experiencia belga más auténtica a pie']},
-  it:{pow:'Concierge locale · powered by shou',eyebrow:'Benvenuto a Bruxelles',welcome:'La tua serata, risolta.',sub:'Scopri i migliori concerti, ristoranti, arte e gemme nascoste vicino all\'Hotel Amigo — nella tua lingua, aggiornato ogni ora.',steps:'a pochi passi dalla Grand-Place',tabWeek:'Questa settimana',tabAsk:'Chiedi al concierge',near:'Questa settimana vicino al tuo hotel',fromHotel:'Dall\'Hotel Amigo',music:'Musica dal vivo',art:'Arte e mostre',theatre:'Teatro e spettacoli',chatIntro:'Chiedimi cosa fare vicino all\'hotel — in qualsiasi lingua.',askPh:'Cosa facciamo stasera?',send:'Chiedi',foot:'Chiedi qualsiasi cosa, nella tua lingua — concerti, ristoranti, gemme nascoste vicino a te.',thinking:'Sto cercando le migliori opzioni vicino all\'hotel…',none:'Nessun risultato — prova un\'altra domanda.',tickets:'Dettagli →',filterLbl:'Filtra per giorno',allDays:'Tutti i giorni',book:'Prenota',dine:'Ristorante Bocconi',bar:'Cocktail bar',spa:'Spa & benessere',dir:'Indicazioni',walk:'min a piedi',ex:['Cosa facciamo stasera?','Il miglior jazz vicino all\'hotel?','Qualcosa da fare con i bambini domani','Attività gratuite stasera','L\'esperienza belga più autentica a piedi']},
-  uk:{pow:'Локальний консьєрж · powered by shou',eyebrow:'Ласкаво просимо до Брюсселя',welcome:'Ваш вечір — вирішено.',sub:'Відкрийте найкращі концерти, ресторани, мистецтво та приховані перлини біля Hotel Amigo — вашою мовою, оновлюється щогодини.',steps:'за кілька кроків від Гран-Пляс',tabWeek:'Цього тижня',tabAsk:'Запитати консьєржа',near:'Цього тижня біля вашого готелю',fromHotel:'Від Hotel Amigo',music:'Жива музика',art:'Мистецтво та виставки',theatre:'Театр і вистави',chatIntro:'Запитайте мене про що завгодно поруч із готелем — будь-якою мовою.',askPh:'Що робити сьогодні ввечері?',send:'Запитати',foot:'Запитуйте будь-що, вашою мовою — концерти, ресторани, приховані перлини поруч.',thinking:'Шукаю найкращі варіанти біля готелю…',none:'Нічого не знайдено — спробуйте інше запитання.',tickets:'Деталі →',filterLbl:'Фільтр за днем',allDays:'Усі дні',book:'Забронювати',dine:'Ресторан Bocconi',bar:'Коктейль-бар',spa:'Спа та велнес',dir:'Маршрут',walk:'хв пішки',ex:['Що робити сьогодні ввечері?','Найкращий джаз біля готелю?','Чим зайнятися з дітьми завтра','Безкоштовні активності сьогодні','Найавтентичніший бельгійський досвід пішки']},
+  en:{pow:'Local concierge · powered by shou',eyebrow:'Welcome to Brussels',welcome:'Your evening, sorted.',sub:'Discover the best concerts, dining, art and hidden gems near your hotel — in your language, updated every hour.',steps:'steps from the Grand-Place',tabWeek:'This week',tabAsk:'Ask the concierge',near:'This week near your hotel',fromHotel:'From your hotel',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:'Ask me anything about what to do near the hotel — in any language.',askPh:'What should we do tonight?',send:'Ask',foot:'Ask anything, in any language — concerts, dining, hidden gems near you.',thinking:'Finding the best options near the hotel…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',book:'Book a room',dine:'Restaurant',bar:'Cocktail bar',spa:'Spa & wellness',dir:'Directions',walk:'min walk',ex:['What should we do tonight?','Best jazz near the hotel?','Something to do with kids tomorrow','Free activities this evening','Most authentic Belgian experience within walking distance']},
+  fr:{pow:'Concierge local · propulsé par shou',eyebrow:'Bienvenue à Bruxelles',welcome:'Votre soirée, réglée.',sub:'Découvrez les meilleurs concerts, restaurants, expos et trésors cachés près de votre hôtel — dans votre langue, mis à jour chaque heure.',steps:'à deux pas de la Grand-Place',tabWeek:'Cette semaine',tabAsk:'Demander au concierge',near:'Cette semaine près de votre hôtel',fromHotel:'Depuis votre hôtel',music:'Concerts',art:'Art & expositions',theatre:'Théâtre & spectacles',chatIntro:'Demandez-moi quoi faire près de l\'hôtel — dans n\'importe quelle langue.',askPh:'Que faire ce soir ?',send:'Demander',foot:'Demandez ce que vous voulez, dans votre langue — concerts, restaurants, trésors cachés près de vous.',thinking:'Je cherche les meilleures options près de l\'hôtel…',none:'Rien trouvé pour cela — posez une autre question.',tickets:'Détails →',filterLbl:'Filtrer par jour',allDays:'Tous les jours',book:'Réserver',dine:'Restaurant',bar:'Bar à cocktails',spa:'Spa & bien-être',dir:'Itinéraire',walk:'min à pied',ex:['Que faire ce soir ?','Le meilleur jazz près de l\'hôtel ?','Une activité avec les enfants demain','Activités gratuites ce soir','L\'expérience belge la plus authentique à pied']},
+  nl:{pow:'Lokale concierge · powered by shou',eyebrow:'Welkom in Brussel',welcome:'Je avond, geregeld.',sub:'Ontdek de beste concerten, restaurants, kunst en verborgen parels dicht bij je hotel — in jouw taal, elk uur bijgewerkt.',steps:'op een steenworp van de Grote Markt',tabWeek:'Deze week',tabAsk:'Vraag de concierge',near:'Deze week dicht bij je hotel',fromHotel:'Van je hotel',music:'Livemuziek',art:'Kunst & tentoonstellingen',theatre:'Theater & voorstellingen',chatIntro:'Vraag me alles over wat te doen dicht bij het hotel — in elke taal.',askPh:'Wat kunnen we vanavond doen?',send:'Vraag',foot:'Vraag alles, in jouw taal — concerten, restaurants, verborgen parels dicht bij jou.',thinking:'Ik zoek de beste opties dicht bij het hotel…',none:'Niets gevonden — probeer een andere vraag.',tickets:'Details →',filterLbl:'Filter op dag',allDays:'Alle dagen',book:'Kamer boeken',dine:'Restaurant',bar:'Cocktailbar',spa:'Spa & wellness',dir:'Route',walk:'min lopen',ex:['Wat kunnen we vanavond doen?','Beste jazz dicht bij het hotel?','Iets met de kinderen morgen','Gratis activiteiten vanavond','Meest authentieke Belgische ervaring op loopafstand']},
+  de:{pow:'Lokaler Concierge · powered by shou',eyebrow:'Willkommen in Brüssel',welcome:'Ihr Abend, geregelt.',sub:'Entdecken Sie die besten Konzerte, Restaurants, Kunst und Geheimtipps in der Nähe Ihres Hotels — in Ihrer Sprache, stündlich aktualisiert.',steps:'wenige Schritte vom Grand-Place',tabWeek:'Diese Woche',tabAsk:'Concierge fragen',near:'Diese Woche in Hotelnähe',fromHotel:'Von Ihrem Hotel',music:'Livemusik',art:'Kunst & Ausstellungen',theatre:'Theater & Bühne',chatIntro:'Fragen Sie mich alles zu Aktivitäten in Hotelnähe — in jeder Sprache.',askPh:'Was können wir heute Abend machen?',send:'Fragen',foot:'Fragen Sie alles, in Ihrer Sprache — Konzerte, Restaurants, Geheimtipps in Ihrer Nähe.',thinking:'Ich suche die besten Optionen in Hotelnähe…',none:'Nichts gefunden — stellen Sie eine andere Frage.',tickets:'Details →',filterLbl:'Nach Tag filtern',allDays:'Alle Tage',book:'Zimmer buchen',dine:'Restaurant',bar:'Cocktailbar',spa:'Spa & Wellness',dir:'Route',walk:'Min zu Fuß',ex:['Was können wir heute Abend machen?','Bester Jazz in Hotelnähe?','Etwas mit Kindern morgen','Kostenlose Aktivitäten heute Abend','Authentischstes belgisches Erlebnis zu Fuß']},
+  es:{pow:'Conserje local · con tecnología shou',eyebrow:'Bienvenido a Bruselas',welcome:'Tu noche, resuelta.',sub:'Descubre los mejores conciertos, restaurantes, arte y joyas ocultas cerca de tu hotel — en tu idioma, actualizado cada hora.',steps:'a pasos de la Grand-Place',tabWeek:'Esta semana',tabAsk:'Pregunta al conserje',near:'Esta semana cerca de tu hotel',fromHotel:'Desde tu hotel',music:'Música en vivo',art:'Arte y exposiciones',theatre:'Teatro y espectáculos',chatIntro:'Pregúntame qué hacer cerca del hotel — en cualquier idioma.',askPh:'¿Qué hacemos esta noche?',send:'Preguntar',foot:'Pregunta lo que quieras, en tu idioma — conciertos, restaurantes, joyas ocultas cerca de ti.',thinking:'Buscando las mejores opciones cerca del hotel…',none:'No encontré nada — prueba otra pregunta.',tickets:'Detalles →',filterLbl:'Filtrar por día',allDays:'Todos los días',book:'Reservar',dine:'Restaurante',bar:'Coctelería',spa:'Spa y bienestar',dir:'Cómo llegar',walk:'min a pie',ex:['¿Qué hacemos esta noche?','¿El mejor jazz cerca del hotel?','Algo para hacer con niños mañana','Actividades gratis esta noche','La experiencia belga más auténtica a pie']},
+  it:{pow:'Concierge locale · powered by shou',eyebrow:'Benvenuto a Bruxelles',welcome:'La tua serata, risolta.',sub:'Scopri i migliori concerti, ristoranti, arte e gemme nascoste vicino al tuo hotel — nella tua lingua, aggiornato ogni ora.',steps:'a pochi passi dalla Grand-Place',tabWeek:'Questa settimana',tabAsk:'Chiedi al concierge',near:'Questa settimana vicino al tuo hotel',fromHotel:'Dal tuo hotel',music:'Musica dal vivo',art:'Arte e mostre',theatre:'Teatro e spettacoli',chatIntro:'Chiedimi cosa fare vicino all\'hotel — in qualsiasi lingua.',askPh:'Cosa facciamo stasera?',send:'Chiedi',foot:'Chiedi qualsiasi cosa, nella tua lingua — concerti, ristoranti, gemme nascoste vicino a te.',thinking:'Sto cercando le migliori opzioni vicino all\'hotel…',none:'Nessun risultato — prova un\'altra domanda.',tickets:'Dettagli →',filterLbl:'Filtra per giorno',allDays:'Tutti i giorni',book:'Prenota',dine:'Ristorante',bar:'Cocktail bar',spa:'Spa & benessere',dir:'Indicazioni',walk:'min a piedi',ex:['Cosa facciamo stasera?','Il miglior jazz vicino all\'hotel?','Qualcosa da fare con i bambini domani','Attività gratuite stasera','L\'esperienza belga più autentica a piedi']},
+  uk:{pow:'Локальний консьєрж · powered by shou',eyebrow:'Ласкаво просимо до Брюсселя',welcome:'Ваш вечір — вирішено.',sub:'Відкрийте найкращі концерти, ресторани, мистецтво та приховані перлини біля вашого готелю — вашою мовою, оновлюється щогодини.',steps:'за кілька кроків від Гран-Пляс',tabWeek:'Цього тижня',tabAsk:'Запитати консьєржа',near:'Цього тижня біля вашого готелю',fromHotel:'Від вашого готелю',music:'Жива музика',art:'Мистецтво та виставки',theatre:'Театр і вистави',chatIntro:'Запитайте мене про що завгодно поруч із готелем — будь-якою мовою.',askPh:'Що робити сьогодні ввечері?',send:'Запитати',foot:'Запитуйте будь-що, вашою мовою — концерти, ресторани, приховані перлини поруч.',thinking:'Шукаю найкращі варіанти біля готелю…',none:'Нічого не знайдено — спробуйте інше запитання.',tickets:'Деталі →',filterLbl:'Фільтр за днем',allDays:'Усі дні',book:'Забронювати',dine:'Ресторан',bar:'Коктейль-бар',spa:'Спа та велнес',dir:'Маршрут',walk:'хв пішки',ex:['Що робити сьогодні ввечері?','Найкращий джаз біля готелю?','Чим зайнятися з дітьми завтра','Безкоштовні активності сьогодні','Найавтентичніший бельгійський досвід пішки']},
 };
 const t=k=>(T[lang]||T.en)[k];
 
@@ -294,9 +322,9 @@ function renderWeek(){
   if(activeDay){nearPool=catalog.filter(onDay).sort((a,b)=>km(a)-km(b));}
   else{nearPool=catalog.filter(e=>wk.has(e.date)).sort((a,b)=>km(a)-km(b));
        if(nearPool.length<6)nearPool=[...catalog].sort((a,b)=>km(a)-km(b));}
-  const near=nearPool.slice(0,10).map(evCard);
-  // themed: up to 10 of that category — soonest by default, or that day's when a day is picked
-  const byCat=c=>{let a=catalog.filter(e=>e.categorySlug===c);if(activeDay)a=a.filter(onDay);return a.sort(byDate).slice(0,10).map(evCard);};
+  const near=nearPool.slice(0,20).map(evCard);
+  // themed: up to 20 of that category — soonest by default, or that day's when a day is picked
+  const byCat=c=>{let a=catalog.filter(e=>e.categorySlug===c);if(activeDay)a=a.filter(onDay);return a.sort(byDate).slice(0,20).map(evCard);};
   let html=timelineHTML();
   html+=section('📍',t('near'),near);
   html+=section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
@@ -337,39 +365,84 @@ function bindTimeline(){
   if(reset)reset.addEventListener('click',()=>{activeDay=null;renderWeek();});
 }
 
-// ---- event modal (same click-to-open experience as the app) ----
+// ---- event modal (the app's rich card, opened in-page, with prev/next nav) ----
 const mv=document.getElementById('mv');
+let modalList=[], modalIdx=0;
 function catLabel(slug){if(!slug)return '';const k=CAT_L[slug];return k?t(k):slug.charAt(0).toUpperCase()+slug.slice(1);}
-function openModal(id){
-  const e=evById[id]; if(!e)return;
+function calChip(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return '';
+  return `<div class="mv-cal"><span>${(_WD[lang]||_WD.en)[dt.getDay()]}</span><b>${dt.getDate()}</b><span>${_MO[dt.getMonth()]}</span></div>`;}
+function priceHtml(e){
+  if(e.mn!=null){if(e.mn===0&&(e.mx==null||e.mx===0))return esc(ml('free'));
+    return '€'+Math.round(e.mn)+(e.mx&&e.mx!==e.mn?'–€'+Math.round(e.mx):'');}
+  return e.url?`<a class="mv-link" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(t('tickets'))}</a>`:'—';
+}
+function descHtml(e){const d=(e.desc||'').trim();if(!d)return '';
+  const head=`<h4>${esc(ml('about'))}</h4>`;
+  if(d.length<=240)return `<div class="mv-about">${head}<p>${esc(d)}</p></div>`;
+  return `<div class="mv-about">${head}<p class="mv-clamp">${esc(d)}</p><button class="mv-more" type="button">${esc(ml('more'))}</button></div>`;
+}
+function showModal(){
+  const id=modalList[modalIdx], e=evById[id]; if(!e){closeModal();return;}
   const time=(e.time&&e.time!=='TBA')?e.time:'';
   const dist=distLabel(e);
   const hasCoord=Number.isFinite(e.lat)&&Number.isFinite(e.lng);
   const dirUrl='https://www.google.com/maps/dir/?api=1&destination='+(hasCoord?e.lat+','+e.lng:encodeURIComponent(((e.venue||'')+' '+(e.city||'')).trim()||'Brussels'));
   const hero=e.img?`<img src="${esc(e.img)}" alt="">`:'';
-  const cat=catLabel(e.categorySlug);
-  const dateLine=[fmtDate(e.date),time].filter(Boolean).join(' · ');
-  const venueLine=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', ');
-  const about=(e.desc&&String(e.desc).trim())?`<div class="mv-about"><h4>${esc(ABOUT_L[lang]||ABOUT_L.en)}</h4>${esc(String(e.desc).trim())}</div>`:'';
+  const seg=e.seg||catLabel(e.categorySlug)||'';
+  const genre=(e.genre&&e.genre.toLowerCase()!==String(e.seg||'').toLowerCase())?' · '+e.genre:'';
+  const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
+  const sub=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
+  const dateV=[fmtDate(e.date),time].filter(Boolean).join(' · ')||'—';
+  const map=hasCoord?`<div class="mv-map"><iframe loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${(e.lng-0.006).toFixed(4)}%2C${(e.lat-0.004).toFixed(4)}%2C${(e.lng+0.006).toFixed(4)}%2C${(e.lat+0.004).toFixed(4)}&layer=mapnik&marker=${e.lat}%2C${e.lng}"></iframe><a class="mv-map-cta" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))} ↗</a></div>`:'';
   const cta=e.url?`<a class="mv-cta" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(t('tickets'))}</a>`:'';
-  mv.innerHTML=`<div class="mv-card" role="dialog" aria-modal="true">
-    <div class="mv-hero">${hero}<button class="mv-x" aria-label="Close">✕</button>${dateLine?`<span class="mv-badge">${esc(dateLine)}</span>`:''}</div>
-    <div class="mv-body">
-      ${cat?`<span class="mv-cat">${esc(cat)}</span>`:''}
-      <h2 class="mv-title">${esc(cleanTitle(e.name))}</h2>
-      ${venueLine?`<div class="mv-row"><span class="ic">📍</span><span><b>${esc(venueLine)}</b>${dist?' · '+esc(dist):''}<a class="mv-dir" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))} →</a></span></div>`:''}
-      ${about}${cta}
-    </div></div>`;
+  const showNav=modalList.length>1;
+  mv.innerHTML=`
+  ${showNav?'<button class="mv-nav mv-prev" aria-label="Previous">‹</button>':''}
+  <div class="mv-card" role="dialog" aria-modal="true">
+    <div class="mv-hero">${hero}<div class="mv-scrim"></div><button class="mv-x" aria-label="Close">✕</button>${calChip(e.date)}<span class="mv-pill" style="background:${segColor}">${esc(seg)}${esc(genre)}</span></div>
+    <div class="mv-b">
+      <div class="mv-title">${esc(cleanTitle(e.name))}</div>
+      ${sub?`<div class="mv-sub">${esc(sub)}</div>`:''}
+      <div class="mv-rows">
+        <div class="mv-row"><span class="ic">📅</span><div class="mv-tx"><div class="k">${esc(ml('date'))}</div><div class="v">${esc(dateV)}</div></div></div>
+        <div class="mv-row"><span class="ic">📍</span><div class="mv-tx"><div class="k">${esc(ml('venue'))}</div><div class="v">${esc(sub||'TBA')}${dist?`<span class="mv-dist">${esc(dist)}</span>`:''}${!hasCoord?`<a class="mv-dir" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))}</a>`:''}</div></div></div>
+        <div class="mv-row"><span class="ic">🎟</span><div class="mv-tx"><div class="k">${esc(ml('price'))}</div><div class="v">${priceHtml(e)}</div></div></div>
+      </div>
+      ${descHtml(e)}${map}${cta}
+    </div>
+  </div>
+  ${showNav?'<button class="mv-nav mv-next" aria-label="Next">›</button>':''}`;
+  const prev=mv.querySelector('.mv-prev'), next=mv.querySelector('.mv-next');
+  if(prev)prev.style.visibility=modalIdx>0?'visible':'hidden';
+  if(next)next.style.visibility=modalIdx<modalList.length-1?'visible':'hidden';
   mv.classList.add('on'); mv.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+  const mc=mv.querySelector('.mv-card'); if(mc)mc.scrollTop=0;
 }
+function openModal(id){modalList=[id];modalIdx=0;showModal();}
+function navModal(delta){const n=modalIdx+delta;if(n<0||n>=modalList.length)return;modalIdx=n;showModal();}
 function closeModal(){mv.classList.remove('on');mv.setAttribute('aria-hidden','true');document.body.style.overflow='';mv.innerHTML='';}
-mv.addEventListener('click',e=>{if(e.target===mv||e.target.closest('.mv-x'))closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mv.classList.contains('on'))closeModal();});
+mv.addEventListener('click',e=>{
+  if(e.target.closest('.mv-prev')){e.stopPropagation();navModal(-1);return;}
+  if(e.target.closest('.mv-next')){e.stopPropagation();navModal(1);return;}
+  const more=e.target.closest('.mv-more');
+  if(more){e.stopPropagation();const p=more.previousElementSibling;const c=p.classList.toggle('mv-clamp');more.textContent=c?ml('more'):ml('less');return;}
+  if(e.target.closest('.mv-x')||e.target===mv)closeModal();
+});
+document.addEventListener('keydown',e=>{
+  if(!mv.classList.contains('on'))return;
+  if(e.key==='Escape')closeModal();
+  else if(e.key==='ArrowLeft')navModal(-1);
+  else if(e.key==='ArrowRight')navModal(1);
+});
 document.addEventListener('click',e=>{
   const card=e.target.closest('.ev,.res-ev'); if(!card)return;
   const id=card.getAttribute('data-id');
   if(!id||!evById[id]){ if(card.classList.contains('ev')&&(!card.getAttribute('href')||card.getAttribute('href')==='#'))e.preventDefault(); return; }
-  e.preventDefault(); openModal(id);
+  e.preventDefault();
+  const cont=card.closest('.wk-rail')||card.closest('.res');
+  if(cont){modalList=[...new Set([...cont.querySelectorAll('[data-id]')].map(x=>x.getAttribute('data-id')).filter(x=>x&&evById[x]))];modalIdx=Math.max(0,modalList.indexOf(id));}
+  else{modalList=[id];modalIdx=0;}
+  showModal();
 });
 
 function indexEvents(list){for(const e of list){if(e&&e.id)evById[e.id]=e;}}
