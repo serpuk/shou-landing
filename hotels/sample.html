@@ -20,6 +20,8 @@
     --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
     --grad:linear-gradient(105deg,var(--pink),var(--orange));
     --grad-cool:linear-gradient(120deg,var(--violet),var(--pink));
+    --warm-bg:#fce4ed; --warm-bd:#f3bfd2; --warm-ink:#a02a54;
+    --cool-bg:#ece5ff; --cool-bd:#d2c3f6; --cool-ink:#4e35a0;
     --shadow:0 1px 3px rgba(20,16,30,.06);
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -53,9 +55,24 @@
   .mapcard .addr{padding:11px 15px;font-size:12.5px;color:var(--soft);border-top:1px solid var(--line)}
   .mapcard .addr b{color:var(--ink)}
 
-  .tabs{display:flex;gap:6px;padding:6px;background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;width:fit-content;margin:26px auto 8px}
-  .tab{font-size:14px;font-weight:600;padding:9px 20px;border-radius:999px;color:var(--soft);cursor:pointer;border:none;background:none;font-family:inherit;transition:.15s}
-  .tab.on{background:var(--grad);color:#fff;box-shadow:0 6px 16px -8px rgba(255,61,139,.6)}
+  /* Folder tabs: the open tab shares its subpage's colour and welds onto the panel */
+  .tabs{display:flex;gap:5px;width:fit-content;margin:26px auto 0;padding:0}
+  .tab{font-size:14px;font-weight:600;padding:11px 20px 14px;border-radius:14px 14px 0 0;color:var(--soft);cursor:pointer;border:1px solid var(--line);border-bottom:none;background:#f1eff3;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:8px;position:relative}
+  .tab:not(.on){transform:translateY(4px);opacity:.92}
+  .tab-dot{width:8px;height:8px;border-radius:50%;flex:none}
+  #tabWeekBtn .tab-dot{background:var(--grad)}
+  #tabAskBtn .tab-dot{background:var(--grad-cool)}
+  .tab.on{margin-bottom:-1px;z-index:3;padding-bottom:15px}
+  .tab.on .tab-dot{background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  #tabWeekBtn.on{background:var(--warm-bg);color:var(--warm-ink);border-color:var(--warm-bd)}
+  #tabAskBtn.on{background:var(--cool-bg);color:var(--cool-ink);border-color:var(--cool-bd)}
+  .subpage{position:relative;z-index:1;border:1px solid;border-radius:0 0 18px 18px;padding:16px 22px 26px;transition:background .2s,border-color .2s}
+  .subpage.warm{background:var(--warm-bg);border-color:var(--warm-bd)}
+  .subpage.cool{background:var(--cool-bg);border-color:var(--cool-bd)}
+  .subpage.cool .chat-form button{background:var(--grad-cool)}
+  .subpage.cool .chat-form input:focus{border-color:rgba(155,92,255,.5)}
+  .subpage.cool .ex-surprise{background:var(--grad-cool)}
+  .subpage .chat-dock{background:transparent}
 
   /* Day filter timeline (matches this-week) */
   .tl-wrap{display:flex;align-items:center;gap:12px;margin:22px 0 6px}
@@ -248,10 +265,11 @@
     </section>
 
     <div class="tabs">
-      <button class="tab on" id="tabWeekBtn" data-i="tabWeek">This week</button>
-      <button class="tab" id="tabAskBtn" data-i="tabAsk">Ask the concierge</button>
+      <button class="tab on" id="tabWeekBtn"><span class="tab-dot"></span><span data-i="tabWeek">This week</span></button>
+      <button class="tab" id="tabAskBtn"><span class="tab-dot"></span><span data-i="tabAsk">Ask the concierge</span></button>
     </div>
 
+    <div class="subpage warm" id="subpage">
     <div id="week"></div>
 
     <div id="ask">
@@ -267,6 +285,7 @@
           </form>
         </div>
       </div>
+    </div>
     </div>
   </main>
 
@@ -708,7 +727,8 @@ async function loadCatalog(){
 
 // tabs
 function setTab(w){document.getElementById('tabWeekBtn').classList.toggle('on',w);document.getElementById('tabAskBtn').classList.toggle('on',!w);
-  document.getElementById('week').style.display=w?'block':'none';document.getElementById('ask').classList.toggle('on',!w);}
+  document.getElementById('week').style.display=w?'block':'none';document.getElementById('ask').classList.toggle('on',!w);
+  const sp=document.getElementById('subpage');sp.classList.toggle('warm',w);sp.classList.toggle('cool',!w);}
 document.getElementById('tabWeekBtn').onclick=()=>setTab(true);
 document.getElementById('tabAskBtn').onclick=()=>setTab(false);
 
