@@ -308,14 +308,46 @@ function cleanTitle(x){
 }
 function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
 
-function evCard(e){
+// --- occurrence awareness: a recurring event (exhibition run, daily camp) is
+// "on" every day it covers, not just its start_date — mirrors the search API. ---
+function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function occursOn(e,iso){
+  if(!iso)return false;
+  const occ=Array.isArray(e.occurrenceDates)&&e.occurrenceDates.length?e.occurrenceDates:null;
+  if(occ)return occ.includes(iso);
+  if(e.eventType==='recurring'){
+    const start=e.date||'', end=e.recurrenceEndDate||e.endDate||e.date||'';
+    if(start&&iso<start)return false;
+    if(end&&iso>end)return false;
+    const sch=e.recurrenceSchedule&&e.recurrenceSchedule.days;
+    if(sch&&typeof sch==='object'&&!Array.isArray(sch)){
+      const wd=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][new Date(iso+'T12:00:00').getDay()];
+      const info=sch[wd];return !!(info&&info.is_open);
+    }
+    return true;                        // recurring, within range, no weekday detail → assume it covers the day
+  }
+  const start=e.date||'', end=e.endDate||e.date||'';   // single / multi-day
+  return (!start||iso>=start)&&(!end||iso<=end);
+}
+// earliest date >= today the event occurs — the date to show in the default (no day picked) view
+function nextOccurrence(e){
+  const t=todayISO();
+  const occ=Array.isArray(e.occurrenceDates)&&e.occurrenceDates.length?e.occurrenceDates:null;
+  if(occ){let best='';for(const d of occ){if(d>=t&&(!best||d<best))best=d;}return best||e.date;}
+  if(e.date&&e.date>=t)return e.date;
+  const end=e.recurrenceEndDate||e.endDate||e.date;
+  if(e.date&&e.date<t&&end&&end>=t)return t;           // ongoing run → today
+  return e.date;
+}
+function evCard(e,showDate){
   const dist=distLabel(e), tr=fmtTimeRange(e), time=tr?' · '+tr:'';
+  const d=showDate||e.date;
   const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
-  return `<a class="ev" data-date="${esc(e.date||'')}" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
+  return `<a class="ev" data-date="${esc(d||'')}" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
     <span class="thumb">${img}</span>
     <span class="meta">
       <span class="t">${esc(cleanTitle(e.name))}</span>
-      <span class="date">${esc(fmtDate(e.date))}${esc(time)}</span>
+      <span class="date">${esc(fmtDate(d))}${esc(time)}</span>
       <span class="venue">${esc(e.venue||e.city||'')}${dist?` · <span class="dist">${dist}</span>`:''}</span>
     </span></a>`;
 }
@@ -331,7 +363,7 @@ function timelineHTML(){
   const today=new Date(); const days=[];
   for(let i=0;i<7;i++){const d=new Date(today);d.setDate(today.getDate()+i);
     const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    days.push({iso,d,cnt:catalog.filter(e=>e.date===iso).length});}
+    days.push({iso,d,cnt:catalog.filter(e=>occursOn(e,iso)).length});}
   const max=Math.max(1,...days.map(x=>x.cnt));
   const bars=days.map(x=>{const h=6+Math.round((x.cnt/max)*38);const act=x.iso===activeDay?' active':'';
     return `<button class="tl-day${x.cnt===max&&x.cnt>0?' hot':''}${act}" data-date="${x.iso}"><span class="tl-wd">${(_WD[lang]||_WD.en)[x.d.getDay()]}</span><span class="tl-dd">${x.d.getDate()}</span><span class="tl-bar" style="height:${h}px"></span><span class="tl-n">${x.cnt||''}</span></button>`;}).join('');
@@ -340,18 +372,18 @@ function timelineHTML(){
 
 let activeDay=null;
 function renderWeek(){
-  const wk=new Set(weekDays());
-  const byDate=(a,b)=>String(a.date||'').localeCompare(String(b.date||''))||(km(a)-km(b));
-  const onDay=e=>e.date===activeDay;
-  // "This week near your hotel": events in the next 7 days, nearest first
-  // (when a specific day is picked, scope to that day; else fall back to nearest overall if sparse)
-  let nearPool;
-  if(activeDay){nearPool=catalog.filter(onDay).sort((a,b)=>km(a)-km(b));}
-  else{nearPool=catalog.filter(e=>wk.has(e.date)).sort((a,b)=>km(a)-km(b));
-       if(nearPool.length<6)nearPool=[...catalog].sort((a,b)=>km(a)-km(b));}
-  const near=nearPool.slice(0,20).map(evCard);
-  // themed: up to 20 of that category — soonest by default, or that day's when a day is picked
-  const byCat=c=>{let a=catalog.filter(e=>e.categorySlug===c);if(activeDay)a=a.filter(onDay);return a.sort(byDate).slice(0,20).map(evCard);};
+  const wk=weekDays();
+  // an event is in-window if it OCCURS on the picked day (or any of the next 7 days by default) —
+  // recurring runs count on every day they cover, not just their start_date
+  const inWindow=e=>activeDay?occursOn(e,activeDay):wk.some(d=>occursOn(e,d));
+  const showDateFor=e=>activeDay||nextOccurrence(e);      // picked day, else next upcoming occurrence
+  const byShown=(a,b)=>String(showDateFor(a)||'').localeCompare(String(showDateFor(b)||''))||(km(a)-km(b));
+  // "This week near your hotel": events on in the window, nearest first
+  let nearPool=catalog.filter(inWindow).sort((a,b)=>km(a)-km(b));
+  if(!activeDay&&nearPool.length<6)nearPool=[...catalog].sort((a,b)=>km(a)-km(b));
+  const near=nearPool.slice(0,20).map(e=>evCard(e,showDateFor(e)));
+  // themed: up to 20 of that category occurring in the window — soonest first
+  const byCat=c=>catalog.filter(e=>e.categorySlug===c&&inWindow(e)).sort(byShown).slice(0,20).map(e=>evCard(e,showDateFor(e)));
   let html=timelineHTML();
   html+=section('📍',t('near'),near);
   html+=section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
@@ -394,7 +426,7 @@ function bindTimeline(){
 
 // ---- event modal (the app's rich card, opened in-page, with prev/next nav) ----
 const mv=document.getElementById('mv');
-let modalList=[], modalIdx=0;
+let modalList=[], modalDates=[], modalIdx=0;   // modalDates: occurrence date to show per card (parallel to modalList)
 function catLabel(slug){if(!slug)return '';const k=CAT_L[slug];return k?t(k):slug.charAt(0).toUpperCase()+slug.slice(1);}
 function calChip(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return '';const loc=LOCMAP[lang]||'en-GB';
   const wd=dt.toLocaleDateString(loc,{weekday:'short'}).toUpperCase();const mo=dt.toLocaleDateString(loc,{month:'short'}).toUpperCase();
@@ -420,14 +452,15 @@ function showModal(){
   const genre=(e.genre&&e.genre.toLowerCase()!==String(e.seg||'').toLowerCase())?' · '+e.genre:'';
   const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
   const sub=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
-  const dateV=[fmtDate(e.date),time].filter(Boolean).join(' · ')||'—';
+  const showDate=modalDates[modalIdx]||e.date;      // occurrence date from the clicked card (recurring runs)
+  const dateV=[fmtDate(showDate),time].filter(Boolean).join(' · ')||'—';
   const map=hasCoord?`<div class="mv-map"><iframe loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${(e.lng-0.006).toFixed(4)}%2C${(e.lat-0.004).toFixed(4)}%2C${(e.lng+0.006).toFixed(4)}%2C${(e.lat+0.004).toFixed(4)}&layer=mapnik&marker=${e.lat}%2C${e.lng}"></iframe><a class="mv-map-cta" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))} ↗</a></div>`:'';
   const cta=e.url?`<a class="mv-cta" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(t('tickets'))}</a>`:'';
   const showNav=modalList.length>1;
   mv.innerHTML=`
   ${showNav?'<button class="mv-nav mv-prev" aria-label="Previous">‹</button>':''}
   <div class="mv-card" role="dialog" aria-modal="true">
-    <div class="mv-hero">${hero}<div class="mv-scrim"></div><button class="mv-x" aria-label="Close">✕</button>${calChip(e.date)}<span class="mv-pill" style="background:${segColor}">${esc(seg)}${esc(genre)}</span></div>
+    <div class="mv-hero">${hero}<div class="mv-scrim"></div><button class="mv-x" aria-label="Close">✕</button>${calChip(showDate)}<span class="mv-pill" style="background:${segColor}">${esc(seg)}${esc(genre)}</span></div>
     <div class="mv-b">
       <div class="mv-title">${esc(cleanTitle(e.name))}</div>
       ${sub?`<div class="mv-sub">${esc(sub)}</div>`:''}
@@ -446,7 +479,7 @@ function showModal(){
   mv.classList.add('on'); mv.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
   const mc=mv.querySelector('.mv-card'); if(mc)mc.scrollTop=0;
 }
-function openModal(id){modalList=[id];modalIdx=0;showModal();}
+function openModal(id){modalList=[id];modalDates=[evById[id]?nextOccurrence(evById[id]):''];modalIdx=0;showModal();}
 function navModal(delta){const n=modalIdx+delta;if(n<0||n>=modalList.length)return;modalIdx=n;showModal();}
 function closeModal(){mv.classList.remove('on');mv.setAttribute('aria-hidden','true');document.body.style.overflow='';mv.innerHTML='';}
 mv.addEventListener('click',e=>{
@@ -468,8 +501,12 @@ document.addEventListener('click',e=>{
   if(!id||!evById[id]){ if(card.classList.contains('ev')&&(!card.getAttribute('href')||card.getAttribute('href')==='#'))e.preventDefault(); return; }
   e.preventDefault();
   const cont=card.closest('.wk-rail')||card.closest('.res');
-  if(cont){modalList=[...new Set([...cont.querySelectorAll('[data-id]')].map(x=>x.getAttribute('data-id')).filter(x=>x&&evById[x]))];modalIdx=Math.max(0,modalList.indexOf(id));}
-  else{modalList=[id];modalIdx=0;}
+  if(cont){
+    const seen=new Set();modalList=[];modalDates=[];
+    cont.querySelectorAll('[data-id]').forEach(x=>{const xid=x.getAttribute('data-id');if(!xid||!evById[xid]||seen.has(xid))return;
+      seen.add(xid);modalList.push(xid);modalDates.push(x.getAttribute('data-date')||'');});
+    modalIdx=Math.max(0,modalList.indexOf(id));
+  }else{modalList=[id];modalDates=[card.getAttribute('data-date')||''];modalIdx=0;}
   showModal();
 });
 
@@ -510,7 +547,7 @@ function chatCard(e){
   const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
   const desc=(e.desc||'').trim();
   const venue=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
-  return `<div class="qcard" data-id="${esc(e.id||'')}">
+  return `<div class="qcard" data-id="${esc(e.id||'')}" data-date="${esc(e.date||'')}">
     <div class="qthumb">${img}</div>
     <div class="qcb">
       ${seg?`<span class="qpill" style="background:${segColor}">${esc(seg)}</span>`:''}
