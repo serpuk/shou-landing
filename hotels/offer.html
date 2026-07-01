@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Concierge for Hotels — shou</title>
+<meta name="description" content="Give every guest a local concierge — available 24/7 in 7 languages. Shou turns every room into a digital concierge, trained for your hotel's guests and its neighbourhood. Your guests always know what to do in Belgium tonight.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Give every guest a local concierge — shou for hotels">
+<meta property="og:description" content="A digital concierge for your hotel, in 7 languages, updated hourly. Your guests always know what to do in Belgium tonight.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shou.be/hotels/offer">
+<meta property="og:image" content="https://shou.be/og-this-week.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://shou.be/hotels/offer">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c0910; --ink2:#120d16;
+    --text:#f0ebf4; --text-soft:#b3a9bf; --text-dim:#7d7388;
+    --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#46e0d2; --violet:#9b5cff;
+    --grad:linear-gradient(100deg,var(--pink),var(--orange));
+    --grad-cool:linear-gradient(120deg,var(--violet),var(--pink));
+    --panel:rgba(255,255,255,0.035);
+    --panel-bd:rgba(255,255,255,0.10);
+    --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink); color:var(--text);
+    font-family:'Inter',system-ui,sans-serif; font-weight:300;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden; position:relative;
+    line-height:1.6;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.02em; line-height:1.08}
+  a{color:inherit}
+
+  /* Atmospheric glows */
+  .bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .bg::before{
+    content:'';position:absolute;inset:0;
+    background:
+      radial-gradient(900px 700px at 12% -6%, rgba(255,61,139,0.16), transparent 58%),
+      radial-gradient(820px 640px at 98% 2%, rgba(255,155,61,0.12), transparent 55%),
+      radial-gradient(1000px 800px at 50% 128%, rgba(70,224,210,0.08), transparent 60%);
+  }
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.045;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  .wrap{position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:0 24px}
+  section{position:relative;z-index:2;padding:74px 0}
+  .lead{color:var(--text-soft);font-size:clamp(15px,2.4vw,18px);max-width:620px}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);
+    background:rgba(12,9,16,0.72);border-bottom:1px solid var(--panel-bd)}
+  .nav-in{max-width:1120px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:26px;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:-0.02em}
+  .brand small{font-family:'Inter';font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);-webkit-text-fill-color:var(--text-dim);margin-left:9px}
+  .nav-cta{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#16101a;font-weight:700;font-size:14px;
+    padding:10px 18px;border-radius:999px;text-decoration:none;transition:transform .15s,filter .2s;white-space:nowrap}
+  .nav-cta:hover{transform:translateY(-1px);filter:brightness(1.07)}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:15.5px;padding:15px 26px;border-radius:14px;
+    text-decoration:none;cursor:pointer;border:none;transition:transform .15s,filter .2s,border-color .2s,background .2s}
+  .btn-primary{background:var(--grad);color:#16101a}
+  .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.07)}
+  .btn-ghost{background:rgba(255,255,255,0.04);border:1px solid var(--panel-bd);color:var(--text)}
+  .btn-ghost:hover{border-color:rgba(255,61,139,0.5);transform:translateY(-1px)}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--text-soft);border:1px solid var(--panel-bd);border-radius:999px;padding:7px 15px;backdrop-filter:blur(6px)}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--grad);animation:pulse 2.4s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,61,139,.55)}70%{box-shadow:0 0 0 9px rgba(255,61,139,0)}100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* HERO */
+  .hero{padding:64px 0 40px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}
+  .hero h1{font-size:clamp(38px,6vw,64px);margin:22px 0 18px}
+  .hero .sub{font-size:clamp(17px,2.8vw,21px);color:var(--text);font-family:'Fraunces';font-style:italic;font-weight:400;margin-bottom:14px}
+  .hero .promise{color:var(--text-soft);font-size:17px;max-width:520px;margin-bottom:30px}
+  .hero-cta{display:flex;gap:13px;flex-wrap:wrap}
+
+  /* Device mockup */
+  .device{width:100%;max-width:380px;margin:0 auto;background:linear-gradient(180deg,#171019,#0e0a12);
+    border:1px solid var(--panel-bd);border-radius:30px;padding:14px;box-shadow:0 40px 90px -30px rgba(255,61,139,.35),0 0 0 1px rgba(255,255,255,.03) inset}
+  .dev-screen{background:#0b0710;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+  .dev-top{padding:15px 16px 12px;background:linear-gradient(180deg,rgba(255,61,139,.10),transparent);display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .dev-logo{width:36px;height:36px;border-radius:11px;background:var(--grad-cool);flex:none;display:grid;place-items:center;font-family:'Fraunces';font-weight:700;color:#fff;font-size:17px}
+  .dev-name{font-weight:700;font-size:14.5px}
+  .dev-sub{font-size:11px;color:var(--text-dim);letter-spacing:.02em}
+  .dev-lang{margin-left:auto;font-size:11px;color:var(--cyan);border:1px solid rgba(70,224,210,.3);border-radius:999px;padding:4px 9px;white-space:nowrap}
+  .dev-tabs{display:flex;gap:6px;padding:11px 14px 4px}
+  .dev-tab{font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:999px;color:var(--text-dim)}
+  .dev-tab.on{background:var(--grad);color:#16101a}
+  .dev-chips{display:flex;gap:7px;padding:9px 14px;overflow:hidden;flex-wrap:nowrap}
+  .dev-chip{font-size:10.5px;font-weight:600;white-space:nowrap;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--panel-bd);color:var(--text-soft)}
+  .dev-chip.hot{border-color:rgba(255,61,139,.4);color:var(--pink)}
+  .dev-card{display:flex;gap:11px;padding:9px 14px;align-items:center}
+  .dev-thumb{width:58px;height:58px;border-radius:12px;flex:none}
+  .t1{background:linear-gradient(135deg,#ff3d8b,#9b5cff)} .t2{background:linear-gradient(135deg,#46e0d2,#3d7bff)}
+  .dev-ev-t{font-weight:700;font-size:12.5px;line-height:1.25} .dev-ev-m{font-size:10.5px;color:var(--text-dim);margin-top:3px}
+  .dev-chat{padding:12px 14px 16px;border-top:1px solid rgba(255,255,255,.05);margin-top:4px;display:flex;flex-direction:column;gap:8px}
+  .bub{max-width:82%;font-size:11.5px;line-height:1.45;padding:9px 12px;border-radius:14px}
+  .bub.me{align-self:flex-end;background:var(--grad);color:#16101a;font-weight:600;border-bottom-right-radius:4px}
+  .bub.ai{align-self:flex-start;background:rgba(255,255,255,.06);border:1px solid var(--panel-bd);color:var(--text-soft);border-bottom-left-radius:4px}
+  .dev-foot{text-align:center;font-size:9.5px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;padding:0 0 12px}
+
+  /* TRUST band */
+  .trust{text-align:center;padding:26px 0;border-top:1px solid var(--panel-bd);border-bottom:1px solid var(--panel-bd);background:rgba(255,255,255,.015)}
+  .trust p{color:var(--text-soft);font-size:14px;letter-spacing:.02em}
+
+  /* Positioning quote */
+  .quote{text-align:center;max-width:820px;margin:0 auto}
+  .quote h2{font-size:clamp(24px,4vw,38px);font-weight:500;font-style:italic}
+  .quote .attrib{color:var(--text-dim);margin-top:18px;font-size:14px;letter-spacing:.03em}
+
+  .sec-head{max-width:640px;margin:0 auto 44px;text-align:center}
+  .sec-head h2{font-size:clamp(28px,4.4vw,42px);margin-bottom:14px}
+  .sec-head p{color:var(--text-soft);font-size:16.5px}
+
+  /* Benefit cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--panel-bd);border-radius:var(--radius);padding:24px;transition:transform .2s,border-color .2s}
+  .card:hover{transform:translateY(-3px);border-color:rgba(255,61,139,.3)}
+  .card .ico{font-size:26px;margin-bottom:12px;display:block}
+  .card h3{font-size:19px;margin-bottom:7px}
+  .card p{color:var(--text-soft);font-size:14.5px}
+
+  /* Checklist */
+  .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 30px;max-width:900px;margin:34px auto 0}
+  .check{display:flex;gap:12px;align-items:flex-start;font-size:15.5px;color:var(--text)}
+  .check .ck{flex:none;width:22px;height:22px;border-radius:50%;background:rgba(70,224,210,.14);color:var(--cyan);display:grid;place-items:center;font-size:12px;font-weight:800;margin-top:2px}
+
+  /* Before / After table */
+  .ba{max-width:840px;margin:0 auto;border:1px solid var(--panel-bd);border-radius:var(--radius);overflow:hidden}
+  .ba-row{display:grid;grid-template-columns:1fr 1fr}
+  .ba-row>div{padding:15px 22px;border-bottom:1px solid rgba(255,255,255,.06);font-size:15px}
+  .ba-row:last-child>div{border-bottom:none}
+  .ba-head>div{font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.03)}
+  .ba-row .before{color:var(--text-dim)}
+  .ba-row .after{color:var(--text);border-left:1px solid rgba(255,255,255,.06);position:relative}
+  .ba-head .after{color:var(--pink)}
+
+  /* Engine / hotel types */
+  .types{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .type{background:var(--panel);border:1px solid var(--panel-bd);border-radius:var(--radius);padding:24px;position:relative;overflow:hidden}
+  .type::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .type.biz::before{background:linear-gradient(90deg,#3d7bff,#46e0d2)}
+  .type.fam::before{background:linear-gradient(90deg,#ff9b3d,#ffd23d)}
+  .type.lux::before{background:linear-gradient(90deg,#9b5cff,#ff3d8b)}
+  .type.young::before{background:linear-gradient(90deg,#46e0d2,#9b5cff)}
+  .type h3{font-size:20px;margin-bottom:5px}
+  .type .who{font-size:12.5px;color:var(--text-dim);letter-spacing:.04em;text-transform:uppercase;margin-bottom:16px}
+  .type ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .type li{font-size:14.5px;color:var(--text-soft);display:flex;gap:9px;align-items:center}
+  .type li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--pink);flex:none}
+  .type li .prov{font-size:10px;color:var(--text-dim);border:1px solid var(--panel-bd);border-radius:999px;padding:2px 7px;margin-left:auto;white-space:nowrap}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:s}
+  .step{background:var(--panel);border:1px solid var(--panel-bd);border-radius:var(--radius);padding:26px 24px;position:relative}
+  .step .n{counter-increment:s;font-family:'Fraunces';font-size:15px;font-weight:700;width:34px;height:34px;border-radius:50%;
+    background:var(--grad);color:#16101a;display:grid;place-items:center;margin-bottom:16px}
+  .step .n::before{content:counter(s)}
+  .step h3{font-size:18px;margin-bottom:8px}
+  .step p{color:var(--text-soft);font-size:14.5px}
+
+  /* What you get + example questions */
+  .get{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  .get-list{background:var(--panel);border:1px solid var(--panel-bd);border-radius:var(--radius);padding:26px}
+  .get-list h3{font-size:20px;margin-bottom:16px}
+  .get-list ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .get-list li{font-size:15px;color:var(--text-soft);padding-left:26px;position:relative}
+  .get-list li::before{content:'✦';position:absolute;left:0;color:var(--pink)}
+  .get-list li b{color:var(--text);font-weight:600}
+  .ask{background:linear-gradient(160deg,rgba(155,92,255,.08),rgba(255,61,139,.05));border:1px solid var(--panel-bd);border-radius:var(--radius);padding:26px}
+  .ask h3{font-size:20px;margin-bottom:6px}
+  .ask .sm{color:var(--text-dim);font-size:13.5px;margin-bottom:16px}
+  .ask .q{display:block;background:rgba(255,255,255,.05);border:1px solid var(--panel-bd);border-radius:12px;padding:12px 15px;margin-bottom:9px;font-size:14px;color:var(--text)}
+  .ask .q::before{content:'“';color:var(--pink);font-weight:700}
+  .ask .q::after{content:'”';color:var(--pink);font-weight:700}
+
+  /* Demo cards */
+  .demos{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+  .demo{display:block;background:var(--panel);border:1px solid var(--panel-bd);border-radius:var(--radius);padding:22px;text-decoration:none;transition:transform .2s,border-color .2s}
+  .demo:hover{transform:translateY(-3px);border-color:rgba(70,224,210,.4)}
+  .demo .dlogo{width:44px;height:44px;border-radius:12px;background:var(--grad-cool);display:grid;place-items:center;font-family:'Fraunces';font-weight:700;color:#fff;margin-bottom:14px}
+  .demo h3{font-size:18px;margin-bottom:4px}
+  .demo p{color:var(--text-dim);font-size:13.5px}
+  .demo .go{color:var(--cyan);font-size:13.5px;font-weight:600;margin-top:12px;display:inline-flex;gap:5px}
+
+  /* Pricing */
+  .price-wrap{max-width:520px;margin:0 auto}
+  .price{background:linear-gradient(165deg,rgba(255,61,139,.10),rgba(255,155,61,.05));border:1px solid rgba(255,61,139,.28);border-radius:26px;padding:38px 34px;text-align:center;box-shadow:0 30px 80px -40px rgba(255,61,139,.5)}
+  .price .badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);border:1px solid rgba(255,61,139,.35);border-radius:999px;padding:6px 15px;margin-bottom:22px}
+  .price .amount{font-family:'Fraunces';font-size:56px;font-weight:600;line-height:1}
+  .price .amount .per{font-size:19px;color:var(--text-soft);font-family:'Inter';font-weight:500}
+  .price .setup{color:var(--text-soft);font-size:15.5px;margin-top:14px}
+  .price .setup b{color:var(--text);font-weight:700}
+  .price ul{list-style:none;text-align:left;max-width:320px;margin:24px auto 26px;display:flex;flex-direction:column;gap:11px}
+  .price li{font-size:14.5px;color:var(--text-soft);padding-left:26px;position:relative}
+  .price li::before{content:'✓';position:absolute;left:0;color:var(--cyan);font-weight:800}
+  .price .fine{color:var(--text-dim);font-size:13px;margin-top:18px}
+
+  /* Apply */
+  .apply{text-align:center;max-width:640px;margin:0 auto}
+  .apply h2{font-size:clamp(28px,4.6vw,44px);margin-bottom:14px}
+  .apply p{color:var(--text-soft);font-size:17px;margin-bottom:28px}
+  .apply-form{display:flex;gap:10px;max-width:480px;margin:0 auto;flex-wrap:wrap}
+  .apply-form input{flex:1;min-width:200px;background:rgba(255,255,255,.05);border:1px solid var(--panel-bd);border-radius:13px;padding:15px 17px;color:var(--text);font-family:inherit;font-size:15px;outline:none;transition:border-color .2s}
+  .apply-form input:focus{border-color:rgba(255,61,139,.5)}
+  .apply-note{color:var(--text-dim);font-size:13px;margin-top:16px}
+  .apply-done{display:none;max-width:480px;margin:0 auto;padding:16px 18px;background:rgba(70,224,210,.08);border:1px solid rgba(70,224,210,.25);border-radius:13px;color:var(--text);font-size:15px}
+  .apply-done.show{display:block}
+
+  footer{position:relative;z-index:2;text-align:center;padding:40px 24px;color:var(--text-dim);font-size:13px;border-top:1px solid var(--panel-bd)}
+  footer a{color:var(--text-dim);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.14)}
+  footer a:hover{color:var(--text-soft)}
+  .sep{margin:0 9px;opacity:.4}
+
+  @media(max-width:820px){
+    .hero-grid{grid-template-columns:1fr;gap:36px}
+    .hero .device{order:-1}
+    .get{grid-template-columns:1fr}
+    .steps{grid-template-columns:1fr}
+  }
+  @media(max-width:520px){
+    section{padding:56px 0}
+    .ba-row{grid-template-columns:1fr}
+    .ba-row .after{border-left:none;border-top:1px solid rgba(255,255,255,.06)}
+    .ba-head{display:none}
+    .hero-cta .btn{flex:1;justify-content:center}
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="https://shou.be">shou <small>for hotels</small></a>
+    <a class="nav-cta" href="#apply">Become a pilot hotel</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero"><div class="wrap"><div class="hero-grid">
+  <div>
+    <span class="eyebrow"><span class="dot"></span>Belgium events · AI concierge for hotels</span>
+    <h1>Give every guest a <span class="grad-text">local concierge.</span></h1>
+    <p class="sub">Available 24/7, in 7 languages.</p>
+    <p class="promise">Your guests always know what to do in Belgium tonight — concerts, events and hidden gems near your hotel, in their own language. No app to download, nothing to maintain.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="https://beta.shou.be" target="_blank" rel="noopener">See a live demo →</a>
+      <a class="btn btn-ghost" href="#apply">Become a pilot hotel</a>
+    </div>
+  </div>
+
+  <div class="device" aria-hidden="true">
+    <div class="dev-screen">
+      <div class="dev-top">
+        <div class="dev-logo">A</div>
+        <div>
+          <div class="dev-name">Hotel Amigo</div>
+          <div class="dev-sub">Local concierge · powered by shou</div>
+        </div>
+        <div class="dev-lang">🌍 7 languages</div>
+      </div>
+      <div class="dev-tabs">
+        <span class="dev-tab on">This week</span>
+        <span class="dev-tab">Ask concierge</span>
+      </div>
+      <div class="dev-chips">
+        <span class="dev-chip hot">★ Near your hotel</span>
+        <span class="dev-chip">Live jazz</span>
+        <span class="dev-chip">Fine dining</span>
+        <span class="dev-chip">Rooftop</span>
+      </div>
+      <div class="dev-card">
+        <div class="dev-thumb t1"></div>
+        <div><div class="dev-ev-t">Pavlo Trio — live jazz</div><div class="dev-ev-m">The Music Village · 5 min walk · tonight 20:30</div></div>
+      </div>
+      <div class="dev-card">
+        <div class="dev-thumb t2"></div>
+        <div><div class="dev-ev-t">Rooftop afterwork</div><div class="dev-ev-m">Bozar Rooftop · 0.6 km · Fri 18:00</div></div>
+      </div>
+      <div class="dev-chat">
+        <div class="bub me">Best jazz near our hotel?</div>
+        <div class="bub ai">Tonight: the Pavlo Trio at The Music Village — a 5-minute walk, doors 20:30. Want me to note the address for your guest?</div>
+      </div>
+      <div class="dev-foot">The Hotel Amigo concierge · powered by shou</div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- TRUST -->
+<div class="trust"><div class="wrap"><p>Launching with Belgium's first pilot hotels — independent, boutique, serviced apartments &amp; B&amp;Bs.</p></div></div>
+
+<!-- POSITIONING -->
+<section><div class="wrap quote">
+  <h2>“We don't sell hotels another app. We give every hotel its own digital concierge — trained specifically for its guests and its neighbourhood.”</h2>
+  <p class="attrib">The <b>[Your Hotel]</b> local concierge, powered by shou. Your guests never feel they've left your hotel's ecosystem.</p>
+</div></section>
+
+<!-- BENEFITS -->
+<section><div class="wrap">
+  <div class="sec-head">
+    <h2>Give every guest a <span class="grad-text">local concierge</span></h2>
+    <p>Available 24/7 in 7 languages — a premium experience that runs itself.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><span class="ico">🌍</span><h3>Guests feel at home</h3><p>International visitors get recommendations in their own language, instantly.</p></div>
+    <div class="card"><span class="ico">⭐</span><h3>Better reviews</h3><p>Memorable nights out turn into happier guests and better ratings.</p></div>
+    <div class="card"><span class="ico">👩‍💼</span><h3>Less pressure on reception</h3><p>Staff answer fewer repetitive "what's on tonight?" questions.</p></div>
+    <div class="card"><span class="ico">⚡</span><h3>Updated hourly</h3><p>Live recommendations refresh automatically — never a stale brochure.</p></div>
+    <div class="card"><span class="ico">🏨</span><h3>Branded for your hotel</h3><p>Your logo, your neighbourhood, your links — not a generic app.</p></div>
+  </div>
+  <div class="checks">
+    <div class="check"><span class="ck">✓</span> Guests discover concerts, events and hidden gems nearby</div>
+    <div class="check"><span class="ck">✓</span> Reception answers fewer repetitive questions</div>
+    <div class="check"><span class="ck">✓</span> International visitors feel at home immediately</div>
+    <div class="check"><span class="ck">✓</span> Recommendations update automatically every hour</div>
+    <div class="check"><span class="ck">✓</span> Creates memorable experiences and better reviews</div>
+    <div class="check"><span class="ck">✓</span> Personalised to your guests, near your hotel</div>
+  </div>
+</div></section>
+
+<!-- BEFORE / AFTER -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>Before vs. after</h2><p>The same reception desk — a completely different guest experience.</p></div>
+  <div class="ba">
+    <div class="ba-row ba-head"><div class="before">Today</div><div class="after">With shou</div></div>
+    <div class="ba-row"><div class="before">Printed brochures</div><div class="after">Live recommendations</div></div>
+    <div class="ba-row"><div class="before">English-only information</div><div class="after">7 languages</div></div>
+    <div class="ba-row"><div class="before">Staff answer the same questions daily</div><div class="after">AI concierge, available 24/7</div></div>
+    <div class="ba-row"><div class="before">Static lists</div><div class="after">Hourly updates</div></div>
+    <div class="ba-row"><div class="before">Generic tourist advice</div><div class="after">Personalised suggestions</div></div>
+    <div class="ba-row"><div class="before">Generic for Brussels</div><div class="after">Near your hotel</div></div>
+  </div>
+</div></section>
+
+<!-- ENGINE / HOTEL TYPES -->
+<section><div class="wrap">
+  <div class="sec-head">
+    <h2>The same engine, <span class="grad-text">a different experience</span></h2>
+    <p>Each hotel gets its own set of scrolls — cherry-picked for its guests. Items marked <span style="font-size:11px;border:1px solid var(--panel-bd);border-radius:999px;padding:1px 7px;color:var(--text-dim)">hotel</span> link to your own services.</p>
+  </div>
+  <div class="types">
+    <div class="type biz">
+      <h3>Business hotel</h3><div class="who">For the corporate traveller</div>
+      <ul>
+        <li>This week near the hotel</li>
+        <li>Afterwork drinks <span class="prov">hotel</span></li>
+        <li>Networking events</li>
+        <li>Fine dining <span class="prov">hotel</span></li>
+        <li>Live jazz</li>
+        <li>A relaxing evening</li>
+      </ul>
+    </div>
+    <div class="type fam">
+      <h3>Family hotel</h3><div class="who">For guests with kids</div>
+      <ul>
+        <li>Activities with children</li>
+        <li>Free attractions</li>
+        <li>Museums <span class="prov">hotel</span></li>
+        <li>Parks &amp; playgrounds <span class="prov">hotel</span></li>
+        <li>Indoor activities</li>
+        <li>This week near the hotel</li>
+      </ul>
+    </div>
+    <div class="type lux">
+      <h3>Luxury hotel</h3><div class="who">For the discerning guest</div>
+      <ul>
+        <li>Michelin restaurants <span class="prov">hotel</span></li>
+        <li>Classical music</li>
+        <li>Cocktail bars <span class="prov">hotel</span></li>
+        <li>Private experiences</li>
+        <li>Art exhibitions</li>
+        <li>This week near the hotel</li>
+      </ul>
+    </div>
+    <div class="type young">
+      <h3>Young travellers · hostel</h3><div class="who">For the explorer on a budget</div>
+      <ul>
+        <li>Techno tonight</li>
+        <li>Free events</li>
+        <li>Student parties</li>
+        <li>Cheap eats <span class="prov">hotel</span></li>
+        <li>Meet new people</li>
+        <li>This week near the hostel</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- HOW IT WORKS -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>How it works</h2><p>Zero friction for the guest, zero maintenance for you.</p></div>
+  <div class="steps">
+    <div class="step"><div class="n"></div><h3>Guest scans a QR code</h3><p>In the room, at reception, on the flyer — one tap opens your branded concierge. No download.</p></div>
+    <div class="step"><div class="n"></div><h3>Asks in their language</h3><p>They browse your curated scrolls, or just ask the AI concierge anything — in any of 7 languages.</p></div>
+    <div class="step"><div class="n"></div><h3>Gets personalised picks</h3><p>Live, hourly-updated recommendations near your hotel — concerts, dining, hidden gems, your own services.</p></div>
+  </div>
+</div></section>
+
+<!-- WHAT YOU GET -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>What your hotel gets</h2><p>A branded page at <b style="color:var(--cyan)">shou.be/hotel/your-name</b> — with two tabs.</p></div>
+  <div class="get">
+    <div class="get-list">
+      <h3>1 · Your branded concierge page</h3>
+      <ul>
+        <li><b>Your logo &amp; welcome message</b>, in 7 languages</li>
+        <li><b>A static map</b> of your neighbourhood</li>
+        <li><b>Your own links</b> — restaurant, spa, booking, services</li>
+        <li><b>“This week near my hotel”</b> — a live scroll of top-rated events nearby</li>
+        <li><b>Cherry-picked scrolls</b> — the sections that fit your guests, from the shou This Week engine</li>
+        <li>Recommendations that <b>update every hour</b>, automatically</li>
+      </ul>
+    </div>
+    <div class="ask">
+      <h3>2 · AI concierge for events</h3>
+      <p class="sm">Built on the shou app — guests can ask anything, any time:</p>
+      <span class="q">What should we do with the kids tomorrow?</span>
+      <span class="q">Best jazz near our hotel?</span>
+      <span class="q">Free activities this evening?</span>
+      <span class="q">Indoor things to do today?</span>
+      <span class="q">The most authentic Belgian experience within walking distance?</span>
+      <span class="q">Where can I watch football tonight?</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- LIVE DEMO -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>See it live</h2><p>Try the engine that powers every concierge. Your hotel gets its own branded version.</p></div>
+  <div class="demos">
+    <a class="demo" href="https://beta.shou.be" target="_blank" rel="noopener"><div class="dlogo">A</div><h3>Hotel Amigo</h3><p>Boutique · Brussels centre</p><span class="go">Open demo →</span></a>
+    <a class="demo" href="https://beta.shou.be" target="_blank" rel="noopener"><div class="dlogo">N</div><h3>NH Brussels</h3><p>City hotel · business guests</p><span class="go">Open demo →</span></a>
+    <a class="demo" href="https://beta.shou.be" target="_blank" rel="noopener"><div class="dlogo">M</div><h3>Meininger</h3><p>Hybrid hotel · young travellers</p><span class="go">Open demo →</span></a>
+  </div>
+</div></section>
+
+<!-- PRICING -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>Pilot program pricing</h2><p>Better guest experience, zero maintenance. Cancel any time.</p></div>
+  <div class="price-wrap"><div class="price">
+    <span class="badge">Pilot program</span>
+    <div class="amount">€99<span class="per"> / month</span></div>
+    <div class="setup">from the second month · <b>€199 one-time setup</b></div>
+    <ul>
+      <li>Branded concierge page in 7 languages</li>
+      <li>Custom scrolls curated for your guests</li>
+      <li>AI events concierge, 24/7</li>
+      <li>Hourly automatic updates — nothing to maintain</li>
+      <li>QR codes &amp; a print-ready flyer</li>
+      <li>Cancel any time</li>
+    </ul>
+    <a class="btn btn-primary" href="#apply" style="width:100%;justify-content:center">Become a pilot hotel</a>
+    <div class="fine">Unique customisations? <a href="#apply" style="color:var(--cyan);text-decoration:none">Ask for a quote</a>.</div>
+  </div></div>
+</div></section>
+
+<!-- APPLY -->
+<section id="apply"><div class="wrap apply">
+  <span class="eyebrow"><span class="dot"></span>Limited pilot</span>
+  <h2 style="margin-top:22px">We're onboarding our <span class="grad-text">first five hotels.</span></h2>
+  <p>Turn every room into a local concierge. Tell us about your hotel and we'll set up your branded page.</p>
+  <form class="apply-form" id="applyForm">
+    <input type="text" id="hotel" placeholder="Hotel name" aria-label="Hotel name" required>
+    <input type="email" id="hemail" placeholder="you@hotel.com" aria-label="Email" required>
+    <button type="submit" class="btn btn-primary" id="applyBtn">Apply →</button>
+  </form>
+  <div class="apply-done" id="applyDone">Thanks — we'll be in touch within a day to set up your hotel's concierge.</div>
+  <p class="apply-note">Prefer email? Write to <a href="mailto:hotels@shou.be" style="color:var(--cyan);text-decoration:none">hotels@shou.be</a>.</p>
+</div></section>
+
+<footer>
+  <span>© 2026 ABSS Analytics · shou</span>
+  <span class="sep">·</span>
+  <a href="https://shou.be">shou.be</a>
+  <span class="sep">·</span>
+  <a href="https://shou.be/belgium-events">Belgium events</a>
+  <span class="sep">·</span>
+  <a href="https://shou.be/privacy">Privacy</a>
+</footer>
+
+<script>
+  // Pilot application: opens a pre-filled email so the lead reaches us even before
+  // the /hotels/apply backend exists. (Swap for a POST to an apply endpoint later.)
+  var form = document.getElementById('applyForm');
+  var done = document.getElementById('applyDone');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var hotel = document.getElementById('hotel').value.trim();
+    var email = document.getElementById('hemail').value.trim();
+    if(!hotel || !email) return;
+    var subject = encodeURIComponent('Pilot hotel application — ' + hotel);
+    var body = encodeURIComponent('Hotel: ' + hotel + '\nContact email: ' + email + '\n\nWe\'d like to join the shou pilot program.');
+    window.location.href = 'mailto:hotels@shou.be?subject=' + subject + '&body=' + body;
+    form.style.display = 'none';
+    done.classList.add('show');
+  });
+</script>
+</body>
+</html>
