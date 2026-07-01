@@ -280,13 +280,23 @@ const HOTEL_LINKS=()=>[{i:'🛏',k:'book'},{i:'🍽',k:'dine'},{i:'🍸',k:'bar'
 const HOTEL_CARDS=()=>[{i:'🍽',k:'dine'},{i:'🍸',k:'bar'},{i:'💆',k:'spa'}];
 
 const _WD={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fr:['dim','lun','mar','mer','jeu','ven','sam'],nl:['zo','ma','di','wo','do','vr','za'],de:['So','Mo','Di','Mi','Do','Fr','Sa'],es:['dom','lun','mar','mié','jue','vie','sáb'],it:['dom','lun','mar','mer','gio','ven','sab'],uk:['нд','пн','вт','ср','чт','пт','сб']};
-const _MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LOCMAP={fr:'fr-BE',nl:'nl-BE',de:'de-DE',es:'es-ES',it:'it-IT',uk:'uk-UA',en:'en-GB'};  // localizes weekday + month names
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
 function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
 function km(e){return (Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine(HOTEL.lat,HOTEL.lng,e.lat,e.lng):999;}
 function distLabel(e){const k=km(e);if(k>60)return '';if(k<1.1)return Math.max(1,Math.round(k*12))+' '+t('walk');return k.toFixed(1)+' km';}
-function fmtDate(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return d;return (_WD[lang]||_WD.en)[dt.getDay()]+' '+dt.getDate()+' '+_MO[dt.getMonth()];}
+function fmtDate(d){if(!d)return '';const dt=/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00'):new Date(d);if(isNaN(dt))return d;
+  try{return dt.toLocaleDateString(LOCMAP[lang]||'en-GB',{weekday:'short',day:'numeric',month:'short'});}catch(e){return d;}}
+// start–end time, hiding placeholders (00:00 open / 23:59 close) and collapsing multi-day to the start time
+function fmtTimeRange(e){
+  const ok=v=>v&&v!=='TBA'&&v!=='null'&&v!=='00:00';
+  const s=ok(e.time)?e.time:'';
+  const en=(e.endTime&&e.endTime!=='TBA'&&e.endTime!=='null'&&e.endTime!=='23:59'&&e.endTime!=='00:00')?e.endTime:'';
+  const sameDay=!e.endDate||e.endDate===e.date;
+  if(s&&en&&en!==s&&sameDay)return s+'–'+en;
+  return s;
+}
 
 // clean ticket-tier / day-variant tails ("Rock Werchter 2026 | Saturday" → "Rock Werchter 2026")
 function cleanTitle(x){
@@ -298,7 +308,7 @@ function cleanTitle(x){
 function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
 
 function evCard(e){
-  const dist=distLabel(e), time=(e.time&&e.time!=='TBA')?' · '+e.time:'';
+  const dist=distLabel(e), tr=fmtTimeRange(e), time=tr?' · '+tr:'';
   const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
   return `<a class="ev" data-date="${esc(e.date||'')}" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
     <span class="thumb">${img}</span>
@@ -385,8 +395,9 @@ function bindTimeline(){
 const mv=document.getElementById('mv');
 let modalList=[], modalIdx=0;
 function catLabel(slug){if(!slug)return '';const k=CAT_L[slug];return k?t(k):slug.charAt(0).toUpperCase()+slug.slice(1);}
-function calChip(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return '';
-  return `<div class="mv-cal"><span>${(_WD[lang]||_WD.en)[dt.getDay()]}</span><b>${dt.getDate()}</b><span>${_MO[dt.getMonth()]}</span></div>`;}
+function calChip(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return '';const loc=LOCMAP[lang]||'en-GB';
+  const wd=dt.toLocaleDateString(loc,{weekday:'short'}).toUpperCase();const mo=dt.toLocaleDateString(loc,{month:'short'}).toUpperCase();
+  return `<div class="mv-cal"><span>${wd}</span><b>${dt.getDate()}</b><span>${mo}</span></div>`;}
 function priceHtml(e){
   if(e.mn!=null){if(e.mn===0&&(e.mx==null||e.mx===0))return esc(ml('free'));
     return '€'+Math.round(e.mn)+(e.mx&&e.mx!==e.mn?'–€'+Math.round(e.mx):'');}
@@ -399,7 +410,7 @@ function descHtml(e){const d=(e.desc||'').trim();if(!d)return '';
 }
 function showModal(){
   const id=modalList[modalIdx], e=evById[id]; if(!e){closeModal();return;}
-  const time=(e.time&&e.time!=='TBA')?e.time:'';
+  const time=fmtTimeRange(e);
   const dist=distLabel(e);
   const hasCoord=Number.isFinite(e.lat)&&Number.isFinite(e.lng);
   const dirUrl='https://www.google.com/maps/dir/?api=1&destination='+(hasCoord?e.lat+','+e.lng:encodeURIComponent(((e.venue||'')+' '+(e.city||'')).trim()||'Brussels'));
@@ -492,7 +503,7 @@ let asking=false;
 function addMsg(cls,html){const el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;msgs.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el;}
 // app-style result card (image-top, seg·genre pill, title, desc, meta) — opens the shared modal
 function chatCard(e){
-  const dist=distLabel(e), time=(e.time&&e.time!=='TBA')?' · '+e.time:'';
+  const dist=distLabel(e), tr=fmtTimeRange(e), time=tr?' · '+tr:'';
   const seg=e.seg||catLabel(e.categorySlug)||'';
   const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
   const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
