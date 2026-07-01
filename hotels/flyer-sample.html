@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flyer sample — shou for hotels</title>
-<meta name="description" content="A print-ready in-room flyer: turn every room into a local concierge. Guests scan a QR code to discover the best of Belgium in their own language, 24/7.">
+<title>In-room guest flyer — shou for hotels</title>
+<meta name="description" content="The in-room flyer guests scan to open the hotel's local concierge — concerts, dining and hidden gems near the hotel, in their own language, 24/7.">
 <meta name="robots" content="noindex,follow">
 <link rel="canonical" href="https://shou.be/hotels/flyer-sample">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,12 +19,11 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#eef0f3;color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
-    padding:28px 16px 60px;display:flex;flex-direction:column;align-items:center;line-height:1.55}
-  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.015em;line-height:1.06;color:var(--ink)}
+    padding:28px 16px 60px;display:flex;flex-direction:column;align-items:center;line-height:1.5}
+  h1,h2{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.015em;line-height:1.04;color:var(--ink)}
   a{color:inherit}
 
-  /* Screen toolbar */
-  .toolbar{width:100%;max-width:794px;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}
+  .toolbar{width:100%;max-width:794px;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
   .toolbar .back{font-size:14px;color:var(--text-soft);text-decoration:none;border-bottom:1px solid var(--line)}
   .toolbar .back:hover{color:var(--ink)}
   .print-btn{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:14px;
@@ -32,82 +31,83 @@
   .print-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
   .hint{width:100%;max-width:794px;color:var(--text-dim);font-size:12.5px;margin-bottom:16px;text-align:center}
 
-  /* A4 flyer sheet */
+  /* A4 sheet */
   .flyer{width:794px;max-width:100%;min-height:1123px;background:#fff;border:1px solid var(--line);border-radius:18px;
     box-shadow:0 30px 70px -30px rgba(20,16,30,.35);overflow:hidden;position:relative;display:flex;flex-direction:column}
   .flyer::before{content:'';position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(680px 460px at 100% -6%,rgba(255,61,139,.07),transparent 60%),
-              radial-gradient(620px 440px at -6% 104%,rgba(70,224,210,.06),transparent 60%)}
-  .sheet{position:relative;z-index:1;padding:58px 60px;display:flex;flex-direction:column;flex:1}
+    background:radial-gradient(720px 480px at 100% -8%,rgba(255,61,139,.08),transparent 60%),
+              radial-gradient(680px 480px at -8% 106%,rgba(70,224,210,.06),transparent 60%)}
+  .sheet{position:relative;z-index:1;padding:52px 56px;display:flex;flex-direction:column;flex:1;text-align:center}
 
   /* header */
-  .fhead{display:flex;align-items:center;gap:14px;padding-bottom:26px;border-bottom:1px solid var(--line)}
-  .hlogo{width:52px;height:52px;border-radius:14px;background:var(--grad-cool);display:grid;place-items:center;
-    font-family:'Fraunces';font-weight:700;color:#fff;font-size:24px;flex:none}
-  .hname{font-family:'Fraunces';font-weight:700;font-size:20px;color:var(--ink);line-height:1.1}
-  .hsub{font-size:12.5px;color:var(--text-dim);letter-spacing:.02em}
-  .hlang{margin-left:auto;font-size:12px;font-weight:600;color:var(--cyan);border:1px solid rgba(14,154,141,.3);border-radius:999px;padding:6px 13px;white-space:nowrap}
+  .fhead{display:flex;align-items:center;gap:13px;text-align:left}
+  .hlogo{width:50px;height:50px;border-radius:13px;background:var(--grad-cool);display:grid;place-items:center;
+    font-family:'Fraunces';font-weight:700;color:#fff;font-size:22px;flex:none}
+  .hname{font-family:'Fraunces';font-weight:700;font-size:19px;color:var(--ink);line-height:1.1}
+  .hplace{font-size:12.5px;color:var(--text-dim)}
+  .flags{margin-left:auto;font-size:13px;letter-spacing:2px}
 
-  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
-    color:var(--pink);margin-top:38px}
+  .eyebrow{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--pink);margin-top:40px}
   .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  h1.head{font-size:52px;margin:14px 0 16px}
-  .subhead{font-size:19px;color:var(--text-soft);max-width:560px}
+  h1.head{font-size:47px;margin:14px 0 14px}
+  .subhead{font-size:18px;color:var(--text-soft);max-width:540px;margin:0 auto}
   .subhead b{color:var(--ink);font-weight:600}
 
-  /* benefits */
-  .benefits{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:16px 34px;margin:40px 0 44px}
-  .benefits li{display:flex;gap:14px;align-items:flex-start}
-  .bi{width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:22px;background:rgba(20,16,30,.035);border:1px solid var(--line)}
-  .bt{font-family:'Fraunces';font-weight:600;font-size:16.5px;color:var(--ink);line-height:1.15}
-  .bd{font-size:13px;color:var(--text-soft);margin-top:2px}
-
-  /* QR + screenshot */
-  .cta-band{margin-top:auto;display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;
-    background:linear-gradient(140deg,rgba(255,61,139,.06),rgba(255,155,61,.04));border:1px solid var(--line);border-radius:20px;padding:28px 30px}
+  /* scan band */
+  .scan{display:grid;grid-template-columns:auto 1fr;gap:38px;align-items:center;text-align:left;
+    background:linear-gradient(140deg,rgba(255,61,139,.07),rgba(255,155,61,.05));border:1px solid var(--line);border-radius:22px;padding:32px 34px;margin:40px 0 40px}
   .qr-box{text-align:center}
-  .qr{width:172px;height:172px;border-radius:16px;background:#fff;border:1px solid var(--line);padding:10px;display:block}
-  .qr-cap{font-size:13px;font-weight:700;color:var(--ink);margin-top:12px;letter-spacing:.01em}
-  .qr-sub{font-size:11.5px;color:var(--text-dim);margin-top:3px}
-  .shot-wrap{display:flex;justify-content:center}
+  .qr{width:220px;height:220px;border-radius:18px;background:#fff;border:1px solid var(--line);padding:12px;display:block}
+  .scan-cta{max-width:300px}
+  .scan-cta .big{font-family:'Fraunces';font-weight:700;font-size:26px;color:var(--ink);line-height:1.12;margin-bottom:10px}
+  .scan-cta .big span{display:inline-flex;align-items:center;gap:8px}
+  .arrow{font-size:26px;color:var(--pink)}
+  .scan-cta p{font-size:14.5px;color:var(--text-soft)}
+  .noapp{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;font-weight:700;color:var(--cyan);
+    border:1px solid rgba(14,154,141,.3);border-radius:999px;padding:7px 14px}
 
-  /* mini device screenshot */
-  .device{width:230px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:9px;box-shadow:0 18px 40px -20px rgba(255,61,139,.32)}
+  /* benefits (guest-facing) */
+  .benefits{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:14px 30px;text-align:left;margin-bottom:36px}
+  .benefits li{display:flex;gap:13px;align-items:center}
+  .bi{width:42px;height:42px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:21px;background:rgba(20,16,30,.035);border:1px solid var(--line)}
+  .bt{font-family:'Fraunces';font-weight:600;font-size:15.5px;color:var(--ink)}
+
+  /* preview + example questions */
+  .preview{margin-top:auto;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;text-align:left;border-top:1px solid var(--line);padding-top:30px}
+  .try h2{font-size:20px;margin-bottom:14px}
+  .qs{display:flex;flex-direction:column;gap:9px;max-width:340px}
+  .q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13.5px;color:var(--text)}
+  .q::before{content:'“';color:var(--pink);font-weight:700}.q::after{content:'”';color:var(--pink);font-weight:700}
+
+  .device{width:210px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:9px;box-shadow:0 18px 40px -20px rgba(255,61,139,.3)}
   .scr{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden}
   .stop{padding:11px 12px 9px;background:linear-gradient(180deg,rgba(255,61,139,.07),transparent);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
   .slogo{width:26px;height:26px;border-radius:8px;background:var(--grad-cool);display:grid;place-items:center;color:#fff;font-family:'Fraunces';font-weight:700;font-size:12px;flex:none}
-  .sname{font-weight:700;font-size:11px;color:var(--ink)} .ssub{font-size:8.5px;color:var(--text-dim)}
-  .stabs{display:flex;gap:5px;padding:9px 11px 3px}
-  .stab{font-size:9px;font-weight:600;padding:4px 9px;border-radius:999px;color:var(--text-dim)}
-  .stab.on{background:var(--grad);color:#fff}
-  .schips{display:flex;gap:5px;padding:7px 11px;flex-wrap:nowrap;overflow:hidden}
+  .sname{font-weight:700;font-size:11px;color:var(--ink)}.ssub{font-size:8.5px;color:var(--text-dim)}
+  .schips{display:flex;gap:5px;padding:9px 11px 4px;flex-wrap:nowrap;overflow:hidden}
   .schip{font-size:8.5px;font-weight:600;white-space:nowrap;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--text-soft)}
   .schip.hot{border-color:rgba(255,61,139,.45);color:var(--pink)}
   .scard{display:flex;gap:8px;padding:7px 11px;align-items:center}
   .sth{width:40px;height:40px;border-radius:9px;flex:none;background:linear-gradient(135deg,#ff3d8b,#9b5cff)}
   .sth2{background:linear-gradient(135deg,#46e0d2,#3d7bff)}
-  .set{font-weight:700;font-size:9.5px;color:var(--ink);line-height:1.2} .sem{font-size:8px;color:var(--text-dim);margin-top:2px}
-  .schat{padding:9px 11px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
-  .sb{max-width:86%;font-size:8.5px;line-height:1.35;padding:6px 9px;border-radius:11px}
-  .sb.me{align-self:flex-end;background:var(--grad);color:#fff;font-weight:600;border-bottom-right-radius:3px}
-  .sb.ai{align-self:flex-start;background:rgba(20,16,30,.05);border:1px solid var(--line);color:var(--text-soft);border-bottom-left-radius:3px}
+  .set{font-weight:700;font-size:9.5px;color:var(--ink);line-height:1.2}.sem{font-size:8px;color:var(--text-dim);margin-top:2px}
 
-  .ffoot{margin-top:26px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--text-dim)}
+  .ffoot{margin-top:26px;font-size:13px;color:var(--text-dim)}
+  .ffoot .stay{font-family:'Fraunces';font-weight:600;font-size:15px;color:var(--ink)}
   .ffoot b{font-family:'Fraunces';font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
   @media(max-width:860px){
-    h1.head{font-size:38px}
-    .sheet{padding:40px 32px}
-    .benefits{grid-template-columns:1fr;gap:14px}
-    .cta-band{grid-template-columns:1fr;gap:22px;justify-items:center;text-align:center}
+    h1.head{font-size:34px}.sheet{padding:36px 26px}
+    .scan{grid-template-columns:1fr;gap:22px;justify-items:center;text-align:center}
+    .scan-cta{text-align:center}.benefits{grid-template-columns:1fr}
+    .preview{grid-template-columns:1fr;justify-items:center;gap:22px;text-align:center}
+    .qs{max-width:none}
   }
   @media print{
     body{background:#fff;padding:0}
     .no-print{display:none !important}
     .flyer{width:auto;min-height:auto;box-shadow:none;border:none;border-radius:0}
-    .flyer::before{display:none}
-    .sheet{padding:14mm 16mm}
-    .device{box-shadow:none}
+    .flyer::before{display:none}.sheet{padding:14mm 16mm}.device{box-shadow:none}
     @page{size:A4;margin:0}
   }
 </style>
@@ -117,7 +117,7 @@
     <a class="back" href="/hotels/offer">← Back to the offer</a>
     <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
   </div>
-  <p class="hint no-print">Sample in-room flyer — A4. Each pilot hotel gets this with its own logo and a QR to its branded concierge.</p>
+  <p class="hint no-print">In-room guest flyer (A4) — this is what a guest sees on the desk or nightstand and scans to open the concierge.</p>
 
   <div class="flyer">
     <div class="sheet">
@@ -125,54 +125,61 @@
         <div class="hlogo">A</div>
         <div>
           <div class="hname">Hotel Amigo</div>
-          <div class="hsub">Local concierge · powered by shou</div>
+          <div class="hplace">Brussels · Grand-Place</div>
         </div>
-        <div class="hlang">🌍 7 languages</div>
+        <div class="flags" aria-hidden="true">🇬🇧 🇫🇷 🇳🇱 🇩🇪 🇪🇸 🇮🇹 🇺🇦</div>
       </div>
 
-      <span class="eyebrow">Your in-room concierge</span>
-      <h1 class="head">Turn every room into a <span class="grad-text">local concierge.</span></h1>
-      <p class="subhead">Help your guests discover the best of Belgium — <b>in their own language, 24 hours a day.</b></p>
+      <span class="eyebrow">Welcome to Hotel Amigo</span>
+      <h1 class="head">What's on in Brussels <span class="grad-text">tonight?</span></h1>
+      <p class="subhead">Your own <b>local concierge</b> — concerts, dining, culture and hidden gems near the hotel, in <b>your language</b>, any time. Just scan.</p>
 
-      <ul class="benefits">
-        <li><span class="bi">🌍</span><div><div class="bt">International guests feel at home</div><div class="bd">Recommendations in their own language, instantly.</div></div></li>
-        <li><span class="bi">⭐</span><div><div class="bt">Better guest experiences</div><div class="bd">Memorable nights out → happier guests, better reviews.</div></div></li>
-        <li><span class="bi">👩‍💼</span><div><div class="bt">Less pressure on reception</div><div class="bd">Fewer repetitive "what's on tonight?" questions.</div></div></li>
-        <li><span class="bi">⚡</span><div><div class="bt">Updated hourly</div><div class="bd">Live recommendations — never a stale brochure.</div></div></li>
-        <li><span class="bi">🏨</span><div><div class="bt">Branded for your hotel</div><div class="bd">Your logo, your neighbourhood, your links.</div></div></li>
-      </ul>
-
-      <div class="cta-band">
+      <div class="scan">
         <div class="qr-box">
           <img class="qr" alt="Scan to open the concierge"
-               src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&color=15101b&data=https%3A%2F%2Fbeta.shou.be">
-          <div class="qr-cap">Scan to open your concierge</div>
-          <div class="qr-sub">No app to download</div>
+               src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=0&color=15101b&data=https%3A%2F%2Fshou.be%2Fhotels%2Fsample%2Fhotel-amigo">
         </div>
+        <div class="scan-cta">
+          <div class="big"><span><span class="arrow">←</span> Scan me</span></div>
+          <p>Point your phone camera at the code to open your concierge. It opens right in your browser.</p>
+          <span class="noapp">✓ No app to download · 7 languages</span>
+        </div>
+      </div>
 
-        <div class="shot-wrap">
-          <div class="device" aria-hidden="true">
-            <div class="scr">
-              <div class="stop">
-                <div class="slogo">A</div>
-                <div><div class="sname">Hotel Amigo</div><div class="ssub">Local concierge</div></div>
-              </div>
-              <div class="stabs"><span class="stab on">This week</span><span class="stab">Ask concierge</span></div>
-              <div class="schips"><span class="schip hot">★ Near your hotel</span><span class="schip">Live jazz</span><span class="schip">Dining</span></div>
-              <div class="scard"><div class="sth"></div><div><div class="set">Pavlo Trio — live jazz</div><div class="sem">The Music Village · 5 min walk</div></div></div>
-              <div class="scard"><div class="sth sth2"></div><div><div class="set">Rooftop afterwork</div><div class="sem">Bozar Rooftop · 0.6 km</div></div></div>
-              <div class="schat">
-                <div class="sb me">Best jazz near our hotel?</div>
-                <div class="sb ai">Tonight: Pavlo Trio at The Music Village — a 5-min walk, doors 20:30.</div>
-              </div>
+      <ul class="benefits">
+        <li><span class="bi">🎶</span><span class="bt">Tonight's concerts &amp; events near you</span></li>
+        <li><span class="bi">💬</span><span class="bt">Ask anything — in your language</span></li>
+        <li><span class="bi">🍽</span><span class="bt">Where to eat &amp; drink nearby</span></li>
+        <li><span class="bi">✨</span><span class="bt">Hidden gems &amp; things to do</span></li>
+      </ul>
+
+      <div class="preview">
+        <div class="try">
+          <h2>Just ask, in your own words</h2>
+          <div class="qs">
+            <div class="q">What's on tonight near the hotel?</div>
+            <div class="q">Best jazz within walking distance?</div>
+            <div class="q">Where can we eat late tonight?</div>
+            <div class="q">Something to do with kids tomorrow</div>
+          </div>
+        </div>
+        <div class="device" aria-hidden="true">
+          <div class="scr">
+            <div class="stop">
+              <div class="slogo">A</div>
+              <div><div class="sname">Hotel Amigo</div><div class="ssub">Local concierge</div></div>
             </div>
+            <div class="schips"><span class="schip hot">★ Near you</span><span class="schip">Live jazz</span><span class="schip">Dining</span></div>
+            <div class="scard"><div class="sth"></div><div><div class="set">Pavlo Trio — live jazz</div><div class="sem">The Music Village · 5 min walk</div></div></div>
+            <div class="scard"><div class="sth sth2"></div><div><div class="set">Rooftop afterwork</div><div class="sem">Bozar Rooftop · 0.6 km</div></div></div>
+            <div class="scard"><div class="sth" style="background:linear-gradient(135deg,#ff9b3d,#ff3d8b)"></div><div><div class="set">Comédie · La Samaritaine</div><div class="sem">Sablon · 8 min walk</div></div></div>
           </div>
         </div>
       </div>
 
       <div class="ffoot">
-        <span>Ask anything, in any language — concerts, dining, hidden gems near you.</span>
-        <span><b>shou.be</b> · belgium after dark</span>
+        <span class="stay">Enjoy your stay in Brussels.</span><br>
+        Hotel Amigo · your local concierge, powered by <b>shou.be</b>
       </div>
     </div>
   </div>
