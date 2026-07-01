@@ -135,6 +135,20 @@
   .mv-map{position:relative;margin:18px 0 4px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
   .mv-map iframe{width:100%;height:180px;border:0;display:block;filter:grayscale(.12) contrast(1.02)}
   .mv-map-cta{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,.95);color:var(--ink);font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;text-decoration:none;box-shadow:0 2px 10px rgba(20,16,30,.2)}
+  /* recurring: weekly timetable + upcoming-date chips (mirrors the app modal) */
+  .mv-tt,.mv-od{margin:18px 0 4px}
+  .mv-tt h4,.mv-od h4{font-family:'Fraunces',serif;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  .mv-run{font-size:13px;color:var(--soft);font-weight:600;margin-bottom:9px}
+  .tt-grid{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .tt-row{display:flex;justify-content:space-between;gap:12px;padding:8px 13px;font-size:13px}
+  .tt-row:nth-child(odd){background:var(--panel-soft)}
+  .tt-day{color:var(--ink);font-weight:600;text-transform:capitalize}
+  .tt-hrs{color:var(--soft);white-space:nowrap}
+  .tt-row.tt-closed .tt-day{color:var(--dim)}
+  .tt-row.tt-closed .tt-hrs{color:var(--dim)}
+  .od-grid{display:flex;flex-wrap:wrap;gap:6px}
+  .od-chip{font-size:12px;font-weight:600;color:var(--ink);background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+  .od-more{font-size:12px;font-weight:600;color:var(--dim);padding:5px 4px;align-self:center}
   .mv-cta{display:block;text-align:center;background:var(--grad);color:#fff;font-weight:700;font-size:15px;padding:15px;border-radius:14px;text-decoration:none;margin-top:20px;box-shadow:0 8px 20px -8px rgba(255,61,139,.6)}
   .mv-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,.95);color:var(--ink);font-size:26px;font-weight:400;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(20,16,30,.24);transition:transform .12s,background .15s}
   .mv-prev{left:max(16px,calc(50% - 560px/2 - 62px))}
@@ -252,13 +266,13 @@ const evById={};                                                  // id -> event
 const chatEv={};                                                  // id -> search result (keeps occurrence-resolved date; catalog reloads can't clobber it)
 // modal chrome labels (Date / Venue / Price / Free / See more·less / About) per language
 const ML={
-  en:{date:'Date',venue:'Venue',price:'Price',free:'Free',more:'See more',less:'See less',about:'About'},
-  fr:{date:'Date',venue:'Lieu',price:'Prix',free:'Gratuit',more:'Voir plus',less:'Voir moins',about:'À propos'},
-  nl:{date:'Datum',venue:'Locatie',price:'Prijs',free:'Gratis',more:'Meer',less:'Minder',about:'Over'},
-  de:{date:'Datum',venue:'Ort',price:'Preis',free:'Kostenlos',more:'Mehr',less:'Weniger',about:'Über'},
-  es:{date:'Fecha',venue:'Lugar',price:'Precio',free:'Gratis',more:'Ver más',less:'Ver menos',about:'Acerca de'},
-  it:{date:'Data',venue:'Luogo',price:'Prezzo',free:'Gratis',more:'Mostra altro',less:'Mostra meno',about:'Informazioni'},
-  uk:{date:'Дата',venue:'Місце',price:'Ціна',free:'Безкоштовно',more:'Більше',less:'Менше',about:'Про подію'},
+  en:{date:'Date',venue:'Venue',price:'Price',free:'Free',more:'See more',less:'See less',about:'About',tt:'Opening times',upDates:'Upcoming dates',closed:'Closed'},
+  fr:{date:'Date',venue:'Lieu',price:'Prix',free:'Gratuit',more:'Voir plus',less:'Voir moins',about:'À propos',tt:'Horaires',upDates:'Prochaines dates',closed:'Fermé'},
+  nl:{date:'Datum',venue:'Locatie',price:'Prijs',free:'Gratis',more:'Meer',less:'Minder',about:'Over',tt:'Openingstijden',upDates:'Volgende data',closed:'Gesloten'},
+  de:{date:'Datum',venue:'Ort',price:'Preis',free:'Kostenlos',more:'Mehr',less:'Weniger',about:'Über',tt:'Öffnungszeiten',upDates:'Nächste Termine',closed:'Geschlossen'},
+  es:{date:'Fecha',venue:'Lugar',price:'Precio',free:'Gratis',more:'Ver más',less:'Ver menos',about:'Acerca de',tt:'Horarios',upDates:'Próximas fechas',closed:'Cerrado'},
+  it:{date:'Data',venue:'Luogo',price:'Prezzo',free:'Gratis',more:'Mostra altro',less:'Mostra meno',about:'Informazioni',tt:'Orari',upDates:'Prossime date',closed:'Chiuso'},
+  uk:{date:'Дата',venue:'Місце',price:'Ціна',free:'Безкоштовно',more:'Більше',less:'Менше',about:'Про подію',tt:'Години роботи',upDates:'Найближчі дати',closed:'Зачинено'},
 };
 const ml=k=>(ML[lang]||ML.en)[k];
 const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
@@ -435,6 +449,43 @@ function priceHtml(e){
     return '€'+Math.round(e.mn)+(e.mx&&e.mx!==e.mn?'–€'+Math.round(e.mx):'');}
   return e.url?`<a class="mv-link" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(t('tickets'))}</a>`:'—';
 }
+// recurring events with a weekly schedule → run range + per-weekday opening times
+function recurrenceHtml(e){
+  if(!e||e.eventType==='single'||!e.recurrenceSchedule)return '';
+  const sch=e.recurrenceSchedule, days=sch.days;
+  if(!days||typeof days!=='object'||Array.isArray(days))return '';
+  const loc=LOCMAP[lang]||'en-GB';
+  const order=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const dayName=i=>{try{return new Date(2024,0,1+i).toLocaleDateString(loc,{weekday:'long'});}catch(_){return order[i];}};  // 2024-01-01 = Monday
+  const hhmm=s=>String(s||'').slice(0,5);
+  let any=false;
+  const rows=order.map((d,i)=>{
+    const info=days[d];
+    const open=!!(info&&info.is_open&&info.hours&&info.hours.start);
+    if(open)any=true;
+    const hrs=open?(hhmm(info.hours.start)+' – '+hhmm(info.hours.end)):ml('closed');
+    return `<div class="tt-row${open?'':' tt-closed'}"><span class="tt-day">${esc(dayName(i))}</span><span class="tt-hrs">${esc(hrs)}</span></div>`;
+  }).join('');
+  if(!any)return '';
+  const runStart=sch.date_start||e.date, runEnd=e.recurrenceEndDate||sch.date_end;
+  const runLine=(runStart&&runEnd&&runStart!==runEnd)?`<div class="mv-run">📅 ${esc(fmtDate(runStart))} – ${esc(fmtDate(runEnd))}</div>`:'';
+  return `<div class="mv-tt"><h4>${esc(ml('tt'))}</h4>${runLine}<div class="tt-grid">${rows}</div></div>`;
+}
+// recurring events without a weekly schedule but with multiple dates → upcoming-date chips
+function occurrenceDatesHtml(e){
+  if(!e||e.eventType==='single')return '';
+  if(e.recurrenceSchedule&&e.recurrenceSchedule.days)return '';   // timetable already covers it
+  const ds=Array.isArray(e.occurrenceDates)?e.occurrenceDates:[];
+  if(ds.length<2)return '';
+  const loc=LOCMAP[lang]||'en-GB';
+  const tISO=todayISO();
+  const up=ds.filter(d=>d>=tISO); const list=up.length?up:ds;
+  const fmt=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'});}catch(_){return d;}};
+  const MAX=16;
+  const chips=list.slice(0,MAX).map(d=>`<span class="od-chip">${esc(fmt(d))}</span>`).join('');
+  const more=list.length>MAX?`<span class="od-more">+${list.length-MAX}</span>`:'';
+  return `<div class="mv-od"><h4>${esc(ml('upDates'))}</h4><div class="od-grid">${chips}${more}</div></div>`;
+}
 function descHtml(e){const d=(e.desc||'').trim();if(!d)return '';
   const head=`<h4>${esc(ml('about'))}</h4>`;
   if(d.length<=240)return `<div class="mv-about">${head}<p>${esc(d)}</p></div>`;
@@ -468,7 +519,7 @@ function showModal(){
         <div class="mv-row"><span class="ic">📍</span><div class="mv-tx"><div class="k">${esc(ml('venue'))}</div><div class="v">${esc(sub||'TBA')}${dist?`<span class="mv-dist">${esc(dist)}</span>`:''}${!hasCoord?`<a class="mv-dir" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))}</a>`:''}</div></div></div>
         <div class="mv-row"><span class="ic">🎟</span><div class="mv-tx"><div class="k">${esc(ml('price'))}</div><div class="v">${priceHtml(e)}</div></div></div>
       </div>
-      ${descHtml(e)}${map}${cta}
+      ${recurrenceHtml(e)}${occurrenceDatesHtml(e)}${descHtml(e)}${map}${cta}
     </div>
   </div>
   ${showNav?'<button class="mv-nav mv-next" aria-label="Next">›</button>':''}`;
