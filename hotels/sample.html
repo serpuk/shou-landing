@@ -208,7 +208,10 @@
   .msg.me{align-self:flex-end;background:var(--grad);color:#fff;font-weight:500;border-bottom-right-radius:5px}
   .msg.ai{align-self:flex-start;background:var(--panel-soft);border:1px solid var(--line);color:var(--text);border-bottom-left-radius:5px}
   /* concierge results — same card anatomy as beta.shou.be (image-top, seg pill, title, desc, meta) */
-  .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px;margin:2px 0 4px;width:100%}
+  .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:2px 0 4px;width:100%}
+  .ev-res{align-items:flex-start}
+  .ev-res .meta{gap:4px}
+  .ev-res .qpill{margin-bottom:1px}
   .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s,border-color .15s}
   .qcard:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);transform:translateY(-2px);border-color:rgba(20,16,30,.14)}
   .qthumb{position:relative;height:132px;flex:none;overflow:hidden;background:linear-gradient(135deg,var(--violet),var(--pink))}
@@ -743,7 +746,9 @@ function setChips(open){chipsOpen=open;
   document.getElementById('exsToggle').setAttribute('aria-expanded',open?'true':'false');}
 document.getElementById('exsToggle').onclick=()=>setChips(!chipsOpen);
 function addMsg(cls,html){const el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;msgs.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el;}
-// app-style result card (image-top, seg·genre pill, title, desc, meta) — opens the shared modal
+// concierge result card — the same horizontal card as the This week rails
+// (shared .ev component + size), plus a category pill and a short description
+// for query context. Opens the shared modal.
 function chatCard(e){
   const dist=distLabel(e), tr=fmtTimeRange(e), time=tr?' · '+tr:'';
   const seg=e.seg||catLabel(e.categorySlug)||'';
@@ -751,17 +756,15 @@ function chatCard(e){
   const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
   const desc=(e.desc||'').trim();
   const venue=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
-  return `<div class="qcard" data-id="${esc(e.id||'')}" data-date="${esc(e.date||'')}">
-    <div class="qthumb">${img}</div>
-    <div class="qcb">
+  return `<a class="ev ev-res" data-id="${esc(e.id||'')}" data-date="${esc(e.date||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
+    <span class="thumb">${img}</span>
+    <span class="meta">
       ${seg?`<span class="qpill" style="background:${segColor}">${esc(seg)}</span>`:''}
-      <div class="qtitle">${esc(cleanTitle(e.name))}</div>
-      ${desc?`<div class="qdesc">${esc(desc)}</div>`:''}
-      <div class="qmeta">
-        <span>📍 ${esc(venue||'TBA')}${dist?` · <span class="qdist">${esc(dist)}</span>`:''}</span>
-        <span class="qd">📅 ${esc(fmtDate(e.date))}${esc(time)}</span>
-      </div>
-    </div></div>`;
+      <span class="t">${esc(cleanTitle(e.name))}</span>
+      ${desc?`<span class="qdesc">${esc(desc)}</span>`:''}
+      <span class="date">${esc(fmtDate(e.date))}${esc(time)}</span>
+      <span class="venue">${esc(venue||'TBA')}${dist?` · <span class="dist">${esc(dist)}</span>`:''}</span>
+    </span></a>`;
 }
 async function ask(q){
   if(!q||!q.trim()||asking)return;            // guard: ignore empty + double-sends while a request is in flight
