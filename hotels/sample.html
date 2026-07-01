@@ -149,6 +149,7 @@
   .od-grid{display:flex;flex-wrap:wrap;gap:6px}
   .od-chip{font-size:12px;font-weight:600;color:var(--ink);background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;padding:5px 11px}
   .od-more{font-size:12px;font-weight:600;color:var(--dim);padding:5px 4px;align-self:center}
+  .mv-appt{font-size:12.5px;color:var(--dim);font-weight:600;margin-top:8px}
   .mv-cta{display:block;text-align:center;background:var(--grad);color:#fff;font-weight:700;font-size:15px;padding:15px;border-radius:14px;text-decoration:none;margin-top:20px;box-shadow:0 8px 20px -8px rgba(255,61,139,.6)}
   .mv-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,.95);color:var(--ink);font-size:26px;font-weight:400;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(20,16,30,.24);transition:transform .12s,background .15s}
   .mv-prev{left:max(16px,calc(50% - 560px/2 - 62px))}
@@ -266,13 +267,13 @@ const evById={};                                                  // id -> event
 const chatEv={};                                                  // id -> search result (keeps occurrence-resolved date; catalog reloads can't clobber it)
 // modal chrome labels (Date / Venue / Price / Free / See more·less / About) per language
 const ML={
-  en:{date:'Date',venue:'Venue',price:'Price',free:'Free',more:'See more',less:'See less',about:'About',tt:'Opening times',upDates:'Upcoming dates',closed:'Closed'},
-  fr:{date:'Date',venue:'Lieu',price:'Prix',free:'Gratuit',more:'Voir plus',less:'Voir moins',about:'À propos',tt:'Horaires',upDates:'Prochaines dates',closed:'Fermé'},
-  nl:{date:'Datum',venue:'Locatie',price:'Prijs',free:'Gratis',more:'Meer',less:'Minder',about:'Over',tt:'Openingstijden',upDates:'Volgende data',closed:'Gesloten'},
-  de:{date:'Datum',venue:'Ort',price:'Preis',free:'Kostenlos',more:'Mehr',less:'Weniger',about:'Über',tt:'Öffnungszeiten',upDates:'Nächste Termine',closed:'Geschlossen'},
-  es:{date:'Fecha',venue:'Lugar',price:'Precio',free:'Gratis',more:'Ver más',less:'Ver menos',about:'Acerca de',tt:'Horarios',upDates:'Próximas fechas',closed:'Cerrado'},
-  it:{date:'Data',venue:'Luogo',price:'Prezzo',free:'Gratis',more:'Mostra altro',less:'Mostra meno',about:'Informazioni',tt:'Orari',upDates:'Prossime date',closed:'Chiuso'},
-  uk:{date:'Дата',venue:'Місце',price:'Ціна',free:'Безкоштовно',more:'Більше',less:'Менше',about:'Про подію',tt:'Години роботи',upDates:'Найближчі дати',closed:'Зачинено'},
+  en:{date:'Date',venue:'Venue',price:'Price',free:'Free',more:'See more',less:'See less',about:'About',tt:'Opening times',upDates:'Upcoming dates',closed:'Closed',open:'Open',byAppt:'Also by appointment'},
+  fr:{date:'Date',venue:'Lieu',price:'Prix',free:'Gratuit',more:'Voir plus',less:'Voir moins',about:'À propos',tt:'Horaires',upDates:'Prochaines dates',closed:'Fermé',open:'Ouvert',byAppt:'Aussi sur rendez-vous'},
+  nl:{date:'Datum',venue:'Locatie',price:'Prijs',free:'Gratis',more:'Meer',less:'Minder',about:'Over',tt:'Openingstijden',upDates:'Volgende data',closed:'Gesloten',open:'Open',byAppt:'Ook op afspraak'},
+  de:{date:'Datum',venue:'Ort',price:'Preis',free:'Kostenlos',more:'Mehr',less:'Weniger',about:'Über',tt:'Öffnungszeiten',upDates:'Nächste Termine',closed:'Geschlossen',open:'Geöffnet',byAppt:'Auch nach Vereinbarung'},
+  es:{date:'Fecha',venue:'Lugar',price:'Precio',free:'Gratis',more:'Ver más',less:'Ver menos',about:'Acerca de',tt:'Horarios',upDates:'Próximas fechas',closed:'Cerrado',open:'Abierto',byAppt:'También con cita previa'},
+  it:{date:'Data',venue:'Luogo',price:'Prezzo',free:'Gratis',more:'Mostra altro',less:'Mostra meno',about:'Informazioni',tt:'Orari',upDates:'Prossime date',closed:'Chiuso',open:'Aperto',byAppt:'Anche su appuntamento'},
+  uk:{date:'Дата',venue:'Місце',price:'Ціна',free:'Безкоштовно',more:'Більше',less:'Менше',about:'Про подію',tt:'Години роботи',upDates:'Найближчі дати',closed:'Зачинено',open:'Відкрито',byAppt:'Також за записом'},
 };
 const ml=k=>(ML[lang]||ML.en)[k];
 const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
@@ -458,18 +459,21 @@ function recurrenceHtml(e){
   const order=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const dayName=i=>{try{return new Date(2024,0,1+i).toLocaleDateString(loc,{weekday:'long'});}catch(_){return order[i];}};  // 2024-01-01 = Monday
   const hhmm=s=>String(s||'').slice(0,5);
+  // hours may be a single {start,end} OR an array of such slots (e.g. 10–12 & 14–16)
+  const slots=h=>{const a=Array.isArray(h)?h:(h?[h]:[]);return a.filter(s=>s&&s.start).map(s=>hhmm(s.start)+' – '+hhmm(s.end)).join(', ');};
   let any=false;
   const rows=order.map((d,i)=>{
     const info=days[d];
-    const open=!!(info&&info.is_open&&info.hours&&info.hours.start);
+    const open=!!(info&&info.is_open);
     if(open)any=true;
-    const hrs=open?(hhmm(info.hours.start)+' – '+hhmm(info.hours.end)):ml('closed');
+    const hrs=open?(slots(info.hours)||ml('open')):ml('closed');
     return `<div class="tt-row${open?'':' tt-closed'}"><span class="tt-day">${esc(dayName(i))}</span><span class="tt-hrs">${esc(hrs)}</span></div>`;
   }).join('');
   if(!any)return '';
   const runStart=sch.date_start||e.date, runEnd=e.recurrenceEndDate||sch.date_end;
   const runLine=(runStart&&runEnd&&runStart!==runEnd)?`<div class="mv-run">📅 ${esc(fmtDate(runStart))} – ${esc(fmtDate(runEnd))}</div>`:'';
-  return `<div class="mv-tt"><h4>${esc(ml('tt'))}</h4>${runLine}<div class="tt-grid">${rows}</div></div>`;
+  const appt=sch.is_also_by_appointment?`<div class="mv-appt">+ ${esc(ml('byAppt'))}</div>`:'';
+  return `<div class="mv-tt"><h4>${esc(ml('tt'))}</h4>${runLine}<div class="tt-grid">${rows}</div>${appt}</div>`;
 }
 // recurring events without a weekly schedule but with multiple dates → upcoming-date chips
 function occurrenceDatesHtml(e){
