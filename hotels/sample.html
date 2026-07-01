@@ -542,6 +542,20 @@ async function ask(q){
   finally{asking=false;if(btn)btn.disabled=false;}
 }
 document.getElementById('chatForm').onsubmit=e=>{e.preventDefault();const i=document.getElementById('chatInput');const v=i.value;i.value='';ask(v);};
+// on language switch: re-fetch the result cards already in the chat in the new
+// language and re-render them in place (cheap, no LLM). The Q&A bubbles are left
+// as asked/answered; only the event cards follow the language.
+async function retranslateChatCards(){
+  const grids=[...document.querySelectorAll('#msgs .res')];
+  for(const grid of grids){
+    const ids=[...grid.querySelectorAll('.qcard[data-id]')].map(c=>c.getAttribute('data-id')).filter(Boolean);
+    if(!ids.length)continue;
+    const evs=(await Promise.all(ids.map(id=>fetch(`${API}/events?id=${id}&lang=${lang}`).then(x=>x.json()).then(x=>x.events&&x.events[0]).catch(()=>null)))).filter(Boolean);
+    indexEvents(evs);
+    const byId={};evs.forEach(e=>byId[e.id]=e);
+    grid.innerHTML=ids.map(id=>byId[id]?chatCard(byId[id]):'').join('');
+  }
+}
 
 function applyChrome(){
   document.documentElement.lang=lang;
@@ -554,7 +568,12 @@ function applyChrome(){
   document.getElementById('exs').innerHTML=chips.join('');
   document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;ask(q);});
 }
-document.getElementById('langSel').onchange=e=>{lang=e.target.value;applyChrome();loadCatalog();};
+document.getElementById('langSel').onchange=async e=>{
+  lang=e.target.value;applyChrome();
+  await loadCatalog();               // refreshes carousels + evById in the new language
+  await retranslateChatCards();      // refreshes chat result cards in place
+  if(mv.classList.contains('on'))showModal();  // re-render an open card detail too
+};
 
 applyChrome(); loadCatalog();
 </script>
