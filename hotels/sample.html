@@ -147,10 +147,14 @@
   #ask{display:none}#ask.on{display:block}
   .chat{max-width:720px;margin:8px auto 0}
   .chat-intro{text-align:center;color:var(--soft);font-size:15px;margin-bottom:18px}
-  .exs{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:20px}
-  .ex{font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer;transition:.15s}
+  /* suggestion chips — a single horizontal strip that stays docked above the input */
+  .exs{display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap;padding:2px 1px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .exs::-webkit-scrollbar{display:none}
+  .ex{font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer;transition:.15s;white-space:nowrap;flex:none}
   .ex:hover{border-color:rgba(255,61,139,.45);color:var(--pink)}
-  .msgs{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+  .ex-surprise{background:var(--grad);color:#fff;border-color:transparent;font-weight:700}
+  .ex-surprise:hover{color:#fff;border-color:transparent;filter:brightness(1.05)}
+  .msgs{display:flex;flex-direction:column;gap:14px;margin-bottom:8px;min-height:80px}
   .msg{max-width:88%;font-size:14.5px;line-height:1.5;padding:12px 16px;border-radius:16px}
   .msg.me{align-self:flex-end;background:var(--grad);color:#fff;font-weight:500;border-bottom-right-radius:5px}
   .msg.ai{align-self:flex-start;background:var(--panel-soft);border:1px solid var(--line);color:var(--text);border-bottom-left-radius:5px}
@@ -168,7 +172,9 @@
   .qmeta .qd{color:var(--cyan);font-weight:600}
   .qdist{color:var(--cyan);font-weight:600;white-space:nowrap}
   .typing{align-self:flex-start;color:var(--dim);font-size:13px;padding:8px 4px}
-  .chat-form{display:flex;gap:10px;position:sticky;bottom:16px}
+  /* dock: chips + input pinned to the bottom of the viewport, always visible */
+  .chat-dock{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 78%,rgba(255,255,255,0));padding:10px 0 14px;z-index:5}
+  .chat-form{display:flex;gap:10px}
   .chat-form input{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-family:inherit;font-size:15px;color:var(--text);outline:none;box-shadow:var(--shadow);transition:border-color .2s}
   .chat-form input:focus{border-color:rgba(255,61,139,.5)}
   .chat-form button{background:var(--grad);color:#fff;border:none;border-radius:14px;padding:0 22px;font-weight:700;font-size:15px;cursor:pointer;transition:transform .15s,filter .2s}
@@ -219,12 +225,14 @@
     <div id="ask">
       <div class="chat">
         <p class="chat-intro" data-i="chatIntro">Ask me anything about what to do near the hotel — in any language.</p>
-        <div class="exs" id="exs"></div>
         <div class="msgs" id="msgs"></div>
-        <form class="chat-form" id="chatForm">
-          <input id="chatInput" autocomplete="off" data-i-ph="askPh" placeholder="What should we do tonight?">
-          <button type="submit" id="chatBtn" data-i="send">Ask</button>
-        </form>
+        <div class="chat-dock">
+          <div class="exs" id="exs"></div>
+          <form class="chat-form" id="chatForm">
+            <input id="chatInput" autocomplete="off" data-i-ph="askPh" placeholder="What should we do tonight?">
+            <button type="submit" id="chatBtn" data-i="send">Ask</button>
+          </form>
+        </div>
       </div>
     </div>
   </main>
@@ -255,6 +263,7 @@ const ML={
 const ml=k=>(ML[lang]||ML.en)[k];
 const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
 const SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--orange)',exhibition:'var(--violet)',theatre:'var(--violet)',dance:'var(--violet)',comedy:'var(--violet)',family:'var(--cyan)',sports:'var(--cyan)',sport:'var(--cyan)'};
+const SURPRISE_L={en:'Surprise me tonight',fr:'Surprends-moi ce soir',nl:'Verras me vanavond',de:'Überrasch mich heute Abend',es:'Sorpréndeme esta noche',it:'Sorprendimi stasera',uk:'Здивуй мене сьогодні ввечері'};
 
 const T={
   en:{pow:'Local concierge · powered by shou',eyebrow:'Welcome to Brussels',welcome:'Your evening, sorted.',sub:'Discover the best concerts, dining, art and hidden gems near your hotel — in your language, updated every hour.',steps:'steps from the Grand-Place',tabWeek:'This week',tabAsk:'Ask the concierge',near:'This week near your hotel',fromHotel:'From your hotel',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:'Ask me anything about what to do near the hotel — in any language.',askPh:'What should we do tonight?',send:'Ask',foot:'Ask anything, in any language — concerts, dining, hidden gems near you.',thinking:'Finding the best options near the hotel…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',book:'Book a room',dine:'Restaurant',bar:'Cocktail bar',spa:'Spa & wellness',dir:'Directions',walk:'min walk',ex:['What should we do tonight?','Best jazz near the hotel?','Something to do with kids tomorrow','Free activities this evening','Most authentic Belgian experience within walking distance']},
@@ -528,8 +537,11 @@ function applyChrome(){
   document.querySelectorAll('[data-i]').forEach(el=>{const v=t(el.getAttribute('data-i'));if(v)el.textContent=v;});
   document.querySelectorAll('[data-i-ph]').forEach(el=>{const v=t(el.getAttribute('data-i-ph'));if(v)el.placeholder=v;});
   document.getElementById('hlinks').innerHTML=HOTEL_LINKS().map(l=>`<a class="hlink" href="${l.url||'#'}"${l.url?' target="_blank" rel="noopener"':''}>${l.i} ${esc(t(l.k))}</a>`).join('');
-  document.getElementById('exs').innerHTML=(t('ex')||[]).map(q=>`<button class="ex">${esc(q)}</button>`).join('');
-  document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{document.getElementById('chatInput').value=b.textContent;ask(b.textContent);});
+  const sq=SURPRISE_L[lang]||SURPRISE_L.en;
+  const chips=[`<button class="ex ex-surprise" data-q="${esc(sq)}">✨ ${esc(sq)}</button>`]
+    .concat((t('ex')||[]).map(q=>`<button class="ex" data-q="${esc(q)}">${esc(q)}</button>`));
+  document.getElementById('exs').innerHTML=chips.join('');
+  document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;ask(q);});
 }
 document.getElementById('langSel').onchange=e=>{lang=e.target.value;applyChrome();loadCatalog();};
 
