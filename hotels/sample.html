@@ -790,7 +790,7 @@ document.getElementById('chatForm').onsubmit=e=>{e.preventDefault();const i=docu
 async function retranslateChatCards(){
   const grids=[...document.querySelectorAll('#msgs .res')];
   for(const grid of grids){
-    const ids=[...grid.querySelectorAll('.qcard[data-id]')].map(c=>c.getAttribute('data-id')).filter(Boolean);
+    const ids=[...grid.querySelectorAll('.ev[data-id]')].map(c=>c.getAttribute('data-id')).filter(Boolean);
     if(!ids.length)continue;
     const byId={};
     await Promise.all(ids.map(async id=>{
