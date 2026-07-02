@@ -209,8 +209,9 @@
   .msg.ai{align-self:flex-start;background:var(--panel-soft);border:1px solid var(--line);color:var(--text);border-bottom-left-radius:5px}
   /* concierge results — same card anatomy as beta.shou.be (image-top, seg pill, title, desc, meta) */
   .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:2px 0 4px;width:100%}
-  .ev-res{align-items:flex-start}
-  .ev-res .meta{gap:4px}
+  .ev-res{align-items:stretch}
+  .ev-res .thumb{width:104px;height:auto;min-height:104px;align-self:stretch}
+  .ev-res .meta{gap:4px;justify-content:center}
   .ev-res .qpill{margin-bottom:1px}
   .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s,border-color .15s}
   .qcard:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);transform:translateY(-2px);border-color:rgba(20,16,30,.14)}
