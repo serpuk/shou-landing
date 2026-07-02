@@ -112,20 +112,29 @@
   .pm-bub.me{align-self:flex-end;background:var(--grad);color:#fff;font-weight:600;border-bottom-right-radius:.27em}
   .pm-bub.ai{align-self:flex-start;background:#f7f5fa;border:1px solid var(--line);color:var(--text-soft);border-bottom-left-radius:.27em}
   .pm-bub.ai b{color:var(--ink)}
-  .pm-card{border:1px solid var(--line);border-radius:1.06em;overflow:hidden;box-shadow:0 1px 3px rgba(20,16,30,.06)}
-  .pm-photo{height:6.9em;background:radial-gradient(8em 5em at 28% 22%,rgba(255,255,255,.55),transparent 60%),linear-gradient(150deg,#f7cddb,#e6a7c1 52%,#c99ec9)}
+  /* folder tabs + cool concierge panel (matches the live app) */
+  .pm-tabs{display:flex;gap:.3em;padding:.7em .85em 0}
+  .pm-tab{font-size:.75em;font-weight:600;padding:.66em .85em .8em;border-radius:.85em .85em 0 0;display:flex;align-items:center;gap:.5em;border:1px solid var(--line);border-bottom:none;line-height:1}
+  .pm-tab .d{width:.5em;height:.5em;border-radius:50%;flex:none}
+  .pm-tab.week{background:#f1eff3;color:var(--text-dim);transform:translateY(.28em);opacity:.92}
+  .pm-tab.week .d{background:var(--grad)}
+  .pm-tab.ask{background:#ece5ff;color:#4e35a0;position:relative;z-index:2;margin-bottom:-1px}
+  .pm-tab.ask .d{background:#fff;box-shadow:0 0 0 1px rgba(20,16,30,.12)}
+  .pm-panel{background:#ece5ff;border:1px solid #d2c3f6;border-radius:0 0 1.4em 1.4em;position:relative;z-index:1}
+  .pm-card{display:flex;align-items:stretch;gap:.66em;padding:.55em;background:#fff;border:1px solid var(--line);border-radius:1.06em;box-shadow:0 1px 3px rgba(20,16,30,.06)}
+  .pm-photo{width:5.2em;flex:none;min-height:5.6em;align-self:stretch;border-radius:.8em;overflow:hidden;background:radial-gradient(8em 5em at 28% 22%,rgba(255,255,255,.55),transparent 60%),linear-gradient(150deg,#f7cddb,#e6a7c1 52%,#c99ec9)}
   .pm-photo img{width:100%;height:100%;object-fit:cover;display:block}
-  .pm-cb{padding:.73em .86em .86em}
-  .pm-pill{display:inline-block;font-size:.63em;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--violet);border-radius:999px;padding:.25em .8em;margin-bottom:.6em}
-  .pm-title{font-family:'Fraunces';font-weight:600;font-size:1.06em;color:var(--ink);line-height:1.15;margin-bottom:.33em}
-  .pm-desc{font-size:.73em;color:var(--text-soft);line-height:1.4;margin-bottom:.6em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .pm-meta{font-size:.73em;color:var(--cyan);font-weight:600;margin-top:.13em}
+  .pm-cb{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:.1em .1em .1em 0}
+  .pm-pill{align-self:flex-start;display:inline-block;font-size:.63em;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--violet);border-radius:999px;padding:.25em .8em;margin-bottom:.42em}
+  .pm-title{font-family:'Fraunces';font-weight:600;font-size:1em;color:var(--ink);line-height:1.15;margin-bottom:.28em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .pm-desc{font-size:.7em;color:var(--text-soft);line-height:1.38;margin-bottom:.42em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .pm-meta{font-size:.7em;color:var(--cyan);font-weight:600;margin-top:.1em}
   .pm-meta .g{color:var(--text-soft);font-weight:400}
   .pm-dock{padding:.5em .95em 1em;border-top:1px solid var(--line);margin-top:.27em}
   .pm-ideas{text-align:center;font-size:.72em;font-weight:600;color:var(--text-soft);margin-bottom:.55em}
   .pm-inputrow{display:flex;gap:.53em}
   .pm-input{flex:1;border:1px solid var(--line);border-radius:.8em;padding:.66em .8em;font-size:.77em;color:var(--text-dim);background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pm-ask{background:var(--grad);color:#fff;font-weight:700;font-size:.77em;border-radius:.8em;padding:0 1.1em;display:flex;align-items:center}
+  .pm-ask{background:var(--grad-cool);color:#fff;font-weight:700;font-size:.77em;border-radius:.8em;padding:0 1.1em;display:flex;align-items:center}
 
   .ffoot{margin-top:26px;font-size:13px;color:var(--text-dim)}
   .ffoot .stay{font-family:'Fraunces';font-weight:600;font-size:15px;color:var(--ink)}
@@ -211,6 +220,11 @@
               <div><div class="pm-name">Your Hotel</div><div class="pm-sub">Local concierge · powered by shou</div></div>
               <div class="pm-lang">🇬🇧 EN</div>
             </div>
+            <div class="pm-tabs">
+              <div class="pm-tab week"><span class="d"></span>This week</div>
+              <div class="pm-tab ask"><span class="d"></span>Ask the concierge</div>
+            </div>
+            <div class="pm-panel">
             <div class="pm-body">
               <div class="pm-bub me">Surprise me tonight</div>
               <div class="pm-bub ai">Your wildcard pick: <b>Expo TW Fotoclub</b> at GC Ten Weyngaert in Vorst — plus a few more surprises below.</div>
@@ -220,14 +234,15 @@
                   <span class="pm-pill">Exhibition</span>
                   <div class="pm-title">Expo TW Fotoclub</div>
                   <div class="pm-desc">Members of the TW Fotoclub present their latest works in a captivating exhibition.</div>
-                  <div class="pm-meta"><span class="g">📍 GC Ten Weyngaert · Vorst · </span>3.8 km</div>
                   <div class="pm-meta">📅 Wed 1 Jul · 09:00–18:00</div>
+                  <div class="pm-meta"><span class="g">📍 GC Ten Weyngaert · Vorst · </span>3.8 km</div>
                 </div>
               </div>
             </div>
             <div class="pm-dock">
               <div class="pm-ideas">Ideas ▾</div>
               <div class="pm-inputrow"><div class="pm-input">Surprise me tonight</div><div class="pm-ask">Ask</div></div>
+            </div>
             </div>
           </div>
         </div>
