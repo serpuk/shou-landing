@@ -334,7 +334,9 @@ const T={
 };
 const t=k=>(T[lang]||T.en)[k];
 
-const HOTEL_LINKS=()=>[{i:'🛏',k:'book'},{i:'🍽',k:'dine'},{i:'🍸',k:'bar'},{i:'💆',k:'spa'},{i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination='+HOTEL.lat+','+HOTEL.lng}];
+// Hero quick links: only the hotel-service actions not already shown as POI
+// cards in "From your hotel" below (dine/bar/spa live there, with real map links).
+const HOTEL_LINKS=()=>[{i:'🛏',k:'book'},{i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination='+HOTEL.lat+','+HOTEL.lng}];
 // "From your hotel" concierge picks — real POIs near the hotel (Google Maps).
 const HOTEL_CARDS=()=>[
   {i:'🍽',k:'dine',n:'La Pierre Bleue',url:'https://maps.app.goo.gl/9MrBdX7RLtp9mTKf7'},
