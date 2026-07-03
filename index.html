@@ -212,6 +212,15 @@
   footer a:hover{color:var(--text-soft)}
   .sep{margin:0 9px;opacity:0.4}
 
+  /* SEO nav: real internal links to the place/answer pages. These pages were
+     discoverable only via the sitemap (a weak signal), which left them
+     "Crawled - currently not indexed" in Search Console. */
+  .seonav{position:relative;z-index:2;max-width:640px;margin:0 auto;padding:10px 24px 2px;text-align:center}
+  .seonav h2{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);opacity:.8;margin:0 0 10px}
+  .seonav ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:7px 8px}
+  .seonav a{display:inline-block;font-size:12.5px;color:var(--text-dim);text-decoration:none;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:5px 12px;transition:color .2s,border-color .2s}
+  .seonav a:hover{color:var(--text-soft);border-color:rgba(255,61,139,0.4)}
+
   /* Staggered entrance */
   .eyebrow,.logo,.tag,.blurb,.notify,.beta-line{
     opacity:0;transform:translateY(16px);
@@ -275,6 +284,23 @@
       <span>Follow @shou.be</span>
     </a>
   </main>
+
+  <nav class="seonav" aria-label="What's on in Belgium">
+    <h2>What's on in Belgium</h2>
+    <ul>
+      <li><a href="/this-week">This week in Belgium</a></li>
+      <li><a href="/belgium-events">All Belgium events</a></li>
+      <li><a href="/brussels-tonight">Tonight in Brussels</a></li>
+      <li><a href="/antwerp-tonight">Tonight in Antwerp</a></li>
+      <li><a href="/ghent-tonight">Tonight in Ghent</a></li>
+      <li><a href="/brussels-this-weekend">This weekend in Brussels</a></li>
+      <li><a href="/antwerp-this-weekend">This weekend in Antwerp</a></li>
+      <li><a href="/ghent-this-weekend">This weekend in Ghent</a></li>
+      <li><a href="/festivals-belgium">Festivals in Belgium</a></li>
+      <li><a href="/whats-new">What's new</a></li>
+      <li><a href="/hotels/offer">AI concierge for hotels</a></li>
+    </ul>
+  </nav>
 
   <footer>
     <span>© 2026 ABSS Analytics · shou</span>
