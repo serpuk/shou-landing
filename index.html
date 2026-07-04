@@ -161,6 +161,30 @@
   .notify button:hover{transform:translateY(-1px);filter:brightness(1.07)}
   .notify button:active{transform:translateY(0)}
 
+  /* Primary CTA — the live app (now the hero action) */
+  .cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--grad);color:#16101a;
+    font-family:inherit;font-weight:700;font-size:17px;
+    border-radius:14px;padding:16px 34px;
+    text-decoration:none;white-space:nowrap;
+    box-shadow:0 10px 34px rgba(255,61,139,0.28);
+    transition:transform .15s, filter .2s;
+    margin-bottom:16px;
+  }
+  .cta:hover{transform:translateY(-1px);filter:brightness(1.07)}
+  .cta:active{transform:translateY(0)}
+
+  /* Demoted newsletter — secondary to the app CTA */
+  .news{
+    max-width:440px;margin:38px auto 0;padding-top:28px;
+    border-top:1px solid var(--panel-bd);
+  }
+  .news-h{
+    font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--text-dim);margin-bottom:14px;
+  }
+
   .beta-line{
     font-size:14px;color:var(--text-dim);
     margin-top:6px;
@@ -222,7 +246,7 @@
   .seonav a:hover{color:var(--text-soft);border-color:rgba(255,61,139,0.4)}
 
   /* Staggered entrance */
-  .eyebrow,.logo,.tag,.blurb,.notify,.beta-line{
+  .eyebrow,.logo,.tag,.blurb,.cta,.notify,.beta-line,.news{
     opacity:0;transform:translateY(16px);
     animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
   }
@@ -231,11 +255,13 @@
   .logo{animation-delay:.13s}
   .tag{animation-delay:.24s}
   .blurb{animation-delay:.34s}
+  .cta{animation-delay:.40s}
+  .beta-line{animation-delay:.50s}
   .notify{animation-delay:.44s}
-  .beta-line{animation-delay:.52s}
+  .news{animation-delay:.62s}
   @keyframes rise{to{opacity:1;transform:none}}
   @media(prefers-reduced-motion:reduce){
-    .eyebrow,.logo,.tag,.blurb,.notify,.beta-line,.tw-line{animation:none;opacity:1;transform:none}
+    .eyebrow,.logo,.tag,.blurb,.cta,.notify,.beta-line,.tw-line,.news{animation:none;opacity:1;transform:none}
     .orb,.eyebrow .dot{animation:none}
   }
 
@@ -250,30 +276,31 @@
   <div class="grain"></div>
 
   <main class="shell">
-    <span class="eyebrow"><span class="dot"></span>Launching soon · Brussels &amp; Belgium</span>
+    <span class="eyebrow"><span class="dot"></span>Now live · Brussels &amp; Belgium</span>
 
     <div class="logo">shou</div>
     <div class="tag">belgium after dark</div>
 
     <p class="blurb">
       Concerts, parties, theatre, and everything happening tonight — discovered in seconds,
-      in your language, near you. We're putting the finishing touches on it.
+      in your language, near you.
     </p>
 
-    <div class="notify-done" id="notifyDone">Thanks — you're on the list. We'll let you know the moment shou launches.</div>
+    <a class="cta" href="https://app.shou.be">Open shou →</a>
 
-    <form class="notify" id="notifyForm">
-      <input type="email" id="email" placeholder="your@email.com" aria-label="Email address" required>
-      <button type="submit" id="notifyBtn">Notify me</button>
-    </form>
-    <p class="consent" id="consentNote">We'll email you once — when shou launches. No spam, unsubscribe anytime.</p>
-
-    <p class="beta-line">
-      Curious now? <a href="https://app.shou.be">Open shou →</a>
-    </p>
     <p class="beta-line tw-line">
-      Or <a href="/belgium-events">see what's on across Belgium →</a>
+      Or <a href="/belgium-events">browse what's on across Belgium →</a>
     </p>
+
+    <div class="news">
+      <p class="news-h">Stay in the loop</p>
+      <div class="notify-done" id="notifyDone">Thanks — you're on the list.</div>
+      <form class="notify" id="notifyForm">
+        <input type="email" id="email" placeholder="your@email.com" aria-label="Email address" required>
+        <button type="submit" id="notifyBtn">Keep me posted</button>
+      </form>
+      <p class="consent" id="consentNote">The occasional email — new features and the best of each week. No spam, unsubscribe anytime.</p>
+    </div>
 
     <a class="social" href="https://www.instagram.com/shou.be/" target="_blank" rel="noopener" aria-label="Follow shou on Instagram">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
