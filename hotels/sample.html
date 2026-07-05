@@ -116,6 +116,10 @@
   .date{font-weight:700;font-size:12.5px;color:var(--cyan);letter-spacing:.02em}
   .venue{color:var(--soft);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
   .venue .dist{color:var(--cyan);font-weight:600;white-space:nowrap}
+  /* Distance from the hotel on its own line — ALWAYS visible (the concierge's
+     key signal), never truncated by the venue-name clamp. */
+  .evdist{display:flex;align-items:center;gap:5px;color:var(--cyan);font-weight:600;font-size:13px;margin-top:1px}
+  .evdist svg{width:13px;height:13px;flex:none}
   .skel{flex:0 0 290px;height:170px;border-radius:16px;background:linear-gradient(100deg,var(--panel-soft),#efeaf3,var(--panel-soft));background-size:200% 100%;animation:sh 1.2s infinite}
   @keyframes sh{to{background-position:-200% 0}}
   .empty{text-align:center;color:var(--dim);padding:30px 0}
@@ -436,7 +440,8 @@ function evCard(e,showDate){
       <span class="t">${esc(cleanTitle(e.name))}</span>
       ${desc?`<span class="qdesc">${esc(desc)}</span>`:''}
       <span class="date">${esc(fmtDate(d))}${esc(time)}</span>
-      <span class="venue">${esc(venue||'TBA')}${dist?` · <span class="dist">${esc(dist)}</span>`:''}</span>
+      <span class="venue">${esc(venue||'TBA')}</span>
+      ${dist?`<span class="evdist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${esc(dist)}</span>`:''}
     </span></a>`;
 }
 function hotelCard(c){const href=c.url||'#';const ext=c.url?' target="_blank" rel="noopener"':'';return `<a class="ev" href="${esc(href)}"${ext}><span class="thumb hotelthumb">${c.i}</span><span class="meta"><span class="t">${esc(t(c.k))}</span><span class="venue">${esc(c.n||t('fromHotel'))}</span></span></a>`;}
