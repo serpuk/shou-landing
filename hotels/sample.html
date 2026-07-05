@@ -308,6 +308,16 @@ const HOTEL={name:'Your Hotel',lat:50.8466,lng:4.3517};
 // unique visitors, and top queries per hotel. No PII — just a random id.
 const SAMPLE_SOURCE='hotel-sample';
 const VISITOR_ID=(()=>{ try{ let v=localStorage.getItem('shou_vid'); if(!v){ v=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)); localStorage.setItem('shou_vid',v); } return v; }catch(_){ return null; } })();
+// Log a demo interaction (click-through / tickets / directions) to the sample
+// analytics. Routed to /api/track with a source, which the backend logs to
+// sample_search_log ONLY — never real event counters.
+function sampleTrack(action, ev){
+  if(!ev||!ev.id) return;
+  try{
+    fetch(`${API}/track`,{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({source:SAMPLE_SOURCE,sessionId:VISITOR_ID,action,eventId:ev.id,eventTitle:ev.name||ev.title||''})});
+  }catch(_){}
+}
 const CATS=['music','exhibition','theatre','family','festival'];  // fetched per-category & merged, for real day-coverage
 let lang='en', catalog=[];
 const evById={};                                                  // id -> event, for the click-through modal
@@ -724,6 +734,14 @@ document.addEventListener('click',e=>{
     modalIdx=Math.max(0,modalList.indexOf(id));
   }else{modalList=[id];modalDates=[card.getAttribute('data-date')||''];modalIdx=0;}
   showModal();
+  sampleTrack('open', evById[id]);            // click-through: guest opened an event
+});
+// Tickets / directions clicks inside the modal (booking intent) — delegated so
+// it works for the dynamically-built modal panes.
+document.addEventListener('click',e=>{
+  const cur=evById[modalList[modalIdx]]; if(!cur)return;
+  if(e.target.closest('.mv-cta'))                         sampleTrack('tickets', cur);
+  else if(e.target.closest('.mv-dir,.mv-map-cta'))        sampleTrack('directions', cur);
 });
 
 function indexEvents(list){for(const e of list){if(e&&e.id)evById[e.id]=e;}}
