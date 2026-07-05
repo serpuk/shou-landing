@@ -303,6 +303,11 @@
 <script>
 const API='https://shou-backend.vercel.app/api';
 const HOTEL={name:'Your Hotel',lat:50.8466,lng:4.3517};
+// Usage analytics: tag searches from this demo with a source + a persistent
+// anonymous visitor id (localStorage) so the backend can report queries/day,
+// unique visitors, and top queries per hotel. No PII — just a random id.
+const SAMPLE_SOURCE='hotel-sample';
+const VISITOR_ID=(()=>{ try{ let v=localStorage.getItem('shou_vid'); if(!v){ v=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)); localStorage.setItem('shou_vid',v); } return v; }catch(_){ return null; } })();
 const CATS=['music','exhibition','theatre','family','festival'];  // fetched per-category & merged, for real day-coverage
 let lang='en', catalog=[];
 const evById={};                                                  // id -> event, for the click-through modal
@@ -767,7 +772,7 @@ async function ask(q){
   addMsg('me',esc(q));
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
   try{
-    const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng})});
+    const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng,source:SAMPLE_SOURCE,sessionId:VISITOR_ID})});
     const d=await r.json(); typing.remove();
     addMsg('ai',esc(d.reasoning||'')||t('none'));
     // Use the events the search returns directly (matching first, then suggested) —
