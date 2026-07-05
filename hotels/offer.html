@@ -281,6 +281,66 @@
     .ba-head{display:none}
     .hero-cta .btn{flex:1;justify-content:center}
   }
+
+  /* === Price pill (quick answer, under hero) === */
+  .pricepill{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 18px;max-width:580px;margin:0 auto;
+    background:linear-gradient(150deg,rgba(255,61,139,.08),rgba(255,155,61,.06));border:1px solid rgba(255,61,139,.28);
+    border-radius:999px;padding:13px 26px;text-decoration:none;box-shadow:0 12px 30px -18px rgba(255,61,139,.5);transition:transform .15s,box-shadow .2s}
+  .pricepill:hover{transform:translateY(-1px);box-shadow:0 16px 38px -18px rgba(255,61,139,.55)}
+  .pp-tag{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--pink);
+    background:#fff;border:1px solid rgba(255,61,139,.3);border-radius:999px;padding:5px 12px;white-space:nowrap}
+  .pp-main{font-family:'Fraunces';font-size:21px;font-weight:600;color:var(--ink);white-space:nowrap}
+  .pp-main b{font-weight:700}
+  .pp-main .pp-per{color:var(--text-soft);font-family:'Inter';font-size:15px;font-weight:500}
+  .pp-main .pp-plus{color:var(--text-dim);margin:0 5px;font-family:'Inter';font-weight:400}
+  .pp-fine{font-size:13px;color:var(--text-soft);white-space:nowrap}
+
+  /* === Guest journey (One QR code) === */
+  .journey{display:flex;align-items:flex-start;justify-content:center;gap:6px;max-width:980px;margin:0 auto}
+  .jstep{flex:1;max-width:184px;text-align:center;padding:0 4px}
+  .jstep .jico{width:66px;height:66px;border-radius:20px;display:grid;place-items:center;font-size:29px;margin:0 auto 14px;
+    background:linear-gradient(150deg,rgba(255,61,139,.10),rgba(255,155,61,.08));border:1px solid rgba(255,61,139,.18)}
+  .jstep .jt{font-weight:700;font-size:15px;color:var(--ink);line-height:1.25}
+  .jstep .jd{font-size:12.5px;color:var(--text-soft);margin-top:4px;line-height:1.4}
+  .jarrow{flex:none;color:var(--pink);font-size:23px;font-weight:700;margin-top:22px;opacity:.6}
+  .qr-line{text-align:center;color:var(--text-soft);font-size:16px;max-width:620px;margin:38px auto 0;line-height:1.6}
+  .qr-line b{color:var(--ink);font-weight:600}
+
+  /* === Multilingual questions === */
+  .qlang{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;max-width:900px;margin:0 auto}
+  .qcard{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 20px;box-shadow:var(--shadow)}
+  .qcard .qflag{font-size:23px;flex:none;line-height:1}
+  .qcard .qtext{font-size:15.5px;color:var(--text);font-style:italic}
+  .qpunch{text-align:center;font-family:'Fraunces';font-size:clamp(20px,3vw,28px);font-weight:500;margin:36px auto 0}
+
+  /* === Built in Belgium (credibility) === */
+  .origin{max-width:760px;margin:0 auto;text-align:center;background:var(--panel-soft);border:1px solid var(--line);border-radius:var(--radius);padding:44px 34px}
+  .origin .flag{font-size:34px;margin-bottom:14px}
+  .origin h2{font-size:clamp(26px,4vw,38px);margin-bottom:16px}
+  .origin p{color:var(--text-soft);font-size:17px;max-width:560px;margin:0 auto 8px;line-height:1.6}
+  .origin .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin-top:24px}
+  .origin .chip{font-size:13px;font-weight:600;color:var(--text-soft);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 15px}
+
+  /* === Pilot guarantee (risk reversal) === */
+  .guarantee{max-width:680px;margin:0 auto;background:linear-gradient(160deg,rgba(14,154,141,.07),rgba(14,154,141,.03));
+    border:1px solid rgba(14,154,141,.28);border-radius:var(--radius);padding:40px 34px;text-align:center;box-shadow:var(--shadow)}
+  .guarantee .shield{width:60px;height:60px;border-radius:50%;background:rgba(14,154,141,.12);display:grid;place-items:center;font-size:28px;margin:0 auto 18px}
+  .guarantee h2{font-size:clamp(24px,3.6vw,34px);margin-bottom:14px}
+  .guarantee p{color:var(--text);font-size:17px;max-width:520px;margin:0 auto 20px;line-height:1.6}
+  .guarantee .gline{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;color:var(--cyan);font-weight:600;font-size:15px}
+
+  /* === Pilot spots (honest scarcity) === */
+  .spots{display:inline-flex;flex-direction:column;align-items:center;gap:11px;margin:18px auto 6px}
+  .spots .dots{display:flex;gap:9px}
+  .spots .dot{width:26px;height:26px;border-radius:8px;border:2px solid rgba(255,61,139,.4);background:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--pink)}
+  .spots .dot.filled{background:var(--grad);border-color:transparent;color:#fff}
+  .spots .slabel{font-size:13.5px;font-weight:600;color:var(--text-soft);letter-spacing:.02em}
+
+  @media(max-width:820px){
+    .journey{flex-direction:column;align-items:center;gap:2px;max-width:320px}
+    .jstep{max-width:none;width:100%}
+    .jarrow{margin:2px 0;transform:rotate(90deg)}
+  }
 </style>
 </head>
 <body>
@@ -314,6 +374,15 @@
   </div>
 </div></div></section>
 
+<!-- PRICE PILL (quick answer) -->
+<section style="padding-top:0;padding-bottom:40px"><div class="wrap">
+  <a class="pricepill" href="/hotels/apply">
+    <span class="pp-tag">Pilot launch offer</span>
+    <span class="pp-main"><b>€199</b> setup <span class="pp-plus">+</span> <b>€99</b><span class="pp-per">/month</span></span>
+    <span class="pp-fine">Setup in 24 hours · Cancel anytime</span>
+  </a>
+</div></section>
+
 <!-- TRUST -->
 <div class="trust"><div class="wrap"><p>Launching with Belgium's first pilot hotels — independent, boutique, serviced apartments &amp; B&amp;Bs.</p></div></div>
 
@@ -321,6 +390,26 @@
 <section><div class="wrap quote">
   <h2>“We don't sell hotels another app. We give every hotel its own digital concierge — trained specifically for its guests and its neighbourhood.”</h2>
   <p class="attrib">The local concierge, powered by shou. Your guests never feel they've left your hotel's ecosystem.</p>
+</div></section>
+
+<!-- ONE QR CODE · GUEST JOURNEY -->
+<section><div class="wrap">
+  <div class="sec-head">
+    <h2>One QR code. <span class="grad-text">Thousands of experiences.</span></h2>
+    <p>Place a QR code in every room. Your staff does nothing — everything updates automatically.</p>
+  </div>
+  <div class="journey">
+    <div class="jstep"><div class="jico">🧳</div><div class="jt">Guest arrives</div><div class="jd">No app to download</div></div>
+    <div class="jarrow">→</div>
+    <div class="jstep"><div class="jico">📱</div><div class="jt">Scans the QR code</div><div class="jd">In the room or at reception</div></div>
+    <div class="jarrow">→</div>
+    <div class="jstep"><div class="jico">💬</div><div class="jt">Asks in their language</div><div class="jd">7 languages, 24/7</div></div>
+    <div class="jarrow">→</div>
+    <div class="jstep"><div class="jico">🗺️</div><div class="jt">Discovers Belgium</div><div class="jd">Concerts, culture, hidden gems</div></div>
+    <div class="jarrow">→</div>
+    <div class="jstep"><div class="jico">⭐</div><div class="jt">Leaves a happier review</div><div class="jd">A stay they remember</div></div>
+  </div>
+  <p class="qr-line">Guests scan, ask in their own language, and discover concerts, culture, restaurants, family activities and hidden gems nearby. <b>Everything updates automatically. Your staff does nothing.</b></p>
 </div></section>
 
 <!-- BENEFITS -->
@@ -336,14 +425,20 @@
     <div class="card"><span class="ico">⚡</span><h3>Updated hourly</h3><p>Live recommendations refresh automatically — never a stale brochure.</p></div>
     <div class="card"><span class="ico">🏨</span><h3>Branded for your hotel</h3><p>Your logo, your neighbourhood, your links — not a generic app.</p></div>
   </div>
-  <div class="checks">
-    <div class="check"><span class="ck">✓</span> Guests discover concerts, events and hidden gems nearby</div>
-    <div class="check"><span class="ck">✓</span> Reception answers fewer repetitive questions</div>
-    <div class="check"><span class="ck">✓</span> International visitors feel at home immediately</div>
-    <div class="check"><span class="ck">✓</span> Recommendations update automatically every hour</div>
-    <div class="check"><span class="ck">✓</span> Creates memorable experiences and better reviews</div>
-    <div class="check"><span class="ck">✓</span> Personalised to your guests, near your hotel</div>
+</div></section>
+
+<!-- QUESTIONS YOUR GUESTS WILL ASK -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>Questions your guests will ask</h2><p>Real questions — in the language they actually think in.</p></div>
+  <div class="qlang">
+    <div class="qcard"><span class="qflag">🇩🇪</span><span class="qtext">Was kann man heute Abend in Brüssel machen?</span></div>
+    <div class="qcard"><span class="qflag">🇫🇷</span><span class="qtext">Quelles activités gratuites y a-t-il ce soir&nbsp;?</span></div>
+    <div class="qcard"><span class="qflag">🇪🇸</span><span class="qtext">¿Dónde escuchar jazz cerca del hotel?</span></div>
+    <div class="qcard"><span class="qflag">🇬🇧</span><span class="qtext">Best family activities tomorrow?</span></div>
+    <div class="qcard"><span class="qflag">🇳🇱</span><span class="qtext">Zijn er leuke festivals dit weekend?</span></div>
+    <div class="qcard"><span class="qflag">🇮🇹</span><span class="qtext">Dove ascoltare buona musica stasera?</span></div>
   </div>
+  <p class="qpunch">Answered instantly. <span class="grad-text">In their own language.</span></p>
 </div></section>
 
 <!-- BEFORE / AFTER -->
@@ -414,16 +509,6 @@
   </div>
 </div></section>
 
-<!-- HOW IT WORKS -->
-<section><div class="wrap">
-  <div class="sec-head"><h2>How it works</h2><p>Zero friction for the guest, zero maintenance for you.</p></div>
-  <div class="steps">
-    <div class="step"><div class="n"></div><h3>Guest scans a QR code</h3><p>In the room, at reception, on the flyer — one tap opens your branded concierge. No download.</p></div>
-    <div class="step"><div class="n"></div><h3>Asks in their language</h3><p>They browse your curated scrolls, or just ask the AI concierge anything — in any of 7 languages.</p></div>
-    <div class="step"><div class="n"></div><h3>Gets personalised picks</h3><p>Live, hourly-updated recommendations near your hotel — concerts, dining, hidden gems, your own services.</p></div>
-  </div>
-</div></section>
-
 <!-- WHAT YOU GET -->
 <section><div class="wrap">
   <div class="sec-head"><h2>What your hotel gets</h2><p>A branded page at <b style="color:var(--cyan)">shou.be/hotel/your-name</b> — with two tabs.</p></div>
@@ -463,6 +548,17 @@
   <p style="text-align:center;margin-top:28px;color:var(--text-soft)">Or preview the in-room <a href="/hotels/flyer-sample" style="color:var(--cyan);text-decoration:none;font-weight:600">print flyer →</a></p>
 </div></section>
 
+<!-- BUILT IN BELGIUM -->
+<section><div class="wrap">
+  <div class="origin">
+    <div class="flag">🇧🇪</div>
+    <h2>Built in Belgium, for Belgium</h2>
+    <p>shou tracks thousands of events across Belgium and helps locals and visitors discover what to do, every single day.</p>
+    <p>We're now bringing that experience into hotels.</p>
+    <div class="chips"><span class="chip">Thousands of events</span><span class="chip">7 languages</span><span class="chip">Updated hourly</span><span class="chip">All of Belgium</span></div>
+  </div>
+</div></section>
+
 <!-- PRICING -->
 <section><div class="wrap">
   <div class="sec-head"><h2><span class="grad-text">Summer launch</span> pricing</h2><p>Our launch rate — reserved for the first few hotels. Lock it in now: better guest experience, zero maintenance, cancel any time.</p></div>
@@ -479,14 +575,32 @@
       <li>Cancel any time</li>
     </ul>
     <a class="btn btn-primary" href="/hotels/apply" style="width:100%;justify-content:center">Become a pilot hotel</a>
-    <div class="fine">This launch rate stays locked in for as long as you're with us. Unique requests &amp; customisations: <b>€100/hour + VAT</b>. <a href="/hotels/pricing" style="color:var(--cyan);text-decoration:none">See full pricing &amp; FAQ →</a></div>
+    <div class="fine">This launch rate stays locked in for as long as you're with us. Need something special? <b>We'll figure it out together.</b> <a href="/hotels/pricing" style="color:var(--cyan);text-decoration:none">See full pricing &amp; FAQ →</a></div>
   </div></div>
+</div></section>
+
+<!-- PILOT GUARANTEE -->
+<section><div class="wrap">
+  <div class="guarantee">
+    <div class="shield">🛡️</div>
+    <h2>Our pilot guarantee</h2>
+    <p>If you don't feel shou improves your guests' experience in the first month, we'll refund your setup fee — no questions asked.</p>
+    <div class="gline"><span>✓ No contracts</span><span>✓ No long-term commitment</span><span>✓ Cancel anytime</span></div>
+  </div>
 </div></section>
 
 <!-- APPLY -->
 <section id="apply"><div class="wrap apply">
   <span class="eyebrow"><span class="dot"></span>Limited pilot</span>
-  <h2 style="margin-top:22px">We're onboarding our <span class="grad-text">first five hotels.</span></h2>
+  <div class="spots">
+    <div class="dots">
+      <!-- HONEST SCARCITY: add class "filled" to a dot ONLY when a spot is genuinely
+           reserved (e.g. <span class="dot filled">✓</span>). Keep the count truthful. -->
+      <span class="dot">1</span><span class="dot">2</span><span class="dot">3</span><span class="dot">4</span><span class="dot">5</span>
+    </div>
+    <span class="slabel">Only 5 pilot hotels — limited launch</span>
+  </div>
+  <h2 style="margin-top:18px">Become one of our <span class="grad-text">first pilot hotels.</span></h2>
   <p>Turn every room into a local concierge. Tell us about your hotel and we'll set up your branded page — usually within a day.</p>
   <a class="btn btn-primary" href="/hotels/apply" style="margin-top:6px">Apply to the pilot →</a>
   <p class="apply-note">Prefer email? Write to <a href="mailto:hotels@shou.be" style="color:var(--cyan);text-decoration:none">hotels@shou.be</a>.</p>
