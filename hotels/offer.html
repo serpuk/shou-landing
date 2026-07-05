@@ -291,7 +291,7 @@
     <a class="brand" href="https://shou.be">shou <small>for hotels</small></a>
     <div style="display:flex;align-items:center;gap:20px">
       <a href="/hotels/pricing" style="font-size:14px;font-weight:600;color:var(--text-soft);text-decoration:none">Pricing</a>
-      <a class="nav-cta" href="#apply">Become a pilot hotel</a>
+      <a class="nav-cta" href="/hotels/apply">Become a pilot hotel</a>
     </div>
   </div>
 </nav>
@@ -305,7 +305,7 @@
     <p class="promise">Your guests always know what to do in Belgium tonight — concerts, events and hidden gems near your hotel, in their own language. No app to download, nothing to maintain.</p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="/hotels/sample" target="_blank" rel="noopener">See a live demo →</a>
-      <a class="btn btn-ghost" href="#apply">Become a pilot hotel</a>
+      <a class="btn btn-ghost" href="/hotels/apply">Become a pilot hotel</a>
     </div>
   </div>
 
@@ -478,7 +478,7 @@
       <li>QR codes &amp; a <a href="/hotels/flyer-sample" style="color:var(--cyan);text-decoration:none">print-ready flyer</a></li>
       <li>Cancel any time</li>
     </ul>
-    <a class="btn btn-primary" href="#apply" style="width:100%;justify-content:center">Become a pilot hotel</a>
+    <a class="btn btn-primary" href="/hotels/apply" style="width:100%;justify-content:center">Become a pilot hotel</a>
     <div class="fine">This launch rate stays locked in for as long as you're with us. Unique requests &amp; customisations: <b>€100/hour + VAT</b>. <a href="/hotels/pricing" style="color:var(--cyan);text-decoration:none">See full pricing &amp; FAQ →</a></div>
   </div></div>
 </div></section>
@@ -487,13 +487,8 @@
 <section id="apply"><div class="wrap apply">
   <span class="eyebrow"><span class="dot"></span>Limited pilot</span>
   <h2 style="margin-top:22px">We're onboarding our <span class="grad-text">first five hotels.</span></h2>
-  <p>Turn every room into a local concierge. Tell us about your hotel and we'll set up your branded page.</p>
-  <form class="apply-form" id="applyForm">
-    <input type="text" id="hotel" placeholder="Hotel name" aria-label="Hotel name" required>
-    <input type="email" id="hemail" placeholder="you@hotel.com" aria-label="Email" required>
-    <button type="submit" class="btn btn-primary" id="applyBtn">Apply →</button>
-  </form>
-  <div class="apply-done" id="applyDone">Thanks — we'll be in touch within a day to set up your hotel's concierge.</div>
+  <p>Turn every room into a local concierge. Tell us about your hotel and we'll set up your branded page — usually within a day.</p>
+  <a class="btn btn-primary" href="/hotels/apply" style="margin-top:6px">Apply to the pilot →</a>
   <p class="apply-note">Prefer email? Write to <a href="mailto:hotels@shou.be" style="color:var(--cyan);text-decoration:none">hotels@shou.be</a>.</p>
 </div></section>
 
@@ -507,22 +502,5 @@
   <a href="https://shou.be/privacy">Privacy</a>
 </footer>
 
-<script>
-  // Pilot application: opens a pre-filled email so the lead reaches us even before
-  // the /hotels/apply backend exists. (Swap for a POST to an apply endpoint later.)
-  var form = document.getElementById('applyForm');
-  var done = document.getElementById('applyDone');
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    var hotel = document.getElementById('hotel').value.trim();
-    var email = document.getElementById('hemail').value.trim();
-    if(!hotel || !email) return;
-    var subject = encodeURIComponent('Pilot hotel application — ' + hotel);
-    var body = encodeURIComponent('Hotel: ' + hotel + '\nContact email: ' + email + '\n\nWe\'d like to join the shou pilot program.');
-    window.location.href = 'mailto:hotels@shou.be?subject=' + subject + '&body=' + body;
-    form.style.display = 'none';
-    done.classList.add('show');
-  });
-</script>
 </body>
 </html>
