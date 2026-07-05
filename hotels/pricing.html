@@ -6,10 +6,10 @@
 <title>Pricing — AI Concierge for Hotels · shou</title>
 <!-- shou favicon — gradient equalizer mark, matches the this-week pages -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
-<meta name="description" content="Simple pricing for shou's AI concierge for hotels: €99/month + €199 one-time setup (+VAT), cancel anytime. Summer launch rate for our first hotels. Custom work at €100/hour + VAT.">
+<meta name="description" content="Simple pricing for shou's AI concierge for hotels: €99/month + VAT, cancel anytime. Pilot setup €199 for our first 5 founding hotels; Standard €499; Premium Custom from €999.">
 <meta name="robots" content="index,follow">
 <meta property="og:title" content="Pricing — AI Concierge for Hotels · shou">
-<meta property="og:description" content="€99/month + €199 setup (+VAT), cancel anytime. Summer launch rate for our first hotels. Custom work €100/hour + VAT.">
+<meta property="og:description" content="€99/month + VAT, cancel anytime. Pilot setup €199 for our first 5 founding hotels; Standard €499; Premium Custom from €999.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://shou.be/hotels/pricing">
 <meta property="og:image" content="https://shou.be/og-this-week.png">
@@ -127,6 +127,28 @@
   .sep{margin:0 9px;opacity:.5}
 
   @media(max-width:760px){ .price-grid{grid-template-columns:1fr} .nav-links a.txt{display:none} }
+
+  /* === 3-tier setup pricing === */
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1040px;margin:40px auto 0;align-items:stretch}
+  .tier{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:30px 26px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .tier.feat{background:linear-gradient(170deg,rgba(255,61,139,.08),rgba(255,155,61,.05));border-color:rgba(255,61,139,.32);box-shadow:0 24px 60px -30px rgba(255,61,139,.42)}
+  .tbadge{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pink);border:1px solid rgba(255,61,139,.35);border-radius:999px;padding:5px 12px;background:#fff;margin-bottom:16px}
+  .tbadge.calm{color:var(--cyan);border-color:rgba(14,154,141,.35)}
+  .tbadge.violet{color:var(--violet);border-color:rgba(155,92,255,.35)}
+  .tname{font-size:21px;margin-bottom:4px}
+  .tpos{color:var(--text-dim);font-size:13px;letter-spacing:.02em;margin-bottom:18px}
+  .tprice{font-family:'Fraunces';font-size:46px;font-weight:600;line-height:1;color:var(--ink)}
+  .tprice .cur{font-size:26px;vertical-align:top;margin-right:2px}
+  .tprice .plus{font-size:28px;color:var(--pink)}
+  .tsetup{color:var(--text-soft);font-size:13.5px;margin-top:8px}
+  .tier ul{list-style:none;margin:22px 0 24px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .tier li{font-size:14px;color:var(--text-soft);padding-left:24px;position:relative}
+  .tier li::before{content:'✓';position:absolute;left:0;color:var(--cyan);font-weight:800}
+  .tier li b{color:var(--ink);font-weight:600}
+  .tier .btn{width:100%;justify-content:center;margin-top:auto}
+  .monthly-line{max-width:780px;margin:28px auto 0;text-align:center;color:var(--text-soft);font-size:15.5px;line-height:1.6}
+  .monthly-line b{color:var(--ink)}
+  @media(max-width:820px){ .tiers{grid-template-columns:1fr;max-width:440px} }
 </style>
 </head>
 <body>
@@ -153,55 +175,70 @@
 
   <div class="promo">
     <span class="em">☀️</span>
-    <p><b>These are launch prices — reserved for the first few hotels that join this summer.</b> Come on board now and you keep this rate for as long as you stay with us. Standard pricing will be higher once the pilot group is full.</p>
+    <p><b>The Pilot rate is our founding-partner price — reserved for the first 5 hotels.</b> Join now and you keep it for as long as you stay with us.</p>
   </div>
 </div>
 
 <!-- PRICING -->
 <section style="padding-top:20px"><div class="wrap">
-  <div class="price-grid">
+  <div class="tiers">
 
-    <!-- Main plan -->
-    <div class="plan main">
-      <span class="badge">Summer launch · first hotels</span>
-      <h2>Your branded concierge</h2>
-      <p class="lede">Everything a hotel needs — set up for you, running on autopilot.</p>
-      <div class="amount">€199<span class="per"> one-time setup + VAT</span></div>
-      <div class="setup">then <b>€99 / month + VAT</b> — from the second month</div>
+    <!-- Pilot (featured) -->
+    <div class="tier feat">
+      <span class="tbadge">Founding partners</span>
+      <h2 class="tname">Pilot Program</h2>
+      <p class="tpos">The first 5 hotels · founding rate</p>
+      <div class="tprice"><span class="cur">€</span>199</div>
+      <div class="tsetup">one-time setup</div>
       <ul>
-        <li>Branded concierge page in 7 languages</li>
-        <li>Custom scrolls curated for your guests</li>
-        <li>AI events concierge, 24/7</li>
-        <li>“This week near my hotel” — live, hourly updates</li>
-        <li>Your logo, map &amp; your own links</li>
-        <li>QR codes &amp; a print-ready in-room flyer</li>
-        <li>Nothing to maintain · cancel any time</li>
+        <li>Your branded concierge in 7 languages</li>
+        <li>Curated scrolls + 24/7 AI concierge</li>
+        <li>“This week near my hotel”, hourly updates</li>
+        <li>QR codes &amp; a print-ready flyer</li>
+        <li><b>Founding rate, locked in</b> for as long as you stay</li>
+        <li>Help shape the product with us</li>
       </ul>
       <a class="btn btn-primary" href="/hotels/apply">Become a pilot hotel →</a>
-      <div class="fine">First month free while we set you up. Prefer to talk first? <a href="mailto:hotels@shou.be">hotels@shou.be</a></div>
     </div>
 
-    <!-- Custom work -->
-    <div class="plan custom">
-      <span class="badge calm">Bespoke work</span>
-      <h2>Custom &amp; unique requests</h2>
-      <p class="lede">Anything beyond the standard set-up above.</p>
-      <div class="amount" style="font-size:34px">Ask for a quote</div>
-      <div class="exwrap">
-        <div class="lbl">For example</div>
-        <div class="ex">Bespoke scrolls or filters unique to your hotel</div>
-        <div class="ex">Custom design, colours &amp; layout</div>
-        <div class="ex">Extra languages beyond the standard 7</div>
-        <div class="ex">Integrations — PMS, booking, your own data feeds</div>
-        <div class="ex">A custom domain or deeper white-labelling</div>
-      </div>
-      <a class="btn btn-ghost" href="mailto:hotels@shou.be?subject=Custom%20request%20—%20shou%20concierge">Tell us what you need →</a>
-      <div class="fine">We'll scope it, give you a fixed estimate, and only start once you approve.</div>
+    <!-- Standard -->
+    <div class="tier">
+      <span class="tbadge calm">Standard</span>
+      <h2 class="tname">Standard Setup</h2>
+      <p class="tpos">Regular onboarding</p>
+      <div class="tprice"><span class="cur">€</span>499</div>
+      <div class="tsetup">one-time setup</div>
+      <ul>
+        <li>The same complete concierge</li>
+        <li>Done-for-you branding &amp; setup</li>
+        <li>All 7 languages + hourly updates</li>
+        <li>QR codes &amp; a print-ready flyer</li>
+        <li>Month-to-month · cancel anytime</li>
+      </ul>
+      <a class="btn btn-ghost" href="/hotels/apply">Get started →</a>
+    </div>
+
+    <!-- Premium Custom -->
+    <div class="tier">
+      <span class="tbadge violet">Bespoke</span>
+      <h2 class="tname">Premium Custom</h2>
+      <p class="tpos">Bespoke experiences</p>
+      <div class="tprice"><span class="cur">€</span>999<span class="plus">+</span></div>
+      <div class="tsetup">from · by quote</div>
+      <ul>
+        <li>Everything in Standard, plus:</li>
+        <li>Custom design, colours &amp; layout</li>
+        <li>Extra languages beyond the 7</li>
+        <li>Integrations — PMS, booking, data feeds</li>
+        <li>Custom domain / deeper white-label</li>
+        <li>Multi-property &amp; priority support</li>
+      </ul>
+      <a class="btn btn-ghost" href="mailto:hotels@shou.be?subject=Premium%20custom%20—%20shou%20concierge">Tell us what you need →</a>
     </div>
 
   </div>
 
-  <p class="note">The standard monthly plan covers everything on the <a href="/hotels/offer" style="color:var(--cyan);text-decoration:none">overview</a> — <b>only genuinely bespoke work is billed hourly.</b></p>
+  <p class="monthly-line">Every plan then runs at <b>€99 / month + VAT</b> — no commission, no per-guest charge, cancel anytime. <b>First month free</b> while we set you up. All setup prices are one-time, + VAT.</p>
 </div></section>
 
 <!-- FAQ -->
@@ -209,7 +246,7 @@
   <h2>Questions</h2>
   <details>
     <summary>Why is it so affordable right now?</summary>
-    <div class="a">We're onboarding our first hotels this summer and want them to become great references. The €99/month + €199 setup rate is our launch price — early hotels lock it in for as long as they stay. Once the pilot group fills, standard pricing will be higher.</div>
+    <div class="a">We're onboarding our first 5 hotels and want them to become great references, so the Pilot setup rate is our founding-partner price — locked in for as long as you stay. It's reserved for those first pilot hotels.</div>
   </details>
   <details>
     <summary>Are prices including VAT?</summary>
@@ -221,7 +258,7 @@
   </details>
   <details>
     <summary>What counts as “custom work”?</summary>
-    <div class="a">The monthly plan already includes your branded page, curated scrolls, the AI concierge, hourly updates and your own links. Custom work is anything bespoke on top of that — special integrations, a custom domain, extra languages, unique features or design. That's billed at €100/hour + VAT, always quoted and approved before we start.</div>
+    <div class="a">Your setup already includes your branded page, curated scrolls, the AI concierge, hourly updates and your own links. Custom work is anything bespoke on top of that — special integrations, a custom domain, extra languages, unique features or design. That's the Premium Custom tier (from €999), always scoped and quoted upfront, and only started once you approve.</div>
   </details>
   <details>
     <summary>How long does setup take?</summary>
