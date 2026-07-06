@@ -309,7 +309,8 @@
   /* === Multilingual questions === */
   .qlang{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;max-width:900px;margin:0 auto}
   .qcard{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 20px;box-shadow:var(--shadow)}
-  .qcard .qflag{font-size:23px;flex:none;line-height:1}
+  .qcard .qflag{flex:none;line-height:0}
+  .qcard .qflag svg{width:28px;height:19px;border-radius:3px;box-shadow:0 0 0 1px rgba(20,16,30,.10);display:block}
   .qcard .qtext{font-size:15.5px;color:var(--text);font-style:italic}
   .qpunch{text-align:center;font-family:'Fraunces';font-size:clamp(20px,3vw,28px);font-weight:500;margin:36px auto 0}
 
@@ -447,12 +448,12 @@
 <section><div class="wrap">
   <div class="sec-head"><h2>Questions your guests will ask</h2><p>Real questions — in the language they actually think in.</p></div>
   <div class="qlang">
-    <div class="qcard"><span class="qflag">🇩🇪</span><span class="qtext">Was kann man heute Abend in Brüssel machen?</span></div>
-    <div class="qcard"><span class="qflag">🇫🇷</span><span class="qtext">Quelles activités gratuites y a-t-il ce soir&nbsp;?</span></div>
-    <div class="qcard"><span class="qflag">🇪🇸</span><span class="qtext">¿Dónde escuchar jazz cerca del hotel?</span></div>
-    <div class="qcard"><span class="qflag">🇬🇧</span><span class="qtext">Best family activities tomorrow?</span></div>
-    <div class="qcard"><span class="qflag">🇳🇱</span><span class="qtext">Zijn er leuke festivals dit weekend?</span></div>
-    <div class="qcard"><span class="qflag">🇮🇹</span><span class="qtext">Dove ascoltare buona musica stasera?</span></div>
+    <div class="qcard"><span class="qflag"><svg viewBox="0 0 1 3" preserveAspectRatio="none" role="img" aria-label="German"><rect width="1" height="1" y="0" fill="#000000"/><rect width="1" height="1" y="1" fill="#DD0000"/><rect width="1" height="1" y="2" fill="#FFCE00"/></svg></span><span class="qtext">Was kann man heute Abend in Brüssel machen?</span></div>
+    <div class="qcard"><span class="qflag"><svg viewBox="0 0 3 1" preserveAspectRatio="none" role="img" aria-label="French"><rect width="1" height="1" x="0" fill="#0055A4"/><rect width="1" height="1" x="1" fill="#ffffff"/><rect width="1" height="1" x="2" fill="#EF4135"/></svg></span><span class="qtext">Quelles activités gratuites y a-t-il ce soir&nbsp;?</span></div>
+    <div class="qcard"><span class="qflag"><svg viewBox="0 0 1 4" preserveAspectRatio="none" role="img" aria-label="Spanish"><rect width="1" height="4" fill="#AA151B"/><rect width="1" height="2" y="1" fill="#F1BF00"/></svg></span><span class="qtext">¿Dónde escuchar jazz cerca del hotel?</span></div>
+    <div class="qcard"><span class="qflag"><svg viewBox="0 0 60 30" preserveAspectRatio="none" role="img" aria-label="English"><clipPath id="ukc"><rect width="60" height="30"/></clipPath><clipPath id="ukt"><path d="M30,15 L60,15 L60,30 z M30,15 L60,15 L60,0 z M30,15 L0,15 L0,0 z M30,15 L0,15 L0,30 z"/></clipPath><g clip-path="url(#ukc)"><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#ffffff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#ukt)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V30 M0,15 H60" stroke="#ffffff" stroke-width="10"/><path d="M30,0 V30 M0,15 H60" stroke="#C8102E" stroke-width="6"/></g></svg></span><span class="qtext">Best family activities tomorrow?</span></div>
+    <div class="qcard"><span class="qflag"><svg viewBox="0 0 1 3" preserveAspectRatio="none" role="img" aria-label="Dutch"><rect width="1" height="1" y="0" fill="#AE1C28"/><rect width="1" height="1" y="1" fill="#ffffff"/><rect width="1" height="1" y="2" fill="#21468B"/></svg></span><span class="qtext">Zijn er leuke festivals dit weekend?</span></div>
+    <div class="qcard"><span class="qflag"><svg viewBox="0 0 3 1" preserveAspectRatio="none" role="img" aria-label="Italian"><rect width="1" height="1" x="0" fill="#008C45"/><rect width="1" height="1" x="1" fill="#ffffff"/><rect width="1" height="1" x="2" fill="#CD212A"/></svg></span><span class="qtext">Dove ascoltare buona musica stasera?</span></div>
   </div>
   <p class="qpunch">Answered instantly. <span class="grad-text">In their own language.</span></p>
 </div></section>
