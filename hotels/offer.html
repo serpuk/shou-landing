@@ -341,6 +341,22 @@
     .jstep{max-width:none;width:100%}
     .jarrow{margin:2px 0;transform:rotate(90deg)}
   }
+
+  /* === Illustrative guest moments === */
+  .exps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:960px;margin:0 auto}
+  .expcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .expcard .qm{font-family:'Fraunces';font-size:46px;line-height:.4;color:var(--pink);opacity:.5;height:24px}
+  .expcard p{font-size:16px;color:var(--ink);font-style:italic;line-height:1.5}
+  .exp-note{text-align:center;color:var(--text-dim);font-size:12.5px;margin-top:22px}
+
+  /* === Hotel-type persona scenario === */
+  .type .scenario{font-size:13px;color:var(--text-soft);font-style:italic;line-height:1.5;margin-bottom:14px}
+
+  /* === Process (what happens next) === */
+  .process{max-width:640px;margin:0 auto;list-style:none;counter-reset:p;display:flex;flex-direction:column;gap:14px}
+  .process li{counter-increment:p;position:relative;padding:16px 20px 16px 62px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);font-size:15px;color:var(--text-soft)}
+  .process li::before{content:counter(p);position:absolute;left:15px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;font-family:'Fraunces';font-weight:700;display:grid;place-items:center;font-size:15px}
+  .process li b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
@@ -360,9 +376,9 @@
 <section class="hero"><div class="wrap"><div class="hero-grid">
   <div>
     <span class="eyebrow"><span class="dot"></span>Belgium events · AI concierge for hotels</span>
-    <h1>Give every guest a <span class="grad-text">local concierge.</span></h1>
-    <p class="sub">Available 24/7, in 7 languages.</p>
-    <p class="promise">Your guests always know what to do in Belgium tonight — concerts, events and hidden gems near your hotel, in their own language. No app to download, nothing to maintain.</p>
+    <h1>The easiest way to make <span class="grad-text">every stay more memorable.</span></h1>
+    <p class="sub">Your hotel's own local concierge — in 7 languages.</p>
+    <p class="promise">Your guests discover concerts, restaurants and hidden gems in their own language — while your reception answers fewer repetitive questions. No app to download, nothing to maintain.</p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="/hotels/sample" target="_blank" rel="noopener">See a live demo →</a>
       <a class="btn btn-ghost" href="/hotels/apply">Become a pilot hotel</a>
@@ -373,6 +389,11 @@
     <img src="/hotels/app-screen.jpg" alt="The shou concierge running in a guest's browser — This week and Ask the concierge tabs with local event suggestions." decoding="async" fetchpriority="high">
   </div>
 </div></div></section>
+
+<!-- POSITIONING (reframe, right under the hero) -->
+<section style="padding-top:8px;padding-bottom:36px"><div class="wrap quote">
+  <h2>“We don't sell hotels another app. We give every hotel its own digital concierge — trained specifically for its guests and its neighbourhood.”</h2>
+</div></section>
 
 <!-- PRICE PILL (quick answer) -->
 <section style="padding-top:0;padding-bottom:40px"><div class="wrap">
@@ -385,12 +406,6 @@
 
 <!-- TRUST -->
 <div class="trust"><div class="wrap"><p>Launching with Belgium's first pilot hotels — independent, boutique, serviced apartments &amp; B&amp;Bs.</p></div></div>
-
-<!-- POSITIONING -->
-<section><div class="wrap quote">
-  <h2>“We don't sell hotels another app. We give every hotel its own digital concierge — trained specifically for its guests and its neighbourhood.”</h2>
-  <p class="attrib">The local concierge, powered by shou. Your guests never feel they've left your hotel's ecosystem.</p>
-</div></section>
 
 <!-- ONE QR CODE · GUEST JOURNEY -->
 <section><div class="wrap">
@@ -455,6 +470,17 @@
   </div>
 </div></section>
 
+<!-- ILLUSTRATIVE GUEST MOMENTS -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>The kind of night your guests will <span class="grad-text">remember</span></h2></div>
+  <div class="exps">
+    <div class="expcard"><div class="qm">“</div><p>We had no idea there was a candlelight concert five minutes from our hotel.</p></div>
+    <div class="expcard"><div class="qm">“</div><p>The suggestions were better than anything we'd have found ourselves.</p></div>
+    <div class="expcard"><div class="qm">“</div><p>We discovered places we never would have found on our own.</p></div>
+  </div>
+  <p class="exp-note">Illustrative of the guest experience shou is built to create — not actual reviews.</p>
+</div></section>
+
 <!-- ENGINE / HOTEL TYPES -->
 <section><div class="wrap">
   <div class="sec-head">
@@ -464,6 +490,7 @@
   <div class="types">
     <div class="type biz">
       <h3>Business hotel</h3><div class="who">For the corporate traveller</div>
+      <p class="scenario">Just out of a 6pm meeting — they open the concierge and find afterwork drinks, live jazz and somewhere good for dinner.</p>
       <ul>
         <li>This week near the hotel</li>
         <li>Afterwork drinks <span class="prov">hotel</span></li>
@@ -475,6 +502,7 @@
     </div>
     <div class="type fam">
       <h3>Family hotel</h3><div class="who">For guests with kids</div>
+      <p class="scenario">A rainy afternoon with restless kids — they find indoor play, a hands-on museum and a nearby park.</p>
       <ul>
         <li>Activities with children</li>
         <li>Free attractions</li>
@@ -486,6 +514,7 @@
     </div>
     <div class="type lux">
       <h3>Luxury hotel</h3><div class="who">For the discerning guest</div>
+      <p class="scenario">A free evening ahead — they find a Michelin table, a classical concert and a quiet cocktail bar.</p>
       <ul>
         <li>Michelin restaurants <span class="prov">hotel</span></li>
         <li>Classical music</li>
@@ -497,6 +526,7 @@
     </div>
     <div class="type young">
       <h3>Young travellers · hostel</h3><div class="who">For the explorer on a budget</div>
+      <p class="scenario">New in town on a budget — they find free events, techno tonight and where everyone's heading.</p>
       <ul>
         <li>Techno tonight</li>
         <li>Free events</li>
@@ -553,9 +583,9 @@
   <div class="origin">
     <div class="flag">🇧🇪</div>
     <h2>Built in Belgium, for Belgium</h2>
-    <p>shou tracks thousands of events across Belgium and helps locals and visitors discover what to do, every single day.</p>
+    <p>shou tracks <b>20,000+ events</b> across Belgium and helps locals and visitors discover what to do, every single day.</p>
     <p>We're now bringing that experience into hotels.</p>
-    <div class="chips"><span class="chip">Thousands of events</span><span class="chip">7 languages</span><span class="chip">Updated hourly</span><span class="chip">All of Belgium</span></div>
+    <div class="chips"><span class="chip">20,000+ events</span><span class="chip">1,500+ every week</span><span class="chip">7 languages</span><span class="chip">Updated hourly</span><span class="chip">Every major Belgian city</span></div>
   </div>
 </div></section>
 
@@ -566,6 +596,7 @@
     <span class="badge">Summer launch · first hotels</span>
     <div class="amount">€199<span class="per"> one-time setup + VAT</span></div>
     <div class="setup">then <b>€99 / month + VAT</b> — from the second month</div>
+    <div class="setup" style="font-size:13px;color:var(--text-dim);margin-top:8px">Covers continuous event updates, AI improvements, support and unlimited guest usage.</div>
     <ul>
       <li>Branded concierge page in 7 languages</li>
       <li>Custom scrolls curated for your guests</li>
@@ -587,6 +618,18 @@
     <p>If you don't feel shou improves your guests' experience in the first month, we'll refund your setup fee — no questions asked.</p>
     <div class="gline"><span>✓ No contracts</span><span>✓ No long-term commitment</span><span>✓ Cancel anytime</span></div>
   </div>
+</div></section>
+
+<!-- WHAT HAPPENS NEXT -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>What happens next?</h2><p>From "yes" to live in your rooms — usually within a day.</p></div>
+  <ol class="process">
+    <li><b>Tell us about your hotel.</b> A 2-minute form — name, location and the links you'd like to feature.</li>
+    <li><b>We build your branded concierge</b> — usually within 24 hours.</li>
+    <li><b>You receive your QR codes</b> and a print-ready in-room flyer.</li>
+    <li><b>Place them</b> at reception or in the rooms.</li>
+    <li><b>Guests start using it immediately</b> — no app, no training, nothing to maintain.</li>
+  </ol>
 </div></section>
 
 <!-- APPLY -->
