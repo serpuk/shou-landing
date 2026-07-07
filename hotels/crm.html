@@ -78,6 +78,7 @@
   th.sortable:hover{color:var(--pink)}
   th .arrow{display:inline-block;width:12px;font-size:9px;margin-left:3px}
   .auto-tag{font-size:9.5px;color:var(--violet);font-weight:700;letter-spacing:.06em;margin-left:6px;vertical-align:1px}
+  .revive-tag{font-size:9.5px;color:#b06400;font-weight:700;letter-spacing:.06em;margin-left:6px;vertical-align:1px}
   td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
   tbody tr{cursor:pointer;transition:background .12s}
   tbody tr:hover{background:rgba(255,61,139,.035)}
@@ -293,8 +294,10 @@ async function refresh() {
   const d = await api('list');
   hotels = d.hotels; renderList();
 }
-// Effective "next touch": the earliest of the manual follow-up date and the
-// next scheduled sequence email (marked as auto).
+// Effective "next touch": the earliest of the manual follow-up date, the next
+// scheduled sequence email (✉ AUTO), and — for non-responders still stuck in
+// prospect/contacted after a sequence ran — a revive touch at start + 6 weeks
+// (♻ REVIVE). All derived, so nothing needs a cron and nothing gets forgotten.
 function nextTouch(h) {
   const cands = [];
   if (h.next_follow_up) cands.push({ t: h.next_follow_up, kind: 'manual' });
@@ -305,6 +308,11 @@ function nextTouch(h) {
         cands.push({ t: e.scheduled_at, kind: 'auto' });
       }
     }
+  }
+  if (seq && seq.started_at
+      && ['prospect', 'contacted'].includes(h.pilot_status)
+      && !(h.last_reply_at && new Date(h.last_reply_at) >= new Date(seq.started_at))) {
+    cands.push({ t: new Date(new Date(seq.started_at).getTime() + 42 * 864e5).toISOString(), kind: 'revive' });
   }
   cands.sort((a, b) => new Date(a.t) - new Date(b.t));
   return cands[0] || null;
@@ -347,7 +355,7 @@ function renderList() {
     return `<tr data-id="${h.id}">
       <td><div class="h-name">${esc(h.name)}</div><div class="h-city">${esc(h.city || '')}${c ? (h.city ? ' · ' : '') + esc(c.name || c.email || '') : ''}</div></td>
       <td><span class="badge st-${esc(h.pilot_status)}">${esc(ST_LABEL[h.pilot_status] || h.pilot_status)}</span></td>
-      <td>${nt ? `<span class="${followUpClass(nt.t)}">${fmtDT(nt.t)}</span>${nt.kind === 'auto' ? '<span class="auto-tag">✉ AUTO</span>' : ''}` : '<span class="dim">—</span>'}</td>
+      <td>${nt ? `<span class="${followUpClass(nt.t)}">${fmtDT(nt.t)}</span>${nt.kind === 'auto' ? '<span class="auto-tag">✉ AUTO</span>' : nt.kind === 'revive' ? '<span class="revive-tag">♻ REVIVE</span>' : ''}` : '<span class="dim">—</span>'}</td>
       <td class="dim">${fmtDT(h.last_email_at, false) || '—'}</td>
       <td class="dim">${fmtDT(h.last_reply_at, false) || '—'}</td>
       <td>${h.demo_url ? `<a class="demo-link" href="${esc(h.demo_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">demo ↗</a>` : '<span class="dim">—</span>'}</td>
