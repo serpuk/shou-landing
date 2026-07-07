@@ -499,17 +499,18 @@ async function deleteCurrent() {
 
 /* ---------- outreach ---------- */
 function renderOutreach(o) {
-  const item = (label, text) => `
+  // html variants are composed server-side from escaped slots — safe to render
+  const item = (label, text, html) => `
     <div class="o-item">
       <div class="o-label"><span>${label}</span><button class="copy-btn" data-copy="${esc(text)}">Copy</button></div>
-      <div class="o-body">${esc(text)}</div>
+      <div class="o-body"${html ? ' style="white-space:normal"' : ''}>${html || esc(text)}</div>
     </div>`;
   $('o-out').innerHTML = `
     <div class="o-meta">Generated ${fmtDT(o.generated_at)}${o.site_fetched === false ? ' · ⚠ website could not be fetched — personalization is generic' : ''}</div>
     ${item('Subject', o.subject)}
-    ${item('Email #1', o.email)}
-    ${item('Follow-up #1 (~day 4)', o.followup1)}
-    ${item('Follow-up #2 (~day 8)', o.followup2)}`;
+    ${item('Email #1', o.email, o.email_html)}
+    ${item('Follow-up #1 (~day 4)', o.followup1, o.followup1_html)}
+    ${item('Follow-up #2 (~day 8)', o.followup2, o.followup2_html)}`;
   for (const b of $('o-out').querySelectorAll('.copy-btn')) {
     b.onclick = () => { navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = 'Copy', 1500); };
   }
