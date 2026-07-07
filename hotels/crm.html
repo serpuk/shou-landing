@@ -365,12 +365,12 @@ async function applyProposal() {
   const btn = $('p-yes');
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Saving…';
   try {
-    await api('apply', { method: 'POST', body: {
+    const r = await api('apply', { method: 'POST', body: {
       hotelId, newHotelName: p.newHotelName, fields: p.fields, raw: p.raw, kind: p.kind, summary: p.summary,
     }});
     proposal = null; renderProposal();
     $('ql-text').value = '';
-    toast('Saved ✓');
+    toast(r.sequenceCanceled ? 'Saved ✓ — scheduled follow-ups canceled (reply logged)' : 'Saved ✓');
     await refresh();
   } catch (e) { toast('Save failed: ' + e.message); btn.disabled = false; btn.textContent = 'Confirm'; }
 }
@@ -429,6 +429,7 @@ function openDrawer(h) {
     <div class="d-section" id="outreach-box">
       <h3>Outreach <button class="btn" id="o-gen" style="font-size:13px;padding:8px 16px">✨ Generate personalized outreach</button></h3>
       <div id="o-out">${h.outreach ? '' : '<p class="dim" style="font-size:13px">Nothing generated yet. Uses the hotel’s website + profile to write a subject line, first email and two follow-ups.</p>'}</div>
+      <div id="seq-box"></div>
     </div>
     <div class="d-section">
       <h3>History</h3>
@@ -445,6 +446,7 @@ function openDrawer(h) {
     $('d-delete').onclick = deleteCurrent;
     $('o-gen').onclick = generateOutreach;
     if (h.outreach) renderOutreach(h.outreach);
+    renderSeq();
     loadLog(h.id);
   }
 }
@@ -517,11 +519,73 @@ async function generateOutreach() {
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Reading their website & writing…';
   try {
     const d = await api('outreach', { method: 'POST', body: { hotelId: current.id } });
+    current.outreach = d.outreach;
     renderOutreach(d.outreach);
+    renderSeq();
     toast('Outreach ready');
     refresh();
   } catch (e) { toast('Generation failed: ' + e.message); }
   btn.disabled = false; btn.textContent = '✨ Generate personalized outreach';
+}
+
+/* ---------- send sequence ---------- */
+const STEP_LABEL = { email: 'Email #1', followup1: 'Follow-up #1', followup2: 'Follow-up #2' };
+const STEP_ICON  = { sent: '✅', scheduled: '⏱️', canceled: '🚫', cancel_failed: '⚠️' };
+
+function renderSeq() {
+  const box = $('seq-box'); if (!box || !current) return;
+  const h = current, seq = h.sequence;
+  const withEmail = (h.contacts || []).filter(c => c.email);
+  let html = '';
+  if (seq) {
+    const pending = !seq.canceled_at && (seq.emails || []).some(e => e.status === 'scheduled');
+    html += `<div class="o-item" style="margin-top:10px">
+      <div class="o-label"><span>Sequence → ${esc(seq.to)}</span><span style="text-transform:none;letter-spacing:0">started ${fmtDT(seq.started_at)}</span></div>
+      ${(seq.emails || []).map(e => `<div style="font-size:13px;padding:2px 0">${STEP_ICON[e.status] || '•'} ${esc(STEP_LABEL[e.step] || e.step)} — ${esc(e.status)}${e.sent_at ? ' ' + fmtDT(e.sent_at) : e.scheduled_at ? ', lands ' + fmtDT(e.scheduled_at) : ''}</div>`).join('')}
+      ${seq.canceled_at ? `<div class="dim" style="font-size:12px;margin-top:4px">Canceled ${fmtDT(seq.canceled_at)}${seq.cancel_reason ? ' — ' + esc(seq.cancel_reason) : ''}</div>` : ''}
+      ${pending ? '<div style="margin-top:10px"><button class="btn-danger" id="seq-cancel">Cancel remaining follow-ups</button></div>' : ''}
+    </div>`;
+  }
+  const active = seq && !seq.canceled_at && (seq.emails || []).some(e => e.status === 'scheduled');
+  if (h.outreach && !active) {
+    html += withEmail.length
+      ? `<div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+          <select id="seq-to" style="font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff">
+            ${withEmail.map(c => `<option value="${esc(c.email)}">${esc(c.name || c.email)} — ${esc(c.email)}</option>`).join('')}
+          </select>
+          <button class="btn" id="seq-send" style="font-size:13px;padding:8px 16px">📤 Send${seq ? ' again' : ' sequence'} from shou.be</button>
+        </div>`
+      : '<p class="dim" style="font-size:13px;margin-top:8px">Add a contact with an email address to send this sequence directly.</p>';
+  }
+  box.innerHTML = html;
+  if ($('seq-send'))   $('seq-send').onclick = sendSequence;
+  if ($('seq-cancel')) $('seq-cancel').onclick = cancelSequence;
+}
+function shortDate(d) { return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); }
+async function sendSequence() {
+  const to = $('seq-to').value;
+  const d4 = new Date(Date.now() + 4 * 864e5), d8 = new Date(Date.now() + 8 * 864e5);
+  if (!confirm(`Send email #1 to ${to} NOW?\n\nFollow-up #1 lands ${shortDate(d4)} 09:30, follow-up #2 ${shortDate(d8)} 09:30. Both are auto-canceled the moment you log a reply.`)) return;
+  const btn = $('seq-send');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Sending…';
+  try {
+    const d = await api('send_sequence', { method: 'POST', body: { hotelId: current.id, to } });
+    toast(d.partial ? 'Email #1 sent, but follow-up scheduling failed — check history' : 'Sequence started ✓');
+    await refresh();
+    openDrawer(hotels.find(x => x.id === current.id) || d.hotel);
+  } catch (e) {
+    toast('Send failed: ' + e.message);
+    btn.disabled = false; btn.textContent = '📤 Send sequence from shou.be';
+  }
+}
+async function cancelSequence() {
+  if (!confirm('Cancel the remaining scheduled follow-ups?')) return;
+  try {
+    await api('cancel_sequence', { method: 'POST', body: { hotelId: current.id } });
+    toast('Follow-ups canceled');
+    await refresh();
+    openDrawer(hotels.find(x => x.id === current.id));
+  } catch (e) { toast('Cancel failed: ' + e.message); }
 }
 
 /* ---------- log ---------- */
