@@ -506,14 +506,57 @@ function renderOutreach(o) {
       <div class="o-body"${html ? ' style="white-space:normal"' : ''}>${html || esc(text)}</div>
     </div>`;
   $('o-out').innerHTML = `
-    <div class="o-meta">Generated ${fmtDT(o.generated_at)}${o.site_fetched === false ? ' · ⚠ website could not be fetched — personalization is generic' : ''}</div>
+    <div class="o-meta" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <span>Generated ${fmtDT(o.generated_at)}${o.edited_at ? ' · edited ' + fmtDT(o.edited_at) : ''}${o.site_fetched === false ? ' · ⚠ website could not be fetched — personalization is generic' : ''}</span>
+      <button class="copy-btn" id="o-edit">✏️ Edit drafts</button>
+    </div>
     ${item('Subject', o.subject)}
     ${item('Email #1', o.email, o.email_html)}
     ${item('Follow-up #1 (~day 4)', o.followup1, o.followup1_html)}
     ${item('Follow-up #2 (~day 8)', o.followup2, o.followup2_html)}`;
-  for (const b of $('o-out').querySelectorAll('.copy-btn')) {
+  for (const b of $('o-out').querySelectorAll('.copy-btn[data-copy]')) {
     b.onclick = () => { navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = 'Copy', 1500); };
   }
+  $('o-edit').onclick = () => renderOutreachEdit(o);
+}
+
+function renderOutreachEdit(o) {
+  const ta = (id, label, val, h) => `
+    <div class="o-item">
+      <div class="o-label"><span>${label}</span></div>
+      <textarea id="${id}" style="width:100%;font-family:inherit;font-size:13.5px;line-height:1.55;border:1px solid var(--line);border-radius:9px;padding:10px 12px;min-height:${h}px;resize:vertical">${esc(val || '')}</textarea>
+    </div>`;
+  $('o-out').innerHTML = `
+    <div class="o-meta">Edit the plain text — the formatted version is rebuilt automatically (blank line = new paragraph, lines starting with • become bullets, URLs become links).</div>
+    <div class="o-item">
+      <div class="o-label"><span>Subject</span></div>
+      <input id="oe-subject" style="width:100%;font-family:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:9px;padding:9px 12px" value="${esc(o.subject || '')}">
+    </div>
+    ${ta('oe-email', 'Email #1', o.email, 260)}
+    ${ta('oe-fu1', 'Follow-up #1 (~day 4)', o.followup1, 130)}
+    ${ta('oe-fu2', 'Follow-up #2 (~day 8)', o.followup2, 130)}
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn" id="oe-save" style="font-size:13px;padding:9px 18px">Save drafts</button>
+      <button class="btn2" id="oe-cancel">Cancel</button>
+    </div>`;
+  $('oe-cancel').onclick = () => renderOutreach(current.outreach);
+  $('oe-save').onclick = async () => {
+    const btn = $('oe-save');
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Saving…';
+    try {
+      const d = await api('save_outreach', { method: 'POST', body: { hotelId: current.id, outreach: {
+        subject: $('oe-subject').value, email: $('oe-email').value,
+        followup1: $('oe-fu1').value, followup2: $('oe-fu2').value,
+      }}});
+      current.outreach = d.outreach;
+      const h = hotels.find(x => x.id === current.id); if (h) h.outreach = d.outreach;
+      renderOutreach(d.outreach); renderSeq();
+      toast('Drafts saved ✓');
+    } catch (e) {
+      toast('Save failed: ' + e.message);
+      btn.disabled = false; btn.textContent = 'Save drafts';
+    }
+  };
 }
 async function generateOutreach() {
   const btn = $('o-gen');
