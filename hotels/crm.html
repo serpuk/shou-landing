@@ -74,6 +74,10 @@
   .toolbar input:focus{outline:none;border-color:rgba(255,61,139,.45)}
   table{width:100%;border-collapse:collapse;font-size:13.5px}
   th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
+  th.sortable:hover{color:var(--pink)}
+  th .arrow{display:inline-block;width:12px;font-size:9px;margin-left:3px}
+  .auto-tag{font-size:9.5px;color:var(--violet);font-weight:700;letter-spacing:.06em;margin-left:6px;vertical-align:1px}
   td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
   tbody tr{cursor:pointer;transition:background .12s}
   tbody tr:hover{background:rgba(255,61,139,.035)}
@@ -184,7 +188,12 @@
   <div class="card" style="padding:6px 14px 2px;overflow-x:auto">
     <table>
       <thead><tr>
-        <th>Hotel</th><th>Status</th><th>Next follow-up</th><th>Last email</th><th>Last reply</th><th>Demo</th>
+        <th class="sortable" data-key="name">Hotel<span class="arrow"></span></th>
+        <th class="sortable" data-key="status">Status<span class="arrow"></span></th>
+        <th class="sortable" data-key="next">Next follow-up<span class="arrow"></span></th>
+        <th class="sortable" data-key="lastmail">Last email<span class="arrow"></span></th>
+        <th class="sortable" data-key="lastreply">Last reply<span class="arrow"></span></th>
+        <th class="sortable" data-key="demo">Demo<span class="arrow"></span></th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
@@ -284,6 +293,35 @@ async function refresh() {
   const d = await api('list');
   hotels = d.hotels; renderList();
 }
+// Effective "next touch": the earliest of the manual follow-up date and the
+// next scheduled sequence email (marked as auto).
+function nextTouch(h) {
+  const cands = [];
+  if (h.next_follow_up) cands.push({ t: h.next_follow_up, kind: 'manual' });
+  const seq = h.sequence;
+  if (seq && !seq.canceled_at) {
+    for (const e of seq.emails || []) {
+      if (e.status === 'scheduled' && e.scheduled_at && new Date(e.scheduled_at) > Date.now()) {
+        cands.push({ t: e.scheduled_at, kind: 'auto' });
+      }
+    }
+  }
+  cands.sort((a, b) => new Date(a.t) - new Date(b.t));
+  return cands[0] || null;
+}
+const ST_ORDER = { prospect: 0, contacted: 1, demo_scheduled: 2, demo_done: 3, pilot: 4, live: 5, declined: 6 };
+let sortKey = 'next', sortDir = 1;
+function sortVal(h, key) {
+  switch (key) {
+    case 'name':      return (h.name || '').toLowerCase();
+    case 'status':    return ST_ORDER[h.pilot_status] ?? 99;
+    case 'next':      { const n = nextTouch(h); return n ? new Date(n.t).getTime() : null; }
+    case 'lastmail':  return h.last_email_at ? new Date(h.last_email_at).getTime() : null;
+    case 'lastreply': return h.last_reply_at ? new Date(h.last_reply_at).getTime() : null;
+    case 'demo':      return h.demo_url ? (h.name || '').toLowerCase() : null;
+    default:          return null;
+  }
+}
 function renderList() {
   const q = $('search').value.trim().toLowerCase();
   const rows = hotels.filter(h => {
@@ -291,14 +329,25 @@ function renderList() {
     const hay = [h.name, h.city, h.notes, ...(h.contacts || []).map(c => `${c.name || ''} ${c.email || ''}`)].join(' ').toLowerCase();
     return hay.includes(q);
   });
+  rows.sort((a, b) => {   // empty values always sink to the bottom
+    const va = sortVal(a, sortKey), vb = sortVal(b, sortKey);
+    if (va == null && vb == null) return 0;
+    if (va == null) return 1;
+    if (vb == null) return -1;
+    return (va < vb ? -1 : va > vb ? 1 : 0) * sortDir;
+  });
+  for (const th of document.querySelectorAll('th.sortable')) {
+    th.querySelector('.arrow').textContent = th.dataset.key === sortKey ? (sortDir === 1 ? '▲' : '▼') : '';
+  }
   $('count').textContent = `${hotels.length} hotel${hotels.length === 1 ? '' : 's'}`;
   $('empty').style.display = rows.length ? 'none' : 'block';
   $('rows').innerHTML = rows.map(h => {
     const c = (h.contacts || [])[0];
+    const nt = nextTouch(h);
     return `<tr data-id="${h.id}">
       <td><div class="h-name">${esc(h.name)}</div><div class="h-city">${esc(h.city || '')}${c ? (h.city ? ' · ' : '') + esc(c.name || c.email || '') : ''}</div></td>
       <td><span class="badge st-${esc(h.pilot_status)}">${esc(ST_LABEL[h.pilot_status] || h.pilot_status)}</span></td>
-      <td class="${followUpClass(h.next_follow_up)}">${fmtDT(h.next_follow_up) || '—'}</td>
+      <td>${nt ? `<span class="${followUpClass(nt.t)}">${fmtDT(nt.t)}</span>${nt.kind === 'auto' ? '<span class="auto-tag">✉ AUTO</span>' : ''}` : '<span class="dim">—</span>'}</td>
       <td class="dim">${fmtDT(h.last_email_at, false) || '—'}</td>
       <td class="dim">${fmtDT(h.last_reply_at, false) || '—'}</td>
       <td>${h.demo_url ? `<a class="demo-link" href="${esc(h.demo_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">demo ↗</a>` : '<span class="dim">—</span>'}</td>
@@ -309,6 +358,13 @@ function renderList() {
   }
 }
 $('search').addEventListener('input', renderList);
+for (const th of document.querySelectorAll('th.sortable')) {
+  th.onclick = () => {
+    const k = th.dataset.key;
+    if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = 1; }
+    renderList();
+  };
+}
 
 /* ---------- quick log ---------- */
 $('ql-go').onclick = async () => {
