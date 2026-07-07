@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotels CRM · shou</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15101b; --text:#1a1622; --text-soft:#5b5566; --text-dim:#8a8494;
+    --bg:#ffffff; --panel:#ffffff; --panel-soft:#faf8fc;
+    --panel-bd:rgba(20,16,30,0.10); --line:rgba(20,16,30,0.10);
+    --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
+    --red:#c81e5b; --green:#0e9a5d;
+    --grad:linear-gradient(105deg,var(--pink),var(--orange));
+    --shadow-lift:0 14px 34px -14px rgba(20,16,30,.22);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--panel-soft);color:var(--text);font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.55;min-height:100vh}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.015em;line-height:1.15;color:var(--ink)}
+  a{color:inherit}
+  button{font-family:inherit;cursor:pointer}
+
+  nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:rgba(255,255,255,0.88);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{font-family:'Fraunces',serif;font-weight:700;font-size:24px;text-decoration:none;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .brand small{font-family:'Inter';font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);-webkit-text-fill-color:var(--text-dim);margin-left:8px}
+  .nav-actions{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--text-dim)}
+  .nav-actions button{background:none;border:1px solid var(--line);border-radius:9px;padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--text-soft)}
+  .nav-actions button:hover{color:var(--pink);border-color:rgba(255,61,139,.4)}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 90px}
+  .card{background:var(--panel);border:1px solid var(--panel-bd);border-radius:var(--radius);box-shadow:0 6px 18px -10px rgba(20,16,30,.12);padding:18px}
+
+  /* token gate */
+  #gate{max-width:420px;margin:80px auto}
+  #gate h1{font-size:26px;margin-bottom:8px}
+  #gate p{color:var(--text-soft);font-size:14px;margin-bottom:16px}
+  #gate input{width:100%;font-size:15px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-family:inherit}
+  #gate button{width:100%;margin-top:12px;background:var(--grad);color:#fff;font-weight:700;font-size:15px;padding:12px;border:none;border-radius:12px}
+
+  /* quick log */
+  #quicklog textarea{width:100%;font-family:inherit;font-size:15px;color:var(--text);border:1px solid var(--line);
+    border-radius:12px;padding:12px 14px;resize:vertical;min-height:64px}
+  #quicklog textarea:focus{outline:none;border-color:rgba(255,61,139,.55);box-shadow:0 0 0 3px rgba(255,61,139,.10)}
+  .ql-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px}
+  .ql-hint{font-size:12.5px;color:var(--text-dim)}
+  .btn{background:var(--grad);color:#fff;font-weight:700;font-size:14px;padding:10px 20px;border:none;border-radius:11px;transition:filter .15s}
+  .btn:hover:not(:disabled){filter:brightness(1.06)}
+  .btn:disabled{opacity:.55;cursor:default}
+  .btn2{background:#fff;color:var(--ink);font-weight:600;font-size:13.5px;padding:9px 16px;border:1px solid var(--line);border-radius:11px}
+  .btn2:hover{border-color:rgba(255,61,139,.5);color:var(--pink)}
+  .btn-danger{background:#fff;color:var(--red);border:1px solid rgba(200,30,91,.35);font-weight:600;font-size:13px;padding:8px 14px;border-radius:10px}
+
+  /* proposal */
+  #proposal{margin-top:14px;border:1px dashed rgba(155,92,255,.5);background:rgba(155,92,255,.05);border-radius:12px;padding:14px 16px;display:none}
+  #proposal.show{display:block}
+  #proposal .p-head{font-weight:700;font-size:14px;color:var(--violet);margin-bottom:8px}
+  #proposal ul{list-style:none;font-size:13.5px}
+  #proposal li{padding:3px 0}
+  #proposal li b{font-weight:600}
+  #proposal .p-actions{display:flex;gap:10px;margin-top:12px}
+
+  /* toolbar + list */
+  .toolbar{display:flex;gap:12px;align-items:center;margin:22px 0 12px;flex-wrap:wrap}
+  .toolbar input{flex:1;min-width:200px;font-size:14px;padding:10px 14px;border:1px solid var(--line);border-radius:11px;font-family:inherit;background:#fff}
+  .toolbar input:focus{outline:none;border-color:rgba(255,61,139,.45)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tbody tr{cursor:pointer;transition:background .12s}
+  tbody tr:hover{background:rgba(255,61,139,.035)}
+  .h-name{font-weight:700;color:var(--ink)}
+  .h-city{color:var(--text-dim);font-size:12.5px}
+  .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .st-prospect{background:rgba(20,16,30,.06);color:var(--text-soft)}
+  .st-contacted{background:rgba(255,155,61,.14);color:#b06400}
+  .st-demo_scheduled{background:rgba(155,92,255,.14);color:#6a2fd0}
+  .st-demo_done{background:rgba(155,92,255,.22);color:#5a1fc0}
+  .st-pilot{background:rgba(14,154,141,.14);color:var(--cyan)}
+  .st-live{background:rgba(14,154,93,.16);color:var(--green)}
+  .st-declined{background:rgba(200,30,91,.10);color:var(--red)}
+  .due{color:var(--red);font-weight:700}
+  .soon{color:#b06400;font-weight:600}
+  .dim{color:var(--text-dim)}
+  .demo-link{color:var(--cyan);font-weight:600;text-decoration:none;font-size:12.5px}
+  .empty{padding:40px;text-align:center;color:var(--text-dim);font-size:14px}
+
+  /* detail overlay */
+  #overlay{position:fixed;inset:0;background:rgba(20,16,30,.35);z-index:40;display:none}
+  #overlay.show{display:block}
+  #drawer{position:fixed;top:0;right:0;bottom:0;width:min(680px,100%);background:var(--panel-soft);z-index:50;
+    box-shadow:-20px 0 50px -20px rgba(20,16,30,.4);transform:translateX(102%);transition:transform .22s ease;overflow-y:auto}
+  #drawer.show{transform:translateX(0)}
+  .d-in{padding:22px 24px 60px}
+  .d-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+  .d-top h2{font-size:24px}
+  .d-close{background:none;border:none;font-size:26px;color:var(--text-dim);line-height:1}
+  .d-close:hover{color:var(--ink)}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .fgrid .full{grid-column:1 / -1}
+  @media(max-width:560px){.fgrid{grid-template-columns:1fr}}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--text-soft);margin-bottom:4px}
+  .field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:14px;color:var(--text);
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+  .field textarea{resize:vertical;min-height:90px}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(255,61,139,.5)}
+  .d-section{margin-top:22px}
+  .d-section h3{font-size:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  .contact-row{display:grid;grid-template-columns:1fr 1fr 1.3fr .9fr 30px;gap:8px;margin-bottom:8px}
+  @media(max-width:560px){.contact-row{grid-template-columns:1fr 1fr}}
+  .contact-row input{font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:#fff;width:100%}
+  .c-del{background:none;border:none;color:var(--text-dim);font-size:16px}
+  .c-del:hover{color:var(--red)}
+  .d-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center}
+  .d-msg{font-size:13px;font-weight:600}
+
+  /* outreach */
+  #outreach-box .o-item{background:#fff;border:1px solid var(--panel-bd);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+  #outreach-box .o-label{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+  #outreach-box .o-body{font-size:13.5px;white-space:pre-wrap}
+  .copy-btn{background:#fff;border:1px solid var(--line);border-radius:8px;font-size:11.5px;font-weight:600;padding:4px 10px;color:var(--text-soft)}
+  .copy-btn:hover{color:var(--pink);border-color:rgba(255,61,139,.4)}
+  .o-meta{font-size:12px;color:var(--text-dim);margin-bottom:10px}
+
+  /* log */
+  .log-item{border-left:2px solid var(--line);padding:6px 0 6px 14px;margin-left:4px;font-size:13px}
+  .log-item .lk{font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--violet);margin-right:8px}
+  .log-item .lt{color:var(--text-dim);font-size:11.5px}
+  .log-item .lr{color:var(--text-soft);margin-top:2px;white-space:pre-wrap}
+
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;
+    font-size:13.5px;font-weight:600;padding:11px 20px;border-radius:12px;transition:transform .25s;z-index:90}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp 0.7s linear infinite;vertical-align:-2px;margin-right:7px}
+  .spin.dark{border-color:rgba(20,16,30,.2);border-top-color:var(--ink)}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<nav><div class="nav-in">
+  <a class="brand" href="/">shou<small>Hotels CRM</small></a>
+  <div class="nav-actions">
+    <span id="count"></span>
+    <button id="btn-add" style="display:none">+ Add hotel</button>
+    <button id="btn-logout" style="display:none">Lock</button>
+  </div>
+</div></nav>
+
+<!-- token gate -->
+<div id="gate" class="card">
+  <h1>Hotels CRM</h1>
+  <p>Enter the admin token to unlock.</p>
+  <input id="gate-token" type="password" placeholder="Admin token" autocomplete="current-password">
+  <button id="gate-go">Unlock</button>
+  <p id="gate-err" style="color:var(--red);margin:10px 0 0;display:none">Wrong token.</p>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+
+  <!-- quick log -->
+  <div class="card" id="quicklog">
+    <textarea id="ql-text" placeholder="Log anything… e.g. “Spoke to Brian at Hotel Amigo, they want a demo tomorrow at 15:00” — AI updates the record after you confirm."></textarea>
+    <div class="ql-row">
+      <span class="ql-hint">Mentions of contacts, dates, status and requests are extracted automatically. Nothing is saved until you confirm.</span>
+      <button class="btn" id="ql-go">Log it</button>
+    </div>
+    <div id="proposal"></div>
+  </div>
+
+  <!-- list -->
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search hotels, cities, contacts…">
+  </div>
+  <div class="card" style="padding:6px 14px 2px;overflow-x:auto">
+    <table>
+      <thead><tr>
+        <th>Hotel</th><th>Status</th><th>Next follow-up</th><th>Last email</th><th>Last reply</th><th>Demo</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">No hotels yet — add one or just log a note above.</div>
+  </div>
+</div>
+
+<!-- detail drawer -->
+<div id="overlay"></div>
+<div id="drawer"><div class="d-in" id="drawer-in"></div></div>
+<div id="toast"></div>
+
+<script>
+const API = 'https://shou-backend.vercel.app/api/crm';
+const STATUSES = ['prospect','contacted','demo_scheduled','demo_done','pilot','live','declined'];
+const ST_LABEL = { prospect:'Prospect', contacted:'Contacted', demo_scheduled:'Demo scheduled', demo_done:'Demo done', pilot:'Pilot', live:'Live', declined:'Declined' };
+const FIELD_LABEL = { name:'Name', city:'City', website:'Website', demo_url:'Demo URL', pilot_status:'Status',
+  last_email_at:'Last email', last_reply_at:'Last reply', next_follow_up:'Next follow-up', note_append:'Note', contact:'Contact', notes:'Notes' };
+
+let token = localStorage.getItem('shou_crm_token') || '';
+let hotels = [];
+let current = null;     // hotel open in drawer
+let proposal = null;    // pending parse proposal
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+async function api(op, opts = {}) {
+  const isGet = opts.method !== 'POST';
+  const url = isGet ? `${API}?op=${op}${opts.qs || ''}` : API;
+  const r = await fetch(url, {
+    method: isGet ? 'GET' : 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+    body: isGet ? undefined : JSON.stringify({ op, ...opts.body }),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (r.status === 401) { lock(); throw new Error('Unauthorized'); }
+  if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+  return data;
+}
+
+/* ---------- date formatting ---------- */
+function fmtDT(iso, withTime = true) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const opt = { day: 'numeric', month: 'short', timeZone: 'Europe/Brussels' };
+  if (withTime) { opt.hour = '2-digit'; opt.minute = '2-digit'; }
+  if (d.getFullYear() !== new Date().getFullYear()) opt.year = 'numeric';
+  return d.toLocaleString('en-GB', opt);
+}
+function toLocalInput(iso) {  // ISO → value for <input type=datetime-local> in Brussels time
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const s = d.toLocaleString('sv-SE', { timeZone: 'Europe/Brussels' });
+  return s.slice(0, 16).replace(' ', 'T');
+}
+function followUpClass(iso) {
+  if (!iso) return 'dim';
+  const diff = new Date(iso) - Date.now();
+  if (diff < 0) return 'due';
+  if (diff < 48 * 3600 * 1000) return 'soon';
+  return '';
+}
+
+/* ---------- gate ---------- */
+function lock() {
+  localStorage.removeItem('shou_crm_token'); token = '';
+  $('app').style.display = 'none'; $('gate').style.display = 'block';
+  $('btn-add').style.display = 'none'; $('btn-logout').style.display = 'none';
+}
+async function unlock(tok) {
+  token = tok;
+  try {
+    const d = await api('list');
+    localStorage.setItem('shou_crm_token', tok);
+    $('gate').style.display = 'none'; $('app').style.display = 'block';
+    $('btn-add').style.display = ''; $('btn-logout').style.display = '';
+    hotels = d.hotels; renderList();
+  } catch (e) {
+    $('gate-err').style.display = 'block';
+    $('gate-err').textContent = e.message === 'Unauthorized' ? 'Wrong token.' : 'Error: ' + e.message;
+  }
+}
+$('gate-go').onclick = () => unlock($('gate-token').value.trim());
+$('gate-token').addEventListener('keydown', e => { if (e.key === 'Enter') unlock($('gate-token').value.trim()); });
+$('btn-logout').onclick = lock;
+
+/* ---------- list ---------- */
+async function refresh() {
+  const d = await api('list');
+  hotels = d.hotels; renderList();
+}
+function renderList() {
+  const q = $('search').value.trim().toLowerCase();
+  const rows = hotels.filter(h => {
+    if (!q) return true;
+    const hay = [h.name, h.city, h.notes, ...(h.contacts || []).map(c => `${c.name || ''} ${c.email || ''}`)].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  $('count').textContent = `${hotels.length} hotel${hotels.length === 1 ? '' : 's'}`;
+  $('empty').style.display = rows.length ? 'none' : 'block';
+  $('rows').innerHTML = rows.map(h => {
+    const c = (h.contacts || [])[0];
+    return `<tr data-id="${h.id}">
+      <td><div class="h-name">${esc(h.name)}</div><div class="h-city">${esc(h.city || '')}${c ? (h.city ? ' · ' : '') + esc(c.name || c.email || '') : ''}</div></td>
+      <td><span class="badge st-${esc(h.pilot_status)}">${esc(ST_LABEL[h.pilot_status] || h.pilot_status)}</span></td>
+      <td class="${followUpClass(h.next_follow_up)}">${fmtDT(h.next_follow_up) || '—'}</td>
+      <td class="dim">${fmtDT(h.last_email_at, false) || '—'}</td>
+      <td class="dim">${fmtDT(h.last_reply_at, false) || '—'}</td>
+      <td>${h.demo_url ? `<a class="demo-link" href="${esc(h.demo_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">demo ↗</a>` : '<span class="dim">—</span>'}</td>
+    </tr>`;
+  }).join('');
+  for (const tr of $('rows').querySelectorAll('tr')) {
+    tr.onclick = () => openDrawer(hotels.find(h => h.id === +tr.dataset.id));
+  }
+}
+$('search').addEventListener('input', renderList);
+
+/* ---------- quick log ---------- */
+$('ql-go').onclick = async () => {
+  const text = $('ql-text').value.trim();
+  if (!text) return;
+  const btn = $('ql-go');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Parsing…';
+  try {
+    const d = await api('note', { method: 'POST', body: { text } });
+    proposal = d.proposal;
+    renderProposal();
+  } catch (e) { toast('Parse failed: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Log it';
+};
+function renderProposal() {
+  const p = proposal, box = $('proposal');
+  if (!p) { box.classList.remove('show'); box.innerHTML = ''; return; }
+  const target = p.hotelId
+    ? `<b>${esc(p.hotelName)}</b>`
+    : p.newHotelName ? `<b>${esc(p.newHotelName)}</b> <span style="color:var(--orange)">(new hotel)</span>`
+    : '<span style="color:var(--red)">no hotel matched — pick one below</span>';
+  const items = [];
+  for (const [k, v] of Object.entries(p.fields || {})) {
+    if (k === 'contact') items.push(`<li><b>Contact:</b> ${esc([v.name, v.role, v.email, v.phone].filter(Boolean).join(' · '))}</li>`);
+    else if (k === 'pilot_status') items.push(`<li><b>Status:</b> ${esc(ST_LABEL[v] || v)}</li>`);
+    else if (k.endsWith('_at') || k === 'next_follow_up') items.push(`<li><b>${esc(FIELD_LABEL[k] || k)}:</b> ${esc(fmtDT(v))}</li>`);
+    else items.push(`<li><b>${esc(FIELD_LABEL[k] || k)}:</b> ${esc(v)}</li>`);
+  }
+  const picker = (!p.hotelId && !p.newHotelName)
+    ? `<select id="p-pick" style="margin-top:8px;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:9px">
+        <option value="">— choose hotel —</option>
+        ${hotels.map(h => `<option value="${h.id}">${esc(h.name)}</option>`).join('')}
+       </select>` : '';
+  box.innerHTML = `
+    <div class="p-head">Will update ${target} — <span style="font-weight:500">${esc(p.summary)}</span></div>
+    <ul>${items.join('') || '<li class="dim">No field changes — logged as a note only.</li>'}</ul>
+    ${picker}
+    <div class="p-actions">
+      <button class="btn" id="p-yes">Confirm</button>
+      <button class="btn2" id="p-no">Cancel</button>
+    </div>`;
+  box.classList.add('show');
+  $('p-no').onclick = () => { proposal = null; renderProposal(); };
+  $('p-yes').onclick = applyProposal;
+}
+async function applyProposal() {
+  const p = proposal;
+  let hotelId = p.hotelId;
+  if (!hotelId && !p.newHotelName) {
+    const pick = $('p-pick') && $('p-pick').value;
+    if (!pick) { toast('Pick a hotel first'); return; }
+    hotelId = +pick;
+  }
+  const btn = $('p-yes');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Saving…';
+  try {
+    await api('apply', { method: 'POST', body: {
+      hotelId, newHotelName: p.newHotelName, fields: p.fields, raw: p.raw, kind: p.kind, summary: p.summary,
+    }});
+    proposal = null; renderProposal();
+    $('ql-text').value = '';
+    toast('Saved ✓');
+    await refresh();
+  } catch (e) { toast('Save failed: ' + e.message); btn.disabled = false; btn.textContent = 'Confirm'; }
+}
+
+/* ---------- drawer ---------- */
+function closeDrawer() { $('drawer').classList.remove('show'); $('overlay').classList.remove('show'); current = null; }
+$('overlay').onclick = closeDrawer;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+$('btn-add').onclick = () => openDrawer({ id: null, name: '', city: '', contacts: [], pilot_status: 'prospect' });
+
+function contactRow(c = {}, i) {
+  return `<div class="contact-row" data-i="${i}">
+    <input placeholder="Name" class="c-name" value="${esc(c.name || '')}">
+    <input placeholder="Role" class="c-role" value="${esc(c.role || '')}">
+    <input placeholder="Email" class="c-email" value="${esc(c.email || '')}">
+    <input placeholder="Phone" class="c-phone" value="${esc(c.phone || '')}">
+    <button class="c-del" title="Remove">✕</button>
+  </div>`;
+}
+
+function openDrawer(h) {
+  current = h;
+  const isNew = !h.id;
+  $('drawer-in').innerHTML = `
+    <div class="d-top">
+      <h2>${isNew ? 'New hotel' : esc(h.name)}</h2>
+      <button class="d-close" id="d-close">×</button>
+    </div>
+    <div class="card">
+      <div class="fgrid">
+        <div class="field full"><label>Hotel name</label><input id="f-name" value="${esc(h.name || '')}"></div>
+        <div class="field"><label>City</label><input id="f-city" value="${esc(h.city || '')}"></div>
+        <div class="field"><label>Status</label>
+          <select id="f-status">${STATUSES.map(s => `<option value="${s}"${h.pilot_status === s ? ' selected' : ''}>${ST_LABEL[s]}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Latitude</label><input id="f-lat" value="${h.lat ?? ''}" inputmode="decimal"></div>
+        <div class="field"><label>Longitude</label><input id="f-lng" value="${h.lng ?? ''}" inputmode="decimal"></div>
+        <div class="field full"><label>Website</label><input id="f-website" value="${esc(h.website || '')}" placeholder="https://…"></div>
+        <div class="field full"><label>Demo URL</label><input id="f-demo" value="${esc(h.demo_url || '')}" placeholder="https://shou.be/hotels/sample…"></div>
+        <div class="field"><label>Next follow-up</label><input id="f-next" type="datetime-local" value="${toLocalInput(h.next_follow_up)}"></div>
+        <div class="field"><label>Last email sent</label><input id="f-lastmail" type="datetime-local" value="${toLocalInput(h.last_email_at)}"></div>
+        <div class="field"><label>Last reply</label><input id="f-lastreply" type="datetime-local" value="${toLocalInput(h.last_reply_at)}"></div>
+        <div class="field full"><label>Notes</label><textarea id="f-notes">${esc(h.notes || '')}</textarea></div>
+      </div>
+      <div class="d-section">
+        <h3>Contacts <button class="btn2" id="c-add" style="font-size:12px;padding:6px 12px">+ Add</button></h3>
+        <div id="contacts">${(h.contacts || []).map((c, i) => contactRow(c, i)).join('')}</div>
+      </div>
+      <div class="d-actions">
+        <button class="btn" id="d-save">${isNew ? 'Create hotel' : 'Save changes'}</button>
+        ${isNew ? '' : '<button class="btn-danger" id="d-delete">Delete</button>'}
+        <span class="d-msg" id="d-msg"></span>
+      </div>
+    </div>
+    ${isNew ? '' : `
+    <div class="d-section" id="outreach-box">
+      <h3>Outreach <button class="btn" id="o-gen" style="font-size:13px;padding:8px 16px">✨ Generate personalized outreach</button></h3>
+      <div id="o-out">${h.outreach ? '' : '<p class="dim" style="font-size:13px">Nothing generated yet. Uses the hotel’s website + profile to write a subject line, first email and two follow-ups.</p>'}</div>
+    </div>
+    <div class="d-section">
+      <h3>History</h3>
+      <div id="log"><p class="dim" style="font-size:13px">Loading…</p></div>
+    </div>`}
+  `;
+  $('d-close').onclick = closeDrawer;
+  $('drawer').classList.add('show'); $('overlay').classList.add('show');
+
+  $('c-add').onclick = () => { $('contacts').insertAdjacentHTML('beforeend', contactRow({}, Date.now())); bindContactDels(); };
+  bindContactDels();
+  $('d-save').onclick = saveDrawer;
+  if (!isNew) {
+    $('d-delete').onclick = deleteCurrent;
+    $('o-gen').onclick = generateOutreach;
+    if (h.outreach) renderOutreach(h.outreach);
+    loadLog(h.id);
+  }
+}
+function bindContactDels() {
+  for (const b of document.querySelectorAll('.c-del')) b.onclick = e => e.target.closest('.contact-row').remove();
+}
+function collectContacts() {
+  return [...document.querySelectorAll('.contact-row')].map(r => ({
+    name: r.querySelector('.c-name').value.trim() || null,
+    role: r.querySelector('.c-role').value.trim() || null,
+    email: r.querySelector('.c-email').value.trim() || null,
+    phone: r.querySelector('.c-phone').value.trim() || null,
+  })).filter(c => c.name || c.email || c.phone);
+}
+async function saveDrawer() {
+  const btn = $('d-save');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Saving…';
+  try {
+    const hotel = {
+      id: current.id || undefined,
+      name: $('f-name').value.trim(),
+      city: $('f-city').value.trim(),
+      pilot_status: $('f-status').value,
+      lat: $('f-lat').value.trim(), lng: $('f-lng').value.trim(),
+      website: $('f-website').value.trim(),
+      demo_url: $('f-demo').value.trim(),
+      next_follow_up: $('f-next').value,
+      last_email_at: $('f-lastmail').value,
+      last_reply_at: $('f-lastreply').value,
+      notes: $('f-notes').value,
+      contacts: collectContacts(),
+    };
+    const d = await api('save', { method: 'POST', body: { hotel } });
+    toast('Saved ✓');
+    await refresh();
+    openDrawer(hotels.find(x => x.id === d.hotel.id) || d.hotel);
+  } catch (e) {
+    toast('Save failed: ' + e.message);
+    btn.disabled = false; btn.textContent = current.id ? 'Save changes' : 'Create hotel';
+  }
+}
+async function deleteCurrent() {
+  if (!confirm(`Delete ${current.name} and its entire history?`)) return;
+  try {
+    await api('delete', { method: 'POST', body: { hotelId: current.id } });
+    toast('Deleted');
+    closeDrawer(); await refresh();
+  } catch (e) { toast('Delete failed: ' + e.message); }
+}
+
+/* ---------- outreach ---------- */
+function renderOutreach(o) {
+  const item = (label, text) => `
+    <div class="o-item">
+      <div class="o-label"><span>${label}</span><button class="copy-btn" data-copy="${esc(text)}">Copy</button></div>
+      <div class="o-body">${esc(text)}</div>
+    </div>`;
+  $('o-out').innerHTML = `
+    <div class="o-meta">Generated ${fmtDT(o.generated_at)}${o.site_fetched === false ? ' · ⚠ website could not be fetched — personalization is generic' : ''}</div>
+    ${item('Subject', o.subject)}
+    ${item('Email #1', o.email)}
+    ${item('Follow-up #1 (~day 4)', o.followup1)}
+    ${item('Follow-up #2 (~day 8)', o.followup2)}`;
+  for (const b of $('o-out').querySelectorAll('.copy-btn')) {
+    b.onclick = () => { navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = 'Copy', 1500); };
+  }
+}
+async function generateOutreach() {
+  const btn = $('o-gen');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Reading their website & writing…';
+  try {
+    const d = await api('outreach', { method: 'POST', body: { hotelId: current.id } });
+    renderOutreach(d.outreach);
+    toast('Outreach ready');
+    refresh();
+  } catch (e) { toast('Generation failed: ' + e.message); }
+  btn.disabled = false; btn.textContent = '✨ Generate personalized outreach';
+}
+
+/* ---------- log ---------- */
+async function loadLog(hotelId) {
+  try {
+    const d = await api('log', { qs: `&hotelId=${hotelId}` });
+    $('log').innerHTML = d.log.length ? d.log.map(l => `
+      <div class="log-item">
+        <span class="lk">${esc(l.kind)}</span><span class="lt">${esc(fmtDT(l.created_at))}</span>
+        <div class="lr">${esc(l.raw || '')}</div>
+      </div>`).join('') : '<p class="dim" style="font-size:13px">No history yet.</p>';
+  } catch (e) { $('log').innerHTML = `<p class="dim">Could not load history: ${esc(e.message)}</p>`; }
+}
+
+/* ---------- boot ---------- */
+if (token) unlock(token); else $('gate-token').focus();
+</script>
+</body>
+</html>

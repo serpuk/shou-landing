@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /hotels/crm
 
 Sitemap: https://shou.be/sitemap.xml
