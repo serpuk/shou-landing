@@ -79,6 +79,20 @@
   th .arrow{display:inline-block;width:12px;font-size:9px;margin-left:3px}
   .auto-tag{font-size:9.5px;color:var(--violet);font-weight:700;letter-spacing:.06em;margin-left:6px;vertical-align:1px}
   .revive-tag{font-size:9.5px;color:#b06400;font-weight:700;letter-spacing:.06em;margin-left:6px;vertical-align:1px}
+
+  /* metrics */
+  #funnel{display:flex;gap:8px;flex-wrap:wrap}
+  .f-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:999px;
+    border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--text-soft);transition:border-color .15s}
+  .f-chip:hover{border-color:rgba(255,61,139,.4)}
+  .f-chip.active{border-color:var(--pink);color:var(--pink);box-shadow:0 0 0 2px rgba(255,61,139,.12)}
+  .f-chip b{font-size:13.5px;color:var(--ink)}
+  .f-chip.active b{color:var(--pink)}
+  #stat-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px}
+  .tile{background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  .tile .t-num{font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--ink);line-height:1.1}
+  .tile .t-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin-top:3px}
+  .tile.warn .t-num{color:var(--red)}
   td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
   tbody tr{cursor:pointer;transition:background .12s}
   tbody tr:hover{background:rgba(255,61,139,.035)}
@@ -182,6 +196,12 @@
     <div id="proposal"></div>
   </div>
 
+  <!-- metrics -->
+  <div class="card" id="metrics" style="margin-top:14px;display:none">
+    <div id="funnel"></div>
+    <div id="stat-tiles"></div>
+  </div>
+
   <!-- list -->
   <div class="toolbar">
     <input id="search" type="search" placeholder="Search hotels, cities, contacts…">
@@ -216,8 +236,10 @@ const FIELD_LABEL = { name:'Name', city:'City', website:'Website', demo_url:'Dem
 
 let token = localStorage.getItem('shou_crm_token') || '';
 let hotels = [];
-let current = null;     // hotel open in drawer
-let proposal = null;    // pending parse proposal
+let stats = null;        // log-based totals from op=list
+let statusFilter = null; // active funnel chip
+let current = null;      // hotel open in drawer
+let proposal = null;     // pending parse proposal
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -279,7 +301,7 @@ async function unlock(tok) {
     localStorage.setItem('shou_crm_token', tok);
     $('gate').style.display = 'none'; $('app').style.display = 'block';
     $('btn-add').style.display = ''; $('btn-logout').style.display = '';
-    hotels = d.hotels; renderList();
+    hotels = d.hotels; stats = d.stats || null; renderList();
   } catch (e) {
     $('gate-err').style.display = 'block';
     $('gate-err').textContent = e.message === 'Unauthorized' ? 'Wrong token.' : 'Error: ' + e.message;
@@ -292,7 +314,43 @@ $('btn-logout').onclick = lock;
 /* ---------- list ---------- */
 async function refresh() {
   const d = await api('list');
-  hotels = d.hotels; renderList();
+  hotels = d.hotels; stats = d.stats || stats; renderList();
+}
+/* ---------- metrics ---------- */
+function renderMetrics() {
+  const box = $('metrics'); if (!box) return;
+  box.style.display = hotels.length ? 'block' : 'none';
+  if (!hotels.length) return;
+  const byStatus = {};
+  for (const h of hotels) byStatus[h.pilot_status] = (byStatus[h.pilot_status] || 0) + 1;
+  $('funnel').innerHTML = STATUSES.filter(s => byStatus[s]).map(s =>
+    `<span class="f-chip${statusFilter === s ? ' active' : ''}" data-st="${s}"><b>${byStatus[s]}</b>${esc(ST_LABEL[s])}</span>`
+  ).join('');
+  for (const chip of $('funnel').querySelectorAll('.f-chip')) {
+    chip.onclick = () => { statusFilter = statusFilter === chip.dataset.st ? null : chip.dataset.st; renderList(); };
+  }
+  // sequence-level counters from the CURRENT sequence of each hotel
+  let delivered = 0, opened = 0, bounced = 0, active = 0;
+  for (const h of hotels) {
+    const seq = h.sequence; if (!seq) continue;
+    if (!seq.canceled_at && (seq.emails || []).some(e => e.status === 'scheduled')) active++;
+    for (const e of seq.emails || []) {
+      if (e.delivered_at) delivered++;
+      if (e.opened_at) opened++;
+      if (e.status === 'bounced' || e.status === 'complained') bounced++;
+    }
+  }
+  const overdue = hotels.filter(h => { const n = nextTouch(h); return n && new Date(n.t) < Date.now(); }).length;
+  const tile = (num, label, warn) => `<div class="tile${warn && num > 0 ? ' warn' : ''}"><div class="t-num">${num}</div><div class="t-label">${label}</div></div>`;
+  $('stat-tiles').innerHTML =
+    tile(stats ? stats.sequences_started : 0, 'Sequences sent') +
+    tile(active, 'Running now') +
+    tile(delivered, 'Delivered*') +
+    tile(opened, 'Opened*') +
+    tile(stats ? stats.replies : 0, 'Replies') +
+    tile(bounced, 'Bounced', true) +
+    tile(overdue, 'Overdue', true) +
+    `<div class="tile" style="display:flex;align-items:center"><div class="t-label" style="margin:0">*current sequences; opens need Resend tracking enabled</div></div>`;
 }
 // Effective "next touch": the earliest of the manual follow-up date, the next
 // scheduled sequence email (✉ AUTO), and — for non-responders still stuck in
@@ -331,8 +389,10 @@ function sortVal(h, key) {
   }
 }
 function renderList() {
+  renderMetrics();
   const q = $('search').value.trim().toLowerCase();
   const rows = hotels.filter(h => {
+    if (statusFilter && h.pilot_status !== statusFilter) return false;
     if (!q) return true;
     const hay = [h.name, h.city, h.notes, ...(h.contacts || []).map(c => `${c.name || ''} ${c.email || ''}`)].join(' ').toLowerCase();
     return hay.includes(q);
@@ -638,7 +698,17 @@ async function generateOutreach() {
 
 /* ---------- send sequence ---------- */
 const STEP_LABEL = { email: 'Email #1', followup1: 'Follow-up #1', followup2: 'Follow-up #2' };
-const STEP_ICON  = { sent: '✅', scheduled: '⏱️', canceled: '🚫', cancel_failed: '⚠️' };
+const STEP_ICON  = { sent: '✅', scheduled: '⏱️', canceled: '🚫', cancel_failed: '⚠️', bounced: '❌', complained: '🛑' };
+// delivery/open markers written by the Resend webhook (api/crm-events.js)
+function seqExtras(e) {
+  const bits = [];
+  if (e.status === 'bounced') bits.push('bounced' + (e.bounced_at ? ' ' + fmtDT(e.bounced_at) : ''));
+  if (e.status === 'complained') bits.push('marked as spam');
+  if (e.opened_at) bits.push('👁 opened ' + fmtDT(e.opened_at));
+  else if (e.delivered_at) bits.push('delivered');
+  if (e.clicked_at) bits.push('🔗 clicked');
+  return bits.length ? ` · ${bits.join(' · ')}` : '';
+}
 
 function renderSeq() {
   const box = $('seq-box'); if (!box || !current) return;
@@ -649,7 +719,7 @@ function renderSeq() {
     const pending = !seq.canceled_at && (seq.emails || []).some(e => e.status === 'scheduled');
     html += `<div class="o-item" style="margin-top:10px">
       <div class="o-label"><span>Sequence → ${esc(seq.to)}</span><span style="text-transform:none;letter-spacing:0">started ${fmtDT(seq.started_at)}</span></div>
-      ${(seq.emails || []).map(e => `<div style="font-size:13px;padding:2px 0">${STEP_ICON[e.status] || '•'} ${esc(STEP_LABEL[e.step] || e.step)} — ${esc(e.status)}${e.sent_at ? ' ' + fmtDT(e.sent_at) : e.scheduled_at ? ', lands ' + fmtDT(e.scheduled_at) : ''}</div>`).join('')}
+      ${(seq.emails || []).map(e => `<div style="font-size:13px;padding:2px 0">${STEP_ICON[e.status] || '•'} ${esc(STEP_LABEL[e.step] || e.step)} — ${esc(e.status)}${e.sent_at ? ' ' + fmtDT(e.sent_at) : e.scheduled_at ? ', lands ' + fmtDT(e.scheduled_at) : ''}${esc(seqExtras(e))}</div>`).join('')}
       ${seq.canceled_at ? `<div class="dim" style="font-size:12px;margin-top:4px">Canceled ${fmtDT(seq.canceled_at)}${seq.cancel_reason ? ' — ' + esc(seq.cancel_reason) : ''}</div>` : ''}
       ${pending ? '<div style="margin-top:10px"><button class="btn-danger" id="seq-cancel">Cancel remaining follow-ups</button></div>' : ''}
     </div>`;
