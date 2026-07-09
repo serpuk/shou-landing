@@ -133,11 +133,14 @@
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(255,61,139,.5)}
   .d-section{margin-top:22px}
   .d-section h3{font-size:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-  .contact-row{display:grid;grid-template-columns:1fr 1fr 1.3fr .9fr 30px;gap:8px;margin-bottom:8px}
-  @media(max-width:560px){.contact-row{grid-template-columns:1fr 1fr}}
-  .contact-row input{font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:#fff;width:100%}
+  .contact-row{display:grid;grid-template-columns:1fr .9fr 1.4fr 1.1fr 28px 28px 28px;gap:6px;margin-bottom:8px}
+  @media(max-width:640px){.contact-row{grid-template-columns:1fr 1fr 28px 28px 28px}}
+  .contact-row input{font-size:12.5px;padding:8px 9px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:#fff;width:100%;min-width:0}
   .c-del{background:none;border:none;color:var(--text-dim);font-size:16px}
   .c-del:hover{color:var(--red)}
+  .c-act{background:#fff;border:1px solid var(--line);border-radius:8px;font-size:13px;padding:0;cursor:pointer;line-height:1}
+  .c-act:hover{border-color:rgba(255,61,139,.45)}
+  .c-act:disabled{opacity:.3;cursor:default}
   .d-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center}
   .d-msg{font-size:13px;font-weight:600}
 
@@ -509,8 +512,10 @@ function contactRow(c = {}, i) {
   return `<div class="contact-row" data-i="${i}">
     <input placeholder="Name" class="c-name" value="${esc(c.name || '')}">
     <input placeholder="Role" class="c-role" value="${esc(c.role || '')}">
-    <input placeholder="Email" class="c-email" value="${esc(c.email || '')}">
-    <input placeholder="Phone" class="c-phone" value="${esc(c.phone || '')}">
+    <input placeholder="Email" class="c-email" value="${esc(c.email || '')}" title="${esc(c.email || '')}">
+    <input placeholder="Phone" class="c-phone" value="${esc(c.phone || '')}" title="${esc(c.phone || '')}">
+    <button class="c-act c-call" title="Call">📞</button>
+    <button class="c-act c-mail" title="Email">✉️</button>
     <button class="c-del" title="Remove">✕</button>
   </div>`;
 }
@@ -576,6 +581,17 @@ function openDrawer(h) {
 }
 function bindContactDels() {
   for (const b of document.querySelectorAll('.c-del')) b.onclick = e => e.target.closest('.contact-row').remove();
+  // call/email act on whatever is currently typed in the row — stays correct mid-edit
+  for (const b of document.querySelectorAll('.c-call')) b.onclick = e => {
+    const v = e.target.closest('.contact-row').querySelector('.c-phone').value.trim();
+    if (v) window.location.href = 'tel:' + v.replace(/[^\d+]/g, '');
+    else toast('No phone number on this contact');
+  };
+  for (const b of document.querySelectorAll('.c-mail')) b.onclick = e => {
+    const v = e.target.closest('.contact-row').querySelector('.c-email').value.trim();
+    if (v) window.location.href = 'mailto:' + v;
+    else toast('No email on this contact');
+  };
 }
 function collectContacts() {
   return [...document.querySelectorAll('.contact-row')].map(r => ({
