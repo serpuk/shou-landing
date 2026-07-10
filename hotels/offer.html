@@ -84,6 +84,11 @@
   .hero .promise{color:var(--text-soft);font-size:17px;max-width:520px;margin-bottom:30px}
   .hero-cta{display:flex;gap:13px;flex-wrap:wrap}
 
+  /* === Hero film (30s spot) === */
+  .film video{width:100%;display:block;border-radius:22px;border:1px solid var(--panel-bd);
+    box-shadow:var(--shadow-lift);background:#000;aspect-ratio:16/9}
+  .film-cap{text-align:center;color:var(--text-dim);font-size:13.5px;margin-top:12px}
+
   /* Device mockup (light) */
   .device{width:100%;max-width:380px;margin:0 auto;background:#fff;
     border:1px solid var(--line);border-radius:30px;padding:14px;box-shadow:0 40px 80px -34px rgba(255,61,139,.28),0 6px 20px rgba(20,16,30,.10)}
@@ -391,6 +396,17 @@
     <img src="/hotels/app-screen.jpg" alt="The shou concierge running in a guest's browser — This week and Ask the concierge tabs with local event suggestions." decoding="async" fetchpriority="high">
   </div>
 </div></div></section>
+
+<!-- FILM (the 30s spot — what the guest experiences) -->
+<section style="padding-top:6px;padding-bottom:40px"><div class="wrap">
+  <div class="film">
+    <video controls preload="none" playsinline
+           poster="https://mpbrfnlmtdxnipyarsss.supabase.co/storage/v1/object/public/ig-media/commercial/offer-hero-poster.jpg">
+      <source src="https://mpbrfnlmtdxnipyarsss.supabase.co/storage/v1/object/public/ig-media/commercial/shou-hotels-hero-v2.mp4" type="video/mp4">
+    </video>
+    <p class="film-cap">40 seconds: the stay your guests will remember.</p>
+  </div>
+</div></section>
 
 <!-- POSITIONING (reframe, right under the hero) -->
 <section style="padding-top:8px;padding-bottom:36px"><div class="wrap quote">
