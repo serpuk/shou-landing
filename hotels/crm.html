@@ -73,7 +73,12 @@
   .toolbar input{flex:1;min-width:200px;font-size:14px;padding:10px 14px;border:1px solid var(--line);border-radius:11px;font-family:inherit;background:#fff}
   .toolbar input:focus{outline:none;border-color:rgba(255,61,139,.45)}
   table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);
+    position:sticky;top:62px;background:var(--panel);z-index:5}
+  /* overflow-x on the card kills position:sticky (it becomes the scroll
+     container) — so: sticky header on desktop, horizontal scroll on mobile. */
+  .table-card{overflow:visible}
+  @media(max-width:900px){.table-card{overflow-x:auto} th{position:static;top:auto}}
   th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
   th.sortable:hover{color:var(--pink)}
   th .arrow{display:inline-block;width:12px;font-size:9px;margin-left:3px}
@@ -209,7 +214,7 @@
   <div class="toolbar">
     <input id="search" type="search" placeholder="Search hotels, cities, contacts…">
   </div>
-  <div class="card" style="padding:6px 14px 2px;overflow-x:auto">
+  <div class="card table-card" style="padding:6px 14px 2px">
     <table>
       <thead><tr>
         <th class="sortable" data-key="name">Hotel<span class="arrow"></span></th>
