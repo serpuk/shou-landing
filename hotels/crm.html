@@ -101,9 +101,11 @@
   .cal-cell.has:hover{border-color:rgba(255,61,139,.45)}
   .cal-cell.today{border-color:var(--pink)}
   .cal-cell.selected{background:rgba(255,61,139,.09);border-color:var(--pink)}
-  .cal-count{position:absolute;bottom:4px;right:5px;min-width:20px;text-align:center;font-size:11px;font-weight:800;
+  .cal-badges{position:absolute;bottom:4px;right:5px;display:flex;gap:3px}
+  .cal-count{min-width:20px;text-align:center;font-size:11px;font-weight:800;
     border-radius:999px;padding:1px 6px;background:var(--cyan);color:#fff}
   .cal-count.late{background:var(--red)}
+  .cal-count.auto{background:var(--violet)}
   #cal-hint{font-size:11.5px;color:var(--text-dim);margin-top:8px}
 
   /* metrics */
@@ -426,11 +428,22 @@ const beDay = iso => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Brusse
 let calMonth = null;      // {y, m} — anchor month
 let calSelected = null;   // 'YYYY-MM-DD' filter or null
 
-// Actionable = things YOU do: manual follow-ups + revives. Automated
-// sequence sends (✉ AUTO) are excluded — the machine does those.
-function actionableDate(h) {
-  const n = nextTouch(h);
-  return n && n.kind !== 'auto' ? beDay(n.t) : null;
+// ALL of a hotel's dated touches: your manual follow-ups + revives AND the
+// machine's scheduled sequence sends (a hotel appears on every relevant day).
+function allTouches(h) {
+  const out = [];
+  if (h.next_follow_up) out.push({ t: h.next_follow_up, kind: 'manual' });
+  const seq = h.sequence;
+  if (seq && !seq.canceled_at) {
+    for (const e of seq.emails || []) {
+      if (e.status === 'scheduled' && e.scheduled_at) out.push({ t: e.scheduled_at, kind: 'auto' });
+    }
+  }
+  if (seq && seq.started_at && ['prospect', 'contacted'].includes(h.pilot_status)
+      && !(h.last_reply_at && new Date(h.last_reply_at) >= new Date(seq.started_at))) {
+    out.push({ t: new Date(new Date(seq.started_at).getTime() + 42 * 864e5).toISOString(), kind: 'revive' });
+  }
+  return out;
 }
 function renderCalendar() {
   const box = $('cal'); if (!box) return;
@@ -438,10 +451,13 @@ function renderCalendar() {
   if (!hotels.length) return;
   const today = beDay(new Date().toISOString());
   if (!calMonth) calMonth = { y: +today.slice(0, 4), m: +today.slice(5, 7) - 1 };
-  const map = {};
+  const map = {};   // date → { manual, auto }
   for (const h of hotels) {
-    const d = actionableDate(h);
-    if (d) map[d] = (map[d] || 0) + 1;
+    for (const t of allTouches(h)) {
+      const d = beDay(t.t);
+      map[d] = map[d] || { manual: 0, auto: 0 };
+      map[d][t.kind === 'auto' ? 'auto' : 'manual']++;
+    }
   }
   const first = new Date(Date.UTC(calMonth.y, calMonth.m, 1));
   const daysIn = new Date(Date.UTC(calMonth.y, calMonth.m + 1, 0)).getUTCDate();
@@ -451,18 +467,21 @@ function renderCalendar() {
   for (let i = 0; i < lead; i++) cells.push('<div class="cal-cell"></div>');
   for (let d = 1; d <= daysIn; d++) {
     const ds = `${calMonth.y}-${String(calMonth.m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const n = map[ds] || 0;
+    const m = map[ds];
+    const badges = m ? `<span class="cal-badges">${
+      m.manual ? `<span class="cal-count${ds < today ? ' late' : ''}" title="your follow-ups">${m.manual}</span>` : ''}${
+      m.auto ? `<span class="cal-count auto" title="automated emails">${m.auto}</span>` : ''}</span>` : '';
     const cls = ['cal-cell', 'in-month',
-      n ? 'has' : '', ds === today ? 'today' : '', ds === calSelected ? 'selected' : ''].filter(Boolean).join(' ');
-    cells.push(`<div class="${cls}" data-d="${ds}">${d}${n ? `<span class="cal-count${ds < today ? ' late' : ''}">${n}</span>` : ''}</div>`);
+      m ? 'has' : '', ds === today ? 'today' : '', ds === calSelected ? 'selected' : ''].filter(Boolean).join(' ');
+    cells.push(`<div class="${cls}" data-d="${ds}">${d}${badges}</div>`);
   }
   $('cal-grid').innerHTML = cells.join('');
   for (const c of $('cal-grid').querySelectorAll('.cal-cell.has')) {
     c.onclick = () => { calSelected = calSelected === c.dataset.d ? null : c.dataset.d; renderList(); };
   }
   $('cal-hint').textContent = calSelected
-    ? `Showing follow-ups for ${calSelected} — click the day again to clear.`
-    : 'Teal = follow-ups due that day · red = overdue · click a day to filter the list.';
+    ? `Showing every hotel with a touch on ${calSelected} — click the day again to clear.`
+    : 'Teal = your follow-ups · violet = automated emails · red = overdue · click a day to filter the list.';
 }
 
 function sortVal(h, key) {
@@ -482,7 +501,7 @@ function renderList() {
   const q = $('search').value.trim().toLowerCase();
   const rows = hotels.filter(h => {
     if (statusFilter && h.pilot_status !== statusFilter) return false;
-    if (calSelected && actionableDate(h) !== calSelected) return false;
+    if (calSelected && !allTouches(h).some(t => beDay(t.t) === calSelected)) return false;
     if (!q) return true;
     const hay = [h.name, h.city, h.notes, ...(h.contacts || []).map(c => `${c.name || ''} ${c.email || ''}`)].join(' ').toLowerCase();
     return hay.includes(q);
