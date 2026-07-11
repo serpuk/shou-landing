@@ -67,6 +67,11 @@
   #proposal li{padding:3px 0}
   #proposal li b{font-weight:600}
   #proposal .p-actions{display:flex;gap:10px;margin-top:12px}
+  .sum-stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .sum-stat{font-size:13px;color:var(--text-soft);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+  .sum-stat b{color:var(--ink);font-weight:700}
+  .sum-narr{font-size:14px;line-height:1.55;color:var(--text);white-space:pre-wrap;
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 
   /* toolbar + list */
   .toolbar{display:flex;gap:12px;align-items:center;margin:22px 0 12px;flex-wrap:wrap}
@@ -240,7 +245,7 @@
 
   <!-- quick log -->
   <div class="card" id="quicklog">
-    <textarea id="ql-text" placeholder="Log anything… e.g. “Spoke to Brian at Hotel Amigo, they want a demo tomorrow at 15:00” — AI updates the record after you confirm."></textarea>
+    <textarea id="ql-text" placeholder="Log an activity — “Spoke to Brian at Hotel Amigo, demo tomorrow 15:00” — or ask a question — “summarize last week”. Logs are confirmed before saving; questions just answer."></textarea>
     <div class="ql-row">
       <span class="ql-hint">Mentions of contacts, dates, status and requests are extracted automatically. Nothing is saved until you confirm.</span>
       <button class="btn" id="ql-go">Log it</button>
@@ -579,14 +584,28 @@ $('ql-go').onclick = async () => {
   const text = $('ql-text').value.trim();
   if (!text) return;
   const btn = $('ql-go');
-  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Parsing…';
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Thinking…';
   try {
     const d = await api('note', { method: 'POST', body: { text } });
-    proposal = d.proposal;
-    renderProposal();
-  } catch (e) { toast('Parse failed: ' + e.message); }
+    if (d.summary) { proposal = null; renderSummary(d.summary); }   // query, not a log
+    else { proposal = d.proposal; renderSummary(null); renderProposal(); }
+  } catch (e) { toast('Failed: ' + e.message); }
   btn.disabled = false; btn.textContent = 'Log it';
 };
+function renderSummary(s) {
+  const box = $('proposal');
+  if (!s) return;   // (null clears nothing here; proposal render owns the box otherwise)
+  proposal = null;
+  const stats = (s.stats || []).map(x =>
+    `<span class="sum-stat"><b>${x.n}</b> ${esc(x.label)}</span>`).join('');
+  box.innerHTML = `
+    <div class="p-head" style="color:var(--cyan)">Activity · last ${s.windowDays} days <span style="font-weight:500;color:var(--text-dim)">(${esc(s.from)} → ${esc(s.to)})</span></div>
+    ${s.total ? `<div class="sum-stats">${stats}</div>` : '<div class="dim" style="font-size:13.5px">No logged activity in this window.</div>'}
+    ${s.narrative ? `<div class="sum-narr">${esc(s.narrative)}</div>` : ''}
+    <div class="p-actions"><button class="btn2" id="sum-close">Close</button></div>`;
+  box.classList.add('show');
+  $('sum-close').onclick = () => { box.classList.remove('show'); box.innerHTML = ''; $('ql-text').value = ''; };
+}
 function renderProposal() {
   const p = proposal, box = $('proposal');
   if (!p) { box.classList.remove('show'); box.innerHTML = ''; return; }
