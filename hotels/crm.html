@@ -193,6 +193,27 @@
   .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp 0.7s linear infinite;vertical-align:-2px;margin-right:7px}
   .spin.dark{border-color:rgba(20,16,30,.2);border-top-color:var(--ink)}
   @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* import modal */
+  #imp-overlay{position:fixed;inset:0;background:rgba(20,16,30,.4);z-index:60;display:none}
+  #imp-overlay.show{display:block}
+  #imp-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.97);z-index:70;display:none;
+    width:min(560px,92vw);max-height:82vh;overflow-y:auto;background:var(--panel);border:1px solid var(--panel-bd);
+    border-radius:18px;box-shadow:var(--shadow-lift);padding:26px 28px;opacity:0;transition:opacity .18s,transform .18s}
+  #imp-modal.show{display:block;opacity:1;transform:translate(-50%,-50%) scale(1)}
+  #imp-modal h3{font-family:'Fraunces',serif;font-weight:600;font-size:21px;color:var(--ink);margin-bottom:6px}
+  #imp-modal .imp-sub{font-size:13.5px;color:var(--text-soft);margin-bottom:18px}
+  .imp-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .imp-stat{flex:1;min-width:96px;background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .imp-stat .n{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--ink);line-height:1.05}
+  .imp-stat.new .n{color:var(--cyan)} .imp-stat.upd .n{color:var(--violet)} .imp-stat.warn .n{color:var(--red)}
+  .imp-stat .l{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin-top:3px}
+  .imp-list{max-height:230px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin-bottom:16px;font-size:13px}
+  .imp-list .r{padding:4px 0;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line)}
+  .imp-list .r:last-child{border-bottom:none}
+  .imp-tag{font-size:10px;font-weight:800;letter-spacing:.05em;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .imp-tag.new{background:rgba(14,154,141,.14);color:var(--cyan)} .imp-tag.exist{background:rgba(155,92,255,.14);color:var(--violet)}
+  .imp-actions{display:flex;gap:10px;justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -250,6 +271,9 @@
   <!-- list -->
   <div class="toolbar">
     <input id="search" type="search" placeholder="Search hotels, cities, contacts…">
+    <button class="btn2" id="btn-export" title="Download all hotels + contacts as CSV">⬇ Export CSV</button>
+    <button class="btn2" id="btn-import" title="Add hotels / contacts from a CSV">⬆ Import CSV</button>
+    <input type="file" id="import-file" accept=".csv,text/csv" style="display:none">
   </div>
   <div class="card table-card" style="padding:6px 14px 2px">
     <table>
@@ -271,6 +295,10 @@
 <div id="overlay"></div>
 <div id="drawer"><div class="d-in" id="drawer-in"></div></div>
 <div id="toast"></div>
+
+<!-- import preview modal -->
+<div id="imp-overlay"></div>
+<div id="imp-modal"><div id="imp-body"></div></div>
 
 <script>
 const API = 'https://shou-backend.vercel.app/api/crm';
@@ -902,6 +930,110 @@ async function loadLog(hotelId) {
       </div>`).join('') : '<p class="dim" style="font-size:13px">No history yet.</p>';
   } catch (e) { $('log').innerHTML = `<p class="dim">Could not load history: ${esc(e.message)}</p>`; }
 }
+
+/* ---------- CSV import / export ---------- */
+// Shared schema — export produces exactly these columns; import reads them.
+const CSV_COLS = ['hotel_name', 'city', 'pilot_status', 'website', 'demo_url',
+  'next_follow_up', 'last_email_at', 'last_reply_at',
+  'contact_name', 'contact_role', 'contact_email', 'contact_phone', 'notes', 'lat', 'lng'];
+
+const csvCell = v => { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+const toCsv = grid => grid.map(r => r.map(csvCell).join(',')).join('\r\n');
+function parseCsv(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ',') { row.push(cell); cell = ''; }
+    else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += ch;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ''));
+}
+
+function exportCsv() {
+  const grid = [CSV_COLS];
+  for (const h of hotels) {
+    const base = [h.name, h.city || '', h.pilot_status || '', h.website || '', h.demo_url || '',
+      h.next_follow_up || '', h.last_email_at || '', h.last_reply_at || ''];
+    const tail = [h.notes || '', h.lat ?? '', h.lng ?? ''];
+    const cs = h.contacts || [];
+    if (!cs.length) grid.push([...base, '', '', '', '', ...tail]);
+    else for (const c of cs) grid.push([...base, c.name || '', c.role || '', c.email || '', c.phone || '', ...tail]);
+  }
+  const blob = new Blob(['﻿' + toCsv(grid)], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `shou-crm-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(`Exported ${hotels.length} hotels`);
+}
+
+let _impRows = null;
+async function readImport(file) {
+  let text;
+  try { text = await file.text(); } catch { toast('Could not read file'); return; }
+  const grid = parseCsv(text);
+  if (grid.length < 2) { toast('Empty or headerless CSV'); return; }
+  const header = grid[0].map(h => h.trim().toLowerCase().replace(/^﻿/, ''));
+  const idx = {}; header.forEach((h, i) => { if (idx[h] == null) idx[h] = i; });
+  if (idx.hotel_name == null) { toast('CSV needs a “hotel_name” column'); return; }
+  const rows = grid.slice(1).map(r => {
+    const o = {};
+    for (const k of CSV_COLS) if (idx[k] != null) o[k] = (r[idx[k]] || '').trim();
+    return o;
+  }).filter(o => o.hotel_name);
+  if (!rows.length) { toast('No rows with a hotel_name'); return; }
+  _impRows = rows;
+  let d;
+  try { d = await api('import', { method: 'POST', body: { rows, dryRun: true } }); }
+  catch (e) { toast('Preview failed: ' + e.message); return; }
+  showImportPreview(d);
+}
+
+function closeImport() { $('imp-overlay').classList.remove('show'); $('imp-modal').classList.remove('show'); _impRows = null; }
+function showImportPreview(d) {
+  const stat = (n, l, cls) => `<div class="imp-stat ${cls || ''}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  const rows = (d.sample || []).map(s => s.kind === 'new'
+    ? `<div class="r"><span><b>${esc(s.name)}</b>${s.city ? ' · ' + esc(s.city) : ''} <span class="dim">(${s.contacts} contact${s.contacts === 1 ? '' : 's'})</span></span><span class="imp-tag new">NEW</span></div>`
+    : `<div class="r"><span><b>${esc(s.name)}</b> <span class="dim">+${s.added} contact${s.added === 1 ? '' : 's'}</span></span><span class="imp-tag exist">EXISTING</span></div>`
+  ).join('');
+  const nothing = !d.created && !d.updated;
+  $('imp-body').innerHTML = `
+    <h3>Import preview</h3>
+    <div class="imp-sub">${d.hotels} hotel${d.hotels === 1 ? '' : 's'} in the file. Nothing is written until you confirm — existing hotels only <b>gain contacts</b>, their other fields are never overwritten.</div>
+    <div class="imp-stats">
+      ${stat(d.created, 'New hotels', 'new')}
+      ${stat(d.updated, 'Existing +contacts', 'upd')}
+      ${stat(d.contactsAdded, 'Contacts added')}
+      ${d.badRows ? stat(d.badRows, 'Skipped (no name)', 'warn') : ''}
+    </div>
+    ${rows ? `<div class="imp-list">${rows}${(d.sample || []).length < d.hotels ? `<div class="r dim">…and ${d.hotels - d.sample.length} more</div>` : ''}</div>` : ''}
+    <div class="imp-actions">
+      <button class="btn2" id="imp-cancel">Cancel</button>
+      <button class="btn" id="imp-confirm"${nothing ? ' disabled' : ''}>${nothing ? 'Nothing to import' : 'Import ' + d.contactsAdded + ' contact' + (d.contactsAdded === 1 ? '' : 's')}</button>
+    </div>`;
+  $('imp-overlay').classList.add('show'); $('imp-modal').classList.add('show');
+  $('imp-cancel').onclick = closeImport;
+  $('imp-overlay').onclick = closeImport;
+  if (!nothing) $('imp-confirm').onclick = async () => {
+    const btn = $('imp-confirm'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Importing…';
+    try {
+      const r = await api('import', { method: 'POST', body: { rows: _impRows } });
+      closeImport();
+      toast(`Imported: ${r.created} new, ${r.updated} updated, ${r.contactsAdded} contacts`);
+      await refresh();
+    } catch (e) { toast('Import failed: ' + e.message); btn.disabled = false; btn.textContent = 'Retry import'; }
+  };
+}
+
+$('btn-export').onclick = exportCsv;
+$('btn-import').onclick = () => $('import-file').click();
+$('import-file').onchange = e => { const f = e.target.files[0]; if (f) readImport(f); e.target.value = ''; };
 
 /* ---------- boot ---------- */
 if (token) unlock(token); else $('gate-token').focus();
