@@ -85,6 +85,27 @@
   .auto-tag{font-size:9.5px;color:var(--violet);font-weight:700;letter-spacing:.06em;margin-left:6px;vertical-align:1px}
   .revive-tag{font-size:9.5px;color:#b06400;font-weight:700;letter-spacing:.06em;margin-left:6px;vertical-align:1px}
 
+  /* calendar */
+  #cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  #cal-title{font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:var(--ink)}
+  .cal-nav{display:flex;gap:6px;align-items:center}
+  .cal-nav button{background:#fff;border:1px solid var(--line);border-radius:8px;font-size:13px;font-weight:600;
+    padding:4px 10px;color:var(--text-soft);cursor:pointer}
+  .cal-nav button:hover{color:var(--pink);border-color:rgba(255,61,139,.4)}
+  #cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal-dow{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text-dim);text-align:center;padding:2px 0}
+  .cal-cell{position:relative;min-height:44px;border:1px solid transparent;border-radius:10px;padding:4px 6px;
+    font-size:12px;color:var(--text-soft);cursor:default;background:transparent}
+  .cal-cell.in-month{background:var(--panel-soft);border-color:var(--line)}
+  .cal-cell.has{cursor:pointer}
+  .cal-cell.has:hover{border-color:rgba(255,61,139,.45)}
+  .cal-cell.today{border-color:var(--pink)}
+  .cal-cell.selected{background:rgba(255,61,139,.09);border-color:var(--pink)}
+  .cal-count{position:absolute;bottom:4px;right:5px;min-width:20px;text-align:center;font-size:11px;font-weight:800;
+    border-radius:999px;padding:1px 6px;background:var(--cyan);color:#fff}
+  .cal-count.late{background:var(--red)}
+  #cal-hint{font-size:11.5px;color:var(--text-dim);margin-top:8px}
+
   /* metrics */
   #funnel{display:flex;gap:8px;flex-wrap:wrap}
   .f-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:999px;
@@ -208,6 +229,20 @@
   <div class="card" id="metrics" style="margin-top:14px;display:none">
     <div id="funnel"></div>
     <div id="stat-tiles"></div>
+  </div>
+
+  <!-- follow-up calendar -->
+  <div class="card" id="cal" style="margin-top:14px;display:none">
+    <div id="cal-head">
+      <span id="cal-title"></span>
+      <span class="cal-nav">
+        <button id="cal-prev">‹</button>
+        <button id="cal-today">Today</button>
+        <button id="cal-next">›</button>
+      </span>
+    </div>
+    <div id="cal-grid"></div>
+    <div id="cal-hint"></div>
   </div>
 
   <!-- list -->
@@ -385,6 +420,51 @@ function nextTouch(h) {
 }
 const ST_ORDER = { prospect: 0, contacted: 1, demo_scheduled: 2, demo_done: 3, pilot: 4, live: 5, declined: 6 };
 let sortKey = 'next', sortDir = 1;
+
+/* ---------- follow-up calendar ---------- */
+const beDay = iso => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Brussels' }).format(new Date(iso));
+let calMonth = null;      // {y, m} — anchor month
+let calSelected = null;   // 'YYYY-MM-DD' filter or null
+
+// Actionable = things YOU do: manual follow-ups + revives. Automated
+// sequence sends (✉ AUTO) are excluded — the machine does those.
+function actionableDate(h) {
+  const n = nextTouch(h);
+  return n && n.kind !== 'auto' ? beDay(n.t) : null;
+}
+function renderCalendar() {
+  const box = $('cal'); if (!box) return;
+  box.style.display = hotels.length ? 'block' : 'none';
+  if (!hotels.length) return;
+  const today = beDay(new Date().toISOString());
+  if (!calMonth) calMonth = { y: +today.slice(0, 4), m: +today.slice(5, 7) - 1 };
+  const map = {};
+  for (const h of hotels) {
+    const d = actionableDate(h);
+    if (d) map[d] = (map[d] || 0) + 1;
+  }
+  const first = new Date(Date.UTC(calMonth.y, calMonth.m, 1));
+  const daysIn = new Date(Date.UTC(calMonth.y, calMonth.m + 1, 0)).getUTCDate();
+  const lead = (first.getUTCDay() + 6) % 7;   // Monday-start
+  $('cal-title').textContent = first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const cells = ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(d => `<div class="cal-dow">${d}</div>`);
+  for (let i = 0; i < lead; i++) cells.push('<div class="cal-cell"></div>');
+  for (let d = 1; d <= daysIn; d++) {
+    const ds = `${calMonth.y}-${String(calMonth.m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const n = map[ds] || 0;
+    const cls = ['cal-cell', 'in-month',
+      n ? 'has' : '', ds === today ? 'today' : '', ds === calSelected ? 'selected' : ''].filter(Boolean).join(' ');
+    cells.push(`<div class="${cls}" data-d="${ds}">${d}${n ? `<span class="cal-count${ds < today ? ' late' : ''}">${n}</span>` : ''}</div>`);
+  }
+  $('cal-grid').innerHTML = cells.join('');
+  for (const c of $('cal-grid').querySelectorAll('.cal-cell.has')) {
+    c.onclick = () => { calSelected = calSelected === c.dataset.d ? null : c.dataset.d; renderList(); };
+  }
+  $('cal-hint').textContent = calSelected
+    ? `Showing follow-ups for ${calSelected} — click the day again to clear.`
+    : 'Teal = follow-ups due that day · red = overdue · click a day to filter the list.';
+}
+
 function sortVal(h, key) {
   switch (key) {
     case 'name':      return (h.name || '').toLowerCase();
@@ -398,9 +478,11 @@ function sortVal(h, key) {
 }
 function renderList() {
   renderMetrics();
+  renderCalendar();
   const q = $('search').value.trim().toLowerCase();
   const rows = hotels.filter(h => {
     if (statusFilter && h.pilot_status !== statusFilter) return false;
+    if (calSelected && actionableDate(h) !== calSelected) return false;
     if (!q) return true;
     const hay = [h.name, h.city, h.notes, ...(h.contacts || []).map(c => `${c.name || ''} ${c.email || ''}`)].join(' ').toLowerCase();
     return hay.includes(q);
@@ -441,6 +523,9 @@ for (const th of document.querySelectorAll('th.sortable')) {
     renderList();
   };
 }
+$('cal-prev').onclick = () => { calMonth.m--; if (calMonth.m < 0) { calMonth.m = 11; calMonth.y--; } renderCalendar(); };
+$('cal-next').onclick = () => { calMonth.m++; if (calMonth.m > 11) { calMonth.m = 0; calMonth.y++; } renderCalendar(); };
+$('cal-today').onclick = () => { calMonth = null; calSelected = null; renderList(); };
 
 /* ---------- quick log ---------- */
 $('ql-go').onclick = async () => {
