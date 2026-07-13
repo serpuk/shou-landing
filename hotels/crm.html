@@ -228,6 +228,30 @@
   .imp-tag{font-size:10px;font-weight:800;letter-spacing:.05em;padding:2px 8px;border-radius:999px;white-space:nowrap}
   .imp-tag.new{background:rgba(14,154,141,.14);color:var(--cyan)} .imp-tag.exist{background:rgba(155,92,255,.14);color:var(--violet)}
   .imp-actions{display:flex;gap:10px;justify-content:flex-end}
+  /* collapsible outreach blocks */
+  #outreach-box .o-block{background:#fff;border:1px solid var(--panel-bd);border-radius:12px;padding:11px 14px;margin-bottom:10px}
+  .o-bhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .o-toggle{background:none;border:none;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;padding:0;display:flex;align-items:center;gap:7px}
+  .o-chev{color:var(--violet);font-size:12px}
+  .o-prev{margin-top:8px;font-size:13px;color:var(--text-soft);line-height:1.5}
+  .o-full{margin-top:9px}
+  .o-ta{width:100%;font-family:inherit;font-size:13.5px;line-height:1.55;border:1px solid var(--line);border-radius:9px;padding:10px 12px;resize:vertical;box-sizing:border-box}
+  /* outreach settings modal (reuses #imp-modal chrome) */
+  #set-overlay{position:fixed;inset:0;background:rgba(20,16,30,.4);z-index:60;display:none}
+  #set-overlay.show{display:block}
+  #set-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.97);z-index:70;display:none;
+    width:min(680px,94vw);max-height:88vh;overflow-y:auto;background:var(--panel-soft);border-radius:18px;
+    padding:26px 28px;box-shadow:0 30px 80px rgba(20,16,30,.4);opacity:0;transition:opacity .15s,transform .15s}
+  #set-modal.show{display:block;opacity:1;transform:translate(-50%,-50%) scale(1)}
+  #set-modal h3{font-family:'Fraunces',serif;font-weight:600;font-size:21px;color:var(--ink);margin-bottom:4px}
+  #set-modal .set-sub{font-size:13px;color:var(--text-soft);margin-bottom:16px}
+  .set-field{margin-bottom:16px}
+  .set-field .set-lh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .set-field label{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text-dim);text-transform:uppercase}
+  .set-reset{background:none;border:none;font-size:11.5px;color:var(--violet);cursor:pointer;font-family:inherit}
+  .set-field textarea{width:100%;font-family:inherit;font-size:13.5px;line-height:1.5;border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical;box-sizing:border-box}
+  .set-hint{font-size:11.5px;color:var(--text-dim);margin-top:4px}
+  .set-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
 </style>
 </head>
 <body>
@@ -288,6 +312,7 @@
     <button class="btn2" id="btn-export" title="Download all hotels + contacts as CSV">⬇ Export CSV</button>
     <button class="btn2" id="btn-import" title="Add hotels / contacts from a CSV">⬆ Import CSV</button>
     <input type="file" id="import-file" accept=".csv,text/csv" style="display:none">
+    <button class="btn2" id="btn-settings" title="Edit the template blocks + tone used to generate outreach emails">⚙ Outreach settings</button>
   </div>
   <div class="card table-card" style="padding:6px 14px 2px">
     <table>
@@ -313,6 +338,10 @@
 <!-- import preview modal -->
 <div id="imp-overlay"></div>
 <div id="imp-modal"><div id="imp-body"></div></div>
+
+<!-- outreach settings (admin) modal -->
+<div id="set-overlay"></div>
+<div id="set-modal"><div id="set-body"></div></div>
 
 <script>
 const API = 'https://shou-backend.vercel.app/api/crm';
@@ -853,64 +882,61 @@ async function deleteCurrent() {
 }
 
 /* ---------- outreach ---------- */
+// Collapsible + inline-editable outreach. Email #1 open by default; follow-ups
+// collapsed to a preview. Edits go into oDraft; one Save recomposes via op=save_outreach.
+let oDraft = null;
+function oPrev(t) { const s = String(t || '').replace(/\s+/g, ' ').trim(); return s ? esc(s.length > 150 ? s.slice(0, 150) + '…' : s) : '<span class="dim">(empty)</span>'; }
 function renderOutreach(o) {
-  // html variants are composed server-side from escaped slots — safe to render
-  const item = (label, text, html) => `
-    <div class="o-item">
-      <div class="o-label"><span>${label}</span><button class="copy-btn" data-copy="${esc(text)}">Copy</button></div>
-      <div class="o-body"${html ? ' style="white-space:normal"' : ''}>${html || esc(text)}</div>
+  oDraft = { subject: o.subject || '', email: o.email || '', followup1: o.followup1 || '', followup2: o.followup2 || '' };
+  const saved = JSON.stringify(oDraft);
+  const block = (key, label, open) => `
+    <div class="o-block">
+      <div class="o-bhead">
+        <button class="o-toggle" data-key="${key}">${label} <span class="o-chev">${open ? '▾' : '▸'}</span></button>
+        <button class="copy-btn" data-copykey="${key}">Copy</button>
+      </div>
+      <div class="o-prev"${open ? ' style="display:none"' : ''}>${oPrev(oDraft[key])}</div>
+      <div class="o-full"${open ? '' : ' style="display:none"'}>
+        <textarea class="o-ta" data-key="${key}" style="min-height:${key === 'email' ? 230 : 120}px">${esc(oDraft[key])}</textarea>
+      </div>
     </div>`;
   $('o-out').innerHTML = `
-    <div class="o-meta" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-      <span>Generated ${fmtDT(o.generated_at)}${o.edited_at ? ' · edited ' + fmtDT(o.edited_at) : ''}${o.site_fetched === false ? ' · ⚠ website could not be fetched — personalization is generic' : ''}</span>
-      <button class="copy-btn" id="o-edit">✏️ Edit drafts</button>
+    <div class="o-meta" style="margin-bottom:8px">Generated ${fmtDT(o.generated_at)}${o.edited_at ? ' · edited ' + fmtDT(o.edited_at) : ''}${o.site_fetched === false ? ' · ⚠ website could not be fetched — personalization is generic' : ''}</div>
+    <div class="o-block">
+      <div class="o-bhead"><span class="o-toggle" style="cursor:default">Subject</span><button class="copy-btn" data-copykey="subject">Copy</button></div>
+      <input id="oe-subject" class="o-ta" value="${esc(oDraft.subject)}" style="min-height:0;padding:9px 12px;margin-top:9px">
     </div>
-    ${item('Subject', o.subject)}
-    ${item('Email #1', o.email, o.email_html)}
-    ${item('Follow-up #1 (~day 4)', o.followup1, o.followup1_html)}
-    ${item('Follow-up #2 (~day 8)', o.followup2, o.followup2_html)}`;
-  for (const b of $('o-out').querySelectorAll('.copy-btn[data-copy]')) {
-    b.onclick = () => { navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = 'Copy', 1500); };
-  }
-  $('o-edit').onclick = () => renderOutreachEdit(o);
-}
-
-function renderOutreachEdit(o) {
-  const ta = (id, label, val, h) => `
-    <div class="o-item">
-      <div class="o-label"><span>${label}</span></div>
-      <textarea id="${id}" style="width:100%;font-family:inherit;font-size:13.5px;line-height:1.55;border:1px solid var(--line);border-radius:9px;padding:10px 12px;min-height:${h}px;resize:vertical">${esc(val || '')}</textarea>
+    ${block('email', 'Email #1', true)}
+    ${block('followup1', 'Follow-up #1 (~day 4)', false)}
+    ${block('followup2', 'Follow-up #2 (~day 8)', false)}
+    <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+      <button class="btn" id="o-save" style="font-size:13px;padding:9px 18px" disabled>Save changes</button>
+      <span class="dim" style="font-size:11.5px">Plain-text edits — the formatted email is rebuilt on save (blank line = paragraph, • = bullet, links auto).</span>
     </div>`;
-  $('o-out').innerHTML = `
-    <div class="o-meta">Edit the plain text — the formatted version is rebuilt automatically (blank line = new paragraph, lines starting with • become bullets, URLs become links).</div>
-    <div class="o-item">
-      <div class="o-label"><span>Subject</span></div>
-      <input id="oe-subject" style="width:100%;font-family:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:9px;padding:9px 12px" value="${esc(o.subject || '')}">
-    </div>
-    ${ta('oe-email', 'Email #1', o.email, 260)}
-    ${ta('oe-fu1', 'Follow-up #1 (~day 4)', o.followup1, 130)}
-    ${ta('oe-fu2', 'Follow-up #2 (~day 8)', o.followup2, 130)}
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn" id="oe-save" style="font-size:13px;padding:9px 18px">Save drafts</button>
-      <button class="btn2" id="oe-cancel">Cancel</button>
-    </div>`;
-  $('oe-cancel').onclick = () => renderOutreach(current.outreach);
-  $('oe-save').onclick = async () => {
-    const btn = $('oe-save');
-    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Saving…';
+  const dirty = () => { $('o-save').disabled = JSON.stringify(oDraft) === saved; };
+  $('oe-subject').oninput = e => { oDraft.subject = e.target.value; dirty(); };
+  for (const t of $('o-out').querySelectorAll('.o-toggle[data-key]')) t.onclick = () => {
+    const blk = t.closest('.o-block'), full = blk.querySelector('.o-full'), prev = blk.querySelector('.o-prev');
+    const openNow = full.style.display === 'none';
+    if (!openNow) prev.innerHTML = oPrev(oDraft[t.dataset.key]);
+    full.style.display = openNow ? '' : 'none'; prev.style.display = openNow ? 'none' : '';
+    t.querySelector('.o-chev').textContent = openNow ? '▾' : '▸';
+  };
+  for (const ta of $('o-out').querySelectorAll('.o-ta[data-key]')) ta.oninput = e => { oDraft[e.target.dataset.key] = e.target.value; dirty(); };
+  for (const b of $('o-out').querySelectorAll('.copy-btn[data-copykey]')) b.onclick = () => {
+    navigator.clipboard.writeText(oDraft[b.dataset.copykey] || ''); b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = 'Copy', 1500);
+  };
+  $('o-save').onclick = async () => {
+    const btn = $('o-save'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Saving…';
     try {
       const d = await api('save_outreach', { method: 'POST', body: { hotelId: current.id, outreach: {
-        subject: $('oe-subject').value, email: $('oe-email').value,
-        followup1: $('oe-fu1').value, followup2: $('oe-fu2').value,
+        subject: oDraft.subject, email: oDraft.email, followup1: oDraft.followup1, followup2: oDraft.followup2,
       }}});
       current.outreach = d.outreach;
       const h = hotels.find(x => x.id === current.id); if (h) h.outreach = d.outreach;
       renderOutreach(d.outreach); renderSeq();
       toast('Drafts saved ✓');
-    } catch (e) {
-      toast('Save failed: ' + e.message);
-      btn.disabled = false; btn.textContent = 'Save drafts';
-    }
+    } catch (e) { toast('Save failed: ' + e.message); btn.disabled = false; btn.textContent = 'Save changes'; }
   };
 }
 async function generateOutreach() {
@@ -1111,6 +1137,50 @@ function showImportPreview(d) {
 
 $('btn-export').onclick = exportCsv;
 $('btn-import').onclick = () => $('import-file').click();
+
+/* ---------- outreach settings (admin) ---------- */
+let setDefaults = {};
+function closeSettings() { $('set-overlay').classList.remove('show'); $('set-modal').classList.remove('show'); }
+async function openSettings() {
+  let d;
+  try { d = await api('get_settings'); } catch (e) { toast('Could not load settings: ' + e.message); return; }
+  setDefaults = d.defaults || {};
+  const s = d.settings || {};
+  const field = (key, label, hint, rows) => `
+    <div class="set-field">
+      <div class="set-lh"><label>${label}</label><button class="set-reset" data-key="${key}">Reset to default</button></div>
+      <textarea id="set-${key}" rows="${rows}">${esc(s[key] ?? '')}</textarea>
+      ${hint ? `<div class="set-hint">${hint}</div>` : ''}
+    </div>`;
+  $('set-body').innerHTML = `
+    <h3>Outreach settings</h3>
+    <div class="set-sub">Changes what every generated email says. The email structure, links and demo/video stay fixed — this only edits the copy the AI works from. Empty field = use the default.</div>
+    ${field('tone', 'AI tone & guidance', 'Applied to the opening line, the 3 guest-question bullets and the follow-ups. e.g. “warmer, less salesy; emphasise saving reception time”.', 3)}
+    ${field('pitch', 'Product pitch paragraph', 'The fixed value-prop paragraph inside email #1.', 4)}
+    ${field('foundingDemo', 'Founding-partner line — when a demo page exists', 'Use {hotel} for the hotel name.', 3)}
+    ${field('foundingNoDemo', 'Founding-partner line — when no demo yet', 'Use {hotel} for the hotel name.', 3)}
+    <div class="set-actions">
+      <button class="btn2" id="set-cancel">Cancel</button>
+      <button class="btn" id="set-save">Save settings</button>
+    </div>`;
+  for (const b of $('set-body').querySelectorAll('.set-reset')) b.onclick = () => { $('set-' + b.dataset.key).value = setDefaults[b.dataset.key] || ''; };
+  $('set-cancel').onclick = closeSettings;
+  $('set-save').onclick = saveSettings;
+  $('set-overlay').classList.add('show'); $('set-modal').classList.add('show');
+}
+async function saveSettings() {
+  const btn = $('set-save'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Saving…';
+  try {
+    await api('save_settings', { method: 'POST', body: { settings: {
+      tone: $('set-tone').value, pitch: $('set-pitch').value,
+      foundingDemo: $('set-foundingDemo').value, foundingNoDemo: $('set-foundingNoDemo').value,
+    }}});
+    toast('Outreach settings saved ✓ — applies to the next generation');
+    closeSettings();
+  } catch (e) { toast('Save failed: ' + e.message); btn.disabled = false; btn.textContent = 'Save settings'; }
+}
+$('set-overlay').onclick = closeSettings;
+$('btn-settings').onclick = openSettings;
 $('import-file').onchange = e => { const f = e.target.files[0]; if (f) readImport(f); e.target.value = ''; };
 
 /* ---------- boot ---------- */
