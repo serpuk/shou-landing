@@ -236,6 +236,8 @@
   .o-prev{margin-top:8px;font-size:13px;color:var(--text-soft);line-height:1.5}
   .o-full{margin-top:9px}
   .o-ta{width:100%;font-family:inherit;font-size:13.5px;line-height:1.55;border:1px solid var(--line);border-radius:9px;padding:10px 12px;resize:vertical;box-sizing:border-box}
+  .o-view{font-size:13.5px;overflow-x:auto}
+  .o-editbtn{background:none;border:none;color:var(--violet);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:8px 0 0}
   /* outreach settings modal (reuses #imp-modal chrome) */
   #set-overlay{position:fixed;inset:0;background:rgba(20,16,30,.4);z-index:60;display:none}
   #set-overlay.show{display:block}
@@ -888,16 +890,19 @@ let oDraft = null;
 function oPrev(t) { const s = String(t || '').replace(/\s+/g, ' ').trim(); return s ? esc(s.length > 150 ? s.slice(0, 150) + '…' : s) : '<span class="dim">(empty)</span>'; }
 function renderOutreach(o) {
   oDraft = { subject: o.subject || '', email: o.email || '', followup1: o.followup1 || '', followup2: o.followup2 || '' };
+  const html = { email: o.email_html, followup1: o.followup1_html, followup2: o.followup2_html };
   const saved = JSON.stringify(oDraft);
   const block = (key, label, open) => `
-    <div class="o-block">
+    <div class="o-block" data-key="${key}">
       <div class="o-bhead">
         <button class="o-toggle" data-key="${key}">${label} <span class="o-chev">${open ? '▾' : '▸'}</span></button>
         <button class="copy-btn" data-copykey="${key}">Copy</button>
       </div>
       <div class="o-prev"${open ? ' style="display:none"' : ''}>${oPrev(oDraft[key])}</div>
-      <div class="o-full"${open ? '' : ' style="display:none"'}>
-        <textarea class="o-ta" data-key="${key}" style="min-height:${key === 'email' ? 230 : 120}px">${esc(oDraft[key])}</textarea>
+      <div class="o-body"${open ? '' : ' style="display:none"'}>
+        <div class="o-view">${html[key] || esc(oDraft[key])}</div>
+        <div class="o-editwrap" style="display:none"><textarea class="o-ta" data-key="${key}" style="min-height:${key === 'email' ? 230 : 120}px">${esc(oDraft[key])}</textarea></div>
+        <button class="o-editbtn" data-key="${key}">✏ Edit text</button>
       </div>
     </div>`;
   $('o-out').innerHTML = `
@@ -911,16 +916,23 @@ function renderOutreach(o) {
     ${block('followup2', 'Follow-up #2 (~day 8)', false)}
     <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
       <button class="btn" id="o-save" style="font-size:13px;padding:9px 18px" disabled>Save changes</button>
-      <span class="dim" style="font-size:11.5px">Plain-text edits — the formatted email is rebuilt on save (blank line = paragraph, • = bullet, links auto).</span>
+      <span class="dim" style="font-size:11.5px">Blocks show the formatted email; “Edit text” swaps to plain text — the formatted version is rebuilt on save.</span>
     </div>`;
   const dirty = () => { $('o-save').disabled = JSON.stringify(oDraft) === saved; };
   $('oe-subject').oninput = e => { oDraft.subject = e.target.value; dirty(); };
   for (const t of $('o-out').querySelectorAll('.o-toggle[data-key]')) t.onclick = () => {
-    const blk = t.closest('.o-block'), full = blk.querySelector('.o-full'), prev = blk.querySelector('.o-prev');
-    const openNow = full.style.display === 'none';
+    const blk = t.closest('.o-block'), body = blk.querySelector('.o-body'), prev = blk.querySelector('.o-prev');
+    const openNow = body.style.display === 'none';
     if (!openNow) prev.innerHTML = oPrev(oDraft[t.dataset.key]);
-    full.style.display = openNow ? '' : 'none'; prev.style.display = openNow ? 'none' : '';
+    body.style.display = openNow ? '' : 'none'; prev.style.display = openNow ? 'none' : '';
     t.querySelector('.o-chev').textContent = openNow ? '▾' : '▸';
+  };
+  for (const b of $('o-out').querySelectorAll('.o-editbtn')) b.onclick = () => {
+    const blk = b.closest('.o-block'), view = blk.querySelector('.o-view'), ew = blk.querySelector('.o-editwrap');
+    const editing = ew.style.display !== 'none';
+    view.style.display = editing ? '' : 'none'; ew.style.display = editing ? 'none' : '';
+    b.textContent = editing ? '✏ Edit text' : '👁 Preview';
+    if (!editing) ew.querySelector('textarea').focus();
   };
   for (const ta of $('o-out').querySelectorAll('.o-ta[data-key]')) ta.oninput = e => { oDraft[e.target.dataset.key] = e.target.value; dirty(); };
   for (const b of $('o-out').querySelectorAll('.copy-btn[data-copykey]')) b.onclick = () => {
