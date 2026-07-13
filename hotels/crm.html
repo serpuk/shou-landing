@@ -67,6 +67,15 @@
   #proposal li{padding:3px 0}
   #proposal li b{font-weight:600}
   #proposal .p-actions{display:flex;gap:10px;margin-top:12px}
+  /* per-hotel AI notes box (drawer) */
+  #ai-text{width:100%;min-height:64px;font-family:inherit;font-size:14px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;resize:vertical;background:#fff;box-sizing:border-box}
+  #ai-out{margin-top:12px}
+  .ai-answer{background:rgba(70,224,210,.10);border:1px solid rgba(70,224,210,.38);border-radius:11px;padding:12px 14px;font-size:13.5px;line-height:1.5;white-space:pre-wrap}
+  .ai-prop{border:1px dashed rgba(155,92,255,.5);background:rgba(155,92,255,.06);border-radius:11px;padding:12px 14px}
+  .ai-prop .p-head{font-weight:700;font-size:13.5px;color:var(--violet);margin-bottom:6px}
+  .ai-prop ul{list-style:none;font-size:13px}
+  .ai-prop li{padding:3px 0}
+  .ai-prop .p-actions{display:flex;gap:10px;margin-top:10px}
   .sum-stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
   .sum-stat{font-size:13px;color:var(--text-soft);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 12px}
   .sum-stat b{color:var(--ink);font-weight:700}
@@ -716,6 +725,13 @@ function openDrawer(h) {
       <div id="o-out">${h.outreach ? '' : '<p class="dim" style="font-size:13px">Nothing generated yet. Uses the hotel’s website + profile to write a subject line, first email and two follow-ups.</p>'}</div>
       <div id="seq-box"></div>
     </div>
+    <div class="d-section" id="ai-box">
+      <h3>AI notes</h3>
+      <p class="dim" style="font-size:12.5px;margin:-2px 0 8px">Log an interaction or ask about this hotel — e.g. “booked a demo Monday 11am” or “when did I last email them?”. Logs are confirmed before saving.</p>
+      <textarea id="ai-text" placeholder="Log an activity or ask a question about this hotel…"></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" id="ai-go" style="font-size:13px;padding:8px 16px">Log or ask</button></div>
+      <div id="ai-out"></div>
+    </div>
     <div class="d-section">
       <h3>History</h3>
       <div id="log"><p class="dim" style="font-size:13px">Loading…</p></div>
@@ -733,7 +749,50 @@ function openDrawer(h) {
     if (h.outreach) renderOutreach(h.outreach);
     renderSeq();
     loadLog(h.id);
+    $('ai-go').onclick = runAiNote;
+    $('ai-text').addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runAiNote(); });
   }
+}
+// Per-hotel AI box: log an interaction OR ask a question, scoped to this hotel.
+async function runAiNote() {
+  const text = $('ai-text').value.trim();
+  if (!text || !current || !current.id) return;
+  const hid = current.id, out = $('ai-out'), btn = $('ai-go');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Thinking…';
+  try {
+    const d = await api('note', { method: 'POST', body: { text, hotelId: hid } });
+    if (d.answer !== undefined) out.innerHTML = `<div class="ai-answer">${esc(d.answer)}</div>`;
+    else if (d.proposal) renderDrawerProposal(d.proposal, hid);
+  } catch (e) { toast('Failed: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Log or ask';
+}
+function renderDrawerProposal(p, hid) {
+  const out = $('ai-out'), items = [];
+  for (const [k, v] of Object.entries(p.fields || {})) {
+    if (k === 'contact') items.push(`<li><b>Contact:</b> ${esc([v.name, v.role, v.email, v.phone].filter(Boolean).join(' · '))}</li>`);
+    else if (k === 'pilot_status') items.push(`<li><b>Status:</b> ${esc(ST_LABEL[v] || v)}</li>`);
+    else if (k.endsWith('_at') || k === 'next_follow_up') items.push(`<li><b>${esc(FIELD_LABEL[k] || k)}:</b> ${esc(fmtDT(v))}</li>`);
+    else items.push(`<li><b>${esc(FIELD_LABEL[k] || k)}:</b> ${esc(v)}</li>`);
+  }
+  out.innerHTML = `
+    <div class="ai-prop">
+      <div class="p-head">${esc(p.summary)}</div>
+      <ul>${items.join('') || '<li class="dim">No field changes — logged as a note only.</li>'}</ul>
+      <div class="p-actions"><button class="btn" id="ai-yes">Confirm</button><button class="btn2" id="ai-no">Cancel</button></div>
+    </div>`;
+  $('ai-no').onclick = () => { out.innerHTML = ''; };
+  $('ai-yes').onclick = async () => {
+    const b = $('ai-yes'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving…';
+    try {
+      const r = await api('apply', { method: 'POST', body: {
+        hotelId: hid, fields: p.fields, raw: p.raw, kind: p.kind, summary: p.summary,
+      }});
+      toast(r.sequenceCanceled ? 'Saved ✓ — scheduled follow-ups canceled (reply logged)' : 'Saved ✓');
+      await refresh();
+      const updated = hotels.find(h => h.id === hid);
+      if (updated) openDrawer(updated);   // re-renders fields + reloads History
+    } catch (e) { toast('Save failed: ' + e.message); b.disabled = false; b.textContent = 'Confirm'; }
+  };
 }
 function bindContactDels() {
   for (const b of document.querySelectorAll('.c-del')) b.onclick = e => e.target.closest('.contact-row').remove();
