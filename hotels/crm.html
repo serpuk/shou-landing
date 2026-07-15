@@ -175,10 +175,12 @@
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(255,61,139,.5)}
   .d-section{margin-top:22px}
   .d-section h3{font-size:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-  /* contact row: single line on desktop, stacked (all fields full-width) on mobile */
-  .contact-row{display:grid;gap:6px 8px;margin-bottom:10px;align-items:center;
-    grid-template-columns:1fr .9fr 1.4fr 1.1fr auto;
-    grid-template-areas:"name role email phone actions"}
+  /* contact row: two columns (name/role, email/phone) so every value stays readable
+     at the drawer's width on both desktop and mobile; actions on their own row */
+  .contact-row{display:grid;gap:6px 8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line);
+    grid-template-columns:1fr 1fr;
+    grid-template-areas:"name role" "email phone" "actions actions"}
+  .contact-row:last-child{border-bottom:none;padding-bottom:0;margin-bottom:4px}
   .c-name{grid-area:name} .c-role{grid-area:role} .c-email{grid-area:email} .c-phone{grid-area:phone}
   .c-actions{grid-area:actions;display:flex;gap:5px;justify-content:flex-end}
   .contact-row input{font-size:12.5px;padding:8px 9px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:#fff;width:100%;min-width:0}
@@ -187,11 +189,9 @@
   .c-act:disabled{opacity:.3;cursor:default}
   .c-del{background:none;border:none;color:var(--text-dim);font-size:16px;width:30px;height:34px;flex:none;cursor:pointer}
   .c-del:hover{color:var(--red)}
-  @media(max-width:640px){
-    .contact-row{grid-template-columns:1fr 1fr;
-      grid-template-areas:"name role" "email email" "phone phone" "actions actions";
-      padding-bottom:11px;border-bottom:1px solid var(--line)}
-    .c-actions{justify-content:flex-start}
+  /* on a narrow phone, give email + phone the full width so long addresses aren't cut */
+  @media(max-width:560px){
+    .contact-row{grid-template-areas:"name role" "email email" "phone phone" "actions actions"}
   }
   .d-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center}
   .d-msg{font-size:13px;font-weight:600}
