@@ -175,14 +175,24 @@
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(255,61,139,.5)}
   .d-section{margin-top:22px}
   .d-section h3{font-size:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-  .contact-row{display:grid;grid-template-columns:1fr .9fr 1.4fr 1.1fr 28px 28px 28px;gap:6px;margin-bottom:8px}
-  @media(max-width:640px){.contact-row{grid-template-columns:1fr 1fr 28px 28px 28px}}
+  /* contact row: single line on desktop, stacked (all fields full-width) on mobile */
+  .contact-row{display:grid;gap:6px 8px;margin-bottom:10px;align-items:center;
+    grid-template-columns:1fr .9fr 1.4fr 1.1fr auto;
+    grid-template-areas:"name role email phone actions"}
+  .c-name{grid-area:name} .c-role{grid-area:role} .c-email{grid-area:email} .c-phone{grid-area:phone}
+  .c-actions{grid-area:actions;display:flex;gap:5px;justify-content:flex-end}
   .contact-row input{font-size:12.5px;padding:8px 9px;border:1px solid var(--line);border-radius:9px;font-family:inherit;background:#fff;width:100%;min-width:0}
-  .c-del{background:none;border:none;color:var(--text-dim);font-size:16px}
-  .c-del:hover{color:var(--red)}
-  .c-act{background:#fff;border:1px solid var(--line);border-radius:8px;font-size:13px;padding:0;cursor:pointer;line-height:1}
+  .c-act{background:#fff;border:1px solid var(--line);border-radius:8px;font-size:13px;cursor:pointer;line-height:1;width:34px;height:34px;flex:none;display:inline-flex;align-items:center;justify-content:center}
   .c-act:hover{border-color:rgba(255,61,139,.45)}
   .c-act:disabled{opacity:.3;cursor:default}
+  .c-del{background:none;border:none;color:var(--text-dim);font-size:16px;width:30px;height:34px;flex:none;cursor:pointer}
+  .c-del:hover{color:var(--red)}
+  @media(max-width:640px){
+    .contact-row{grid-template-columns:1fr 1fr;
+      grid-template-areas:"name role" "email email" "phone phone" "actions actions";
+      padding-bottom:11px;border-bottom:1px solid var(--line)}
+    .c-actions{justify-content:flex-start}
+  }
   .d-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center}
   .d-msg{font-size:13px;font-weight:600}
 
@@ -710,9 +720,11 @@ function contactRow(c = {}, i) {
     <input placeholder="Role" class="c-role" value="${esc(c.role || '')}">
     <input placeholder="Email" class="c-email" value="${esc(c.email || '')}" title="${esc(c.email || '')}">
     <input placeholder="Phone" class="c-phone" value="${esc(c.phone || '')}" title="${esc(c.phone || '')}">
-    <button class="c-act c-call" title="Call">📞</button>
-    <button class="c-act c-mail" title="Email">✉️</button>
-    <button class="c-del" title="Remove">✕</button>
+    <div class="c-actions">
+      <button class="c-act c-call" title="Call">📞</button>
+      <button class="c-act c-mail" title="Email">✉️</button>
+      <button class="c-del" title="Remove">✕</button>
+    </div>
   </div>`;
 }
 
