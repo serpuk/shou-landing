@@ -318,7 +318,7 @@
 
 <script>
 const API='https://shou-backend.vercel.app/api';
-const HOTEL={name:'The Dominican',lat:50.8510,lng:4.3532};
+const HOTEL={name:'The Dominican',lat:50.8493,lng:4.3547};
 // Usage analytics: tag searches from this demo with a source + a persistent
 // anonymous visitor id (localStorage) so the backend can report queries/day,
 // unique visitors, and top queries per hotel. No PII — just a random id.
@@ -367,7 +367,7 @@ const t=k=>(T[lang]||T.en)[k];
 
 // Hero quick links: only the hotel-service actions not already shown as POI
 // cards in "From your hotel" below (dine/bar/spa live there, with real map links).
-const HOTEL_LINKS=()=>[{i:'🛏',k:'book',url:'https://www.thedominican.be'},{i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination='+HOTEL.lat+','+HOTEL.lng}];
+const HOTEL_LINKS=()=>[{i:'🛏',k:'book',url:'https://www.thedominican.be'},{i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination=The%20Dominican%2C%20Rue%20L%C3%A9opold%209%2C%201000%20Brussels'}];
 // "From your hotel" concierge picks — real POIs near the hotel (Google Maps).
 // Placeholder concierge picks near Rue Léopold 9 — the hotel should confirm/swap
 // these for its own recommendations. Links open a live Google Maps search (no fake pins).
