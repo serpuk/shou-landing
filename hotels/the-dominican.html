@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dominican Brussels — Local Concierge · powered by shou</title>
+<!-- shou favicon — gradient equalizer mark, matches the this-week pages -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
+<meta name="description" content="The branded local concierge for guests of The Dominican Brussels — concerts, dining, art and hidden gems near the hotel, in the guest's own language, 24/7. Powered by shou.">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://shou.be/hotels/the-dominican">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Matches shou.be/this-week — light editorial theme, cards, rails & arrows. */
+  :root{
+    --ink:#15101b; --text:#1a1622; --soft:#5b5566; --dim:#8a8494;
+    --bg:#ffffff; --card:#ffffff; --panel-soft:#f7f5fa; --line:rgba(20,16,30,0.10);
+    --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
+    --grad:linear-gradient(105deg,var(--pink),var(--orange));
+    --grad-cool:linear-gradient(120deg,var(--violet),var(--pink));
+    --warm-bg:#fce4ed; --warm-bd:#f3bfd2; --warm-ink:#a02a54;
+    --cool-bg:#ece5ff; --cool-bd:#d2c3f6; --cool-ink:#4e35a0;
+    --shadow:0 1px 3px rgba(20,16,30,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
+  h1,h2{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.015em;line-height:1.1;color:var(--ink)}
+  a{color:inherit}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+
+  .ribbon{background:linear-gradient(105deg,rgba(255,61,139,.10),rgba(255,155,61,.08));border-bottom:1px solid var(--line);
+    text-align:center;font-size:12.5px;color:var(--soft);padding:8px 16px}
+  .ribbon a{color:var(--pink);text-decoration:none;font-weight:600}
+
+  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;gap:13px;padding:12px 20px;max-width:1040px;margin:0 auto}
+  .hlogo{width:44px;height:44px;border-radius:12px;background:var(--grad-cool);display:grid;place-items:center;font-family:'Fraunces';font-weight:700;color:#fff;font-size:20px;flex:none}
+  /* The Dominican emblem is dark → sits on a soft ivory chip (matches their abbey aesthetic) */
+  .hlogo-img{width:auto;padding:7px 15px;border-radius:13px;background:#f4efe6;border:1px solid rgba(20,16,30,.08);display:grid;place-items:center;flex:none}
+  .hlogo-img img{height:52px;width:auto;display:block}
+  .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
+  .hpow{font-size:11px;color:var(--dim)}
+  .lang{margin-left:auto}
+  .lang select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;outline:none}
+
+  .welcome{padding:36px 0 4px;display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+  .welcome .eyebrow{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink)}
+  .welcome h1{font-size:clamp(28px,4.4vw,40px);margin:12px 0 12px}
+  .welcome p{color:var(--soft);font-size:16px;max-width:480px}
+  .hlinks{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}
+  .hlink{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;text-decoration:none;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+  .hlink:hover{transform:translateY(-1px);border-color:rgba(255,61,139,.4)}
+  /* premium hotel card (replaces the map) */
+  .hotelcard{position:relative;border-radius:20px;overflow:hidden;min-height:430px;display:flex;background-size:cover;background-position:center;box-shadow:0 18px 44px rgba(20,16,30,.24)}
+  .hc-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,16,27,.12) 0%,rgba(21,16,27,0) 40%,rgba(21,16,27,.55) 74%,rgba(21,16,27,.88) 100%)}
+  .hc-body{position:relative;z-index:2;margin-top:auto;width:100%;padding:26px 24px 24px;display:flex;flex-direction:column;gap:13px;color:#fff}
+  .hc-logo{height:76px;width:auto;align-self:flex-start;filter:drop-shadow(0 2px 12px rgba(0,0,0,.55))}
+  .hc-stars{color:#ffcf5c;font-size:17px;letter-spacing:4px;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+  .hc-badges{display:flex;flex-wrap:wrap;gap:8px}
+  .hc-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);border:1px solid rgba(255,255,255,.30);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+
+  /* Folder tabs: the open tab shares its subpage's colour and welds onto the panel */
+  .tabs{display:flex;gap:5px;width:fit-content;margin:26px auto 0;padding:0}
+  .tab{font-size:14px;font-weight:600;padding:11px 20px 14px;border-radius:14px 14px 0 0;color:var(--soft);cursor:pointer;border:1px solid var(--line);border-bottom:none;background:#f1eff3;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:8px;position:relative}
+  .tab:not(.on){transform:translateY(4px);opacity:.92}
+  .tab-dot{width:8px;height:8px;border-radius:50%;flex:none}
+  #tabWeekBtn .tab-dot{background:var(--grad)}
+  #tabAskBtn .tab-dot{background:var(--grad-cool)}
+  .tab.on{margin-bottom:-1px;z-index:3;padding-bottom:15px}
+  .tab.on .tab-dot{background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  #tabWeekBtn.on{background:var(--warm-bg);color:var(--warm-ink);border-color:var(--warm-bd)}
+  #tabAskBtn.on{background:var(--cool-bg);color:var(--cool-ink);border-color:var(--cool-bd)}
+  .subpage{position:relative;z-index:1;border:1px solid;border-radius:0 0 18px 18px;padding:16px 22px 26px;transition:background .2s,border-color .2s}
+  .subpage.warm{background:var(--warm-bg);border-color:var(--warm-bd)}
+  .subpage.cool{background:var(--cool-bg);border-color:var(--cool-bd)}
+  .subpage.cool .chat-form button{background:var(--grad-cool)}
+  .subpage.cool .chat-form input:focus{border-color:rgba(155,92,255,.5)}
+  .subpage.cool .ex-surprise{background:var(--grad-cool)}
+  .subpage .chat-dock{background:transparent}
+
+  /* Day filter timeline (matches this-week) */
+  .tl-wrap{display:flex;align-items:center;gap:12px;margin:22px 0 6px}
+  .tl-lbl{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .tl-reset{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--cyan);background:none;border:none;cursor:pointer;font-family:inherit;visibility:hidden}
+  .tl-reset.show{visibility:visible}
+  .wk-timeline{display:flex;gap:6px;justify-content:space-between;align-items:flex-end;margin:0 0 6px}
+  .tl-day{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 2px;border-radius:12px;transition:background .15s;font-family:inherit}
+  .tl-day:hover{background:rgba(20,16,30,.04)}
+  .tl-day.active{background:rgba(155,92,255,.12)}
+  .tl-wd{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--dim);text-transform:uppercase}
+  .tl-dd{font-size:16px;font-weight:700;color:var(--ink);font-family:'Fraunces'}
+  .tl-bar{width:58%;max-width:32px;min-height:6px;border-radius:6px 6px 3px 3px;background:linear-gradient(to top,var(--violet),var(--pink));opacity:.45}
+  .tl-day.hot .tl-bar{opacity:1;background:var(--grad)}
+  .tl-day.active .tl-wd{color:var(--ink)}
+  .tl-n{font-size:11px;font-weight:700;color:var(--soft);font-variant-numeric:tabular-nums;min-height:14px}
+
+  /* Section header + rail + card (this-week) */
+  .wk-h{font-family:'Fraunces',serif;font-weight:600;font-size:24px;letter-spacing:-.01em;margin:36px 0 16px;display:flex;align-items:center;gap:10px;color:var(--ink);position:relative;padding-bottom:12px;scroll-margin-top:18px}
+  .wk-h::after{content:'';position:absolute;left:0;bottom:0;width:46px;height:3px;border-radius:2px;background:var(--grad)}
+  .wk-emoji{font-size:20px}
+  .wk-h .cnt{font-size:13px;font-weight:700;color:var(--soft);background:rgba(20,16,30,.05);border-radius:999px;padding:2px 10px;margin-left:auto}
+  .wk-rail{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;scrollbar-width:none;scroll-behavior:smooth}
+  .wk-rail::-webkit-scrollbar{display:none}
+  .wk-rail>*{flex-shrink:0}
+  .wk-rail .ev{flex:0 0 290px;scroll-snap-align:start}
+  .wk-railwrap{position:relative}
+  .wk-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);color:var(--ink);box-shadow:0 4px 14px rgba(20,16,30,.14);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .15s}
+  .wk-arrow.left{left:4px}.wk-arrow.right{right:4px}
+  .wk-railwrap:hover .wk-arrow.show{opacity:1;pointer-events:auto}
+  .wk-arrow:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+  @media(hover:none){.wk-arrow{display:none}}
+  .ev{display:flex;gap:16px;align-items:center;padding:15px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
+  .ev:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);border-color:rgba(20,16,30,.14);transform:translateY(-2px)}
+  .ev:hover .t{color:var(--pink)}
+  .thumb{width:84px;height:84px;border-radius:14px;flex:none;overflow:hidden;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff' fill-opacity='0.5'%3E%3Crect x='3' y='13' width='3' height='8' rx='1.5'/%3E%3Crect x='8' y='9' width='3' height='12' rx='1.5'/%3E%3Crect x='13' y='6' width='3' height='15' rx='1.5'/%3E%3Crect x='18' y='11' width='3' height='10' rx='1.5'/%3E%3C/svg%3E") center / 40px no-repeat, linear-gradient(135deg,var(--violet),var(--pink))}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb.hotelthumb{display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,rgba(255,61,139,.16),rgba(255,155,61,.13))}
+  .meta{min-width:0;display:flex;flex-direction:column;gap:5px}
+  .t{font-family:'Fraunces',serif;font-weight:600;font-size:20px;line-height:1.18;color:var(--ink);transition:color .15s;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .date{font-weight:700;font-size:12.5px;color:var(--cyan);letter-spacing:.02em}
+  .venue{color:var(--soft);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .venue .dist{color:var(--cyan);font-weight:600;white-space:nowrap}
+  /* Distance from the hotel on its own line — ALWAYS visible (the concierge's
+     key signal), never truncated by the venue-name clamp. */
+  .evdist{display:flex;align-items:center;gap:5px;color:var(--cyan);font-weight:600;font-size:13px;margin-top:1px}
+  .evdist svg{width:13px;height:13px;flex:none}
+  .skel{flex:0 0 290px;height:170px;border-radius:16px;background:linear-gradient(100deg,var(--panel-soft),#efeaf3,var(--panel-soft));background-size:200% 100%;animation:sh 1.2s infinite}
+  @keyframes sh{to{background-position:-200% 0}}
+  .empty{text-align:center;color:var(--dim);padding:30px 0}
+
+  /* event modal — the app's rich card, opened in-page (keeps the guest on the hotel page) */
+  .mv{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;background:rgba(20,16,30,.55);backdrop-filter:blur(3px)}
+  .mv.on{display:flex}
+  /* Swipe track (mirrors the main app): a horizontal window clipping a 3-pane
+     row [prev][current][next]; we translate the track to follow the thumb. */
+  .mv-clip{width:100%;max-width:560px;overflow-x:hidden}
+  .mv-track{display:flex;width:300%;transform:translateX(-33.3333%);align-items:flex-end;will-change:transform}
+  .mv-track.mv-track-anim{transition:transform 280ms cubic-bezier(.2,.8,.2,1)}
+  .mv-track.mv-track-drag{transition:none}          /* 1:1 finger tracking */
+  .mv-pane{flex:0 0 33.3333%;width:33.3333%;min-width:0}
+  .mv-card{background:var(--card);width:100%;max-width:560px;max-height:94vh;overflow-y:auto;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(20,16,30,.3);-webkit-overflow-scrolling:touch}
+  #mvCur>.mv-card{animation:mvup .25s ease}
+  @media(min-width:640px){.mv{align-items:center;padding:20px}.mv-track{align-items:center}.mv-card{border-radius:22px}#mvCur>.mv-card{animation:mvin .2s ease}}
+  @keyframes mvup{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+  @keyframes mvin{from{transform:scale(.97);opacity:.6}to{transform:none;opacity:1}}
+  .mv-hero{position:relative;height:230px;background:linear-gradient(135deg,var(--violet),var(--pink));overflow:hidden}
+  .mv-hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .mv-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,16,30,.55),rgba(20,16,30,0) 55%)}
+  /* Close X: anchored to the overlay (not the hero), floating top-right like the main app's modal */
+  .mv-x{position:absolute;top:16px;right:16px;z-index:4;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(20,16,30,.8);backdrop-filter:blur(8px);color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 16px rgba(20,16,30,.3);transition:transform .12s,background .15s}
+  .mv-x:hover{background:var(--pink)}
+  .mv-x:active{transform:scale(.92)}
+  .mv-cal{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.95);border-radius:12px;padding:7px 11px;display:flex;flex-direction:column;align-items:center;line-height:1.05;box-shadow:0 2px 10px rgba(20,16,30,.18);z-index:2}
+  .mv-cal span{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--soft);text-transform:uppercase}
+  .mv-cal b{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink)}
+  .mv-pill{position:absolute;left:14px;bottom:14px;color:#fff;font-weight:700;font-size:11.5px;letter-spacing:.03em;padding:5px 12px;border-radius:999px;box-shadow:0 2px 10px rgba(20,16,30,.22);z-index:2;max-width:calc(100% - 28px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mv-b{padding:20px 22px 26px}
+  .mv-title{font-family:'Fraunces',serif;font-weight:600;font-size:26px;line-height:1.14;color:var(--ink)}
+  .mv-sub{color:var(--soft);font-size:14px;margin-top:5px}
+  .mv-rows{display:flex;flex-direction:column;gap:14px;margin:18px 0 4px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .mv-row{display:flex;gap:12px;align-items:flex-start}
+  .mv-row .ic{flex:none;width:22px;text-align:center;font-size:15px;opacity:.9}
+  .mv-tx .k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+  .mv-tx .v{font-size:14.5px;color:var(--ink);font-weight:500}
+  .mv-dist{color:var(--cyan);font-weight:600;white-space:nowrap;margin-left:4px}
+  .mv-dir,.mv-link{color:var(--cyan);font-weight:600;text-decoration:none;white-space:nowrap;margin-left:8px}
+  .mv-dir:hover,.mv-link:hover{text-decoration:underline}
+  .mv-about{margin:18px 0 4px}
+  .mv-about h4{font-family:'Fraunces',serif;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+  .mv-about p{font-size:14.5px;line-height:1.62;color:var(--text);white-space:pre-line}
+  .mv-about p.mv-clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+  .mv-more{margin-top:7px;background:none;border:none;color:var(--cyan);font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit;padding:0}
+  .mv-map{position:relative;margin:18px 0 4px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+  .mv-map iframe{width:100%;height:180px;border:0;display:block;filter:grayscale(.12) contrast(1.02)}
+  .mv-map-cta{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,.95);color:var(--ink);font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;text-decoration:none;box-shadow:0 2px 10px rgba(20,16,30,.2)}
+  /* recurring: weekly timetable + upcoming-date chips (mirrors the app modal) */
+  .mv-tt,.mv-od{margin:18px 0 4px}
+  .mv-tt h4,.mv-od h4{font-family:'Fraunces',serif;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  .mv-run{font-size:13px;color:var(--soft);font-weight:600;margin-bottom:9px}
+  .tt-grid{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .tt-row{display:flex;justify-content:space-between;gap:12px;padding:8px 13px;font-size:13px}
+  .tt-row:nth-child(odd){background:var(--panel-soft)}
+  .tt-day{color:var(--ink);font-weight:600;text-transform:capitalize}
+  .tt-hrs{color:var(--soft);white-space:nowrap}
+  .tt-row.tt-closed .tt-day{color:var(--dim)}
+  .tt-row.tt-closed .tt-hrs{color:var(--dim)}
+  .od-grid{display:flex;flex-wrap:wrap;gap:6px}
+  .od-chip{font-size:12px;font-weight:600;color:var(--ink);background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+  .od-more{font-size:12px;font-weight:600;color:var(--dim);padding:5px 4px;align-self:center}
+  .mv-appt{font-size:12.5px;color:var(--dim);font-weight:600;margin-top:8px}
+  .mv-cta{display:block;text-align:center;background:var(--grad);color:#fff;font-weight:700;font-size:15px;padding:15px;border-radius:14px;text-decoration:none;margin-top:20px;box-shadow:0 8px 20px -8px rgba(255,61,139,.6)}
+  .mv-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,.95);color:var(--ink);font-size:26px;font-weight:400;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(20,16,30,.24);transition:transform .12s,background .15s}
+  .mv-prev{left:max(16px,calc(50% - 560px/2 - 62px))}
+  .mv-next{right:max(16px,calc(50% - 560px/2 - 62px))}
+  .mv-nav:hover{background:var(--pink);color:#fff}
+  .mv-nav:active{transform:translateY(-50%) scale(.93)}
+  @media(max-width:639px){.mv-nav{top:auto;bottom:calc(94vh - 200px);transform:none;width:42px;height:42px;font-size:22px;background:rgba(255,255,255,.92)}.mv-prev{left:16px}.mv-next{right:16px}.mv-nav:active{transform:scale(.93)}}
+
+  /* chat */
+  #ask{display:none}#ask.on{display:block}
+  .chat{max-width:720px;margin:8px auto 0}
+  .chat-intro{text-align:center;color:var(--soft);font-size:15px;margin-bottom:18px}
+  /* suggestion chips — collapsible strip docked above the input */
+  .exs-toggle{display:flex;align-items:center;gap:6px;margin:0 auto 8px;background:none;border:none;color:var(--soft);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:999px}
+  .exs-toggle:hover{color:var(--pink)}
+  .exs-toggle .chev{display:inline-block;transition:transform .2s;font-size:11px}
+  .exs-toggle[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+  .exs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:2px 1px 10px}
+  .exs.collapsed{display:none}
+  .ex{font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer;transition:.15s;white-space:nowrap;flex:none}
+  .ex:hover{border-color:rgba(255,61,139,.45);color:var(--pink)}
+  .ex-surprise{background:var(--grad);color:#fff;border-color:transparent;font-weight:700}
+  .ex-surprise:hover{color:#fff;border-color:transparent;filter:brightness(1.05)}
+  .msgs{display:flex;flex-direction:column;gap:14px;margin-bottom:8px;min-height:80px}
+  .msg{max-width:88%;font-size:14.5px;line-height:1.5;padding:12px 16px;border-radius:16px}
+  .msg.me{align-self:flex-end;background:var(--grad);color:#fff;font-weight:500;border-bottom-right-radius:5px}
+  .msg.ai{align-self:flex-start;background:var(--panel-soft);border:1px solid var(--line);color:var(--text);border-bottom-left-radius:5px}
+  /* concierge results — same card anatomy as beta.shou.be (image-top, seg pill, title, desc, meta) */
+  .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:2px 0 4px;width:100%}
+  .ev-res{align-items:stretch}
+  .ev-res .thumb{width:104px;height:auto;min-height:104px;align-self:stretch}
+  .ev-res .meta{gap:4px;justify-content:center}
+  .ev-res .qpill{margin-bottom:1px}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s,border-color .15s}
+  .qcard:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);transform:translateY(-2px);border-color:rgba(20,16,30,.14)}
+  .qthumb{position:relative;height:132px;flex:none;overflow:hidden;background:linear-gradient(135deg,var(--violet),var(--pink))}
+  .qthumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .qcb{padding:12px 13px 13px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .qpill{align-self:flex-start;color:#fff;font-weight:700;font-size:10.5px;letter-spacing:.03em;padding:3px 9px;border-radius:999px}
+  .qtitle{font-family:'Fraunces',serif;font-weight:600;font-size:16px;line-height:1.18;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .qdesc{font-size:12.5px;color:var(--soft);line-height:1.42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .qmeta{margin-top:auto;display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--soft);padding-top:4px}
+  .qmeta .qd{color:var(--cyan);font-weight:600}
+  .qdist{color:var(--cyan);font-weight:600;white-space:nowrap}
+  .typing{align-self:flex-start;color:var(--dim);font-size:13px;padding:8px 4px}
+  /* dock: chips + input pinned to the bottom of the viewport, always visible */
+  .chat-dock{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 78%,rgba(255,255,255,0));padding:10px 0 14px;z-index:5}
+  .chat-form{display:flex;gap:10px}
+  .chat-form input{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-family:inherit;font-size:15px;color:var(--text);outline:none;box-shadow:var(--shadow);transition:border-color .2s}
+  .chat-form input:focus{border-color:rgba(255,61,139,.5)}
+  .chat-form button{background:var(--grad);color:#fff;border:none;border-radius:14px;padding:0 22px;font-weight:700;font-size:15px;cursor:pointer;transition:transform .15s,filter .2s}
+  .chat-form button:hover{transform:translateY(-1px);filter:brightness(1.05)}
+
+  footer{text-align:center;padding:40px 20px;color:var(--dim);font-size:13px;border-top:1px solid var(--line);margin-top:24px}
+  footer b{font-family:'Fraunces';font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
+
+  @media(max-width:760px){ .welcome{grid-template-columns:1fr;gap:22px} .wk-rail .ev{flex:0 0 82vw} }
+</style>
+</head>
+<body>
+  <header><div class="bar">
+    <div class="hlogo-img"><img src="/hotels/the-dominican-logo-dark.png" alt="The Dominican Brussels" width="100" height="153"></div>
+    <div><div class="hname">The Dominican</div><div class="hpow" data-i="pow">Local concierge · powered by shou</div></div>
+    <div class="lang">
+      <select id="langSel" aria-label="Language">
+        <option value="en">🇬🇧 English</option><option value="fr">🇫🇷 Français</option><option value="nl">🇳🇱 Nederlands</option>
+        <option value="de">🇩🇪 Deutsch</option><option value="es">🇪🇸 Español</option><option value="it">🇮🇹 Italiano</option><option value="uk">🇺🇦 Українська</option>
+      </select>
+    </div>
+  </div></header>
+
+  <main class="wrap">
+    <section class="welcome">
+      <div>
+        <span class="eyebrow" data-i="eyebrow">Your local concierge</span>
+        <h1 data-i="welcome">Tonight starts here.</h1>
+        <p data-i="sub">Everything happening within 15 minutes of your hotel.</p>
+        <div class="hlinks" id="hlinks"></div>
+      </div>
+      <div class="hotelcard" style="background-image:url('/hotels/the-dominican-photo.jpg')">
+        <div class="hc-overlay"></div>
+        <div class="hc-body">
+          <img class="hc-logo" src="/hotels/the-dominican-logo-white.png" alt="The Dominican Brussels" width="100" height="153">
+          <div class="hc-stars" aria-label="4-star hotel">★★★★</div>
+          <div class="hc-badges">
+            <span class="hc-badge">📍 <span data-i="hood">Grand-Place quarter</span></span>
+            <span class="hc-badge">🚶 <span data-i="radius">Everything within a 15-min walk</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab on" id="tabWeekBtn"><span class="tab-dot"></span><span data-i="tabWeek">This week</span></button>
+      <button class="tab" id="tabAskBtn"><span class="tab-dot"></span><span data-i="tabAsk">Ask the concierge</span></button>
+    </div>
+
+    <div class="subpage warm" id="subpage">
+    <div id="week"></div>
+
+    <div id="ask">
+      <div class="chat">
+        <p class="chat-intro" data-i="chatIntro">Ask me anything about what to do near the hotel — in any language.</p>
+        <div class="msgs" id="msgs"></div>
+        <div class="chat-dock">
+          <button class="exs-toggle" id="exsToggle" aria-expanded="true" aria-controls="exs"><span id="ideasLbl">Ideas</span> <span class="chev">▾</span></button>
+          <div class="exs" id="exs"></div>
+          <form class="chat-form" id="chatForm">
+            <input id="chatInput" autocomplete="off" enterkeyhint="search" data-i-ph="askPh" placeholder="What should we do tonight?">
+            <button type="submit" id="chatBtn" data-i="send">Ask</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <footer>
+    <span data-i="foot">Ask anything, in any language — concerts, dining, hidden gems near you.</span><br><br>
+    <b>shou.be</b> · belgium after dark · <a href="https://app.shou.be">for hotels</a>
+  </footer>
+
+  <div class="mv" id="mv" aria-hidden="true"></div>
+
+<script>
+const API='https://shou-backend.vercel.app/api';
+const HOTEL={name:'The Dominican',lat:50.8510,lng:4.3532};
+// Usage analytics: tag searches from this demo with a source + a persistent
+// anonymous visitor id (localStorage) so the backend can report queries/day,
+// unique visitors, and top queries per hotel. No PII — just a random id.
+const SAMPLE_SOURCE='hotel-sample';
+const VISITOR_ID=(()=>{ try{ let v=localStorage.getItem('shou_vid'); if(!v){ v=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)); localStorage.setItem('shou_vid',v); } return v; }catch(_){ return null; } })();
+// Log a demo interaction (click-through / tickets / directions) to the sample
+// analytics. Routed to /api/track with a source, which the backend logs to
+// sample_search_log ONLY — never real event counters.
+function sampleTrack(action, ev){
+  if(!ev||!ev.id) return;
+  try{
+    fetch(`${API}/track`,{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({source:SAMPLE_SOURCE,sessionId:VISITOR_ID,action,eventId:ev.id,eventTitle:ev.name||ev.title||''})});
+  }catch(_){}
+}
+const CATS=['music','exhibition','theatre','family','festival'];  // fetched per-category & merged, for real day-coverage
+let lang='en', catalog=[];
+const evById={};                                                  // id -> event, for the click-through modal
+const chatEv={};                                                  // id -> search result (keeps occurrence-resolved date; catalog reloads can't clobber it)
+// modal chrome labels (Date / Venue / Price / Free / See more·less / About) per language
+const ML={
+  en:{date:'Date',venue:'Venue',price:'Price',free:'Free',more:'See more',less:'See less',about:'About',tt:'Opening times',upDates:'Upcoming dates',closed:'Closed',open:'Open',byAppt:'Also by appointment'},
+  fr:{date:'Date',venue:'Lieu',price:'Prix',free:'Gratuit',more:'Voir plus',less:'Voir moins',about:'À propos',tt:'Horaires',upDates:'Prochaines dates',closed:'Fermé',open:'Ouvert',byAppt:'Aussi sur rendez-vous'},
+  nl:{date:'Datum',venue:'Locatie',price:'Prijs',free:'Gratis',more:'Meer',less:'Minder',about:'Over',tt:'Openingstijden',upDates:'Volgende data',closed:'Gesloten',open:'Open',byAppt:'Ook op afspraak'},
+  de:{date:'Datum',venue:'Ort',price:'Preis',free:'Kostenlos',more:'Mehr',less:'Weniger',about:'Über',tt:'Öffnungszeiten',upDates:'Nächste Termine',closed:'Geschlossen',open:'Geöffnet',byAppt:'Auch nach Vereinbarung'},
+  es:{date:'Fecha',venue:'Lugar',price:'Precio',free:'Gratis',more:'Ver más',less:'Ver menos',about:'Acerca de',tt:'Horarios',upDates:'Próximas fechas',closed:'Cerrado',open:'Abierto',byAppt:'También con cita previa'},
+  it:{date:'Data',venue:'Luogo',price:'Prezzo',free:'Gratis',more:'Mostra altro',less:'Mostra meno',about:'Informazioni',tt:'Orari',upDates:'Prossime date',closed:'Chiuso',open:'Aperto',byAppt:'Anche su appuntamento'},
+  uk:{date:'Дата',venue:'Місце',price:'Ціна',free:'Безкоштовно',more:'Більше',less:'Менше',about:'Про подію',tt:'Години роботи',upDates:'Найближчі дати',closed:'Зачинено',open:'Відкрито',byAppt:'Також за записом'},
+};
+const ml=k=>(ML[lang]||ML.en)[k];
+const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
+const SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--orange)',exhibition:'var(--violet)',theatre:'var(--violet)',dance:'var(--violet)',comedy:'var(--violet)',family:'var(--cyan)',sports:'var(--cyan)',sport:'var(--cyan)'};
+const SURPRISE_L={en:'Surprise me tonight',fr:'Surprends-moi ce soir',nl:'Verras me vanavond',de:'Überrasch mich heute Abend',es:'Sorpréndeme esta noche',it:'Sorprendimi stasera',uk:'Здивуй мене сьогодні ввечері'};
+const IDEAS_L={en:'Ideas',fr:'Idées',nl:'Ideeën',de:'Ideen',es:'Ideas',it:'Idee',uk:'Ідеї'};
+
+const T={
+  en:{pow:'Local concierge · powered by shou',eyebrow:'Your local concierge',welcome:'Tonight starts here.',sub:'Everything happening within 15 minutes of your hotel.',hood:'Grand-Place quarter',radius:'Everything within a 15-min walk',steps:'steps from La Monnaie opera',tabWeek:'This week',tabAsk:'Ask the concierge',near:'This week near your hotel',fromHotel:'From your hotel',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:'Ask me anything about what to do near the hotel — in any language.',askPh:'What should we do tonight?',send:'Ask',foot:'Ask anything, in any language — concerts, dining, hidden gems near you.',thinking:'Finding the best options near the hotel…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',book:'Book a room',dine:'Restaurant',italian:'Italian',bar:'Cocktail bar',spa:'Spa & wellness',dir:'Directions',walk:'min walk',ex:['What should we do tonight?','Best jazz near the hotel?','Something to do with kids tomorrow','Free activities this evening','Indoor activities today','Authentic Belgian experience nearby']},
+  fr:{pow:'Concierge local · propulsé par shou',eyebrow:'Votre concierge local',welcome:'La soirée commence ici.',sub:'Tout ce qui se passe à moins de 15 minutes de votre hôtel.',hood:'Quartier Grand-Place',radius:'Tout à moins de 15 min à pied',steps:'face à l'Opéra de la Monnaie',tabWeek:'Cette semaine',tabAsk:'Demander au concierge',near:'Cette semaine près de votre hôtel',fromHotel:'Depuis votre hôtel',music:'Concerts',art:'Art & expositions',theatre:'Théâtre & spectacles',chatIntro:'Demandez-moi quoi faire près de l\'hôtel — dans n\'importe quelle langue.',askPh:'Que faire ce soir ?',send:'Demander',foot:'Demandez ce que vous voulez, dans votre langue — concerts, restaurants, trésors cachés près de vous.',thinking:'Je cherche les meilleures options près de l\'hôtel…',none:'Rien trouvé pour cela — posez une autre question.',tickets:'Détails →',filterLbl:'Filtrer par jour',allDays:'Tous les jours',book:'Réserver',dine:'Restaurant',italian:'Italien',bar:'Bar à cocktails',spa:'Spa & bien-être',dir:'Itinéraire',walk:'min à pied',ex:['Que faire ce soir ?','Le meilleur jazz près de l\'hôtel ?','Une activité avec les enfants demain','Activités gratuites ce soir','Activités en intérieur aujourd\'hui','Expérience belge authentique à proximité']},
+  nl:{pow:'Lokale concierge · powered by shou',eyebrow:'Jouw lokale concierge',welcome:'Vanavond begint hier.',sub:'Alles wat er gebeurt op 15 minuten van je hotel.',hood:'Grote Markt-buurt',radius:'Alles op 15 min lopen',steps:'naast de Muntschouwburg',tabWeek:'Deze week',tabAsk:'Vraag de concierge',near:'Deze week dicht bij je hotel',fromHotel:'Van je hotel',music:'Livemuziek',art:'Kunst & tentoonstellingen',theatre:'Theater & voorstellingen',chatIntro:'Vraag me alles over wat te doen dicht bij het hotel — in elke taal.',askPh:'Wat kunnen we vanavond doen?',send:'Vraag',foot:'Vraag alles, in jouw taal — concerten, restaurants, verborgen parels dicht bij jou.',thinking:'Ik zoek de beste opties dicht bij het hotel…',none:'Niets gevonden — probeer een andere vraag.',tickets:'Details →',filterLbl:'Filter op dag',allDays:'Alle dagen',book:'Kamer boeken',dine:'Restaurant',italian:'Italiaans',bar:'Cocktailbar',spa:'Spa & wellness',dir:'Route',walk:'min lopen',ex:['Wat kunnen we vanavond doen?','Beste jazz dicht bij het hotel?','Iets met de kinderen morgen','Gratis activiteiten vanavond','Binnenactiviteiten vandaag','Authentieke Belgische ervaring dichtbij']},
+  de:{pow:'Lokaler Concierge · powered by shou',eyebrow:'Ihr lokaler Concierge',welcome:'Der Abend beginnt hier.',sub:'Alles, was in 15 Minuten von Ihrem Hotel entfernt passiert.',hood:'Grand-Place-Viertel',radius:'Alles in 15 Min. zu Fuß',steps:'neben der Oper La Monnaie',tabWeek:'Diese Woche',tabAsk:'Concierge fragen',near:'Diese Woche in Hotelnähe',fromHotel:'Von Ihrem Hotel',music:'Livemusik',art:'Kunst & Ausstellungen',theatre:'Theater & Bühne',chatIntro:'Fragen Sie mich alles zu Aktivitäten in Hotelnähe — in jeder Sprache.',askPh:'Was können wir heute Abend machen?',send:'Fragen',foot:'Fragen Sie alles, in Ihrer Sprache — Konzerte, Restaurants, Geheimtipps in Ihrer Nähe.',thinking:'Ich suche die besten Optionen in Hotelnähe…',none:'Nichts gefunden — stellen Sie eine andere Frage.',tickets:'Details →',filterLbl:'Nach Tag filtern',allDays:'Alle Tage',book:'Zimmer buchen',dine:'Restaurant',italian:'Italienisch',bar:'Cocktailbar',spa:'Spa & Wellness',dir:'Route',walk:'Min zu Fuß',ex:['Was können wir heute Abend machen?','Bester Jazz in Hotelnähe?','Etwas mit Kindern morgen','Kostenlose Aktivitäten heute Abend','Indoor-Aktivitäten heute','Authentisches belgisches Erlebnis in der Nähe']},
+  es:{pow:'Conserje local · con tecnología shou',eyebrow:'Tu conserje local',welcome:'La noche empieza aquí.',sub:'Todo lo que pasa a menos de 15 minutos de tu hotel.',hood:'Barrio de la Grand-Place',radius:'Todo a 15 min a pie',steps:'junto a la ópera La Monnaie',tabWeek:'Esta semana',tabAsk:'Pregunta al conserje',near:'Esta semana cerca de tu hotel',fromHotel:'Desde tu hotel',music:'Música en vivo',art:'Arte y exposiciones',theatre:'Teatro y espectáculos',chatIntro:'Pregúntame qué hacer cerca del hotel — en cualquier idioma.',askPh:'¿Qué hacemos esta noche?',send:'Preguntar',foot:'Pregunta lo que quieras, en tu idioma — conciertos, restaurantes, joyas ocultas cerca de ti.',thinking:'Buscando las mejores opciones cerca del hotel…',none:'No encontré nada — prueba otra pregunta.',tickets:'Detalles →',filterLbl:'Filtrar por día',allDays:'Todos los días',book:'Reservar',dine:'Restaurante',italian:'Italiano',bar:'Coctelería',spa:'Spa y bienestar',dir:'Cómo llegar',walk:'min a pie',ex:['¿Qué hacemos esta noche?','¿El mejor jazz cerca del hotel?','Algo para hacer con niños mañana','Actividades gratis esta noche','Actividades bajo techo hoy','Experiencia belga auténtica cerca']},
+  it:{pow:'Concierge locale · powered by shou',eyebrow:'Il tuo concierge locale',welcome:'La serata inizia qui.',sub:'Tutto quello che succede a meno di 15 minuti dal tuo hotel.',hood:'Quartiere Grand-Place',radius:'Tutto a 15 min a piedi',steps:'accanto all'opera La Monnaie',tabWeek:'Questa settimana',tabAsk:'Chiedi al concierge',near:'Questa settimana vicino al tuo hotel',fromHotel:'Dal tuo hotel',music:'Musica dal vivo',art:'Arte e mostre',theatre:'Teatro e spettacoli',chatIntro:'Chiedimi cosa fare vicino all\'hotel — in qualsiasi lingua.',askPh:'Cosa facciamo stasera?',send:'Chiedi',foot:'Chiedi qualsiasi cosa, nella tua lingua — concerti, ristoranti, gemme nascoste vicino a te.',thinking:'Sto cercando le migliori opzioni vicino all\'hotel…',none:'Nessun risultato — prova un\'altra domanda.',tickets:'Dettagli →',filterLbl:'Filtra per giorno',allDays:'Tutti i giorni',book:'Prenota',dine:'Ristorante',italian:'Italiano',bar:'Cocktail bar',spa:'Spa & benessere',dir:'Indicazioni',walk:'min a piedi',ex:['Cosa facciamo stasera?','Il miglior jazz vicino all\'hotel?','Qualcosa da fare con i bambini domani','Attività gratuite stasera','Attività al chiuso oggi','Esperienza belga autentica nelle vicinanze']},
+  uk:{pow:'Локальний консьєрж · powered by shou',eyebrow:'Ваш локальний консьєрж',welcome:'Вечір починається тут.',sub:'Усе, що відбувається за 15 хвилин від вашого готелю.',hood:'Квартал Гран-Плас',radius:'Усе за 15 хв пішки',steps:'поруч з оперою Ла Монне',tabWeek:'Цього тижня',tabAsk:'Запитати консьєржа',near:'Цього тижня біля вашого готелю',fromHotel:'Від вашого готелю',music:'Жива музика',art:'Мистецтво та виставки',theatre:'Театр і вистави',chatIntro:'Запитайте мене про що завгодно поруч із готелем — будь-якою мовою.',askPh:'Що робити сьогодні ввечері?',send:'Запитати',foot:'Запитуйте будь-що, вашою мовою — концерти, ресторани, приховані перлини поруч.',thinking:'Шукаю найкращі варіанти біля готелю…',none:'Нічого не знайдено — спробуйте інше запитання.',tickets:'Деталі →',filterLbl:'Фільтр за днем',allDays:'Усі дні',book:'Забронювати',dine:'Ресторан',italian:'Італійська',bar:'Коктейль-бар',spa:'Спа та велнес',dir:'Маршрут',walk:'хв пішки',ex:['Що робити сьогодні ввечері?','Найкращий джаз біля готелю?','Чим зайнятися з дітьми завтра','Безкоштовні активності сьогодні','Активності в приміщенні сьогодні','Автентичний бельгійський досвід поблизу']},
+};
+const t=k=>(T[lang]||T.en)[k];
+
+// Hero quick links: only the hotel-service actions not already shown as POI
+// cards in "From your hotel" below (dine/bar/spa live there, with real map links).
+const HOTEL_LINKS=()=>[{i:'🛏',k:'book',url:'https://www.thedominican.be'},{i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination='+HOTEL.lat+','+HOTEL.lng}];
+// "From your hotel" concierge picks — real POIs near the hotel (Google Maps).
+// Placeholder concierge picks near Rue Léopold 9 — the hotel should confirm/swap
+// these for its own recommendations. Links open a live Google Maps search (no fake pins).
+const HOTEL_CARDS=()=>[
+  {i:'🍽',k:'dine',n:'Belga Queen',url:'https://www.google.com/maps/search/?api=1&query=Belga%20Queen%20Brussels'},
+  {i:'🍝',k:'italian',n:'near Grand-Place',url:'https://www.google.com/maps/search/?api=1&query=Italian%20restaurant%20Grand-Place%20Brussels'},
+  {i:'🍸',k:'bar',n:'Grand-Place area',url:'https://www.google.com/maps/search/?api=1&query=cocktail%20bar%20Grand-Place%20Brussels'},
+  {i:'💆',k:'spa',n:'near the hotel',url:'https://www.google.com/maps/search/?api=1&query=spa%20wellness%20Rue%20L%C3%A9opold%209%20Brussels'}
+];
+
+const _WD={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fr:['dim','lun','mar','mer','jeu','ven','sam'],nl:['zo','ma','di','wo','do','vr','za'],de:['So','Mo','Di','Mi','Do','Fr','Sa'],es:['dom','lun','mar','mié','jue','vie','sáb'],it:['dom','lun','mar','mer','gio','ven','sab'],uk:['нд','пн','вт','ср','чт','пт','сб']};
+const LOCMAP={fr:'fr-BE',nl:'nl-BE',de:'de-DE',es:'es-ES',it:'it-IT',uk:'uk-UA',en:'en-GB'};  // localizes weekday + month names
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
+function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
+function km(e){return (Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine(HOTEL.lat,HOTEL.lng,e.lat,e.lng):999;}
+function distLabel(e){const k=km(e);if(k>60)return '';if(k<1.1)return Math.max(1,Math.round(k*12))+' '+t('walk');return k.toFixed(1)+' km';}
+function fmtDate(d){if(!d)return '';const dt=/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00'):new Date(d);if(isNaN(dt))return d;
+  try{return dt.toLocaleDateString(LOCMAP[lang]||'en-GB',{weekday:'short',day:'numeric',month:'short'});}catch(e){return d;}}
+// start–end time, hiding placeholders (00:00 open / 23:59 close) and collapsing multi-day to the start time
+function fmtTimeRange(e){
+  const ok=v=>v&&v!=='TBA'&&v!=='null'&&v!=='00:00';
+  const s=ok(e.time)?e.time:'';
+  const en=(e.endTime&&e.endTime!=='TBA'&&e.endTime!=='null'&&e.endTime!=='23:59'&&e.endTime!=='00:00')?e.endTime:'';
+  const sameDay=!e.endDate||e.endDate===e.date;
+  if(s&&en&&en!==s&&sameDay)return s+'–'+en;
+  return s;
+}
+
+// clean ticket-tier / day-variant tails ("Rock Werchter 2026 | Saturday" → "Rock Werchter 2026")
+function cleanTitle(x){
+  let s=String(x||'').trim();
+  const p=s.indexOf(' | '); if(p>0)s=s.slice(0,p).trim();
+  s=s.replace(/\s*[-–]\s*(day\s*ticket|\d+\s*-?\s*day\s*pass|weekend\s*(pass|ticket)|combi\s*ticket|pass(es)?|vip|early\s*bird|terras?|parking\w*|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b.*$/i,'').trim();
+  return s||String(x||'').trim();
+}
+function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
+
+// --- occurrence awareness: a recurring event (exhibition run, daily camp) is
+// "on" every day it covers, not just its start_date — mirrors the search API. ---
+function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function occursOn(e,iso){
+  if(!iso)return false;
+  const occ=Array.isArray(e.occurrenceDates)&&e.occurrenceDates.length?e.occurrenceDates:null;
+  if(occ)return occ.includes(iso);
+  if(e.eventType==='recurring'){
+    const start=e.date||'', end=e.recurrenceEndDate||e.endDate||e.date||'';
+    if(start&&iso<start)return false;
+    if(end&&iso>end)return false;
+    const sch=e.recurrenceSchedule&&e.recurrenceSchedule.days;
+    if(sch&&typeof sch==='object'&&!Array.isArray(sch)){
+      const wd=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][new Date(iso+'T12:00:00').getDay()];
+      const info=sch[wd];return !!(info&&info.is_open);
+    }
+    return true;                        // recurring, within range, no weekday detail → assume it covers the day
+  }
+  const start=e.date||'', end=e.endDate||e.date||'';   // single / multi-day
+  return (!start||iso>=start)&&(!end||iso<=end);
+}
+// earliest date >= today the event occurs — the date to show in the default (no day picked) view
+function nextOccurrence(e){
+  const t=todayISO();
+  const occ=Array.isArray(e.occurrenceDates)&&e.occurrenceDates.length?e.occurrenceDates:null;
+  if(occ){let best='';for(const d of occ){if(d>=t&&(!best||d<best))best=d;}return best||e.date;}
+  if(e.date&&e.date>=t)return e.date;
+  const end=e.recurrenceEndDate||e.endDate||e.date;
+  if(e.date&&e.date<t&&end&&end>=t)return t;           // ongoing run → today
+  return e.date;
+}
+// Shared event card (This week rails + concierge results): thumb, category
+// pill, title, short description, date, venue · distance. Opens the modal.
+function evCard(e,showDate){
+  const dist=distLabel(e), tr=fmtTimeRange(e), time=tr?' · '+tr:'';
+  const d=showDate||e.date;
+  const seg=e.seg||catLabel(e.categorySlug)||'';
+  const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
+  const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
+  const desc=(e.desc||'').trim();
+  const venue=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
+  return `<a class="ev ev-res" data-date="${esc(d||'')}" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
+    <span class="thumb">${img}</span>
+    <span class="meta">
+      ${seg?`<span class="qpill" style="background:${segColor}">${esc(seg)}</span>`:''}
+      <span class="t">${esc(cleanTitle(e.name))}</span>
+      ${desc?`<span class="qdesc">${esc(desc)}</span>`:''}
+      <span class="date">${esc(fmtDate(d))}${esc(time)}</span>
+      <span class="venue">${esc(venue||'TBA')}</span>
+      ${dist?`<span class="evdist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${esc(dist)}</span>`:''}
+    </span></a>`;
+}
+function hotelCard(c){const href=c.url||'#';const ext=c.url?' target="_blank" rel="noopener"':'';return `<a class="ev" href="${esc(href)}"${ext}><span class="thumb hotelthumb">${c.i}</span><span class="meta"><span class="t">${esc(t(c.k))}</span><span class="venue">${esc(c.n||t('fromHotel'))}</span></span></a>`;}
+function section(emoji,title,cards){if(!cards.length)return '';return `<h2 class="wk-h"><span class="wk-emoji">${emoji}</span>${esc(title)}<span class="cnt">${cards.length}</span></h2><div class="wk-rail">${cards.join('')}</div>`;}
+
+function weekDays(){const today=new Date();const out=[];
+  for(let i=0;i<7;i++){const d=new Date(today);d.setDate(today.getDate()+i);
+    out.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));}
+  return out;}
+
+function timelineHTML(){
+  const today=new Date(); const days=[];
+  for(let i=0;i<7;i++){const d=new Date(today);d.setDate(today.getDate()+i);
+    const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    days.push({iso,d,cnt:catalog.filter(e=>occursOn(e,iso)).length});}
+  const max=Math.max(1,...days.map(x=>x.cnt));
+  const bars=days.map(x=>{const h=6+Math.round((x.cnt/max)*38);const act=x.iso===activeDay?' active':'';
+    return `<button class="tl-day${x.cnt===max&&x.cnt>0?' hot':''}${act}" data-date="${x.iso}"><span class="tl-wd">${(_WD[lang]||_WD.en)[x.d.getDay()]}</span><span class="tl-dd">${x.d.getDate()}</span><span class="tl-bar" style="height:${h}px"></span><span class="tl-n">${x.cnt||''}</span></button>`;}).join('');
+  return `<div class="tl-wrap"><span class="tl-lbl">${esc(t('filterLbl'))}</span><button class="tl-reset${activeDay?' show':''}" id="tlReset">${esc(t('allDays'))} ✕</button></div><div class="wk-timeline" id="tl">${bars}</div>`;
+}
+
+let activeDay=null;
+function renderWeek(){
+  const wk=weekDays();
+  // an event is in-window if it OCCURS on the picked day (or any of the next 7 days by default) —
+  // recurring runs count on every day they cover, not just their start_date
+  const inWindow=e=>activeDay?occursOn(e,activeDay):wk.some(d=>occursOn(e,d));
+  const showDateFor=e=>activeDay||nextOccurrence(e);      // picked day, else next upcoming occurrence
+  const byShown=(a,b)=>String(showDateFor(a)||'').localeCompare(String(showDateFor(b)||''))||(km(a)-km(b));
+  // "This week near your hotel": events on in the window, nearest first
+  let nearPool=catalog.filter(inWindow).sort((a,b)=>km(a)-km(b));
+  if(!activeDay&&nearPool.length<6)nearPool=[...catalog].sort((a,b)=>km(a)-km(b));
+  const near=nearPool.slice(0,20).map(e=>evCard(e,showDateFor(e)));
+  // themed: up to 20 of that category occurring in the window — soonest first
+  const byCat=c=>catalog.filter(e=>e.categorySlug===c&&inWindow(e)).sort(byShown).slice(0,20).map(e=>evCard(e,showDateFor(e)));
+  let html=timelineHTML();
+  html+=section('📍',t('near'),near);
+  html+=section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
+  html+=section('🎶',t('music'),byCat('music'));
+  html+=section('🎨',t('art'),byCat('exhibition'));
+  html+=section('🎭',t('theatre'),byCat('theatre'));
+  document.getElementById('week').innerHTML=html||`<p class="empty">—</p>`;
+  setupArrows(); bindTimeline();
+}
+
+// scroll arrows (this-week behaviour)
+function setupArrows(){
+  const L='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
+  const R='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  const page=el=>Math.max(el.clientWidth*0.85,240);
+  document.querySelectorAll('#week .wk-rail').forEach(el=>{
+    el.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;if(el.scrollWidth<=el.clientWidth)return;e.preventDefault();el.scrollLeft+=e.deltaY;},{passive:false});
+    if(el.scrollWidth<=el.clientWidth+4)return;
+    const wrap=document.createElement('div');wrap.className='wk-railwrap';el.parentNode.insertBefore(wrap,el);wrap.appendChild(el);
+    const l=document.createElement('button');l.className='wk-arrow left';l.setAttribute('aria-label','Scroll left');l.innerHTML=L;
+    const r=document.createElement('button');r.className='wk-arrow right';r.setAttribute('aria-label','Scroll right');r.innerHTML=R;
+    wrap.appendChild(l);wrap.appendChild(r);
+    const upd=()=>{const max=el.scrollWidth-el.clientWidth-2;l.classList.toggle('show',el.scrollLeft>4);r.classList.toggle('show',el.scrollLeft<max);};
+    l.addEventListener('click',()=>el.scrollBy({left:-page(el),behavior:'smooth'}));
+    r.addEventListener('click',()=>el.scrollBy({left:page(el),behavior:'smooth'}));
+    el.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
+  });
+}
+
+// day filter: picking a day re-renders each carousel from the full catalog for that day
+// (so later days show real content, not just whatever survived the default top-10 slice)
+function bindTimeline(){
+  const tl=document.getElementById('tl'); if(!tl)return;
+  tl.querySelectorAll('.tl-day').forEach(btn=>btn.addEventListener('click',()=>{
+    const d=btn.getAttribute('data-date'); activeDay=(activeDay===d)?null:d; renderWeek();
+  }));
+  const reset=document.getElementById('tlReset');
+  if(reset)reset.addEventListener('click',()=>{activeDay=null;renderWeek();});
+}
+
+// ---- event modal (the app's rich card, opened in-page, with prev/next nav) ----
+const mv=document.getElementById('mv');
+let modalList=[], modalDates=[], modalIdx=0;   // modalDates: occurrence date to show per card (parallel to modalList)
+function catLabel(slug){if(!slug)return '';const k=CAT_L[slug];return k?t(k):slug.charAt(0).toUpperCase()+slug.slice(1);}
+function calChip(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return '';const loc=LOCMAP[lang]||'en-GB';
+  const wd=dt.toLocaleDateString(loc,{weekday:'short'}).toUpperCase();const mo=dt.toLocaleDateString(loc,{month:'short'}).toUpperCase();
+  return `<div class="mv-cal"><span>${wd}</span><b>${dt.getDate()}</b><span>${mo}</span></div>`;}
+function priceHtml(e){
+  if(e.mn!=null){if(e.mn===0&&(e.mx==null||e.mx===0))return esc(ml('free'));
+    return '€'+Math.round(e.mn)+(e.mx&&e.mx!==e.mn?'–€'+Math.round(e.mx):'');}
+  return e.url?`<a class="mv-link" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(t('tickets'))}</a>`:'—';
+}
+// recurring events with a weekly schedule → run range + per-weekday opening times
+function recurrenceHtml(e){
+  if(!e||e.eventType==='single'||!e.recurrenceSchedule)return '';
+  const sch=e.recurrenceSchedule, days=sch.days;
+  if(!days||typeof days!=='object'||Array.isArray(days))return '';
+  const loc=LOCMAP[lang]||'en-GB';
+  const order=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const dayName=i=>{try{return new Date(2024,0,1+i).toLocaleDateString(loc,{weekday:'long'});}catch(_){return order[i];}};  // 2024-01-01 = Monday
+  const hhmm=s=>String(s||'').slice(0,5);
+  // hours may be a single {start,end} OR an array of such slots (e.g. 10–12 & 14–16)
+  const slots=h=>{const a=Array.isArray(h)?h:(h?[h]:[]);return a.filter(s=>s&&s.start).map(s=>hhmm(s.start)+' – '+hhmm(s.end)).join(', ');};
+  let any=false;
+  const rows=order.map((d,i)=>{
+    const info=days[d];
+    const open=!!(info&&info.is_open);
+    if(open)any=true;
+    const hrs=open?(slots(info.hours)||ml('open')):ml('closed');
+    return `<div class="tt-row${open?'':' tt-closed'}"><span class="tt-day">${esc(dayName(i))}</span><span class="tt-hrs">${esc(hrs)}</span></div>`;
+  }).join('');
+  if(!any)return '';
+  const runStart=sch.date_start||e.date, runEnd=e.recurrenceEndDate||sch.date_end;
+  const runLine=(runStart&&runEnd&&runStart!==runEnd)?`<div class="mv-run">📅 ${esc(fmtDate(runStart))} – ${esc(fmtDate(runEnd))}</div>`:'';
+  const appt=sch.is_also_by_appointment?`<div class="mv-appt">+ ${esc(ml('byAppt'))}</div>`:'';
+  return `<div class="mv-tt"><h4>${esc(ml('tt'))}</h4>${runLine}<div class="tt-grid">${rows}</div>${appt}</div>`;
+}
+// recurring events without a weekly schedule but with multiple dates → upcoming-date chips
+function occurrenceDatesHtml(e){
+  if(!e||e.eventType==='single')return '';
+  if(e.recurrenceSchedule&&e.recurrenceSchedule.days)return '';   // timetable already covers it
+  const ds=Array.isArray(e.occurrenceDates)?e.occurrenceDates:[];
+  if(ds.length<2)return '';
+  const loc=LOCMAP[lang]||'en-GB';
+  const tISO=todayISO();
+  const up=ds.filter(d=>d>=tISO); const list=up.length?up:ds;
+  const fmt=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'});}catch(_){return d;}};
+  const MAX=16;
+  const chips=list.slice(0,MAX).map(d=>`<span class="od-chip">${esc(fmt(d))}</span>`).join('');
+  const more=list.length>MAX?`<span class="od-more">+${list.length-MAX}</span>`:'';
+  return `<div class="mv-od"><h4>${esc(ml('upDates'))}</h4><div class="od-grid">${chips}${more}</div></div>`;
+}
+function descHtml(e){const d=(e.desc||'').trim();if(!d)return '';
+  const head=`<h4>${esc(ml('about'))}</h4>`;
+  if(d.length<=240)return `<div class="mv-about">${head}<p>${esc(d)}</p></div>`;
+  return `<div class="mv-about">${head}<p class="mv-clamp">${esc(d)}</p><button class="mv-more" type="button">${esc(ml('more'))}</button></div>`;
+}
+// Build the rich card HTML for a given index into modalList/modalDates.
+function buildCardHTML(idx){
+  const id=modalList[idx], e=evById[id]; if(!e)return '';
+  const time=fmtTimeRange(e);
+  const dist=distLabel(e);
+  const hasCoord=Number.isFinite(e.lat)&&Number.isFinite(e.lng);
+  const dirUrl='https://www.google.com/maps/dir/?api=1&destination='+(hasCoord?e.lat+','+e.lng:encodeURIComponent(((e.venue||'')+' '+(e.city||'')).trim()||'Brussels'));
+  const hero=e.img?`<img src="${esc(e.img)}" alt="">`:'';
+  const seg=e.seg||catLabel(e.categorySlug)||'';
+  const genre=(e.genre&&e.genre.toLowerCase()!==String(e.seg||'').toLowerCase())?' · '+e.genre:'';
+  const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
+  const sub=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
+  const showDate=modalDates[idx]||e.date;      // occurrence date from the clicked card (recurring runs)
+  const dateV=[fmtDate(showDate),time].filter(Boolean).join(' · ')||'—';
+  const map=hasCoord?`<div class="mv-map"><iframe loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${(e.lng-0.006).toFixed(4)}%2C${(e.lat-0.004).toFixed(4)}%2C${(e.lng+0.006).toFixed(4)}%2C${(e.lat+0.004).toFixed(4)}&layer=mapnik&marker=${e.lat}%2C${e.lng}"></iframe><a class="mv-map-cta" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))} ↗</a></div>`:'';
+  const cta=e.url?`<a class="mv-cta" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(t('tickets'))}</a>`:'';
+  return `<div class="mv-card" role="dialog" aria-modal="true">
+    <div class="mv-hero">${hero}<div class="mv-scrim"></div>${calChip(showDate)}<span class="mv-pill" style="background:${segColor}">${esc(seg)}${esc(genre)}</span></div>
+    <div class="mv-b">
+      <div class="mv-title">${esc(cleanTitle(e.name))}</div>
+      ${sub?`<div class="mv-sub">${esc(sub)}</div>`:''}
+      <div class="mv-rows">
+        <div class="mv-row"><span class="ic">📅</span><div class="mv-tx"><div class="k">${esc(ml('date'))}</div><div class="v">${esc(dateV)}</div></div></div>
+        <div class="mv-row"><span class="ic">📍</span><div class="mv-tx"><div class="k">${esc(ml('venue'))}</div><div class="v">${esc(sub||'TBA')}${dist?`<span class="mv-dist">${esc(dist)}</span>`:''}${!hasCoord?`<a class="mv-dir" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(t('dir'))}</a>`:''}</div></div></div>
+        <div class="mv-row"><span class="ic">🎟</span><div class="mv-tx"><div class="k">${esc(ml('price'))}</div><div class="v">${priceHtml(e)}</div></div></div>
+      </div>
+      ${recurrenceHtml(e)}${occurrenceDatesHtml(e)}${descHtml(e)}${map}${cta}
+    </div>
+  </div>`;
+}
+// Render the modal: a 3-pane track [prev][current][next]; neighbours stay empty
+// until a drag starts (so the resting scrim area still closes on tap).
+function showModal(noAnim){
+  if(!evById[modalList[modalIdx]]){closeModal();return;}
+  const showNav=modalList.length>1;
+  mv.innerHTML=`
+  <button class="mv-x" aria-label="Close">✕</button>
+  ${showNav?'<button class="mv-nav mv-prev" aria-label="Previous">‹</button>':''}
+  <div class="mv-clip" id="mvClip"><div class="mv-track" id="mvTrack"><div class="mv-pane" id="mvPrev"></div><div class="mv-pane" id="mvCur">${buildCardHTML(modalIdx)}</div><div class="mv-pane" id="mvNext"></div></div></div>
+  ${showNav?'<button class="mv-nav mv-next" aria-label="Next">›</button>':''}`;
+  const prev=mv.querySelector('.mv-prev'), next=mv.querySelector('.mv-next');
+  if(prev)prev.style.visibility=modalIdx>0?'visible':'hidden';
+  if(next)next.style.visibility=modalIdx<modalList.length-1?'visible':'hidden';
+  mv.classList.add('on'); mv.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+  const mc=mv.querySelector('#mvCur .mv-card'); if(mc){mc.scrollTop=0; if(noAnim)mc.style.animation='none';}
+}
+function openModal(id){modalList=[id];modalDates=[evById[id]?nextOccurrence(evById[id]):''];modalIdx=0;showModal();}
+
+// ---- swipe navigation (mirrors the main app: 1:1 track drag following the
+//      thumb, commit by distance OR velocity flick, rubber-band at the edges,
+//      velocity-scaled settle). Buttons/arrow keys glide via the same track. ----
+let swBusy=false;
+function mvTrackEl(){return document.getElementById('mvTrack');}
+function havePrevEv(){return modalIdx>0;}
+function haveNextEv(){return modalIdx<modalList.length-1;}
+function populateNeighbors(){
+  const p=document.getElementById('mvPrev'), n=document.getElementById('mvNext');
+  if(!p||!n)return;
+  p.innerHTML=havePrevEv()?buildCardHTML(modalIdx-1):'';
+  n.innerHTML=haveNextEv()?buildCardHTML(modalIdx+1):'';
+}
+function clearNeighbors(){
+  const p=document.getElementById('mvPrev'), n=document.getElementById('mvNext');
+  if(p)p.innerHTML=''; if(n)n.innerHTML='';
+}
+function setTrackPx(px){const t=mvTrackEl();if(t)t.style.transform=`translateX(calc(-33.3333% + ${px}px))`;}
+function commitDir(dir,settleMs){        // dir: -1 prev, +1 next
+  const t=mvTrackEl(); if(!t){modalIdx+=dir;showModal();return;}
+  swBusy=true;
+  if(!t.style.transform){                                // button/keyboard: no drag start yet —
+    t.classList.add('mv-track-drag');                    // pin an explicit start (no transition)…
+    t.style.transform='translateX(-33.3333%)';
+    void t.offsetWidth;                                  // …and commit it so the glide actually animates
+  }
+  t.classList.remove('mv-track-drag'); t.classList.add('mv-track-anim');
+  t.style.transitionDuration=(settleMs||280)+'ms';
+  t.style.transform=dir<0?'translateX(0%)':'translateX(-66.6667%)';
+  let done=false;
+  const finish=()=>{ if(done)return; done=true; t.removeEventListener('transitionend',finish);
+    modalIdx+=dir; showModal(true); swBusy=false; };   // rebuild at new index (no re-entrance anim)
+  t.addEventListener('transitionend',finish);
+  setTimeout(finish,(settleMs||280)+80);               // safety net
+}
+function snapBack(settleMs){
+  const t=mvTrackEl(); if(!t)return;
+  t.classList.remove('mv-track-drag'); t.classList.add('mv-track-anim');
+  t.style.transitionDuration=(settleMs||280)+'ms';
+  t.style.transform='';
+  const done=()=>{ t.removeEventListener('transitionend',done); t.classList.remove('mv-track-anim'); t.style.transitionDuration=''; clearNeighbors(); };
+  t.addEventListener('transitionend',done);
+  setTimeout(done,(settleMs||280)+80);
+}
+function navModal(delta){        // buttons + arrow keys
+  if(swBusy)return;
+  const n=modalIdx+delta; if(n<0||n>=modalList.length)return;
+  populateNeighbors();            // fill the target pane; commitDir reflows before gliding
+  commitDir(delta,280);
+}
+(function initSwipe(){
+  let sx=0,sy=0,st=0,lx=0,lt=0,vx=0,dragging=false,decided=false,pv=false,nx=false;
+  mv.addEventListener('touchstart',ev=>{
+    if(swBusy||ev.touches.length!==1)return;
+    sx=lx=ev.touches[0].clientX; sy=ev.touches[0].clientY; st=lt=Date.now(); vx=0; dragging=false; decided=false;
+  },{passive:true});
+  mv.addEventListener('touchmove',ev=>{
+    if(swBusy||!st||ev.touches.length!==1)return;
+    const tc=ev.touches[0], dx=tc.clientX-sx, dy=tc.clientY-sy;
+    if(!decided){
+      const adx=Math.abs(dx),ady=Math.abs(dy);
+      if(adx<10&&ady<10)return;
+      decided=true;
+      dragging=(adx>ady*1.2)&&modalList.length>1;      // horizontal intent + something to navigate to
+      if(dragging){ populateNeighbors(); pv=havePrevEv(); nx=haveNextEv(); const t=mvTrackEl(); if(t){t.classList.remove('mv-track-anim');t.classList.add('mv-track-drag');} }
+    }
+    if(!dragging)return;
+    if(ev.cancelable)ev.preventDefault();              // lock the gesture; let vertical scroll pass otherwise
+    const now=Date.now(),dt=now-lt;
+    if(dt>0){vx=vx*0.7+((tc.clientX-lx)/dt)*0.3;lx=tc.clientX;lt=now;}
+    let d=dx; if((dx>0&&!pv)||(dx<0&&!nx))d=dx*0.32;   // rubber-band toward an empty edge
+    setTrackPx(d);
+  },{passive:false});
+  mv.addEventListener('touchend',ev=>{
+    if(swBusy)return;
+    const wasDragging=dragging; st=0; dragging=false; decided=false;
+    const t=mvTrackEl();
+    if(!wasDragging){ if(t){t.classList.remove('mv-track-drag','mv-track-anim');t.style.transform='';} return; }
+    const tc=ev.changedTouches[0];
+    const dx=tc?tc.clientX-sx:0, adx=Math.abs(dx), width=window.innerWidth||400;
+    const distanceCommit=adx>width*0.28;
+    const velocityCommit=Math.abs(vx)>0.5&&adx>40&&(Math.sign(vx)===Math.sign(dx));
+    const wantsPrev=dx>0, hasNeighbor=wantsPrev?pv:nx;
+    const commit=(distanceCommit||velocityCommit)&&hasNeighbor;
+    const SMIN=170,SMAX=340,speed=Math.abs(vx);
+    const settleMs=Math.round(SMAX-Math.min(speed/2,1)*(SMAX-SMIN));   // fast flick → snappy, slow drag → gentle
+    if(commit)commitDir(wantsPrev?-1:1,settleMs); else snapBack(settleMs);
+  },{passive:true});
+  mv.addEventListener('touchcancel',()=>{ if(dragging){dragging=false;decided=false;st=0;snapBack(280);} },{passive:true});
+})();
+function closeModal(){mv.classList.remove('on');mv.setAttribute('aria-hidden','true');document.body.style.overflow='';mv.innerHTML='';}
+mv.addEventListener('click',e=>{
+  if(e.target.closest('.mv-prev')){e.stopPropagation();navModal(-1);return;}
+  if(e.target.closest('.mv-next')){e.stopPropagation();navModal(1);return;}
+  const more=e.target.closest('.mv-more');
+  if(more){e.stopPropagation();const p=more.previousElementSibling;const c=p.classList.toggle('mv-clamp');more.textContent=c?ml('more'):ml('less');return;}
+  if(e.target.closest('.mv-x')||e.target===mv)closeModal();
+});
+document.addEventListener('keydown',e=>{
+  if(!mv.classList.contains('on'))return;
+  if(e.key==='Escape')closeModal();
+  else if(e.key==='ArrowLeft')navModal(-1);
+  else if(e.key==='ArrowRight')navModal(1);
+});
+document.addEventListener('click',e=>{
+  const card=e.target.closest('.ev,.qcard'); if(!card)return;
+  const id=card.getAttribute('data-id');
+  if(!id||!evById[id]){ if(card.classList.contains('ev')&&(!card.getAttribute('href')||card.getAttribute('href')==='#'))e.preventDefault(); return; }
+  e.preventDefault();
+  const cont=card.closest('.wk-rail')||card.closest('.res');
+  if(cont){
+    const seen=new Set();modalList=[];modalDates=[];
+    cont.querySelectorAll('[data-id]').forEach(x=>{const xid=x.getAttribute('data-id');if(!xid||!evById[xid]||seen.has(xid))return;
+      seen.add(xid);modalList.push(xid);modalDates.push(x.getAttribute('data-date')||'');});
+    modalIdx=Math.max(0,modalList.indexOf(id));
+  }else{modalList=[id];modalDates=[card.getAttribute('data-date')||''];modalIdx=0;}
+  showModal();
+  sampleTrack('open', evById[id]);            // click-through: guest opened an event
+});
+// Tickets / directions clicks inside the modal (booking intent) — delegated so
+// it works for the dynamically-built modal panes.
+document.addEventListener('click',e=>{
+  const cur=evById[modalList[modalIdx]]; if(!cur)return;
+  if(e.target.closest('.mv-cta'))                         sampleTrack('tickets', cur);
+  else if(e.target.closest('.mv-dir,.mv-map-cta'))        sampleTrack('directions', cur);
+});
+
+function indexEvents(list){for(const e of list){if(e&&e.id)evById[e.id]=e;}}
+async function loadCatalog(){
+  activeDay=null;
+  document.getElementById('week').innerHTML=`<div class="wk-rail" style="margin-top:20px">${'<div class="skel"></div>'.repeat(4)}</div>`;
+  try{
+    // one date-sorted pull PER category so every category spans the week (each is soonest-first),
+    // then merge — this is what gives the day filter real coverage for days after today.
+    const parts=await Promise.all(CATS.map(c=>
+      fetch(`${API}/events?lang=${lang}&category=${c}&sort=date&limit=100&lat=${HOTEL.lat}&lng=${HOTEL.lng}`)
+        .then(r=>r.json()).then(d=>d.events||[]).catch(()=>[])));
+    const merged=[]; const seenId=new Set();
+    for(const arr of parts)for(const e of arr){if(e&&e.name&&e.id&&!seenId.has(e.id)){seenId.add(e.id);merged.push(e);}}
+    catalog=dedupe(merged.filter(e=>e.name));
+  }catch(e){catalog=[];}
+  indexEvents(catalog);
+  renderWeek();
+}
+
+// tabs
+function setTab(w){document.getElementById('tabWeekBtn').classList.toggle('on',w);document.getElementById('tabAskBtn').classList.toggle('on',!w);
+  document.getElementById('week').style.display=w?'block':'none';document.getElementById('ask').classList.toggle('on',!w);
+  const sp=document.getElementById('subpage');sp.classList.toggle('warm',w);sp.classList.toggle('cool',!w);}
+document.getElementById('tabWeekBtn').onclick=()=>setTab(true);
+document.getElementById('tabAskBtn').onclick=()=>setTab(false);
+
+// chat — mirrors beta.shou.be anonymous search: AI reasoning + a grid of the
+// same event cards, ranked in the order the backend returns (matching, then suggested).
+const msgs=document.getElementById('msgs');
+let asking=false;
+// collapsible suggestion chips — save screen space, esp. on mobile
+let chipsOpen=true;
+function setChips(open){chipsOpen=open;
+  document.getElementById('exs').classList.toggle('collapsed',!open);
+  document.getElementById('exsToggle').setAttribute('aria-expanded',open?'true':'false');}
+document.getElementById('exsToggle').onclick=()=>setChips(!chipsOpen);
+function addMsg(cls,html){const el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;msgs.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el;}
+// concierge result card — identical to the This week card (shared builder)
+function chatCard(e){ return evCard(e,e.date); }
+async function ask(q){
+  if(!q||!q.trim()||asking)return;            // guard: ignore empty + double-sends while a request is in flight
+  asking=true;
+  setChips(false);                            // collapse suggestions once a query is sent — frees the screen
+  const btn=document.getElementById('chatBtn'); if(btn)btn.disabled=true;
+  addMsg('me',esc(q));
+  const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
+  try{
+    const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng,source:SAMPLE_SOURCE,sessionId:VISITOR_ID})});
+    const d=await r.json(); typing.remove();
+    addMsg('ai',esc(d.reasoning||'')||t('none'));
+    // Use the events the search returns directly (matching first, then suggested) —
+    // same data/ordering as the main site. Crucially, search already resolves each
+    // recurring event's date to the queried occurrence (e.g. tomorrow), which a
+    // by-id re-fetch would overwrite with the raw start_date.
+    const byId={};
+    for(const e of [...(d.events||[]),...(d.suggestedEvents||[])]) if(e&&e.id&&e.name&&!byId[e.id])byId[e.id]=e;
+    const list=dedupe(Object.values(byId)).slice(0,9);
+    if(list.length){
+      indexEvents(list); list.forEach(e=>{chatEv[e.id]=e;});
+      const grid=document.createElement('div');grid.className='res';grid.innerHTML=list.map(chatCard).join('');
+      msgs.appendChild(grid);grid.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+  }catch(e){typing.remove();addMsg('ai',t('none'));}
+  finally{asking=false;if(btn)btn.disabled=false;}
+}
+document.getElementById('chatForm').onsubmit=e=>{e.preventDefault();const i=document.getElementById('chatInput');const v=i.value;i.value='';ask(v);};
+// on language switch: re-fetch the result cards already in the chat in the new
+// language and re-render them in place (cheap, no LLM). The Q&A bubbles are left
+// as asked/answered; only the event cards follow the language.
+async function retranslateChatCards(){
+  const grids=[...document.querySelectorAll('#msgs .res')];
+  for(const grid of grids){
+    const ids=[...grid.querySelectorAll('.ev[data-id]')].map(c=>c.getAttribute('data-id')).filter(Boolean);
+    if(!ids.length)continue;
+    const byId={};
+    await Promise.all(ids.map(async id=>{
+      const prev=chatEv[id]||evById[id]||{};   // chatEv holds the search result's occurrence-resolved date
+      const fresh=await fetch(`${API}/events?id=${id}&lang=${lang}`).then(x=>x.json()).then(x=>x.events&&x.events[0]).catch(()=>null);
+      if(!fresh)return;
+      // keep the search's occurrence-resolved date/time (language-invariant); only text translates
+      const merged={...fresh,date:prev.date??fresh.date,time:prev.time??fresh.time,endTime:prev.endTime??fresh.endTime,endDate:prev.endDate??fresh.endDate};
+      byId[id]=merged; chatEv[id]=merged;
+    }));
+    indexEvents(Object.values(byId));
+    grid.innerHTML=ids.map(id=>byId[id]?chatCard(byId[id]):'').join('');
+  }
+}
+
+function applyChrome(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i]').forEach(el=>{const v=t(el.getAttribute('data-i'));if(v)el.textContent=v;});
+  document.querySelectorAll('[data-i-ph]').forEach(el=>{const v=t(el.getAttribute('data-i-ph'));if(v)el.placeholder=v;});
+  document.getElementById('hlinks').innerHTML=HOTEL_LINKS().map(l=>`<a class="hlink" href="${l.url||'#'}"${l.url?' target="_blank" rel="noopener"':''}>${l.i} ${esc(t(l.k))}</a>`).join('');
+  const sq=SURPRISE_L[lang]||SURPRISE_L.en;
+  const chips=[`<button class="ex ex-surprise" data-q="${esc(sq)}">✨ ${esc(sq)}</button>`]
+    .concat((t('ex')||[]).map(q=>`<button class="ex" data-q="${esc(q)}">${esc(q)}</button>`));
+  document.getElementById('exs').innerHTML=chips.join('');
+  document.getElementById('ideasLbl').textContent=IDEAS_L[lang]||IDEAS_L.en;
+  document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;ask(q);});
+}
+document.getElementById('langSel').onchange=async e=>{
+  lang=e.target.value;applyChrome();
+  await loadCatalog();               // refreshes carousels + evById in the new language
+  await retranslateChatCards();      // refreshes chat result cards in place
+  if(mv.classList.contains('on'))showModal();  // re-render an open card detail too
+};
+
+applyChrome(); loadCatalog();
+</script>
+</body>
+</html>

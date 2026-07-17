@@ -6,6 +6,7 @@
     { "source": "/hotels/flyer-sample", "destination": "/hotels/flyer-sample.html" },
     { "source": "/hotels/sample", "destination": "/hotels/sample.html" },
     { "source": "/hotels/nhow-brussels-bloom", "destination": "/hotels/nhow-brussels-bloom.html" },
+    { "source": "/hotels/the-dominican", "destination": "/hotels/the-dominican.html" },
     { "source": "/hotels/apply", "destination": "/hotels/apply.html" },
     { "source": "/hotels/crm", "destination": "/hotels/crm.html" },
     { "source": "/e/:id", "destination": "https://shou-backend.vercel.app/api/share?id=:id" },
