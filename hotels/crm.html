@@ -928,7 +928,16 @@ async function renderBilling(h) {
     html += `<p style="font-size:13px;margin:0 0 10px">Plan <b>${esc(label)}</b> · <b>${g(monthlyNet)}</b>/mo <span class="dim">(incl. ${vat}% VAT)</span></p>`;
     if (!h.mollie_subscription_id)
       html += `<div style="font-size:12.5px;color:#a5731a;margin:0 0 10px;background:#fff4e0;border:1px solid rgba(165,115,26,.25);border-radius:8px;padding:9px 11px">⚠ Monthly subscription not created yet (the SEPA mandate may have needed a moment to become valid). <button class="btn2" id="bill-retrysub" style="font-size:12px;padding:5px 10px;margin-top:6px">Create subscription</button></div>`;
-    html += `<button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button>`;
+    html += `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn2" id="bill-changeplan" style="font-size:12.5px;padding:8px 14px">Change plan</button><button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button></div>`;
+    const cpOpts = Object.keys(cfg.plans).map(k => `<option value="${k}"${k === planKey ? ' selected' : ''}>${esc(cfg.plans[k].label)}</option>`).join('');
+    const cpInp = 'width:100%;margin-top:4px;padding:8px;border:1px solid var(--line);border-radius:8px;font:inherit';
+    html += `<div id="bill-change" style="display:none;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel-soft)">
+      <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">Change plan — applies from the next collection</div>
+      <label style="font-size:12.5px;font-weight:600">Plan<select id="cp-plan" style="${cpInp}">${cpOpts}</select></label>
+      <label style="display:block;font-size:12.5px;font-weight:600;margin-top:8px">Monthly € <span class="dim">excl. VAT</span><input id="cp-price" type="number" min="1" step="1" value="${monthlyNet / 100}" style="${cpInp}"></label>
+      <p id="cp-gross" class="dim" style="font-size:12px;margin:8px 0 0"></p>
+      <div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="cp-apply" style="font-size:12.5px;padding:8px 14px">Apply new price</button><button class="btn2" id="cp-cancel" style="font-size:12.5px;padding:8px 12px">Cancel</button></div>
+    </div>`;
   } else {
     // none | canceled | mandate_pending — amounts stay editable; regenerate the link if you change them.
     if (status === 'mandate_pending') {
@@ -973,6 +982,15 @@ async function renderBilling(h) {
   if ($('bill-cancel')) $('bill-cancel').onclick = cancelBilling;
   if ($('bill-retrysub')) $('bill-retrysub').onclick = retrySubscription;
   if ($('bill-reset')) $('bill-reset').onclick = resetBilling;
+  if ($('bill-changeplan')) {
+    const cpPlan = $('cp-plan'), cpPrice = $('cp-price'), cpGross = $('cp-gross');
+    const cpUpd = () => { const p = +cpPrice.value || 0; cpGross.innerHTML = `New monthly: <b>${g(p * 100)}</b> incl. ${vat}% VAT · from the next collection`; };
+    $('bill-changeplan').onclick = () => { const el = $('bill-change'); el.style.display = el.style.display === 'none' ? 'block' : 'none'; if (el.style.display === 'block') cpUpd(); };
+    cpPlan.onchange = () => { const t = cfg.plans[cpPlan.value]; if (t) cpPrice.value = t.price_cents / 100; cpUpd(); };
+    cpPrice.oninput = cpUpd;
+    $('cp-cancel').onclick = () => { $('bill-change').style.display = 'none'; };
+    $('cp-apply').onclick = changePlan;
+  }
   loadCharges(h.id);
 }
 async function startBilling() {
@@ -1021,6 +1039,18 @@ async function retrySubscription() {
     current.mollie_subscription_id = r.subscriptionId;
     renderBilling(current); refresh();
   } catch (e) { alert('Subscription: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Create subscription'; } }
+}
+async function changePlan() {
+  if (!current || !current.id) return;
+  const planSel = $('cp-plan'), priceIn = $('cp-price');
+  const price_cents = Math.round((+priceIn.value || 0) * 100);
+  if (price_cents <= 0) { alert('Set a monthly price above €0.'); return; }
+  const btn = $('cp-apply'); if (btn) { btn.disabled = true; btn.textContent = 'Applying…'; }
+  try {
+    const r = await api('billing_change_plan', { method: 'POST', body: { hotelId: current.id, plan: planSel.value, price_cents } });
+    current.plan = r.plan; current.plan_price_cents = r.price_cents;
+    renderBilling(current); refresh();
+  } catch (e) { alert('Change plan: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Apply new price'; } }
 }
 async function resetBilling() {
   if (!current || !current.id) return;
