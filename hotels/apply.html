@@ -153,6 +153,15 @@
         </select>
       </div>
       <div class="field">
+        <label for="plan">Which plan interests you? <span class="hint">(optional)</span></label>
+        <select id="plan" name="plan">
+          <option value="">Not sure yet — help me choose</option>
+          <option value="lite">Lite — city events · €99/mo</option>
+          <option value="pro">Pro — full hotel concierge · €199/mo</option>
+          <option value="enterprise">Enterprise — integrations · €399+/mo</option>
+        </select>
+      </div>
+      <div class="field">
         <label for="message">Anything else? <span class="hint">(optional)</span></label>
         <textarea id="message" name="message" placeholder="Guest languages, neighbourhood, what you'd like the concierge to do…" maxlength="2000"></textarea>
       </div>
@@ -182,6 +191,14 @@
 
   function showErr(msg){ err.textContent = msg; err.classList.add('show'); }
 
+  // Preselect the plan from ?plan=lite|pro|enterprise (set by the pricing-page CTAs).
+  (function(){
+    var p = new URLSearchParams(location.search).get('plan');
+    if(!p) return;
+    var sel = document.getElementById('plan');
+    for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value === p){ sel.value = p; break; } }
+  })();
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
     err.classList.remove('show');
@@ -192,6 +209,7 @@
       email:       document.getElementById('email').value.trim(),
       website:     document.getElementById('website').value.trim(),
       hotelType:   document.getElementById('hotelType').value,
+      plan:        document.getElementById('plan').value,
       rooms:       document.getElementById('rooms').value.trim(),
       message:     document.getElementById('message').value.trim()
     };
