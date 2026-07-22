@@ -926,6 +926,8 @@ async function renderBilling(h) {
     const label = (cfg.plans[planKey] || {}).label || planKey;
     const monthlyNet = Number.isFinite(h.plan_price_cents) ? h.plan_price_cents : (cfg.plans[planKey] || {}).price_cents;
     html += `<p style="font-size:13px;margin:0 0 10px">Plan <b>${esc(label)}</b> · <b>${g(monthlyNet)}</b>/mo <span class="dim">(incl. ${vat}% VAT)</span></p>`;
+    if (!h.mollie_subscription_id)
+      html += `<div style="font-size:12.5px;color:#a5731a;margin:0 0 10px;background:#fff4e0;border:1px solid rgba(165,115,26,.25);border-radius:8px;padding:9px 11px">⚠ Monthly subscription not created yet (the SEPA mandate may have needed a moment to become valid). <button class="btn2" id="bill-retrysub" style="font-size:12px;padding:5px 10px;margin-top:6px">Create subscription</button></div>`;
     html += `<button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button>`;
   } else {
     // none | canceled | mandate_pending — amounts stay editable; regenerate the link if you change them.
@@ -967,6 +969,7 @@ async function renderBilling(h) {
   }
   const restart = $('bill-restart'); if (restart) restart.onclick = startBilling;
   if ($('bill-cancel')) $('bill-cancel').onclick = cancelBilling;
+  if ($('bill-retrysub')) $('bill-retrysub').onclick = retrySubscription;
   loadCharges(h.id);
 }
 async function startBilling() {
@@ -1006,6 +1009,15 @@ async function cancelBilling() {
     current.billing_status = 'canceled';
     renderBilling(current); refresh();
   } catch (e) { alert('Billing: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Cancel subscription'; } }
+}
+async function retrySubscription() {
+  if (!current || !current.id) return;
+  const btn = $('bill-retrysub'); if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
+  try {
+    const r = await api('billing_retry_subscription', { method: 'POST', body: { hotelId: current.id } });
+    current.mollie_subscription_id = r.subscriptionId;
+    renderBilling(current); refresh();
+  } catch (e) { alert('Subscription: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Create subscription'; } }
 }
 async function loadCharges(hotelId) {
   const box = $('bill-charges'); if (!box) return;
