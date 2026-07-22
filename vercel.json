@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/contact", "destination": "/contact.html" },
     { "source": "/hotels/offer", "destination": "/hotels/offer.html" },
     { "source": "/hotels/pricing", "destination": "/hotels/pricing.html" },
     { "source": "/hotels/flyer-sample", "destination": "/hotels/flyer-sample.html" },
