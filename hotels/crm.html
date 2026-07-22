@@ -951,6 +951,8 @@ async function renderBilling(h) {
       <button class="btn" id="bill-start" style="font-size:13px;padding:9px 16px">${status === 'mandate_pending' ? 'Generate updated link' : 'Start billing — send checkout link'}</button>
     </div>`;
   }
+  if (status !== 'none' && status !== 'canceled')
+    html += `<div style="margin-top:12px"><button class="btn2" id="bill-reset" style="font-size:11.5px;padding:4px 10px;color:var(--dim)">Reset billing state</button></div>`;
   html += '<div id="bill-charges" style="margin-top:12px"></div>';
   box.innerHTML = html;
 
@@ -970,6 +972,7 @@ async function renderBilling(h) {
   const restart = $('bill-restart'); if (restart) restart.onclick = startBilling;
   if ($('bill-cancel')) $('bill-cancel').onclick = cancelBilling;
   if ($('bill-retrysub')) $('bill-retrysub').onclick = retrySubscription;
+  if ($('bill-reset')) $('bill-reset').onclick = resetBilling;
   loadCharges(h.id);
 }
 async function startBilling() {
@@ -1018,6 +1021,16 @@ async function retrySubscription() {
     current.mollie_subscription_id = r.subscriptionId;
     renderBilling(current); refresh();
   } catch (e) { alert('Subscription: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Create subscription'; } }
+}
+async function resetBilling() {
+  if (!current || !current.id) return;
+  if (!confirm('Reset billing for this hotel? Clears the Mollie customer/subscription + status so you can start fresh (cancels any live subscription).')) return;
+  try {
+    await api('billing_reset', { method: 'POST', body: { hotelId: current.id } });
+    current.billing_status = 'none'; current.mollie_customer_id = null; current.mollie_subscription_id = null;
+    current.plan_price_cents = null; current.plan_setup_cents = null; current._checkoutUrl = null;
+    renderBilling(current); refresh();
+  } catch (e) { alert('Reset: ' + e.message); }
 }
 async function loadCharges(hotelId) {
   const box = $('bill-charges'); if (!box) return;
