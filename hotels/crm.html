@@ -922,28 +922,31 @@ async function renderBilling(h) {
   let html = '';
   if (!configured) html += '<p style="font-size:12.5px;color:var(--red);margin:0 0 8px">⚠ Mollie not configured on the server (MOLLIE_API_KEY missing).</p>';
 
-  if (status === 'active' || status === 'past_due' || status === 'mandate_pending') {
+  if (status === 'active' || status === 'past_due') {
     const label = (cfg.plans[planKey] || {}).label || planKey;
     const monthlyNet = Number.isFinite(h.plan_price_cents) ? h.plan_price_cents : (cfg.plans[planKey] || {}).price_cents;
     html += `<p style="font-size:13px;margin:0 0 10px">Plan <b>${esc(label)}</b> · <b>${g(monthlyNet)}</b>/mo <span class="dim">(incl. ${vat}% VAT)</span></p>`;
-    if (status === 'mandate_pending') {
-      html += `<p class="dim" style="font-size:12.5px;margin:0 0 8px">Waiting for the hotel to approve the SEPA mandate.</p>`;
-      if (h._checkoutUrl) html += checkoutBox(h._checkoutUrl, h._checkoutTo);
-      html += `<button class="btn2" id="bill-restart" style="font-size:12px;padding:6px 12px">${h._checkoutUrl ? 'Generate a fresh link' : 'Resend checkout link'}</button>`;
-    } else
-      html += `<button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button>`;
+    html += `<button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button>`;
   } else {
+    // none | canceled | mandate_pending — amounts stay editable; regenerate the link if you change them.
+    if (status === 'mandate_pending') {
+      html += `<p class="dim" style="font-size:12.5px;margin:0 0 8px">A checkout link is out — waiting for the hotel to approve the SEPA mandate. Change the amounts below and generate an updated link if needed.</p>`;
+      if (h._checkoutUrl) html += checkoutBox(h._checkoutUrl, h._checkoutTo);
+    }
     const tier = cfg.plans[planKey];
+    // Prefill from what's already set on this hotel (so a mistake is visible/fixable), else the tier default.
+    const priceVal = Number.isFinite(h.plan_price_cents) ? h.plan_price_cents / 100 : tier.price_cents / 100;
+    const setupVal = Number.isFinite(h.plan_setup_cents) ? h.plan_setup_cents / 100 : tier.setup_fee_cents / 100;
     const opts = Object.keys(cfg.plans).map(k => `<option value="${k}"${k === planKey ? ' selected' : ''}>${esc(cfg.plans[k].label)}</option>`).join('');
     const inp = 'width:100%;margin-top:4px;padding:8px;border:1px solid var(--line);border-radius:8px;font:inherit';
     html += `<div style="display:flex;flex-direction:column;gap:10px">
       <label style="font-size:12.5px;font-weight:600">Plan<select id="bill-plan" style="${inp}">${opts}</select></label>
       <div style="display:flex;gap:10px">
-        <label style="flex:1;font-size:12.5px;font-weight:600">Monthly € <span class="dim">excl. VAT</span><input id="bill-price" type="number" min="0" step="1" value="${tier.price_cents / 100}" style="${inp}"></label>
-        <label style="flex:1;font-size:12.5px;font-weight:600">Setup € <span class="dim">excl. VAT</span><input id="bill-setup" type="number" min="0" step="1" value="${tier.setup_fee_cents / 100}" style="${inp}"></label>
+        <label style="flex:1;font-size:12.5px;font-weight:600">Monthly € <span class="dim">excl. VAT</span><input id="bill-price" type="number" min="0" step="1" value="${priceVal}" style="${inp}"></label>
+        <label style="flex:1;font-size:12.5px;font-weight:600">Setup € <span class="dim">excl. VAT · 0 = waived</span><input id="bill-setup" type="number" min="0" step="1" value="${setupVal}" style="${inp}"></label>
       </div>
       <p id="bill-gross" class="dim" style="font-size:12px;margin:0"></p>
-      <button class="btn" id="bill-start" style="font-size:13px;padding:9px 16px">Start billing — send checkout link</button>
+      <button class="btn" id="bill-start" style="font-size:13px;padding:9px 16px">${status === 'mandate_pending' ? 'Generate updated link' : 'Start billing — send checkout link'}</button>
     </div>`;
   }
   html += '<div id="bill-charges" style="margin-top:12px"></div>';
@@ -968,14 +971,15 @@ async function renderBilling(h) {
 }
 async function startBilling() {
   if (!current || !current.id) return;
-  const btn = $('bill-start') || $('bill-restart'); if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
   const planSel = $('bill-plan');
   const body = { hotelId: current.id };
   if (planSel) {
     body.plan = planSel.value;
     body.price_cents = Math.round((+$('bill-price').value || 0) * 100);
     body.setup_fee_cents = Math.round((+$('bill-setup').value || 0) * 100);
+    if (body.price_cents <= 0) { alert('Set a monthly price above €0 first.'); return; }
   }
+  const btn = $('bill-start') || $('bill-restart'); if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
   try {
     const r = await api('billing_start', { method: 'POST', body });
     current.billing_status = 'mandate_pending';
