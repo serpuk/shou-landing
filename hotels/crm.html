@@ -926,9 +926,11 @@ async function renderBilling(h) {
     const label = (cfg.plans[planKey] || {}).label || planKey;
     const monthlyNet = Number.isFinite(h.plan_price_cents) ? h.plan_price_cents : (cfg.plans[planKey] || {}).price_cents;
     html += `<p style="font-size:13px;margin:0 0 10px">Plan <b>${esc(label)}</b> · <b>${g(monthlyNet)}</b>/mo <span class="dim">(incl. ${vat}% VAT)</span></p>`;
-    if (status === 'mandate_pending')
-      html += `<p class="dim" style="font-size:12.5px;margin:0 0 8px">Checkout link generated — waiting for the hotel to approve the SEPA mandate.</p><button class="btn2" id="bill-restart" style="font-size:12px;padding:6px 12px">Resend checkout link</button>`;
-    else
+    if (status === 'mandate_pending') {
+      html += `<p class="dim" style="font-size:12.5px;margin:0 0 8px">Waiting for the hotel to approve the SEPA mandate.</p>`;
+      if (h._checkoutUrl) html += checkoutBox(h._checkoutUrl, h._checkoutTo);
+      html += `<button class="btn2" id="bill-restart" style="font-size:12px;padding:6px 12px">${h._checkoutUrl ? 'Generate a fresh link' : 'Resend checkout link'}</button>`;
+    } else
       html += `<button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button>`;
   } else {
     const tier = cfg.plans[planKey];
@@ -977,15 +979,19 @@ async function startBilling() {
   try {
     const r = await api('billing_start', { method: 'POST', body });
     current.billing_status = 'mandate_pending';
+    current._checkoutUrl = r.checkoutUrl; current._checkoutTo = r.to;   // kept in memory so re-renders can show it
     if (planSel) { current.plan = body.plan; current.plan_price_cents = body.price_cents; current.plan_setup_cents = body.setup_fee_cents; }
-    renderBilling(current);
-    $('bill-body').insertAdjacentHTML('afterbegin',
-      `<div style="background:#f5f2fb;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;font-size:12.5px">` +
-      `Checkout link for <b>${esc(r.to)}</b> — send it to the hotel:` +
-      `<div style="display:flex;gap:6px;margin-top:6px"><input readonly value="${esc(r.checkoutUrl || '')}" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--line);border-radius:8px" onclick="this.select()">` +
-      `<button class="btn2" style="font-size:12px;padding:6px 10px" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent='Copied'">Copy</button></div></div>`);
+    await renderBilling(current);   // renderBilling paints the link box from _checkoutUrl
     refresh();
-  } catch (e) { alert('Billing: ' + e.message); renderBilling(current); }
+  } catch (e) { alert('Billing: ' + e.message); if (btn) { btn.disabled = false; } renderBilling(current); }
+}
+// The Mollie checkout link, shown in the drawer for you to copy & send the hotel.
+function checkoutBox(url, to) {
+  return `<div style="background:#f5f2fb;border:1px solid var(--line);border-radius:10px;padding:10px;margin:0 0 10px;font-size:12.5px">` +
+    `Checkout link${to ? ` for <b>${esc(to)}</b>` : ''} — open it to test, or send it to the hotel:` +
+    `<div style="display:flex;gap:6px;margin-top:6px"><input readonly value="${esc(url || '')}" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--line);border-radius:8px" onclick="this.select()">` +
+    `<button class="btn2" style="font-size:12px;padding:6px 10px" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent='Copied'">Copy</button>` +
+    `<a class="btn2" style="font-size:12px;padding:6px 10px;text-decoration:none" href="${esc(url || '#')}" target="_blank" rel="noopener">Open ↗</a></div></div>`;
 }
 async function cancelBilling() {
   if (!current || !current.id) return;
