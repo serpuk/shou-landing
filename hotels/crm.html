@@ -914,30 +914,70 @@ async function renderBilling(h) {
      status === 'past_due' ? 'background:#fdeaea;color:#c0392b' :
      status === 'mandate_pending' ? 'background:#fff4e0;color:#a5731a' :
      status === 'canceled' ? 'background:#f1f1f4;color:#777' : 'background:#eef0f4;color:#666');
-  let settings = { plan: 'concierge', price_cents: 9900, setup_fee_cents: 19900, vat_rate: 21 }, configured = true;
-  try { const s = await api('get_billing_settings'); settings = s.settings; configured = s.configured; } catch (_) {}
-  const vat = settings.vat_rate, g = c => '€' + (Math.round(c * (1 + vat / 100)) / 100).toFixed(2);
+  var DEF = { vat_rate: 21, default_plan: 'lite', plans: { lite: { label: 'Lite', price_cents: 9900, setup_fee_cents: 19900 }, pro: { label: 'Pro', price_cents: 19900, setup_fee_cents: 19900 }, enterprise: { label: 'Enterprise', price_cents: 39900, setup_fee_cents: 0 } } };
+  var cfg = DEF, configured = true;
+  try { const s = await api('get_billing_settings'); if (s.settings && s.settings.plans) cfg = s.settings; configured = s.configured; } catch (_) {}
+  const vat = cfg.vat_rate, g = c => '€' + (Math.round(c * (1 + vat / 100)) / 100).toFixed(2);
+  const planKey = (h.plan && cfg.plans[h.plan]) ? h.plan : cfg.default_plan;
   let html = '';
   if (!configured) html += '<p style="font-size:12.5px;color:var(--red);margin:0 0 8px">⚠ Mollie not configured on the server (MOLLIE_API_KEY missing).</p>';
-  html += `<p style="font-size:13px;margin:0 0 10px">Plan <b>${esc(settings.plan)}</b> · <b>${g(settings.price_cents)}</b>/mo · setup <b>${g(settings.setup_fee_cents)}</b> <span class="dim">(incl. ${vat}% VAT)</span></p>`;
-  if (status === 'none' || status === 'canceled')
-    html += `<button class="btn" id="bill-start" style="font-size:13px;padding:8px 16px">Start billing — send checkout link</button>`;
-  else if (status === 'mandate_pending')
-    html += `<p class="dim" style="font-size:12.5px;margin:0 0 8px">Checkout link generated — waiting for the hotel to approve the SEPA mandate.</p><button class="btn2" id="bill-restart" style="font-size:12px;padding:6px 12px">Resend checkout link</button>`;
-  else if (status === 'active' || status === 'past_due')
-    html += `<button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button>`;
+
+  if (status === 'active' || status === 'past_due' || status === 'mandate_pending') {
+    const label = (cfg.plans[planKey] || {}).label || planKey;
+    const monthlyNet = Number.isFinite(h.plan_price_cents) ? h.plan_price_cents : (cfg.plans[planKey] || {}).price_cents;
+    html += `<p style="font-size:13px;margin:0 0 10px">Plan <b>${esc(label)}</b> · <b>${g(monthlyNet)}</b>/mo <span class="dim">(incl. ${vat}% VAT)</span></p>`;
+    if (status === 'mandate_pending')
+      html += `<p class="dim" style="font-size:12.5px;margin:0 0 8px">Checkout link generated — waiting for the hotel to approve the SEPA mandate.</p><button class="btn2" id="bill-restart" style="font-size:12px;padding:6px 12px">Resend checkout link</button>`;
+    else
+      html += `<button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button>`;
+  } else {
+    const tier = cfg.plans[planKey];
+    const opts = Object.keys(cfg.plans).map(k => `<option value="${k}"${k === planKey ? ' selected' : ''}>${esc(cfg.plans[k].label)}</option>`).join('');
+    const inp = 'width:100%;margin-top:4px;padding:8px;border:1px solid var(--line);border-radius:8px;font:inherit';
+    html += `<div style="display:flex;flex-direction:column;gap:10px">
+      <label style="font-size:12.5px;font-weight:600">Plan<select id="bill-plan" style="${inp}">${opts}</select></label>
+      <div style="display:flex;gap:10px">
+        <label style="flex:1;font-size:12.5px;font-weight:600">Monthly € <span class="dim">excl. VAT</span><input id="bill-price" type="number" min="0" step="1" value="${tier.price_cents / 100}" style="${inp}"></label>
+        <label style="flex:1;font-size:12.5px;font-weight:600">Setup € <span class="dim">excl. VAT</span><input id="bill-setup" type="number" min="0" step="1" value="${tier.setup_fee_cents / 100}" style="${inp}"></label>
+      </div>
+      <p id="bill-gross" class="dim" style="font-size:12px;margin:0"></p>
+      <button class="btn" id="bill-start" style="font-size:13px;padding:9px 16px">Start billing — send checkout link</button>
+    </div>`;
+  }
   html += '<div id="bill-charges" style="margin-top:12px"></div>';
   box.innerHTML = html;
-  const starter = $('bill-start') || $('bill-restart'); if (starter) starter.onclick = startBilling;
+
+  const planSel = $('bill-plan');
+  if (planSel) {
+    const priceIn = $('bill-price'), setupIn = $('bill-setup'), grossP = $('bill-gross');
+    const upd = () => {
+      const p = +priceIn.value || 0, s = +setupIn.value || 0;
+      grossP.innerHTML = s > 0
+        ? `Guest pays <b>${g(p * 100)}</b>/mo + <b>${g(s * 100)}</b> setup · incl. ${vat}% VAT`
+        : `Guest pays <b>${g(p * 100)}</b>/mo · first month collected up front, no setup · incl. ${vat}% VAT`;
+    };
+    planSel.onchange = () => { const t = cfg.plans[planSel.value]; if (t) { priceIn.value = t.price_cents / 100; setupIn.value = t.setup_fee_cents / 100; } upd(); };
+    priceIn.oninput = upd; setupIn.oninput = upd; upd();
+    $('bill-start').onclick = startBilling;
+  }
+  const restart = $('bill-restart'); if (restart) restart.onclick = startBilling;
   if ($('bill-cancel')) $('bill-cancel').onclick = cancelBilling;
   loadCharges(h.id);
 }
 async function startBilling() {
   if (!current || !current.id) return;
   const btn = $('bill-start') || $('bill-restart'); if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
+  const planSel = $('bill-plan');
+  const body = { hotelId: current.id };
+  if (planSel) {
+    body.plan = planSel.value;
+    body.price_cents = Math.round((+$('bill-price').value || 0) * 100);
+    body.setup_fee_cents = Math.round((+$('bill-setup').value || 0) * 100);
+  }
   try {
-    const r = await api('billing_start', { method: 'POST', body: { hotelId: current.id } });
+    const r = await api('billing_start', { method: 'POST', body });
     current.billing_status = 'mandate_pending';
+    if (planSel) { current.plan = body.plan; current.plan_price_cents = body.price_cents; current.plan_setup_cents = body.setup_fee_cents; }
     renderBilling(current);
     $('bill-body').insertAdjacentHTML('afterbegin',
       `<div style="background:#f5f2fb;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;font-size:12.5px">` +
