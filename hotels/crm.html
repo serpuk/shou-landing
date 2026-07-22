@@ -775,6 +775,10 @@ function openDrawer(h) {
       <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" id="ai-go" style="font-size:13px;padding:8px 16px">Log or ask</button></div>
       <div id="ai-out"></div>
     </div>
+    <div class="d-section" id="billing-box">
+      <h3>Billing <span id="bill-badge"></span></h3>
+      <div id="bill-body"><p class="dim" style="font-size:13px">Loading…</p></div>
+    </div>
     <div class="d-section">
       <h3>History</h3>
       <div id="log"><p class="dim" style="font-size:13px">Loading…</p></div>
@@ -794,6 +798,7 @@ function openDrawer(h) {
     loadLog(h.id);
     $('ai-go').onclick = runAiNote;
     $('ai-text').addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runAiNote(); });
+    renderBilling(h);
   }
 }
 // Per-hotel AI box: log an interaction OR ask a question, scoped to this hotel.
@@ -897,6 +902,84 @@ async function deleteCurrent() {
 
 /* ---------- outreach ---------- */
 // Collapsible + inline-editable outreach. Email #1 open by default; follow-ups
+/* ---------- billing (Mollie SEPA Direct Debit) ---------- */
+const ST_BILL = { none: 'Not started', mandate_pending: 'Awaiting mandate', active: 'Active', past_due: 'Past due', canceled: 'Canceled' };
+async function renderBilling(h) {
+  const box = $('bill-body'), badge = $('bill-badge');
+  if (!box) return;
+  const status = h.billing_status || 'none';
+  badge.textContent = ST_BILL[status] || status;
+  badge.style.cssText = 'font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;' +
+    (status === 'active' ? 'background:#e5f6ee;color:#137a4f' :
+     status === 'past_due' ? 'background:#fdeaea;color:#c0392b' :
+     status === 'mandate_pending' ? 'background:#fff4e0;color:#a5731a' :
+     status === 'canceled' ? 'background:#f1f1f4;color:#777' : 'background:#eef0f4;color:#666');
+  let settings = { plan: 'concierge', price_cents: 9900, setup_fee_cents: 19900, vat_rate: 21 }, configured = true;
+  try { const s = await api('get_billing_settings'); settings = s.settings; configured = s.configured; } catch (_) {}
+  const vat = settings.vat_rate, g = c => '€' + (Math.round(c * (1 + vat / 100)) / 100).toFixed(2);
+  let html = '';
+  if (!configured) html += '<p style="font-size:12.5px;color:var(--red);margin:0 0 8px">⚠ Mollie not configured on the server (MOLLIE_API_KEY missing).</p>';
+  html += `<p style="font-size:13px;margin:0 0 10px">Plan <b>${esc(settings.plan)}</b> · <b>${g(settings.price_cents)}</b>/mo · setup <b>${g(settings.setup_fee_cents)}</b> <span class="dim">(incl. ${vat}% VAT)</span></p>`;
+  if (status === 'none' || status === 'canceled')
+    html += `<button class="btn" id="bill-start" style="font-size:13px;padding:8px 16px">Start billing — send checkout link</button>`;
+  else if (status === 'mandate_pending')
+    html += `<p class="dim" style="font-size:12.5px;margin:0 0 8px">Checkout link generated — waiting for the hotel to approve the SEPA mandate.</p><button class="btn2" id="bill-restart" style="font-size:12px;padding:6px 12px">Resend checkout link</button>`;
+  else if (status === 'active' || status === 'past_due')
+    html += `<button class="btn-danger" id="bill-cancel" style="font-size:13px;padding:8px 14px">Cancel subscription</button>`;
+  html += '<div id="bill-charges" style="margin-top:12px"></div>';
+  box.innerHTML = html;
+  const starter = $('bill-start') || $('bill-restart'); if (starter) starter.onclick = startBilling;
+  if ($('bill-cancel')) $('bill-cancel').onclick = cancelBilling;
+  loadCharges(h.id);
+}
+async function startBilling() {
+  if (!current || !current.id) return;
+  const btn = $('bill-start') || $('bill-restart'); if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
+  try {
+    const r = await api('billing_start', { method: 'POST', body: { hotelId: current.id } });
+    current.billing_status = 'mandate_pending';
+    renderBilling(current);
+    $('bill-body').insertAdjacentHTML('afterbegin',
+      `<div style="background:#f5f2fb;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;font-size:12.5px">` +
+      `Checkout link for <b>${esc(r.to)}</b> — send it to the hotel:` +
+      `<div style="display:flex;gap:6px;margin-top:6px"><input readonly value="${esc(r.checkoutUrl || '')}" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--line);border-radius:8px" onclick="this.select()">` +
+      `<button class="btn2" style="font-size:12px;padding:6px 10px" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent='Copied'">Copy</button></div></div>`);
+    refresh();
+  } catch (e) { alert('Billing: ' + e.message); renderBilling(current); }
+}
+async function cancelBilling() {
+  if (!current || !current.id) return;
+  if (!confirm('Cancel this hotel’s subscription? Mollie will stop collecting.')) return;
+  const btn = $('bill-cancel'); if (btn) { btn.disabled = true; btn.textContent = 'Canceling…'; }
+  try {
+    await api('billing_cancel', { method: 'POST', body: { hotelId: current.id } });
+    current.billing_status = 'canceled';
+    renderBilling(current); refresh();
+  } catch (e) { alert('Billing: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Cancel subscription'; } }
+}
+async function loadCharges(hotelId) {
+  const box = $('bill-charges'); if (!box) return;
+  let charges = [];
+  try { const d = await api('billing_charges', { qs: '&hotelId=' + hotelId }); charges = d.charges || []; } catch (_) { return; }
+  if (!charges.length) { box.innerHTML = ''; return; }
+  const money = c => '€' + ((c || 0) / 100).toFixed(2);
+  const rows = charges.map(c => {
+    const dt = c.paid_at ? fmtDT(c.paid_at) : '—';
+    const stTag = c.status === 'paid' ? '<span style="color:#137a4f">paid</span>' : `<span style="color:#c0392b">${esc(c.status)}</span>`;
+    const inv = c.status === 'paid' ? `<label style="font-size:11.5px;cursor:pointer"><input type="checkbox" ${c.invoiced ? 'checked' : ''} data-cid="${c.id}" class="inv-chk"> invoiced</label>` : '';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:12.5px">` +
+      `<span>${dt} · ${c.kind === 'setup' ? 'Setup' : 'Monthly'}</span>` +
+      `<span style="display:flex;gap:10px;align-items:center"><b>${money(c.gross_cents)}</b> ${stTag} ${inv}</span></div>`;
+  }).join('');
+  box.innerHTML = `<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:2px">Charges</div>${rows}`;
+  for (const chk of box.querySelectorAll('.inv-chk')) {
+    chk.onchange = async () => {
+      try { await api('mark_invoiced', { method: 'POST', body: { chargeId: +chk.dataset.cid, invoiced: chk.checked } }); }
+      catch (e) { alert(e.message); chk.checked = !chk.checked; }
+    };
+  }
+}
+
 // collapsed to a preview. Edits go into oDraft; one Save recomposes via op=save_outreach.
 let oDraft = null;
 function oPrev(t) { const s = String(t || '').replace(/\s+/g, ' ').trim(); return s ? esc(s.length > 150 ? s.slice(0, 150) + '…' : s) : '<span class="dim">(empty)</span>'; }
