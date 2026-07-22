@@ -6,10 +6,10 @@
 <title>Pricing — AI Concierge for Hotels · shou</title>
 <!-- shou favicon — gradient equalizer mark, matches the this-week pages -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
-<meta name="description" content="Simple pricing for shou's AI concierge for hotels: €99/month + VAT, cancel anytime. Setup waived for our first 5 founding hotels (normally €199); Standard €499; Premium Custom from €999.">
+<meta name="description" content="Pricing for shou's AI concierge for hotels — Lite €99/mo (city events), Pro €199/mo (your hotel's 24/7 digital concierge), Enterprise from €399. + VAT, cancel anytime. Setup waived for our first 5 founding hotels.">
 <meta name="robots" content="index,follow">
 <meta property="og:title" content="Pricing — AI Concierge for Hotels · shou">
-<meta property="og:description" content="€99/month + VAT, cancel anytime. Setup waived for our first 5 founding hotels (normally €199); Standard €499; Premium Custom from €999.">
+<meta property="og:description" content="Lite €99/mo · Pro €199/mo · Enterprise from €399. + VAT, cancel anytime. Setup waived for our first 5 founding hotels.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://shou.be/hotels/pricing">
 <meta property="og:image" content="https://shou.be/og-this-week.png">
@@ -140,7 +140,9 @@
   .tprice{font-family:'Fraunces';font-size:46px;font-weight:600;line-height:1;color:var(--ink)}
   .tprice .cur{font-size:26px;vertical-align:top;margin-right:2px}
   .tprice .plus{font-size:28px;color:var(--pink)}
+  .tprice .permo{font-family:'Inter';font-size:17px;font-weight:500;color:var(--text-soft)}
   .tsetup{color:var(--text-soft);font-size:13.5px;margin-top:8px}
+  .tsetup b{color:var(--ink);font-weight:700}
   .tier ul{list-style:none;margin:22px 0 24px;display:flex;flex-direction:column;gap:10px;flex:1}
   .tier li{font-size:14px;color:var(--text-soft);padding-left:24px;position:relative}
   .tier li::before{content:'✓';position:absolute;left:0;color:var(--cyan);font-weight:800}
@@ -170,7 +172,7 @@
   <div class="phead">
     <span class="eyebrow"><span class="dot"></span>Summer launch offer</span>
     <h1>Simple pricing, <span class="grad-text">reserved for our first hotels.</span></h1>
-    <p>One flat monthly fee. No commission, no per-guest charge, cancel any time. Everything below is <b>+ VAT</b>.</p>
+    <p>Three tiers, one job — your guests' questions answered 24/7, in every language. No commission, no per-guest charge, cancel anytime. Everything below is <b>+ VAT</b>.</p>
   </div>
 
   <div class="promo">
@@ -183,70 +185,71 @@
 <section style="padding-top:20px"><div class="wrap">
   <div class="tiers">
 
-    <!-- Pilot (featured) -->
+    <!-- Lite -->
+    <div class="tier">
+      <span class="tbadge calm">Live now</span>
+      <h2 class="tname">Concierge Lite</h2>
+      <p class="tpos">City events &amp; recommendations</p>
+      <div class="tprice"><span class="cur">€</span>99<span class="permo"> /mo</span></div>
+      <div class="tsetup">+ €199 setup · <b>waived</b> for founding pilots</div>
+      <ul>
+        <li>Your branded concierge in <b>7 languages</b></li>
+        <li>24/7 AI: what's on tonight, live music, family activities, hidden gems</li>
+        <li>“This week near your hotel” — hourly updates</li>
+        <li>Best restaurants, free museums &amp; things to do nearby</li>
+        <li>QR codes &amp; a print-ready flyer</li>
+      </ul>
+      <a class="btn btn-ghost" href="/hotels/apply?plan=lite">Get started →</a>
+    </div>
+
+    <!-- Pro (featured) -->
     <div class="tier feat">
-      <span class="tbadge">Founding partners</span>
-      <h2 class="tname">Pilot Program</h2>
-      <p class="tpos">The first 5 hotels · founding launch</p>
-      <div class="tprice"><s style="opacity:.4;font-size:.45em;font-weight:500;vertical-align:.6em">€199</s> Free</div>
-      <div class="tsetup">setup waived for the first 5 pilot hotels — in exchange for product feedback</div>
+      <span class="tbadge">Most popular</span>
+      <h2 class="tname">Concierge Pro</h2>
+      <p class="tpos">Your 24/7 digital concierge</p>
+      <div class="tprice"><span class="cur">€</span>199<span class="permo"> /mo</span></div>
+      <div class="tsetup">+ €199 setup · <b>waived</b> for founding pilots</div>
       <ul>
-        <li>Your branded concierge in 7 languages</li>
-        <li>Curated scrolls + 24/7 AI concierge</li>
-        <li>“This week near my hotel”, hourly updates</li>
-        <li>QR codes &amp; a print-ready flyer</li>
-        <li>Personalized setup &amp; direct founder support</li>
-        <li><b>Our lowest rate</b> for as long as you stay</li>
-        <li>Help shape the product with us</li>
+        <li><b>Everything in Lite</b>, plus your hotel itself:</li>
+        <li>Breakfast, check-in/out, late checkout, parking &amp; EV charging</li>
+        <li>Spa, gym, room service, pets, airport transfer — answered instantly</li>
+        <li>Your restaurant, amenities &amp; house info</li>
+        <li>A true 24/7 multilingual concierge for your guests</li>
       </ul>
-      <a class="btn btn-primary" href="/hotels/apply">Become a pilot hotel →</a>
+      <a class="btn btn-primary" href="/hotels/apply?plan=pro">Become a pilot hotel →</a>
     </div>
 
-    <!-- Standard -->
+    <!-- Enterprise -->
     <div class="tier">
-      <span class="tbadge calm">Standard</span>
-      <h2 class="tname">Standard Setup</h2>
-      <p class="tpos">Regular onboarding</p>
-      <div class="tprice"><span class="cur">€</span>499</div>
-      <div class="tsetup">one-time setup</div>
-      <ul>
-        <li>The same complete concierge</li>
-        <li>Done-for-you branding &amp; setup</li>
-        <li>All 7 languages + hourly updates</li>
-        <li>QR codes &amp; a print-ready flyer</li>
-        <li>Month-to-month · cancel anytime</li>
-      </ul>
-      <a class="btn btn-ghost" href="/hotels/apply">Get started →</a>
-    </div>
-
-    <!-- Premium Custom -->
-    <div class="tier">
-      <span class="tbadge violet">Bespoke</span>
-      <h2 class="tname">Premium Custom</h2>
-      <p class="tpos">Bespoke experiences</p>
-      <div class="tprice"><span class="cur">€</span>999<span class="plus">+</span></div>
+      <span class="tbadge violet">Enterprise</span>
+      <h2 class="tname">Concierge Enterprise</h2>
+      <p class="tpos">Integrated &amp; multi-property</p>
+      <div class="tprice"><span class="cur">€</span>399<span class="plus">+</span><span class="permo"> /mo</span></div>
       <div class="tsetup">from · by quote</div>
       <ul>
-        <li>Everything in Standard, plus:</li>
-        <li>Custom design, colours &amp; layout</li>
-        <li>Extra languages beyond the 7</li>
-        <li>Integrations — PMS, booking, data feeds</li>
-        <li>Custom domain / deeper white-label</li>
-        <li>Multi-property &amp; priority support</li>
+        <li><b>Everything in Pro</b>, plus:</li>
+        <li>PMS integration (Mews, Opera, Cloudbeds…)</li>
+        <li>In-chat bookings — spa, restaurant, transfers</li>
+        <li>WhatsApp channel &amp; guest analytics</li>
+        <li>Multiple properties &amp; priority support</li>
       </ul>
-      <a class="btn btn-ghost" href="mailto:hotels@shou.be?subject=Premium%20custom%20—%20shou%20concierge">Tell us what you need →</a>
+      <a class="btn btn-ghost" href="mailto:hotels@shou.be?subject=Concierge%20Enterprise%20—%20shou">Talk to us →</a>
     </div>
 
   </div>
 
-  <p class="monthly-line">Every plan then runs at <b>€99 / month + VAT</b> — no commission, no per-guest charge, cancel anytime. <b>First month free</b> while we set you up. All setup prices are one-time, + VAT.</p>
-  <p class="monthly-line" style="font-size:14px;margin-top:10px">Your monthly fee covers continuous event updates, AI improvements, support and unlimited guest usage.</p>
+  <p class="monthly-line">All prices are <b>monthly, + VAT</b> — no commission, no per-guest charge, cancel anytime. <b>Setup waived for our first 5 founding hotels</b> (normally €199).</p>
+  <p class="monthly-line" style="font-size:14px;margin-top:10px">Your monthly fee covers continuous updates, AI improvements, support and unlimited guest usage.</p>
   <p class="monthly-line" style="font-size:13px;color:var(--text-dim);margin-top:12px">Founding partners always keep our lowest rate — below standard pricing. Month-to-month: cancel anytime, with advance notice of any price change.</p>
 </div></section>
 
 <!-- FAQ -->
 <section style="padding-top:20px"><div class="wrap faq">
   <h2>Questions</h2>
+  <details>
+    <summary>What's the difference between Lite, Pro and Enterprise?</summary>
+    <div class="a"><b>Lite</b> answers questions about the city — what's on tonight, live music, family activities, restaurants and hidden gems near you. <b>Pro</b> adds your hotel itself: breakfast times, parking, spa, check-in/out, pets, room service and more, so the AI becomes your hotel's own 24/7 multilingual concierge rather than just an events guide. <b>Enterprise</b> adds integrations and in-chat bookings (PMS, spa/restaurant/transfer bookings, WhatsApp, analytics, multiple properties).</div>
+  </details>
   <details>
     <summary>Why is it so affordable right now?</summary>
     <div class="a">We're onboarding our first 5 hotels and want them to become great references, so the Pilot setup rate is our founding-partner price — the lowest rate we offer, and it stays yours for as long as you stay. It's reserved for those first pilot hotels.</div>
@@ -265,7 +268,7 @@
   </details>
   <details>
     <summary>What counts as “custom work”?</summary>
-    <div class="a">Your setup already includes your branded page, curated scrolls, the AI concierge, hourly updates and your own links. Custom work is anything bespoke on top of that — special integrations, a custom domain, extra languages, unique features or design. That's the Premium Custom tier (from €999), always scoped and quoted upfront, and only started once you approve.</div>
+    <div class="a">Lite and Pro already include your branded page, the AI concierge, hourly updates and your own links. Custom work is anything bespoke on top — PMS or booking integrations, a WhatsApp channel, guest analytics, multiple properties, a custom domain or unique features. That's the Enterprise tier (from €399/mo), always scoped and quoted upfront, and only started once you approve.</div>
   </details>
   <details>
     <summary>How long does setup take?</summary>
