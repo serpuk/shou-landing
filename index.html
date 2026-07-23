@@ -415,7 +415,7 @@
           row.innerHTML = posts.map(function(p){
             var cap = esc(p.caption || '');
             return '<a class="reel" href="' + esc(p.permalink) + '" target="_blank" rel="noopener" aria-label="Watch on Instagram">' +
-              '<img src="' + esc(p.thumbnail) + '" alt="' + cap + '" loading="lazy" decoding="async" referrerpolicy="no-referrer">' +
+              '<img src="' + esc(p.thumbnail) + '" alt="' + cap + '" decoding="async" referrerpolicy="no-referrer">' +
               '<span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>' +
               (cap ? '<span class="cap">' + cap + '</span>' : '') + '</a>';
           }).join('');
