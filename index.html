@@ -245,6 +245,19 @@
   .seonav a{display:inline-block;font-size:12.5px;color:var(--text-dim);text-decoration:none;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:5px 12px;transition:color .2s,border-color .2s}
   .seonav a:hover{color:var(--text-soft);border-color:rgba(255,61,139,0.4)}
 
+  /* Latest reels strip — secondary freshness row (auto-generated exotic reels) */
+  .reels{position:relative;z-index:2;max-width:640px;margin:18px auto 0;padding:0 24px}
+  .reels-h{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);opacity:.8;text-align:center;margin:0 0 12px}
+  .reels-row{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+  .reels-row::-webkit-scrollbar{display:none}
+  .reel{position:relative;flex:0 0 108px;aspect-ratio:9/16;border-radius:12px;overflow:hidden;background:#1a1622;border:1px solid var(--panel-bd);scroll-snap-align:start;text-decoration:none;transition:transform .15s,border-color .15s}
+  .reel:hover{transform:translateY(-2px);border-color:rgba(255,61,139,0.5)}
+  .reel img{width:100%;height:100%;object-fit:cover;display:block}
+  .reel .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:rgba(12,9,16,0.5);display:grid;place-items:center;backdrop-filter:blur(2px)}
+  .reel .play svg{width:12px;height:12px;fill:#fff;margin-left:2px}
+  .reel .cap{position:absolute;left:0;right:0;bottom:0;padding:16px 8px 7px;font-size:10.5px;line-height:1.25;color:#fff;background:linear-gradient(to top,rgba(12,9,16,0.9),transparent);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  @media(max-width:480px){.reel{flex:0 0 96px}}
+
   /* Staggered entrance */
   .eyebrow,.logo,.tag,.blurb,.cta,.notify,.beta-line,.news{
     opacity:0;transform:translateY(16px);
@@ -311,6 +324,11 @@
       <span>Follow @shou.be</span>
     </a>
   </main>
+
+  <section class="reels" id="reelsStrip" hidden aria-label="Latest from shou on Instagram">
+    <h2 class="reels-h">Latest from shou</h2>
+    <div class="reels-row" id="reelsRow"></div>
+  </section>
 
   <nav class="seonav" aria-label="What's on in Belgium">
     <h2>What's on in Belgium</h2>
@@ -380,6 +398,31 @@
         if (note) note.textContent = 'Network error — please try again.';
       }
     });
+  </script>
+
+  <!-- Latest reels strip: fetches recent auto-generated reels from the backend
+       (cached), renders poster thumbnails linking to Instagram. Hidden unless
+       there's something to show, so a fetch failure never leaves a broken row. -->
+  <script>
+    (function(){
+      var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+      fetch('https://shou-backend.vercel.app/api/ig-recent')
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var posts = (d && d.posts) || [];
+          if (!posts.length) return;
+          var row = document.getElementById('reelsRow');
+          row.innerHTML = posts.map(function(p){
+            var cap = esc(p.caption || '');
+            return '<a class="reel" href="' + esc(p.permalink) + '" target="_blank" rel="noopener" aria-label="Watch on Instagram">' +
+              '<img src="' + esc(p.thumbnail) + '" alt="' + cap + '" loading="lazy" decoding="async">' +
+              '<span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>' +
+              (cap ? '<span class="cap">' + cap + '</span>' : '') + '</a>';
+          }).join('');
+          document.getElementById('reelsStrip').hidden = false;
+        })
+        .catch(function(){ /* silent — strip stays hidden */ });
+    })();
   </script>
 </body>
 </html>
