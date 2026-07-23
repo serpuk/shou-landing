@@ -161,6 +161,16 @@
           <option value="enterprise">Enterprise — integrations · €399+/mo</option>
         </select>
       </div>
+      <div class="row2">
+        <div class="field">
+          <label for="vat">VAT number <span class="hint">(optional)</span></label>
+          <input type="text" id="vat" name="vat" placeholder="BE0123.456.789" maxlength="40">
+        </div>
+        <div class="field">
+          <label for="billingAddress">Billing address <span class="hint">(optional)</span></label>
+          <input type="text" id="billingAddress" name="billingAddress" placeholder="Street, postcode, city" maxlength="300" autocomplete="street-address">
+        </div>
+      </div>
       <div class="field">
         <label for="message">Anything else? <span class="hint">(optional)</span></label>
         <textarea id="message" name="message" placeholder="Guest languages, neighbourhood, what you'd like the concierge to do…" maxlength="2000"></textarea>
@@ -210,6 +220,8 @@
       website:     document.getElementById('website').value.trim(),
       hotelType:   document.getElementById('hotelType').value,
       plan:        document.getElementById('plan').value,
+      vat:            document.getElementById('vat').value.trim(),
+      billingAddress: document.getElementById('billingAddress').value.trim(),
       rooms:       document.getElementById('rooms').value.trim(),
       message:     document.getElementById('message').value.trim()
     };
