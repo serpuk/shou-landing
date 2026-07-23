@@ -322,7 +322,7 @@ const HOTEL={name:'The Dominican',lat:50.8493,lng:4.3547};
 // Usage analytics: tag searches from this demo with a source + a persistent
 // anonymous visitor id (localStorage) so the backend can report queries/day,
 // unique visitors, and top queries per hotel. No PII — just a random id.
-const SAMPLE_SOURCE='hotel-sample';
+const SAMPLE_SOURCE='hotel-'+((location.pathname.split('/').filter(Boolean).pop()||'sample').replace(/\.html$/,''));
 const VISITOR_ID=(()=>{ try{ let v=localStorage.getItem('shou_vid'); if(!v){ v=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)); localStorage.setItem('shou_vid',v); } return v; }catch(_){ return null; } })();
 // Log a demo interaction (click-through / tickets / directions) to the sample
 // analytics. Routed to /api/track with a source, which the backend logs to
