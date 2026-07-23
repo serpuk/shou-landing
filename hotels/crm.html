@@ -750,6 +750,8 @@ function openDrawer(h) {
         <div class="field"><label>Next follow-up</label><input id="f-next" type="datetime-local" value="${toLocalInput(h.next_follow_up)}"></div>
         <div class="field"><label>Last email sent</label><input id="f-lastmail" type="datetime-local" value="${toLocalInput(h.last_email_at)}"></div>
         <div class="field"><label>Last reply</label><input id="f-lastreply" type="datetime-local" value="${toLocalInput(h.last_reply_at)}"></div>
+        <div class="field"><label>VAT number <span style="font-weight:400;color:var(--dim)">(invoices)</span></label><input id="f-billing-vat" value="${esc(h.billing_vat || '')}" placeholder="BE0123.456.789"></div>
+        <div class="field"><label>Billing address <span style="font-weight:400;color:var(--dim)">(invoices)</span></label><input id="f-billing-address" value="${esc(h.billing_address || '')}" placeholder="Street, postcode, city"></div>
         <div class="field full"><label>Notes</label><textarea id="f-notes">${esc(h.notes || '')}</textarea></div>
       </div>
       <div class="d-section">
@@ -880,6 +882,8 @@ async function saveDrawer() {
       last_email_at: $('f-lastmail').value,
       last_reply_at: $('f-lastreply').value,
       notes: $('f-notes').value,
+      billing_vat: $('f-billing-vat').value.trim(),
+      billing_address: $('f-billing-address').value.trim(),
       contacts: collectContacts(),
     };
     const d = await api('save', { method: 'POST', body: { hotel } });
@@ -1062,27 +1066,114 @@ async function resetBilling() {
     renderBilling(current); refresh();
   } catch (e) { alert('Reset: ' + e.message); }
 }
+let _chargeCache = {};
 async function loadCharges(hotelId) {
   const box = $('bill-charges'); if (!box) return;
   let charges = [];
   try { const d = await api('billing_charges', { qs: '&hotelId=' + hotelId }); charges = d.charges || []; } catch (_) { return; }
   if (!charges.length) { box.innerHTML = ''; return; }
+  _chargeCache = {};
   const money = c => '€' + ((c || 0) / 100).toFixed(2);
   const rows = charges.map(c => {
+    _chargeCache[c.id] = c;
     const dt = c.paid_at ? fmtDT(c.paid_at) : '—';
     const stTag = c.status === 'paid' ? '<span style="color:#137a4f">paid</span>' : `<span style="color:#c0392b">${esc(c.status)}</span>`;
-    const inv = c.status === 'paid' ? `<label style="font-size:11.5px;cursor:pointer"><input type="checkbox" ${c.invoiced ? 'checked' : ''} data-cid="${c.id}" class="inv-chk"> invoiced</label>` : '';
+    let action = '';
+    if (c.status === 'paid') {
+      action = c.invoice_no
+        ? `<button class="inv-open" data-cid="${c.id}" style="background:none;border:none;color:var(--cyan);font-weight:600;font-size:11.5px;cursor:pointer;font-family:inherit;padding:0">Inv ${esc(c.invoice_no)} ↗</button>`
+        : `<button class="inv-gen" data-cid="${c.id}" style="background:#fff;border:1px solid var(--line);border-radius:6px;color:var(--ink);font-weight:600;font-size:11.5px;cursor:pointer;font-family:inherit;padding:3px 9px">Invoice →</button>`;
+    }
     return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:12.5px">` +
       `<span>${dt} · ${c.kind === 'setup' ? 'Setup' : 'Monthly'}</span>` +
-      `<span style="display:flex;gap:10px;align-items:center"><b>${money(c.gross_cents)}</b> ${stTag} ${inv}</span></div>`;
+      `<span style="display:flex;gap:10px;align-items:center"><b>${money(c.gross_cents)}</b> ${stTag} ${action}</span></div>`;
   }).join('');
   box.innerHTML = `<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:2px">Charges</div>${rows}`;
-  for (const chk of box.querySelectorAll('.inv-chk')) {
-    chk.onchange = async () => {
-      try { await api('mark_invoiced', { method: 'POST', body: { chargeId: +chk.dataset.cid, invoiced: chk.checked } }); }
-      catch (e) { alert(e.message); chk.checked = !chk.checked; }
-    };
-  }
+  for (const b of box.querySelectorAll('.inv-gen')) b.onclick = () => generateInvoice(+b.dataset.cid);
+  for (const b of box.querySelectorAll('.inv-open')) b.onclick = () => { const c = _chargeCache[+b.dataset.cid]; if (c) openInvoiceWindow(c, current, c.invoice_no); };
+}
+async function generateInvoice(chargeId) {
+  const c = _chargeCache[chargeId]; if (!c) return;
+  const w = window.open('', '_blank');   // open in the click gesture so pop-up blockers don't kill it
+  if (w) w.document.write('<p style="font-family:sans-serif;padding:24px;color:#555">Generating invoice…</p>');
+  try {
+    const r = await api('assign_invoice_no', { method: 'POST', body: { chargeId } });
+    c.invoice_no = r.invoiceNo; c.invoiced_at = r.invoicedAt; c.invoiced = true;
+    if (w) { w.document.open(); w.document.write(invoiceHTML(c, current, r.invoiceNo)); w.document.close(); }
+    loadCharges(current.id);
+  } catch (e) { if (w) w.close(); alert('Invoice: ' + e.message); }
+}
+function openInvoiceWindow(c, h, invoiceNo) {
+  const w = window.open('', '_blank');
+  if (!w) { alert('Please allow pop-ups to open the invoice, then try again.'); return; }
+  w.document.write(invoiceHTML(c, h || {}, invoiceNo)); w.document.close();
+}
+const eurC = cents => '€' + ((cents || 0) / 100).toFixed(2);
+function invDate(v) { try { return new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (_) { return ''; } }
+// The real (not pro-forma) VAT invoice for one paid charge. ABSS Analytics issuer
+// details are fixed; customer + amounts come from the hotel + charge.
+function invoiceHTML(c, h, invoiceNo) {
+  const isSetup = c.kind === 'setup';
+  const desc = isSetup ? 'shou — AI Concierge for hotels · Setup (one-time)' : 'shou — AI Concierge for hotels · Monthly subscription';
+  const rate = Number.isFinite(c.vat_rate) ? c.vat_rate : 21;
+  const dateStr = invDate(c.invoiced_at || c.paid_at || new Date().toISOString());
+  const paidStr = invDate(c.paid_at || c.invoiced_at);
+  const custAddr = h.billing_address ? `<p>${esc(h.billing_address)}</p>` : (h.city ? `<p>${esc(h.city)}, Belgium</p>` : '');
+  const custVat = h.billing_vat ? `<p>VAT: <b>${esc(h.billing_vat)}</b></p>` : '';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice ${esc(invoiceNo)} — ABSS Analytics</title><style>
+@page{size:A4;margin:18mm}*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;color:#1c1a22;font-size:13px;line-height:1.5;background:#f3f2f6}
+.sheet{max-width:780px;margin:24px auto;background:#fff;padding:44px 46px;box-shadow:0 2px 14px rgba(0,0,0,.08)}
+@media print{body{background:#fff}.sheet{box-shadow:none;margin:0;padding:0;max-width:none}.hint{display:none}}
+.hint{max-width:780px;margin:0 auto;padding:10px 46px;font-size:12px;color:#6a6572}
+.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #15101b;padding-bottom:20px}
+.brand{font-family:Georgia,serif;font-size:30px;font-weight:700;letter-spacing:-.5px;color:#ff3d8b}
+.brand small{display:block;font-family:'Segoe UI',Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:#8a8494;margin-top:2px}
+.doc-title{text-align:right}.doc-title h1{font-size:22px;letter-spacing:.04em;color:#15101b;text-transform:uppercase}
+.doc-title .tag{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#137a4f;background:#e5f6ee;border:1px solid rgba(19,122,79,.3);border-radius:5px;padding:3px 9px}
+.parties{display:flex;justify-content:space-between;gap:40px;margin:26px 0 8px}
+.block h2{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8a8494;margin-bottom:7px}
+.block .name{font-weight:700;font-size:14px;color:#15101b}.block p{color:#4a4552}
+.meta{text-align:right}.meta table{margin-left:auto}.meta td{padding:2px 0 2px 16px}.meta td:first-child{color:#8a8494}.meta td:last-child{font-weight:600;text-align:right}
+table.items{width:100%;border-collapse:collapse;margin:26px 0 0}
+table.items thead th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8494;border-bottom:1.5px solid #15101b;padding:8px 10px}
+table.items thead th.r,table.items tbody td.r{text-align:right}
+table.items tbody td{padding:12px 10px;border-bottom:1px solid #ececf0;vertical-align:top}
+table.items tbody .desc b{color:#15101b}
+.totals{width:300px;margin-left:auto;margin-top:16px}.totals tr td{padding:6px 10px}.totals tr td:first-child{color:#4a4552}.totals tr td:last-child{text-align:right;font-weight:600}
+.totals tr.grand td{border-top:2px solid #15101b;font-size:15px;font-weight:700;color:#15101b;padding-top:10px}
+.note{margin-top:30px;padding:14px 16px;background:#f6faf7;border:1px solid #e0ece4;border-left:3px solid #137a4f;border-radius:8px;font-size:12px;color:#4a4552}
+.foot{margin-top:34px;border-top:1px solid #ececf0;padding-top:12px;font-size:11px;color:#8a8494;display:flex;justify-content:space-between}
+</style></head><body>
+<p class="hint">Press Ctrl+P → Save as PDF to export this invoice.</p>
+<div class="sheet">
+  <div class="top">
+    <div><div class="brand">shou<small>by ABSS Analytics</small></div></div>
+    <div class="doc-title"><h1>Invoice</h1><div class="tag">Paid${paidStr ? ' · ' + paidStr : ''}</div></div>
+  </div>
+  <div class="parties">
+    <div class="block"><h2>From</h2>
+      <p class="name">ABSS Analytics</p><p>Ch. de Louvain 1220</p><p>1200 Brussels, Belgium</p>
+      <p>VAT: <b>BE 0804.852.055</b></p><p>hotels@shou.be · shou.be</p></div>
+    <div class="block meta"><h2>Details</h2><table>
+      <tr><td>Invoice no.</td><td>${esc(invoiceNo)}</td></tr>
+      <tr><td>Date</td><td>${dateStr}</td></tr>
+      <tr><td>Currency</td><td>EUR</td></tr></table></div>
+  </div>
+  <div class="parties" style="margin-top:6px">
+    <div class="block"><h2>Bill to</h2>
+      <p class="name">${esc(h.name || 'Hotel client')}</p>${custAddr}${custVat}</div>
+  </div>
+  <table class="items"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Amount (excl. VAT)</th></tr></thead>
+    <tbody><tr><td class="desc"><b>${desc}</b></td><td class="r">1</td><td class="r">${eurC(c.net_cents)}</td><td class="r">${eurC(c.net_cents)}</td></tr></tbody></table>
+  <table class="totals">
+    <tr><td>Subtotal (excl. VAT)</td><td>${eurC(c.net_cents)}</td></tr>
+    <tr><td>VAT (Belgium, ${rate}%)</td><td>${eurC(c.vat_cents)}</td></tr>
+    <tr class="grand"><td>Total (incl. VAT)</td><td>${eurC(c.gross_cents)}</td></tr></table>
+  <p style="margin-top:20px;font-size:12.5px"><b>Payment:</b> Paid by SEPA Direct Debit via Mollie${paidStr ? ' on ' + paidStr : ''}.</p>
+  <div class="note">VAT charged at the Belgian standard rate (${rate}%). ABSS Analytics — VAT BE 0804.852.055.</div>
+  <div class="foot"><span>ABSS Analytics · VAT BE 0804.852.055 · Brussels, Belgium</span><span>shou.be/hotels</span></div>
+</div></body></html>`;
 }
 
 // collapsed to a preview. Edits go into oDraft; one Save recomposes via op=save_outreach.
