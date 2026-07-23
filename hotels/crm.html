@@ -974,9 +974,14 @@ async function renderBilling(h) {
     const priceIn = $('bill-price'), setupIn = $('bill-setup'), grossP = $('bill-gross');
     const upd = () => {
       const p = +priceIn.value || 0, s = +setupIn.value || 0;
-      grossP.innerHTML = s > 0
+      const grossC = net => Math.round(net * (1 + vat / 100));
+      const monthly = grossC(p * 100), setup = grossC(s * 100), first = s > 0 ? setup : monthly;
+      let msg = s > 0
         ? `Guest pays <b>${g(p * 100)}</b>/mo + <b>${g(s * 100)}</b> setup · incl. ${vat}% VAT`
         : `Guest pays <b>${g(p * 100)}</b>/mo · first month collected up front, no setup · incl. ${vat}% VAT`;
+      if (Math.max(first, monthly) > 100000)
+        msg += `<br><span style="color:#c0392b;font-weight:600">⚠ A single SEPA payment would exceed Mollie's €1,000 limit and be declined — lower the amount, or request a higher limit from Mollie.</span>`;
+      grossP.innerHTML = msg;
     };
     planSel.onchange = () => { const t = cfg.plans[planSel.value]; if (t) { priceIn.value = t.price_cents / 100; setupIn.value = t.setup_fee_cents / 100; } upd(); };
     priceIn.oninput = upd; setupIn.oninput = upd; upd();
@@ -988,7 +993,13 @@ async function renderBilling(h) {
   if ($('bill-reset')) $('bill-reset').onclick = resetBilling;
   if ($('bill-changeplan')) {
     const cpPlan = $('cp-plan'), cpPrice = $('cp-price'), cpGross = $('cp-gross');
-    const cpUpd = () => { const p = +cpPrice.value || 0; cpGross.innerHTML = `New monthly: <b>${g(p * 100)}</b> incl. ${vat}% VAT · from the next collection`; };
+    const cpUpd = () => {
+      const p = +cpPrice.value || 0;
+      let msg = `New monthly: <b>${g(p * 100)}</b> incl. ${vat}% VAT · from the next collection`;
+      if (Math.round(p * 100 * (1 + vat / 100)) > 100000)
+        msg += `<br><span style="color:#c0392b;font-weight:600">⚠ Exceeds Mollie's €1,000 per-payment limit and would be declined.</span>`;
+      cpGross.innerHTML = msg;
+    };
     $('bill-changeplan').onclick = () => { const el = $('bill-change'); el.style.display = el.style.display === 'none' ? 'block' : 'none'; if (el.style.display === 'block') cpUpd(); };
     cpPlan.onchange = () => { const t = cfg.plans[cpPlan.value]; if (t) cpPrice.value = t.price_cents / 100; cpUpd(); };
     cpPrice.oninput = cpUpd;
