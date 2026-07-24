@@ -26,7 +26,9 @@
   .bar{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:12px}
   .brand{font-family:'Fraunces';font-weight:700;font-size:22px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
   .brand small{font-family:'Inter';font-weight:600;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);-webkit-text-fill-color:var(--dim);margin-left:8px}
-  .who{margin-left:auto;font-size:13px;color:var(--soft)}
+  .who{margin-left:14px;font-size:13px;color:var(--soft)}
+  .uilang{margin-left:auto}
+  .uilang select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;outline:none}
   .signout{font-size:13px;font-weight:600;color:var(--soft);background:none;border:none;cursor:pointer;font-family:inherit;margin-left:14px}
   .signout:hover{color:var(--pink)}
 
@@ -110,19 +112,20 @@
 <body>
 <header><div class="bar">
   <a class="brand" href="/apartments/offer">shou <small>apartments</small></a>
+  <div class="uilang"><select id="uiLang" aria-label="Language"><option value="en">🇬🇧 EN</option><option value="fr">🇫🇷 FR</option><option value="nl">🇳🇱 NL</option></select></div>
   <span class="who" id="who"></span>
-  <button class="signout" id="signout" style="display:none">Sign out</button>
+  <button class="signout" id="signout" style="display:none" data-i="signout">Sign out</button>
 </div></header>
 
 <!-- AUTH -->
 <div class="wrap">
   <div class="auth" id="auth">
-    <h1>Sign in</h1>
-    <p>Enter your email and we'll send you a secure sign-in link — no password needed.</p>
-    <input type="email" id="email" placeholder="you@company.com" autocomplete="email">
-    <button class="btn btn-primary" id="loginBtn">Email me a link →</button>
+    <h1 data-i="authTitle">Sign in</h1>
+    <p data-i="authSub">Enter your email and we'll send you a secure sign-in link — no password needed.</p>
+    <input type="email" id="email" placeholder="you@company.com" autocomplete="email" data-i-ph="emailPh">
+    <button class="btn btn-primary" id="loginBtn" data-i="loginBtn">Email me a link →</button>
     <div class="msg" id="authMsg"></div>
-    <p class="note">First time? Signing in creates your account. <a href="/apartments/pricing" style="color:var(--cyan)">See pricing</a></p>
+    <p class="note"><span data-i="firstTime">First time? Signing in creates your account.</span> <a href="/apartments/pricing" style="color:var(--cyan)" data-i="seePricing">See pricing</a></p>
   </div>
 </div>
 
@@ -130,8 +133,8 @@
 <div id="app"><div class="wrap">
   <div id="billing"></div>
   <div class="page-head">
-    <h1>Your apartments</h1>
-    <button class="btn btn-primary" id="newBtn">＋ Add apartment</button>
+    <h1 data-i="yourApts">Your apartments</h1>
+    <button class="btn btn-primary" id="newBtn"><span data-i="addApt">＋ Add apartment</span></button>
   </div>
   <div class="units" id="units"></div>
 
@@ -139,56 +142,56 @@
   <div id="editor">
     <div class="ed-head">
       <h2 id="edTitle">New apartment</h2>
-      <button class="btn btn-ghost btn-sm" id="edClose">Close</button>
+      <button class="btn btn-ghost btn-sm" id="edClose" data-i="close">Close</button>
     </div>
-    <p class="ed-sub">Fill in what your guests always ask. You can edit any of this later, and it goes live the moment you save.</p>
+    <p class="ed-sub" data-i="edSub">Fill in what your guests always ask. You can edit any of this later, and it goes live the moment you save.</p>
 
-    <div class="grp">Basics</div>
+    <div class="grp" data-i="grpBasics">Basics</div>
     <div class="fields">
-      <div class="f full"><label>Apartment name</label><input id="f_name" placeholder="e.g. Apartment 32"></div>
-      <div class="f"><label>Building <span class="hint">(optional)</span></label><input id="f_building" placeholder="e.g. Dansaert Residence · 2nd floor"></div>
-      <div class="f"><label>Neighbourhood label <span class="hint">(optional)</span></label><input id="f_hood" placeholder="e.g. Dansaert · Sainte-Catherine"></div>
-      <div class="f full"><label>Address</label><input id="f_address" placeholder="Street, postcode, city"></div>
-      <div class="f"><label>Latitude <span class="hint">(Maps → right-click → copy)</span></label><input id="f_lat" placeholder="50.8496" inputmode="decimal"></div>
-      <div class="f"><label>Longitude</label><input id="f_lng" placeholder="4.3470" inputmode="decimal"></div>
-      <div class="f"><label>Guest language</label><select id="f_lang">
+      <div class="f full"><label data-i="fName">Apartment name</label><input id="f_name" placeholder="e.g. Apartment 32"></div>
+      <div class="f"><label><span data-i="fBuilding">Building</span> <span class="hint" data-i="optional">(optional)</span></label><input id="f_building" placeholder="e.g. Dansaert Residence · 2nd floor"></div>
+      <div class="f"><label><span data-i="fHood">Neighbourhood label</span> <span class="hint" data-i="optional">(optional)</span></label><input id="f_hood" placeholder="e.g. Dansaert · Sainte-Catherine"></div>
+      <div class="f full"><label data-i="fAddress">Address</label><input id="f_address" placeholder="Street, postcode, city"></div>
+      <div class="f"><label><span data-i="fLat">Latitude</span> <span class="hint" data-i="fLatHint">(Maps → right-click → copy)</span></label><input id="f_lat" placeholder="50.8496" inputmode="decimal"></div>
+      <div class="f"><label data-i="fLng">Longitude</label><input id="f_lng" placeholder="4.3470" inputmode="decimal"></div>
+      <div class="f"><label data-i="fGuestLang">Guest language</label><select id="f_lang">
         <option value="en">English</option><option value="fr">Français</option><option value="nl">Nederlands</option>
         <option value="de">Deutsch</option><option value="es">Español</option><option value="it">Italiano</option><option value="uk">Українська</option>
       </select></div>
-      <div class="f"><label>Walking radius label <span class="hint">(optional)</span></label><input id="f_radius" placeholder="Everything within a 10-min walk"></div>
+      <div class="f"><label><span data-i="fRadius">Walking radius label</span> <span class="hint" data-i="optional">(optional)</span></label><input id="f_radius" placeholder="Everything within a 10-min walk"></div>
     </div>
 
-    <div class="grp">Welcome book</div>
+    <div class="grp" data-i="grpWelcome">Welcome book</div>
     <div class="fields">
-      <div class="f full"><label>📶 Wi-Fi</label><input id="w_wifi" placeholder='Network "…" · password …'></div>
-      <div class="f"><label>🔑 Check-in</label><input id="w_checkin" placeholder="From 15:00 · self check-in…"></div>
-      <div class="f"><label>🚪 Check-out</label><input id="w_checkout" placeholder="By 11:00 · keys in the lockbox"></div>
-      <div class="f"><label>🌡 Heating</label><input id="w_heating" placeholder="Thermostat by the entrance…"></div>
-      <div class="f"><label>🧺 Washing machine</label><input id="w_laundry" placeholder="Under the counter · Eco 40°…"></div>
-      <div class="f"><label>☕ Coffee</label><input id="w_coffee" placeholder="Nespresso · capsules in the cupboard"></div>
-      <div class="f"><label>🗑 Trash &amp; recycling</label><input id="w_trash" placeholder="Blue bag = PMD… · collection days"></div>
-      <div class="f"><label>🚗 Parking</label><input id="w_parking" placeholder="Interparking … · €…/day"></div>
-      <div class="f"><label>🧳 Luggage</label><input id="w_luggage" placeholder="Store bags in the lockbox…"></div>
-      <div class="f full"><label>📜 House rules</label><input id="w_rules" placeholder="No smoking · quiet hours 22:00–08:00"></div>
-      <div class="f full"><label>🆘 Emergency</label><input id="w_emergency" placeholder="Host: +32 … · EU emergency: 112"></div>
+      <div class="f full"><label>📶 <span data-i="wl_wifi">Wi-Fi</span></label><input id="w_wifi" placeholder='Network "…" · password …'></div>
+      <div class="f"><label>🔑 <span data-i="wl_checkin">Check-in</span></label><input id="w_checkin" placeholder="From 15:00 · self check-in…"></div>
+      <div class="f"><label>🚪 <span data-i="wl_checkout">Check-out</span></label><input id="w_checkout" placeholder="By 11:00 · keys in the lockbox"></div>
+      <div class="f"><label>🌡 <span data-i="wl_heating">Heating</span></label><input id="w_heating" placeholder="Thermostat by the entrance…"></div>
+      <div class="f"><label>🧺 <span data-i="wl_laundry">Washing machine</span></label><input id="w_laundry" placeholder="Under the counter · Eco 40°…"></div>
+      <div class="f"><label>☕ <span data-i="wl_coffee">Coffee</span></label><input id="w_coffee" placeholder="Nespresso · capsules in the cupboard"></div>
+      <div class="f"><label>🗑 <span data-i="wl_trash">Trash &amp; recycling</span></label><input id="w_trash" placeholder="Blue bag = PMD… · collection days"></div>
+      <div class="f"><label>🚗 <span data-i="wl_parking">Parking</span></label><input id="w_parking" placeholder="Interparking … · €…/day"></div>
+      <div class="f"><label>🧳 <span data-i="wl_luggage">Luggage</span></label><input id="w_luggage" placeholder="Store bags in the lockbox…"></div>
+      <div class="f full"><label>📜 <span data-i="wl_rules">House rules</span></label><input id="w_rules" placeholder="No smoking · quiet hours 22:00–08:00"></div>
+      <div class="f full"><label>🆘 <span data-i="wl_emergency">Emergency</span></label><input id="w_emergency" placeholder="Host: +32 … · EU emergency: 112"></div>
     </div>
 
     <div class="ed-actions">
-      <button class="btn btn-primary" id="saveBtn">Save</button>
+      <button class="btn btn-primary" id="saveBtn" data-i="save">Save</button>
       <button class="btn btn-ghost" id="pubBtn" style="display:none">Publish</button>
       <div class="spacer"></div>
-      <button class="btn btn-danger btn-sm" id="delBtn" style="display:none">Delete</button>
+      <button class="btn btn-danger btn-sm" id="delBtn" style="display:none" data-i="delete">Delete</button>
     </div>
     <div class="msg" id="edMsg"></div>
 
     <div class="publish-box" id="pubBox">
       <img id="pubQr" alt="QR code">
       <div>
-        <div class="pb-t">Live — put this QR in the apartment</div>
+        <div class="pb-t" data-i="pbTitle">Live — put this QR in the apartment</div>
         <div class="pb-u" id="pubUrl"></div>
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <a class="btn btn-ghost btn-sm" id="viewLive" target="_blank" rel="noopener">View live ↗</a>
-          <a class="btn btn-ghost btn-sm" id="qrDownload" download>Download QR</a>
+          <a class="btn btn-ghost btn-sm" id="viewLive" target="_blank" rel="noopener" data-i="viewLive">View live ↗</a>
+          <a class="btn btn-ghost btn-sm" id="qrDownload" download data-i="downloadQr">Download QR</a>
         </div>
       </div>
     </div>
@@ -198,12 +201,38 @@
 <script>
 var API='https://shou-backend.vercel.app/api/apt';
 var LIVE_BASE='https://shou.be/apartments/u/';   // dynamic renderer (published units)
-var token=null, owner=null, editing=null;   // editing = unit object or null (new)
+var token=null, owner=null, editing=null, lastUnits=null;   // editing = unit object or null (new)
 
 function $(id){return document.getElementById(id);}
 function show(el,on){el.classList.toggle('show',on!==false);}
 function msg(el,text,kind){el.textContent=text;el.className='msg show '+(kind||'ok');}
 function clearMsg(el){el.className='msg';}
+
+// ---------- i18n (owner UI: EN / FR / NL) ----------
+var T={
+ en:{signout:'Sign out',authTitle:'Sign in',authSub:"Enter your email and we'll send you a secure sign-in link — no password needed.",emailPh:'you@company.com',loginBtn:'Email me a link →',sending:'Sending…',checkInbox:'Check your inbox — we sent a sign-in link to ',invalidEmail:'Please enter a valid email.',genericErr:'Something went wrong.',firstTime:'First time? Signing in creates your account.',seePricing:'See pricing',yourApts:'Your apartments',addApt:'＋ Add apartment',empty:'No apartments yet. Add your first one to get a QR code for your guests.',newApt:'New apartment',editApt:'Edit apartment',close:'Close',edSub:'Fill in what your guests always ask. You can edit any of this later, and it goes live the moment you save.',grpBasics:'Basics',grpWelcome:'Welcome book',fName:'Apartment name',fBuilding:'Building',fHood:'Neighbourhood label',fAddress:'Address',fLat:'Latitude',fLatHint:'(Maps → right-click → copy)',fLng:'Longitude',fGuestLang:'Guest language',fRadius:'Walking radius label',optional:'(optional)',wl_wifi:'Wi-Fi',wl_checkin:'Check-in',wl_checkout:'Check-out',wl_heating:'Heating',wl_laundry:'Washing machine',wl_coffee:'Coffee',wl_trash:'Trash & recycling',wl_parking:'Parking',wl_luggage:'Luggage',wl_rules:'House rules',wl_emergency:'Emergency',save:'Save',saving:'Saving…',publish:'Publish',unpublish:'Unpublish',delete:'Delete',saved:'Saved.',savedDraft:'Saved. Not visible to guests until you publish.',couldNotSave:'Could not save.',publishedMsg:'Published — your guest page is live.',unpublishedMsg:'Unpublished.',deleteConfirm:'Delete this apartment? This cannot be undone.',couldNotDelete:'Could not delete.',pbTitle:'Live — put this QR in the apartment',viewLive:'View live ↗',downloadQr:'Download QR',liveBadge:'Live',draftBadge:'Draft',edit:'Edit',view:'View ↗',bStartT:'🎁 Start your free month',bStartS:'Add a payment method — free for 30 days, first charge on day 30, cancel anytime. + VAT.',bTrialT:'🎁 Your free month is running',bTrialS:"First charge on {d} · {p} plan · cancel anytime before then and you're never charged.",bActiveT:'✅ Subscription active',bActiveS:'Next charge {d} · {p} plan.',bWarnT:'⚠️ Payment needs attention',bWarnS:"Your last payment didn't go through. Restart to keep your guest pages live.",cancel:'Cancel',restart:'Restart',cancelConfirm:'Cancel your subscription? Your guest pages stay up until the current period ends.',billNotT:'🎁 First month free',billNotS:'Card-at-signup billing is being switched on — you can build and preview apartments now.',couldNotStart:'Could not start billing.'},
+ fr:{signout:'Se déconnecter',authTitle:'Connexion',authSub:"Saisissez votre e-mail et nous vous enverrons un lien de connexion sécurisé — sans mot de passe.",emailPh:'vous@entreprise.com',loginBtn:'Envoyez-moi un lien →',sending:'Envoi…',checkInbox:'Vérifiez votre boîte mail — nous avons envoyé un lien de connexion à ',invalidEmail:'Veuillez saisir un e-mail valide.',genericErr:'Une erreur est survenue.',firstTime:'Première fois ? La connexion crée votre compte.',seePricing:'Voir les tarifs',yourApts:'Vos appartements',addApt:'＋ Ajouter un appartement',empty:"Aucun appartement pour l'instant. Ajoutez le premier pour obtenir un QR code pour vos voyageurs.",newApt:'Nouvel appartement',editApt:"Modifier l'appartement",close:'Fermer',edSub:"Renseignez ce que vos voyageurs demandent toujours. Vous pouvez tout modifier plus tard, et c'est publié dès l'enregistrement.",grpBasics:'Informations',grpWelcome:"Livret d'accueil",fName:"Nom de l'appartement",fBuilding:'Bâtiment',fHood:'Quartier (libellé)',fAddress:'Adresse',fLat:'Latitude',fLatHint:'(Maps → clic droit → copier)',fLng:'Longitude',fGuestLang:'Langue du voyageur',fRadius:'Rayon à pied (libellé)',optional:'(facultatif)',wl_wifi:'Wi-Fi',wl_checkin:'Arrivée',wl_checkout:'Départ',wl_heating:'Chauffage',wl_laundry:'Machine à laver',wl_coffee:'Café',wl_trash:'Déchets & tri',wl_parking:'Parking',wl_luggage:'Bagages',wl_rules:'Règlement',wl_emergency:'Urgences',save:'Enregistrer',saving:'Enregistrement…',publish:'Publier',unpublish:'Dépublier',delete:'Supprimer',saved:'Enregistré.',savedDraft:"Enregistré. Non visible par les voyageurs tant que ce n'est pas publié.",couldNotSave:"Impossible d'enregistrer.",publishedMsg:'Publié — votre page voyageur est en ligne.',unpublishedMsg:'Dépublié.',deleteConfirm:'Supprimer cet appartement ? Action irréversible.',couldNotDelete:'Impossible de supprimer.',pbTitle:"En ligne — placez ce QR code dans l'appartement",viewLive:'Voir en ligne ↗',downloadQr:'Télécharger le QR',liveBadge:'En ligne',draftBadge:'Brouillon',edit:'Modifier',view:'Voir ↗',bStartT:'🎁 Commencez votre mois gratuit',bStartS:'Ajoutez un moyen de paiement — gratuit 30 jours, premier prélèvement au 30e jour, annulable à tout moment. + TVA.',bTrialT:'🎁 Votre mois gratuit est en cours',bTrialS:'Premier prélèvement le {d} · offre {p} · annulez avant sans être débité.',bActiveT:'✅ Abonnement actif',bActiveS:'Prochain prélèvement le {d} · offre {p}.',bWarnT:'⚠️ Paiement à vérifier',bWarnS:"Votre dernier paiement n'est pas passé. Relancez pour garder vos pages en ligne.",cancel:'Annuler',restart:'Relancer',cancelConfirm:"Annuler votre abonnement ? Vos pages restent en ligne jusqu'à la fin de la période en cours.",billNotT:'🎁 Premier mois gratuit',billNotS:"Le paiement à l'inscription est en cours d'activation — vous pouvez déjà créer et prévisualiser des appartements.",couldNotStart:'Impossible de démarrer la facturation.'},
+ nl:{signout:'Afmelden',authTitle:'Inloggen',authSub:'Vul je e-mail in en we sturen je een veilige inloglink — geen wachtwoord nodig.',emailPh:'jij@bedrijf.com',loginBtn:'Stuur me een link →',sending:'Versturen…',checkInbox:'Check je inbox — we hebben een inloglink gestuurd naar ',invalidEmail:'Vul een geldig e-mailadres in.',genericErr:'Er ging iets mis.',firstTime:'Eerste keer? Inloggen maakt je account aan.',seePricing:'Bekijk prijzen',yourApts:'Je appartementen',addApt:'＋ Appartement toevoegen',empty:'Nog geen appartementen. Voeg je eerste toe voor een QR-code voor je gasten.',newApt:'Nieuw appartement',editApt:'Appartement bewerken',close:'Sluiten',edSub:'Vul in wat je gasten altijd vragen. Je kunt alles later aanpassen en het gaat live zodra je opslaat.',grpBasics:'Basis',grpWelcome:'Welkomstboekje',fName:'Naam appartement',fBuilding:'Gebouw',fHood:'Buurt (label)',fAddress:'Adres',fLat:'Breedtegraad',fLatHint:'(Maps → rechtsklik → kopiëren)',fLng:'Lengtegraad',fGuestLang:'Taal van de gast',fRadius:'Loopafstand (label)',optional:'(optioneel)',wl_wifi:'Wifi',wl_checkin:'Inchecken',wl_checkout:'Uitchecken',wl_heating:'Verwarming',wl_laundry:'Wasmachine',wl_coffee:'Koffie',wl_trash:'Afval & recyclage',wl_parking:'Parkeren',wl_luggage:'Bagage',wl_rules:'Huisregels',wl_emergency:'Noodgeval',save:'Opslaan',saving:'Opslaan…',publish:'Publiceren',unpublish:'Depubliceren',delete:'Verwijderen',saved:'Opgeslagen.',savedDraft:'Opgeslagen. Niet zichtbaar voor gasten tot je publiceert.',couldNotSave:'Kon niet opslaan.',publishedMsg:'Gepubliceerd — je gastenpagina is live.',unpublishedMsg:'Gedepubliceerd.',deleteConfirm:'Dit appartement verwijderen? Dit kan niet ongedaan worden gemaakt.',couldNotDelete:'Kon niet verwijderen.',pbTitle:'Live — hang deze QR-code in het appartement',viewLive:'Bekijk live ↗',downloadQr:'QR downloaden',liveBadge:'Live',draftBadge:'Concept',edit:'Bewerken',view:'Bekijk ↗',bStartT:'🎁 Start je gratis maand',bStartS:'Voeg een betaalmethode toe — 30 dagen gratis, eerste afschrijving op dag 30, altijd opzegbaar. + btw.',bTrialT:'🎁 Je gratis maand loopt',bTrialS:'Eerste afschrijving op {d} · {p}-abonnement · zeg op vóór die datum en je betaalt niets.',bActiveT:'✅ Abonnement actief',bActiveS:'Volgende afschrijving {d} · {p}-abonnement.',bWarnT:'⚠️ Betaling vereist aandacht',bWarnS:"Je laatste betaling is mislukt. Herstart om je gastenpagina's live te houden.",cancel:'Opzeggen',restart:'Herstarten',cancelConfirm:"Je abonnement opzeggen? Je pagina's blijven live tot het einde van de huidige periode.",billNotT:'🎁 Eerste maand gratis',billNotS:'Betalen bij inschrijving wordt geactiveerd — je kunt nu al appartementen aanmaken en bekijken.',couldNotStart:'Kon facturatie niet starten.'}
+};
+var uiLang='en';
+function t(k){var d=T[uiLang]||T.en;return d[k]!=null?d[k]:(T.en[k]!=null?T.en[k]:k);}
+function applyI18n(){
+  document.documentElement.lang=uiLang;
+  document.querySelectorAll('[data-i]').forEach(function(el){var v=t(el.getAttribute('data-i'));if(v!=null)el.textContent=v;});
+  document.querySelectorAll('[data-i-ph]').forEach(function(el){var v=t(el.getAttribute('data-i-ph'));if(v!=null)el.placeholder=v;});
+}
+function reI18n(){
+  applyI18n();
+  if(token){ if(lastUnits)renderUnits(lastUnits); loadBilling();
+    if(document.getElementById('editor').classList.contains('show')){ $('edTitle').textContent=t(editing?'editApt':'newApt'); $('saveBtn').textContent=t('save'); updatePubBtn(); } }
+}
+(function initLang(){
+  var saved=null; try{saved=localStorage.getItem('apt_ui_lang');}catch(e){}
+  var nav=(navigator.language||'en').slice(0,2).toLowerCase();
+  uiLang=(saved&&T[saved])?saved:((nav==='fr'||nav==='nl')?nav:'en');
+  var sel=$('uiLang'); if(sel){ sel.value=uiLang; sel.onchange=function(e){ uiLang=T[e.target.value]?e.target.value:'en'; try{localStorage.setItem('apt_ui_lang',uiLang);}catch(_){}; reI18n(); }; }
+  applyI18n();
+})();
 
 function api(method,body,auth){
   var h={'Content-Type':'application/json'};
@@ -220,12 +249,12 @@ function apiGet(qs){
 $('loginBtn').onclick=function(){
   var email=$('email').value.trim();
   clearMsg($('authMsg'));
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){return msg($('authMsg'),'Please enter a valid email.','err');}
-  $('loginBtn').disabled=true;$('loginBtn').textContent='Sending…';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){return msg($('authMsg'),t('invalidEmail'),'err');}
+  $('loginBtn').disabled=true;$('loginBtn').textContent=t('sending');
   api('POST',{action:'login',email:email}).then(function(r){
-    $('loginBtn').disabled=false;$('loginBtn').textContent='Email me a link →';
-    if(r.ok){msg($('authMsg'),'Check your inbox — we sent a sign-in link to '+email+'.','ok');}
-    else{msg($('authMsg'),(r.j&&r.j.error)||'Something went wrong.','err');}
+    $('loginBtn').disabled=false;$('loginBtn').textContent=t('loginBtn');
+    if(r.ok){msg($('authMsg'),t('checkInbox')+email+'.','ok');}
+    else{msg($('authMsg'),(r.j&&r.j.error)||t('genericErr'),'err');}
   });
 };
 $('email').addEventListener('keydown',function(e){if(e.key==='Enter')$('loginBtn').click();});
@@ -247,16 +276,19 @@ function fmtD(x){ if(!x)return ''; try{return new Date(x).toLocaleDateString('en
 function loadBilling(){ api('POST',{action:'billing_status'},true).then(function(r){ if(r.ok)renderBilling(r.j); }); }
 function renderBilling(d){
   var b=d.billing||{}, st=b.billing_status||'none', el=$('billing');
+  var pn=PLAN_NAME[b.plan]||'';
   if(st==='trialing'){
-    el.innerHTML='<div class="bill trial"><div class="bill-row"><div class="bill-tx"><div class="bill-t">🎁 Your free month is running</div><div class="bill-s">First charge on <b>'+fmtD(b.trial_ends_at)+'</b> · '+(PLAN_NAME[b.plan]||'')+' plan · cancel anytime before then and you\'re never charged.</div></div><button class="btn btn-ghost btn-sm" id="billCancel">Cancel</button></div></div>';
+    var s1=t('bTrialS').replace('{d}','<b>'+esc(fmtD(b.trial_ends_at))+'</b>').replace('{p}',esc(pn));
+    el.innerHTML='<div class="bill trial"><div class="bill-row"><div class="bill-tx"><div class="bill-t">'+esc(t('bTrialT'))+'</div><div class="bill-s">'+s1+'</div></div><button class="btn btn-ghost btn-sm" id="billCancel">'+esc(t('cancel'))+'</button></div></div>';
   } else if(st==='active'){
-    el.innerHTML='<div class="bill trial"><div class="bill-row"><div class="bill-tx"><div class="bill-t">✅ Subscription active</div><div class="bill-s">Next charge '+fmtD(b.current_period_end)+' · '+(PLAN_NAME[b.plan]||'')+' plan.</div></div><button class="btn btn-ghost btn-sm" id="billCancel">Cancel</button></div></div>';
+    var s2=t('bActiveS').replace('{d}','<b>'+esc(fmtD(b.current_period_end))+'</b>').replace('{p}',esc(pn));
+    el.innerHTML='<div class="bill trial"><div class="bill-row"><div class="bill-tx"><div class="bill-t">'+esc(t('bActiveT'))+'</div><div class="bill-s">'+s2+'</div></div><button class="btn btn-ghost btn-sm" id="billCancel">'+esc(t('cancel'))+'</button></div></div>';
   } else if(st==='past_due'){
-    el.innerHTML='<div class="bill warn"><div class="bill-t">⚠️ Payment needs attention</div><div class="bill-s">Your last payment didn\'t go through. Restart to keep your guest pages live.</div><div class="bill-plans"><button class="btn btn-primary btn-sm" data-plan="'+(b.plan||'solo')+'">Restart</button></div><div class="msg" id="billMsg"></div></div>';
+    el.innerHTML='<div class="bill warn"><div class="bill-t">'+esc(t('bWarnT'))+'</div><div class="bill-s">'+esc(t('bWarnS'))+'</div><div class="bill-plans"><button class="btn btn-primary btn-sm" data-plan="'+(b.plan||'solo')+'">'+esc(t('restart'))+'</button></div><div class="msg" id="billMsg"></div></div>';
     wirePlans();
   } else {
-    if(!d.configured){ el.innerHTML='<div class="bill"><div class="bill-t">🎁 First month free</div><div class="bill-s">Card-at-signup billing is being switched on — you can build and preview apartments now.</div></div>'; return; }
-    el.innerHTML='<div class="bill trial"><div class="bill-t">🎁 Start your free month</div><div class="bill-s">Add a payment method — free for 30 days, first charge on day 30, cancel anytime. + VAT.</div><div class="bill-plans"><button class="btn btn-primary btn-sm" data-plan="solo">Solo · €19/mo</button><button class="btn btn-ghost btn-sm" data-plan="host">Host · €59/mo</button><button class="btn btn-ghost btn-sm" data-plan="pro">Pro · €149/mo</button></div><div class="msg" id="billMsg"></div></div>';
+    if(!d.configured){ el.innerHTML='<div class="bill"><div class="bill-t">'+esc(t('billNotT'))+'</div><div class="bill-s">'+esc(t('billNotS'))+'</div></div>'; return; }
+    el.innerHTML='<div class="bill trial"><div class="bill-t">'+esc(t('bStartT'))+'</div><div class="bill-s">'+esc(t('bStartS'))+'</div><div class="bill-plans"><button class="btn btn-primary btn-sm" data-plan="solo">Solo · €19/mo</button><button class="btn btn-ghost btn-sm" data-plan="host">Host · €59/mo</button><button class="btn btn-ghost btn-sm" data-plan="pro">Pro · €149/mo</button></div><div class="msg" id="billMsg"></div></div>';
     wirePlans();
   }
   var cx=$('billCancel'); if(cx)cx.onclick=cancelBilling;
@@ -268,11 +300,11 @@ function startBilling(plan,btn){
   api('POST',{action:'billing_start',plan:plan},true).then(function(r){
     if(r.ok&&r.j.checkoutUrl){ location.href=r.j.checkoutUrl; return; }
     if(btn){btn.disabled=false;}
-    if(m)msg(m,(r.j&&r.j.error)||'Could not start billing.','err');
+    if(m)msg(m,(r.j&&r.j.error)||t('couldNotStart'),'err');
   });
 }
 function cancelBilling(){
-  if(!confirm('Cancel your subscription? Your guest pages stay up until the current period ends.'))return;
+  if(!confirm(t('cancelConfirm')))return;
   api('POST',{action:'billing_cancel'},true).then(function(){ loadBilling(); });
 }
 
@@ -298,15 +330,16 @@ function loadUnits(){
   });
 }
 function renderUnits(units){
+  lastUnits=units;
   var el=$('units');
-  if(!units.length){ el.innerHTML='<div class="empty">No apartments yet. Add your first one to get a QR code for your guests.</div>'; return; }
+  if(!units.length){ el.innerHTML='<div class="empty">'+esc(t('empty'))+'</div>'; return; }
   el.innerHTML=units.map(function(u){
     var live=u.published;
     return '<div class="unit"><div class="u-i">🔑</div><div class="u-m"><div class="u-n">'+esc(u.name||'Apartment')+'</div>'+
       '<div class="u-s">'+esc(u.building||u.address||'')+'</div></div>'+
-      '<span class="pill '+(live?'live':'draft')+'">'+(live?'Live':'Draft')+'</span>'+
-      '<div class="u-actions"><button class="btn btn-ghost btn-sm" data-edit="'+u.id+'">Edit</button>'+
-      (live?'<a class="btn btn-ghost btn-sm" href="'+LIVE_BASE+encodeURIComponent(u.slug)+'" target="_blank" rel="noopener">View ↗</a>':'')+
+      '<span class="pill '+(live?'live':'draft')+'">'+esc(t(live?'liveBadge':'draftBadge'))+'</span>'+
+      '<div class="u-actions"><button class="btn btn-ghost btn-sm" data-edit="'+u.id+'">'+esc(t('edit'))+'</button>'+
+      (live?'<a class="btn btn-ghost btn-sm" href="'+LIVE_BASE+encodeURIComponent(u.slug)+'" target="_blank" rel="noopener">'+esc(t('view'))+'</a>':'')+
       '</div></div>';
   }).join('');
   el.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-edit');openEditor(units.filter(function(u){return u.id===id;})[0]);};});
@@ -318,7 +351,7 @@ var WFIELDS=['wifi','checkin','checkout','heating','laundry','coffee','trash','p
 function openEditor(unit){
   editing=unit||null;
   var c=(unit&&unit.content)||{}, w=c.welcome||{};
-  $('edTitle').textContent=unit?'Edit apartment':'New apartment';
+  $('edTitle').textContent=t(unit?'editApt':'newApt');
   $('f_name').value=unit?unit.name||'':'';
   $('f_building').value=unit?unit.building||'':'';
   $('f_hood').value=c.hood||'';
@@ -353,36 +386,36 @@ function collect(){
 $('saveBtn').onclick=function(){
   clearMsg($('edMsg'));
   var payload=collect();
-  $('saveBtn').disabled=true;$('saveBtn').textContent='Saving…';
+  $('saveBtn').disabled=true;$('saveBtn').textContent=t('saving');
   var body=Object.assign({action:editing?'update':'create'},payload);
   if(editing)body.id=editing.id;
   api('POST',body,true).then(function(r){
-    $('saveBtn').disabled=false;$('saveBtn').textContent='Save';
-    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||'Could not save.','err');}
+    $('saveBtn').disabled=false;$('saveBtn').textContent=t('save');
+    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||t('couldNotSave'),'err');}
     editing=r.j.unit;
-    $('edTitle').textContent='Edit apartment';
+    $('edTitle').textContent=t('editApt');
     $('delBtn').style.display='';$('pubBtn').style.display='';updatePubBtn();renderPubBox(editing);
-    msg($('edMsg'),'Saved.'+(editing.published?'':' Not visible to guests until you publish.'),'ok');
+    msg($('edMsg'),editing.published?t('saved'):t('savedDraft'),'ok');
     loadUnits();
   });
 };
-function updatePubBtn(){ $('pubBtn').textContent=(editing&&editing.published)?'Unpublish':'Publish'; $('pubBtn').className='btn '+((editing&&editing.published)?'btn-ghost':'btn-primary'); }
+function updatePubBtn(){ $('pubBtn').textContent=t((editing&&editing.published)?'unpublish':'publish'); $('pubBtn').className='btn '+((editing&&editing.published)?'btn-ghost':'btn-primary'); }
 $('pubBtn').onclick=function(){
   if(!editing)return;
   var next=!editing.published;
   $('pubBtn').disabled=true;
   api('POST',{action:'publish',id:editing.id,published:next},true).then(function(r){
     $('pubBtn').disabled=false;
-    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||'Could not update.','err');}
+    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||t('couldNotSave'),'err');}
     editing=r.j.unit;updatePubBtn();renderPubBox(editing);loadUnits();
-    msg($('edMsg'),next?'Published — your guest page is live.':'Unpublished.','ok');
+    msg($('edMsg'),next?t('publishedMsg'):t('unpublishedMsg'),'ok');
   });
 };
 $('delBtn').onclick=function(){
   if(!editing)return;
-  if(!confirm('Delete this apartment? This cannot be undone.'))return;
+  if(!confirm(t('deleteConfirm')))return;
   api('POST',{action:'delete',id:editing.id},true).then(function(r){
-    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||'Could not delete.','err');}
+    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||t('couldNotDelete'),'err');}
     show($('editor'),false);editing=null;loadUnits();
   });
 };
