@@ -406,7 +406,7 @@
   <script>
     (function(){
       var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
-      fetch('https://shou-backend.vercel.app/api/ig-recent?v=2')
+      fetch('https://shou-backend.vercel.app/api/ig-recent?v=3')
         .then(function(r){ return r.json(); })
         .then(function(d){
           var posts = (d && d.posts) || [];
@@ -414,10 +414,11 @@
           var row = document.getElementById('reelsRow');
           row.innerHTML = posts.map(function(p){
             var cap = esc(p.caption || '');
+            var fb = esc(p.fallback || '');
             return '<a class="reel" href="' + esc(p.permalink) + '" target="_blank" rel="noopener" aria-label="Watch on Instagram">' +
-              '<img src="' + esc(p.thumbnail) + '" alt="' + cap + '" decoding="async" referrerpolicy="no-referrer">' +
+              '<img src="' + esc(p.thumbnail) + '" alt="' + cap + '" decoding="async" referrerpolicy="no-referrer"' + (fb ? ' onerror="this.onerror=null;this.src=\'' + fb + '\'"' : '') + '>' +
               '<span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>' +
-              (cap ? '<span class="cap">' + cap + '</span>' : '') + '</a>';
+              '</a>';
           }).join('');
           document.getElementById('reelsStrip').hidden = false;
         })
