@@ -70,6 +70,17 @@
   .u-actions{display:flex;gap:8px;flex:none}
   .empty{text-align:center;color:var(--dim);padding:40px 0;background:var(--panel);border:1px dashed var(--line);border-radius:16px}
 
+  /* billing banner */
+  .bill{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:26px 0 6px;box-shadow:var(--shadow)}
+  .bill.trial{background:linear-gradient(120deg,rgba(14,154,141,.08),rgba(255,155,61,.05));border-color:rgba(14,154,141,.28)}
+  .bill.warn{background:rgba(255,61,139,.05);border-color:rgba(255,61,139,.28)}
+  .bill-t{font-family:'Fraunces';font-weight:600;font-size:17px;color:var(--ink);margin-bottom:4px}
+  .bill-s{color:var(--soft);font-size:14px}
+  .bill-s b{color:var(--ink)}
+  .bill-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .bill-row .bill-tx{flex:1;min-width:200px}
+  .bill-plans{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+
   /* EDITOR */
   #editor{display:none;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-lift);padding:28px 26px;margin-bottom:50px}
   #editor.show{display:block}
@@ -117,6 +128,7 @@
 
 <!-- APP -->
 <div id="app"><div class="wrap">
+  <div id="billing"></div>
   <div class="page-head">
     <h1>Your apartments</h1>
     <button class="btn btn-primary" id="newBtn">＋ Add apartment</button>
@@ -226,6 +238,42 @@ function enterApp(){
   $('signout').style.display='';
   $('who').textContent=owner&&owner.email?owner.email:'';
   loadUnits();
+  loadBilling();
+}
+
+// ---------- BILLING ----------
+var PLAN_NAME={solo:'Solo',host:'Host',pro:'Pro',portfolio:'Portfolio'};
+function fmtD(x){ if(!x)return ''; try{return new Date(x).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch(e){return x;} }
+function loadBilling(){ api('POST',{action:'billing_status'},true).then(function(r){ if(r.ok)renderBilling(r.j); }); }
+function renderBilling(d){
+  var b=d.billing||{}, st=b.billing_status||'none', el=$('billing');
+  if(st==='trialing'){
+    el.innerHTML='<div class="bill trial"><div class="bill-row"><div class="bill-tx"><div class="bill-t">🎁 Your free month is running</div><div class="bill-s">First charge on <b>'+fmtD(b.trial_ends_at)+'</b> · '+(PLAN_NAME[b.plan]||'')+' plan · cancel anytime before then and you\'re never charged.</div></div><button class="btn btn-ghost btn-sm" id="billCancel">Cancel</button></div></div>';
+  } else if(st==='active'){
+    el.innerHTML='<div class="bill trial"><div class="bill-row"><div class="bill-tx"><div class="bill-t">✅ Subscription active</div><div class="bill-s">Next charge '+fmtD(b.current_period_end)+' · '+(PLAN_NAME[b.plan]||'')+' plan.</div></div><button class="btn btn-ghost btn-sm" id="billCancel">Cancel</button></div></div>';
+  } else if(st==='past_due'){
+    el.innerHTML='<div class="bill warn"><div class="bill-t">⚠️ Payment needs attention</div><div class="bill-s">Your last payment didn\'t go through. Restart to keep your guest pages live.</div><div class="bill-plans"><button class="btn btn-primary btn-sm" data-plan="'+(b.plan||'solo')+'">Restart</button></div><div class="msg" id="billMsg"></div></div>';
+    wirePlans();
+  } else {
+    if(!d.configured){ el.innerHTML='<div class="bill"><div class="bill-t">🎁 First month free</div><div class="bill-s">Card-at-signup billing is being switched on — you can build and preview apartments now.</div></div>'; return; }
+    el.innerHTML='<div class="bill trial"><div class="bill-t">🎁 Start your free month</div><div class="bill-s">Add a payment method — free for 30 days, first charge on day 30, cancel anytime. + VAT.</div><div class="bill-plans"><button class="btn btn-primary btn-sm" data-plan="solo">Solo · €19/mo</button><button class="btn btn-ghost btn-sm" data-plan="host">Host · €59/mo</button><button class="btn btn-ghost btn-sm" data-plan="pro">Pro · €149/mo</button></div><div class="msg" id="billMsg"></div></div>';
+    wirePlans();
+  }
+  var cx=$('billCancel'); if(cx)cx.onclick=cancelBilling;
+}
+function wirePlans(){ document.querySelectorAll('#billing [data-plan]').forEach(function(x){x.onclick=function(){startBilling(x.getAttribute('data-plan'),x);};}); }
+function startBilling(plan,btn){
+  var m=$('billMsg'); if(m)clearMsg(m);
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  api('POST',{action:'billing_start',plan:plan},true).then(function(r){
+    if(r.ok&&r.j.checkoutUrl){ location.href=r.j.checkoutUrl; return; }
+    if(btn){btn.disabled=false;}
+    if(m)msg(m,(r.j&&r.j.error)||'Could not start billing.','err');
+  });
+}
+function cancelBilling(){
+  if(!confirm('Cancel your subscription? Your guest pages stay up until the current period ends.'))return;
+  api('POST',{action:'billing_cancel'},true).then(function(){ loadBilling(); });
 }
 
 // Exchange a magic-link token (?t=) for a session, or restore a stored session.
