@@ -426,6 +426,19 @@ const WBL={
   nl:{wifi:'Wifi',checkin:'Inchecken',checkout:'Uitchecken',heating:'Verwarming',laundry:'Wasmachine',coffee:'Koffie',trash:'Afval & recyclage',parking:'Parkeren',luggage:'Bagage',supermarket:'Supermarkt',bakery:'Bakkerij',pharmacy:'Apotheek',transport:'Openbaar vervoer',airport:'Naar de luchthaven',rules:'Huisregels',emergency:'Noodgeval',apt:'Je appartement',building:'Om de hoek',safety:'Huis & veiligheid'},
 };
 const wb=k=>((WBL[lang]||{})[k]||WBL.en[k]||k);
+// Welcome-book VALUES translated per language (proper nouns, numbers and codes
+// kept intact). English lives in WB[k].v; other languages here. In production the
+// operator enters each unit's details once and shou machine-translates the rest —
+// exactly what the events pipeline already does.
+const WB_TR={
+  fr:{wifi:'Réseau « BXL-Dansaert-32 » · mot de passe  welcome2026',checkin:'À partir de 15h00 · arrivée autonome, code de la serrure connectée envoyé par SMS le jour de l’arrivée',checkout:'Avant 11h00 · déposez les clés dans la boîte à clés près de la porte',heating:'Thermostat près de l’entrée — tournez la molette, comptez ~20 min pour chauffer',laundry:'Lave-linge sous le plan de travail · tablettes dans le tiroir · Eco 40° ≈ 2 h',coffee:'Machine Nespresso sur le plan de travail · capsules de rechange dans le placard',trash:'Sac bleu = PMC, blanc = déchets ménagers · collecte mar. & ven., sortez-les après 18h00',parking:'Interparking Dansaert, à 3 min à pied · environ 28 €/jour',luggage:'Arrivée tôt ou vol tardif ? Rangez vos bagages dans la boîte sécurisée — demandez le code',supermarket:'Delhaize Dansaert · à 2 min à pied · ouvert jusqu’à 21h00',bakery:'Boulangerie Charli · croissants frais dès 7h00 · à 3 min à pied',pharmacy:'Pharmacie Sainte-Catherine · à 4 min à pied',transport:'Métro Sainte-Catherine (lignes 1 & 5) · à 5 min à pied',airport:'Bus Airport Line depuis De Brouckère · ~25 min jusqu’à Brussels Airport',rules:'Non-fumeur · pas de fêtes ni d’événements · calme de 22h00 à 08h00',emergency:'Hôte 24h/24 : +32 2 000 00 00 · urgences UE : 112'},
+  nl:{wifi:'Netwerk “BXL-Dansaert-32” · wachtwoord  welcome2026',checkin:'Vanaf 15:00 · zelf inchecken, code van het slimme slot per sms op de dag van aankomst',checkout:'Vóór 11:00 · leg de sleutels in de sleutelkluis bij de deur',heating:'Thermostaat bij de ingang — draai aan de knop, ~20 min om op te warmen',laundry:'Wasmachine onder het aanrecht · tabletten in de lade · Eco 40° ≈ 2 u',coffee:'Nespresso-machine op het aanrecht · extra capsules in de kast',trash:'Blauwe zak = PMD, wit = restafval · ophaling di & vr, buiten na 18:00',parking:'Interparking Dansaert, 3 min lopen · ongeveer € 28/dag',luggage:'Vroeg aangekomen of late vlucht? Berg je bagage op in de kluis — vraag de code',supermarket:'Delhaize Dansaert · 2 min lopen · open tot 21:00',bakery:'Bakkerij Charli · verse croissants vanaf 7:00 · 3 min lopen',pharmacy:'Apotheek Sainte-Catherine · 4 min lopen',transport:'Metro Sainte-Catherine (lijnen 1 & 5) · 5 min lopen',airport:'Airport Line-bus vanaf De Brouckère · ~25 min naar Brussels Airport',rules:'Niet roken · geen feesten of evenementen · nachtrust 22:00–08:00',emergency:'Gastheer 24/7: +32 2 000 00 00 · EU-noodnummer: 112'},
+  de:{wifi:'Netzwerk „BXL-Dansaert-32“ · Passwort  welcome2026',checkin:'Ab 15:00 · Self-Check-in, Code für das Smart-Lock am Anreisetag per SMS',checkout:'Bis 11:00 · Schlüssel in die Schlüsselbox neben der Tür legen',heating:'Thermostat am Eingang — Rad drehen, ~20 Min. bis es warm wird',laundry:'Waschmaschine unter der Küchenzeile · Tabs in der Schublade · Eco 40° ≈ 2 Std.',coffee:'Nespresso-Maschine auf der Arbeitsfläche · Ersatzkapseln im Schrank',trash:'Blauer Sack = PMD, weiß = Restmüll · Abholung Di & Fr, ab 18:00 rausstellen',parking:'Interparking Dansaert, 3 Min. zu Fuß · ca. 28 €/Tag',luggage:'Früh da oder später Flug? Gepäck in der Box verstauen — Code erfragen',supermarket:'Delhaize Dansaert · 2 Min. zu Fuß · geöffnet bis 21:00',bakery:'Bäckerei Charli · frische Croissants ab 7:00 · 3 Min. zu Fuß',pharmacy:'Apotheke Sainte-Catherine · 4 Min. zu Fuß',transport:'Metro Sainte-Catherine (Linien 1 & 5) · 5 Min. zu Fuß',airport:'Airport-Line-Bus ab De Brouckère · ~25 Min. zum Brussels Airport',rules:'Rauchfrei · keine Partys oder Veranstaltungen · Ruhezeiten 22:00–08:00',emergency:'Gastgeber rund um die Uhr: +32 2 000 00 00 · EU-Notruf: 112'},
+  es:{wifi:'Red “BXL-Dansaert-32” · contraseña  welcome2026',checkin:'Desde las 15:00 · check-in autónomo, código de la cerradura inteligente por SMS el día de llegada',checkout:'Antes de las 11:00 · deja las llaves en la caja de seguridad junto a la puerta',heating:'Termostato junto a la entrada — gira la rueda, ~20 min para calentar',laundry:'Lavadora bajo la encimera · pastillas en el cajón · Eco 40° ≈ 2 h',coffee:'Máquina Nespresso en la encimera · cápsulas de repuesto en el armario',trash:'Bolsa azul = PMD, blanca = resto · recogida mar. y vie., sácala después de las 18:00',parking:'Interparking Dansaert, a 3 min a pie · unos 28 €/día',luggage:'¿Llegada temprana o vuelo tarde? Guarda el equipaje en la caja — pide el código',supermarket:'Delhaize Dansaert · a 2 min a pie · abierto hasta las 21:00',bakery:'Panadería Charli · croissants recién hechos desde las 7:00 · a 3 min a pie',pharmacy:'Farmacia Sainte-Catherine · a 4 min a pie',transport:'Metro Sainte-Catherine (líneas 1 y 5) · a 5 min a pie',airport:'Autobús Airport Line desde De Brouckère · ~25 min al aeropuerto de Bruselas',rules:'No fumar · sin fiestas ni eventos · horario de silencio 22:00–08:00',emergency:'Anfitrión 24/7: +32 2 000 00 00 · emergencias UE: 112'},
+  it:{wifi:'Rete “BXL-Dansaert-32” · password  welcome2026',checkin:'Dalle 15:00 · check-in autonomo, codice della serratura smart via SMS il giorno dell’arrivo',checkout:'Entro le 11:00 · lascia le chiavi nella cassetta accanto alla porta',heating:'Termostato vicino all’ingresso — gira la manopola, ~20 min per riscaldare',laundry:'Lavatrice sotto il piano cucina · pastiglie nel cassetto · Eco 40° ≈ 2 h',coffee:'Macchina Nespresso sul piano · capsule di scorta nella credenza',trash:'Sacco blu = PMD, bianco = indifferenziata · raccolta mar & ven, fuori dopo le 18:00',parking:'Interparking Dansaert, 3 min a piedi · circa 28 €/giorno',luggage:'Arrivo in anticipo o volo in tarda serata? Riponi i bagagli nella cassetta — chiedi il codice',supermarket:'Delhaize Dansaert · 2 min a piedi · aperto fino alle 21:00',bakery:'Panetteria Charli · croissant freschi dalle 7:00 · 3 min a piedi',pharmacy:'Farmacia Sainte-Catherine · 4 min a piedi',transport:'Metro Sainte-Catherine (linee 1 e 5) · 5 min a piedi',airport:'Bus Airport Line da De Brouckère · ~25 min all’aeroporto di Bruxelles',rules:'Vietato fumare · niente feste o eventi · silenzio 22:00–08:00',emergency:'Host 24/7: +32 2 000 00 00 · emergenze UE: 112'},
+  uk:{wifi:'Мережа «BXL-Dansaert-32» · пароль  welcome2026',checkin:'З 15:00 · самостійне заселення, код смарт-замка надсилається в SMS у день заїзду',checkout:'До 11:00 · залиште ключі у сейфі для ключів біля дверей',heating:'Термостат біля входу — поверніть регулятор, ~20 хв на прогрів',laundry:'Пральна машина під кухонною стільницею · таблетки в шухляді · Eco 40° ≈ 2 год',coffee:'Кавомашина Nespresso на столі · запасні капсули в шафі',trash:'Синій пакет = PMD, білий = загальні відходи · вивіз вт і пт, виставляйте після 18:00',parking:'Interparking Dansaert, 3 хв пішки · близько 28 €/день',luggage:'Ранній заїзд або пізній рейс? Зберігайте речі в сейфі — запитайте код',supermarket:'Delhaize Dansaert · 2 хв пішки · відкрито до 21:00',bakery:'Пекарня Charli · свіжі круасани з 7:00 · 3 хв пішки',pharmacy:'Аптека Sainte-Catherine · 4 хв пішки',transport:'Метро Sainte-Catherine (лінії 1 і 5) · 5 хв пішки',airport:'Автобус Airport Line від De Brouckère · ~25 хв до аеропорту Брюсселя',rules:'Не палити · без вечірок і заходів · тиша з 22:00 до 08:00',emergency:'Господар цілодобово: +32 2 000 00 00 · екстрена служба ЄС: 112'},
+};
+const wbVal=k=>(lang==='en'?WB[k].v:((WB_TR[lang]||{})[k]||WB[k].v));
 
 const _WD={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fr:['dim','lun','mar','mer','jeu','ven','sam'],nl:['zo','ma','di','wo','do','vr','za'],de:['So','Mo','Di','Mi','Do','Fr','Sa'],es:['dom','lun','mar','mié','jue','vie','sáb'],it:['dom','lun','mar','mer','gio','ven','sab'],uk:['нд','пн','вт','ср','чт','пт','сб']};
 const LOCMAP={fr:'fr-BE',nl:'nl-BE',de:'de-DE',es:'es-ES',it:'it-IT',uk:'uk-UA',en:'en-GB'};
@@ -442,22 +455,23 @@ const DIR_URL='https://www.google.com/maps/dir/?api=1&destination='+encodeURICom
 const REC_ICON={dinner:'🍽',coffee:'☕',bar:'🍸'};
 const RECS={
   dinner:[
-    {n:'Nüetnigenough',q:'Nüetnigenough Brussels',tag:'Rustic Belgian bistro'},
-    {n:'Bij den Boer',q:'Bij den Boer Sainte-Catherine Brussels',tag:'Seafood · Sainte-Catherine'},
-    {n:'Henri',q:'Restaurant Henri Rue de Flandre Brussels',tag:'Modern bistro · Dansaert'},
-    {n:'Le Pré Salé',q:'Le Pré Salé Brussels',tag:'Mussels & Belgian classics'},
+    {n:'Nüetnigenough',q:'Nüetnigenough Brussels',tag:{en:'Rustic Belgian bistro',fr:'Bistrot belge rustique',nl:'Rustiek Belgisch bistro',de:'Rustikales belgisches Bistro',es:'Bistró belga rústico',it:'Bistrot belga rustico',uk:'Рустикальний бельгійський бістро'}},
+    {n:'Bij den Boer',q:'Bij den Boer Sainte-Catherine Brussels',tag:{en:'Seafood · Sainte-Catherine',fr:'Fruits de mer · Sainte-Catherine',nl:'Zeevruchten · Sainte-Catherine',de:'Meeresfrüchte · Sainte-Catherine',es:'Marisco · Sainte-Catherine',it:'Pesce · Sainte-Catherine',uk:'Морепродукти · Sainte-Catherine'}},
+    {n:'Henri',q:'Restaurant Henri Rue de Flandre Brussels',tag:{en:'Modern bistro · Dansaert',fr:'Bistrot moderne · Dansaert',nl:'Modern bistro · Dansaert',de:'Modernes Bistro · Dansaert',es:'Bistró moderno · Dansaert',it:'Bistrot moderno · Dansaert',uk:'Сучасний бістро · Dansaert'}},
+    {n:'Le Pré Salé',q:'Le Pré Salé Brussels',tag:{en:'Mussels & Belgian classics',fr:'Moules & classiques belges',nl:'Mosselen & Belgische klassiekers',de:'Muscheln & belgische Klassiker',es:'Mejillones y clásicos belgas',it:'Cozze e classici belgi',uk:'Мідії та бельгійська класика'}},
   ],
   coffee:[
-    {n:'OR Coffee Roasters',q:'OR Coffee Dansaert Brussels',tag:'Specialty coffee · Dansaert'},
-    {n:'MOK',q:'MOK coffee Brussels',tag:'Roastery & espresso bar'},
-    {n:'Charli',q:'Charli bakery Dansaert Brussels',tag:'Bakery & good coffee'},
+    {n:'OR Coffee Roasters',q:'OR Coffee Dansaert Brussels',tag:{en:'Specialty coffee · Dansaert',fr:'Café de spécialité · Dansaert',nl:'Specialty coffee · Dansaert',de:'Spezialitätenkaffee · Dansaert',es:'Café de especialidad · Dansaert',it:'Caffè specialty · Dansaert',uk:'Спешелті-кава · Dansaert'}},
+    {n:'MOK',q:'MOK coffee Brussels',tag:{en:'Roastery & espresso bar',fr:'Torréfacteur & bar à espresso',nl:'Branderij & espressobar',de:'Rösterei & Espressobar',es:'Tostadero y bar de espresso',it:'Torrefazione & espresso bar',uk:'Обсмажування та еспресо-бар'}},
+    {n:'Charli',q:'Charli bakery Dansaert Brussels',tag:{en:'Bakery & good coffee',fr:'Boulangerie & bon café',nl:'Bakkerij & lekkere koffie',de:'Bäckerei & guter Kaffee',es:'Panadería y buen café',it:'Panetteria & buon caffè',uk:'Пекарня та гарна кава'}},
   ],
   bar:[
-    {n:'Le Cirio',q:'Le Cirio Brussels',tag:'Historic belle-époque bar'},
-    {n:'Monk',q:'Monk bar Brussels',tag:'Classic Brussels beer café'},
-    {n:'Booze ’n’ Blues',q:'Booze n Blues Brussels',tag:'Cosy blues bar'},
+    {n:'Le Cirio',q:'Le Cirio Brussels',tag:{en:'Historic belle-époque bar',fr:'Bar historique Belle Époque',nl:'Historische belle-époquebar',de:'Historische Belle-Époque-Bar',es:'Bar histórico de la Belle Époque',it:'Storico bar Belle Époque',uk:'Історичний бар у стилі Бель епок'}},
+    {n:'Monk',q:'Monk bar Brussels',tag:{en:'Classic Brussels beer café',fr:'Café à bières bruxellois classique',nl:'Klassiek Brussels biercafé',de:'Klassisches Brüsseler Bierlokal',es:'Café de cerveza clásico de Bruselas',it:'Classico caffè-birreria di Bruxelles',uk:'Класичний брюссельський пивний бар'}},
+    {n:'Booze ’n’ Blues',q:'Booze n Blues Brussels',tag:{en:'Cosy blues bar',fr:'Bar blues cosy',nl:'Gezellige bluesbar',de:'Gemütliche Blues-Bar',es:'Acogedor bar de blues',it:'Accogliente bar blues',uk:'Затишний блюз-бар'}},
   ],
 };
+const recTag=r=>(typeof r.tag==='string'?r.tag:(r.tag[lang]||r.tag.en));
 const REC_MAPQ={dinner:'restaurants near Rue Antoine Dansaert Brussels',coffee:'coffee near Rue Antoine Dansaert Brussels',bar:'bars near Rue Antoine Dansaert Brussels'};
 const REC_L={
   en:{lead:"A few of the host's local picks:",map:'See more on the map',open:'Open'},
@@ -516,7 +530,7 @@ function classify(q){
 }
 function recAnswerHTML(k){
   const icon=REC_ICON[k]||'📍';
-  const cards=(RECS[k]||[]).map(r=>`<a class="rec-card" href="${maps(r.q)}" target="_blank" rel="noopener"><span class="rec-ic">${icon}</span><span class="rec-tx"><span class="rec-n">${esc(r.n)}</span><span class="rec-t">${esc(r.tag)}</span></span><span class="rec-go">${esc(rl('open'))} ↗</span></a>`).join('');
+  const cards=(RECS[k]||[]).map(r=>`<a class="rec-card" href="${maps(r.q)}" target="_blank" rel="noopener"><span class="rec-ic">${icon}</span><span class="rec-tx"><span class="rec-n">${esc(r.n)}</span><span class="rec-t">${esc(recTag(r))}</span></span><span class="rec-go">${esc(rl('open'))} ↗</span></a>`).join('');
   const mapLink=`<a class="rec-map" href="${maps(REC_MAPQ[k]||'Rue Antoine Dansaert Brussels')}" target="_blank" rel="noopener">🗺 ${esc(rl('map'))}</a>`;
   return `${esc(rl('lead'))}<div class="rec-list">${cards}</div>${mapLink}`;
 }
@@ -644,7 +658,7 @@ function renderBook(){
       <div><b>${esc(t('qrTitle'))}</b><span>${esc(t('qrSub'))}</span></div>
     </div>`;
   const secs=WB_SECTIONS.map(s=>{
-    const cards=s.items.map(k=>{const it=WB[k];return `<div class="wb-card"><span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(it.v)}</div></div></div>`;}).join('');
+    const cards=s.items.map(k=>{const it=WB[k];return `<div class="wb-card"><span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(wbVal(k))}</div></div></div>`;}).join('');
     return `<h2 class="wb-sec">${esc(wb(s.title))}</h2><div class="wb-grid">${cards}</div>`;
   }).join('');
   document.getElementById('book').innerHTML=`<p class="wb-intro">${esc(t('bookIntro'))}</p>${qr}${secs}`;
@@ -943,7 +957,7 @@ function chatCard(e){ return evCard(e,e.date); }
 
 // Welcome-book intent match: apartment/neighbourhood questions answered instantly
 // from local data; everything else falls through to the live events concierge.
-function wbAnswerHTML(k){const it=WB[k];return `${esc(t('hereYouGo'))}<div class="wb-ans"><span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(it.v)}</div></div></div>`;}
+function wbAnswerHTML(k){const it=WB[k];return `${esc(t('hereYouGo'))}<div class="wb-ans"><span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(wbVal(k))}</div></div></div>`;}
 
 async function ask(q,forced){
   if(!q||!q.trim()||asking)return;
