@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — shou for apartments</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15101b; --text:#1a1622; --soft:#5b5566; --dim:#8a8494;
+    --bg:#f7f5fa; --panel:#ffffff; --line:rgba(20,16,30,0.10);
+    --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
+    --grad:linear-gradient(105deg,var(--pink),var(--orange));
+    --shadow:0 1px 3px rgba(20,16,30,.06); --shadow-lift:0 14px 34px -14px rgba(20,16,30,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.015em;color:var(--ink);line-height:1.15}
+  a{color:inherit}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px}
+  header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+  .bar{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:12px}
+  .brand{font-family:'Fraunces';font-weight:700;font-size:22px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+  .brand small{font-family:'Inter';font-weight:600;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);-webkit-text-fill-color:var(--dim);margin-left:8px}
+  .who{margin-left:auto;font-size:13px;color:var(--soft)}
+  .signout{font-size:13px;font-weight:600;color:var(--soft);background:none;border:none;cursor:pointer;font-family:inherit;margin-left:14px}
+  .signout:hover{color:var(--pink)}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:700;font-size:14.5px;padding:11px 20px;border-radius:12px;border:none;cursor:pointer;text-decoration:none;transition:transform .15s,filter .2s,border-color .2s}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 20px -10px rgba(255,61,139,.55)}
+  .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn-primary:disabled{opacity:.6;cursor:default;transform:none}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:rgba(255,61,139,.5);color:var(--pink)}
+  .btn-sm{padding:8px 14px;font-size:13px}
+  .btn-danger{background:#fff;border:1px solid rgba(200,30,91,.3);color:#c81e5b}
+  .btn-danger:hover{background:rgba(200,30,91,.06)}
+
+  /* AUTH */
+  .auth{max-width:440px;margin:64px auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-lift);padding:34px 30px;text-align:center}
+  .auth h1{font-size:28px;margin-bottom:8px}
+  .auth p{color:var(--soft);font-size:15px;margin-bottom:22px}
+  .auth input{width:100%;font-family:inherit;font-size:15px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;margin-bottom:14px;outline:none}
+  .auth input:focus{border-color:rgba(255,61,139,.55);box-shadow:0 0 0 3px rgba(255,61,139,.1)}
+  .auth .btn{width:100%;justify-content:center}
+  .note{font-size:13px;color:var(--soft);margin-top:16px}
+  .msg{margin-top:14px;font-size:14px;padding:11px 14px;border-radius:12px;display:none}
+  .msg.show{display:block}
+  .msg.ok{color:var(--cyan);background:rgba(14,154,141,.07);border:1px solid rgba(14,154,141,.25)}
+  .msg.err{color:#c81e5b;background:rgba(255,61,139,.06);border:1px solid rgba(255,61,139,.25)}
+
+  /* APP */
+  #app{display:none}
+  .page-head{display:flex;align-items:center;gap:14px;margin:30px 0 18px}
+  .page-head h1{font-size:26px}
+  .page-head .btn{margin-left:auto}
+  .units{display:flex;flex-direction:column;gap:12px;margin-bottom:40px}
+  .unit{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
+  .unit .u-i{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--pink));display:grid;place-items:center;font-size:20px;flex:none}
+  .unit .u-m{min-width:0;flex:1}
+  .unit .u-n{font-family:'Fraunces';font-weight:600;font-size:17px;color:var(--ink)}
+  .unit .u-s{font-size:13px;color:var(--soft)}
+  .pill{font-size:11px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:999px}
+  .pill.live{color:var(--cyan);background:rgba(14,154,141,.1)}
+  .pill.draft{color:var(--dim);background:rgba(20,16,30,.06)}
+  .u-actions{display:flex;gap:8px;flex:none}
+  .empty{text-align:center;color:var(--dim);padding:40px 0;background:var(--panel);border:1px dashed var(--line);border-radius:16px}
+
+  /* EDITOR */
+  #editor{display:none;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-lift);padding:28px 26px;margin-bottom:50px}
+  #editor.show{display:block}
+  .ed-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .ed-head h2{font-size:22px}
+  .ed-head .btn{margin-left:auto}
+  .ed-sub{color:var(--soft);font-size:14px;margin-bottom:22px}
+  .grp{margin:24px 0 8px;font-family:'Fraunces';font-weight:600;font-size:16px;color:var(--ink);padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .f{display:flex;flex-direction:column}
+  .f.full{grid-column:1/-1}
+  .f label{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px}
+  .f label .hint{font-weight:400;color:var(--dim);font-size:12px}
+  .f input,.f select,.f textarea{font-family:inherit;font-size:14.5px;color:var(--text);background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 13px;outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
+  .f textarea{resize:vertical;min-height:64px}
+  .f input:focus,.f select:focus,.f textarea:focus{border-color:rgba(255,61,139,.55);box-shadow:0 0 0 3px rgba(255,61,139,.1)}
+  .ed-actions{display:flex;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}
+  .ed-actions .spacer{flex:1}
+  .publish-box{display:none;margin-top:22px;padding:18px;border:1px solid var(--line);border-radius:14px;background:#faf8fc}
+  .publish-box.show{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .publish-box img{width:96px;height:96px;border-radius:12px;flex:none;background:#fff;border:1px solid var(--line)}
+  .publish-box .pb-t{font-family:'Fraunces';font-weight:600;font-size:16px;color:var(--ink);margin-bottom:3px}
+  .publish-box .pb-u{font-size:13px;color:var(--cyan);word-break:break-all}
+  @media(max-width:560px){ .fields{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <a class="brand" href="/apartments/offer">shou <small>apartments</small></a>
+  <span class="who" id="who"></span>
+  <button class="signout" id="signout" style="display:none">Sign out</button>
+</div></header>
+
+<!-- AUTH -->
+<div class="wrap">
+  <div class="auth" id="auth">
+    <h1>Sign in</h1>
+    <p>Enter your email and we'll send you a secure sign-in link — no password needed.</p>
+    <input type="email" id="email" placeholder="you@company.com" autocomplete="email">
+    <button class="btn btn-primary" id="loginBtn">Email me a link →</button>
+    <div class="msg" id="authMsg"></div>
+    <p class="note">First time? Signing in creates your account. <a href="/apartments/pricing" style="color:var(--cyan)">See pricing</a></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app"><div class="wrap">
+  <div class="page-head">
+    <h1>Your apartments</h1>
+    <button class="btn btn-primary" id="newBtn">＋ Add apartment</button>
+  </div>
+  <div class="units" id="units"></div>
+
+  <!-- EDITOR -->
+  <div id="editor">
+    <div class="ed-head">
+      <h2 id="edTitle">New apartment</h2>
+      <button class="btn btn-ghost btn-sm" id="edClose">Close</button>
+    </div>
+    <p class="ed-sub">Fill in what your guests always ask. You can edit any of this later, and it goes live the moment you save.</p>
+
+    <div class="grp">Basics</div>
+    <div class="fields">
+      <div class="f full"><label>Apartment name</label><input id="f_name" placeholder="e.g. Apartment 32"></div>
+      <div class="f"><label>Building <span class="hint">(optional)</span></label><input id="f_building" placeholder="e.g. Dansaert Residence · 2nd floor"></div>
+      <div class="f"><label>Neighbourhood label <span class="hint">(optional)</span></label><input id="f_hood" placeholder="e.g. Dansaert · Sainte-Catherine"></div>
+      <div class="f full"><label>Address</label><input id="f_address" placeholder="Street, postcode, city"></div>
+      <div class="f"><label>Latitude <span class="hint">(Maps → right-click → copy)</span></label><input id="f_lat" placeholder="50.8496" inputmode="decimal"></div>
+      <div class="f"><label>Longitude</label><input id="f_lng" placeholder="4.3470" inputmode="decimal"></div>
+      <div class="f"><label>Guest language</label><select id="f_lang">
+        <option value="en">English</option><option value="fr">Français</option><option value="nl">Nederlands</option>
+        <option value="de">Deutsch</option><option value="es">Español</option><option value="it">Italiano</option><option value="uk">Українська</option>
+      </select></div>
+      <div class="f"><label>Walking radius label <span class="hint">(optional)</span></label><input id="f_radius" placeholder="Everything within a 10-min walk"></div>
+    </div>
+
+    <div class="grp">Welcome book</div>
+    <div class="fields">
+      <div class="f full"><label>📶 Wi-Fi</label><input id="w_wifi" placeholder='Network "…" · password …'></div>
+      <div class="f"><label>🔑 Check-in</label><input id="w_checkin" placeholder="From 15:00 · self check-in…"></div>
+      <div class="f"><label>🚪 Check-out</label><input id="w_checkout" placeholder="By 11:00 · keys in the lockbox"></div>
+      <div class="f"><label>🌡 Heating</label><input id="w_heating" placeholder="Thermostat by the entrance…"></div>
+      <div class="f"><label>🧺 Washing machine</label><input id="w_laundry" placeholder="Under the counter · Eco 40°…"></div>
+      <div class="f"><label>☕ Coffee</label><input id="w_coffee" placeholder="Nespresso · capsules in the cupboard"></div>
+      <div class="f"><label>🗑 Trash &amp; recycling</label><input id="w_trash" placeholder="Blue bag = PMD… · collection days"></div>
+      <div class="f"><label>🚗 Parking</label><input id="w_parking" placeholder="Interparking … · €…/day"></div>
+      <div class="f"><label>🧳 Luggage</label><input id="w_luggage" placeholder="Store bags in the lockbox…"></div>
+      <div class="f full"><label>📜 House rules</label><input id="w_rules" placeholder="No smoking · quiet hours 22:00–08:00"></div>
+      <div class="f full"><label>🆘 Emergency</label><input id="w_emergency" placeholder="Host: +32 … · EU emergency: 112"></div>
+    </div>
+
+    <div class="ed-actions">
+      <button class="btn btn-primary" id="saveBtn">Save</button>
+      <button class="btn btn-ghost" id="pubBtn" style="display:none">Publish</button>
+      <div class="spacer"></div>
+      <button class="btn btn-danger btn-sm" id="delBtn" style="display:none">Delete</button>
+    </div>
+    <div class="msg" id="edMsg"></div>
+
+    <div class="publish-box" id="pubBox">
+      <img id="pubQr" alt="QR code">
+      <div>
+        <div class="pb-t">Live — put this QR in the apartment</div>
+        <div class="pb-u" id="pubUrl"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <a class="btn btn-ghost btn-sm" id="viewLive" target="_blank" rel="noopener">View live ↗</a>
+          <a class="btn btn-ghost btn-sm" id="qrDownload" download>Download QR</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<script>
+var API='https://shou-backend.vercel.app/api/apt';
+var LIVE_BASE='https://shou.be/apartments/u/';   // dynamic renderer (published units)
+var token=null, owner=null, editing=null;   // editing = unit object or null (new)
+
+function $(id){return document.getElementById(id);}
+function show(el,on){el.classList.toggle('show',on!==false);}
+function msg(el,text,kind){el.textContent=text;el.className='msg show '+(kind||'ok');}
+function clearMsg(el){el.className='msg';}
+
+function api(method,body,auth){
+  var h={'Content-Type':'application/json'};
+  if(auth&&token)h['Authorization']='Bearer '+token;
+  return fetch(API,{method:method,headers:h,body:body?JSON.stringify(body):undefined})
+    .then(function(r){return r.json().catch(function(){return{};}).then(function(j){return{ok:r.ok,status:r.status,j:j};});});
+}
+function apiGet(qs){
+  var h={};if(token)h['Authorization']='Bearer '+token;
+  return fetch(API+qs,{headers:h}).then(function(r){return r.json().catch(function(){return{};}).then(function(j){return{ok:r.ok,j:j};});});
+}
+
+// ---------- AUTH ----------
+$('loginBtn').onclick=function(){
+  var email=$('email').value.trim();
+  clearMsg($('authMsg'));
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){return msg($('authMsg'),'Please enter a valid email.','err');}
+  $('loginBtn').disabled=true;$('loginBtn').textContent='Sending…';
+  api('POST',{action:'login',email:email}).then(function(r){
+    $('loginBtn').disabled=false;$('loginBtn').textContent='Email me a link →';
+    if(r.ok){msg($('authMsg'),'Check your inbox — we sent a sign-in link to '+email+'.','ok');}
+    else{msg($('authMsg'),(r.j&&r.j.error)||'Something went wrong.','err');}
+  });
+};
+$('email').addEventListener('keydown',function(e){if(e.key==='Enter')$('loginBtn').click();});
+
+$('signout').onclick=function(){ try{localStorage.removeItem('apt_sess');}catch(e){} location.href='/apartments/dashboard'; };
+
+function enterApp(){
+  $('auth').parentNode.style.display='none';
+  $('app').style.display='block';
+  $('signout').style.display='';
+  $('who').textContent=owner&&owner.email?owner.email:'';
+  loadUnits();
+}
+
+// Exchange a magic-link token (?t=) for a session, or restore a stored session.
+(function boot(){
+  var t=new URLSearchParams(location.search).get('t');
+  if(t){
+    api('POST',{action:'session',loginToken:t}).then(function(r){
+      if(r.ok&&r.j.token){ token=r.j.token; owner=r.j.owner; try{localStorage.setItem('apt_sess',JSON.stringify({token:token,owner:owner}));}catch(e){}
+        history.replaceState({},'',location.pathname); enterApp(); }
+      else{ msg($('authMsg'),'That sign-in link expired. Enter your email for a fresh one.','err'); }
+    });
+    return;
+  }
+  try{ var s=JSON.parse(localStorage.getItem('apt_sess')||'null'); if(s&&s.token){ token=s.token; owner=s.owner; enterApp(); } }catch(e){}
+})();
+
+// ---------- UNITS ----------
+function loadUnits(){
+  apiGet('?mine=1').then(function(r){
+    if(!r.ok){ if(r.j&&/sign in/.test(r.j.error||'')){ /* stale token */ } return; }
+    renderUnits(r.j.units||[]);
+  });
+}
+function renderUnits(units){
+  var el=$('units');
+  if(!units.length){ el.innerHTML='<div class="empty">No apartments yet. Add your first one to get a QR code for your guests.</div>'; return; }
+  el.innerHTML=units.map(function(u){
+    var live=u.published;
+    return '<div class="unit"><div class="u-i">🔑</div><div class="u-m"><div class="u-n">'+esc(u.name||'Apartment')+'</div>'+
+      '<div class="u-s">'+esc(u.building||u.address||'')+'</div></div>'+
+      '<span class="pill '+(live?'live':'draft')+'">'+(live?'Live':'Draft')+'</span>'+
+      '<div class="u-actions"><button class="btn btn-ghost btn-sm" data-edit="'+u.id+'">Edit</button>'+
+      (live?'<a class="btn btn-ghost btn-sm" href="'+LIVE_BASE+encodeURIComponent(u.slug)+'" target="_blank" rel="noopener">View ↗</a>':'')+
+      '</div></div>';
+  }).join('');
+  el.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-edit');openEditor(units.filter(function(u){return u.id===id;})[0]);};});
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+// ---------- EDITOR ----------
+var WFIELDS=['wifi','checkin','checkout','heating','laundry','coffee','trash','parking','luggage','rules','emergency'];
+function openEditor(unit){
+  editing=unit||null;
+  var c=(unit&&unit.content)||{}, w=c.welcome||{};
+  $('edTitle').textContent=unit?'Edit apartment':'New apartment';
+  $('f_name').value=unit?unit.name||'':'';
+  $('f_building').value=unit?unit.building||'':'';
+  $('f_hood').value=c.hood||'';
+  $('f_address').value=unit?unit.address||'':'';
+  $('f_lat').value=unit&&unit.lat!=null?unit.lat:'';
+  $('f_lng').value=unit&&unit.lng!=null?unit.lng:'';
+  $('f_lang').value=(unit&&unit.baseLang)||'en';
+  $('f_radius').value=c.radius||'';
+  WFIELDS.forEach(function(k){ $('w_'+k).value=(w[k]!=null?w[k]:''); });
+  clearMsg($('edMsg'));
+  $('delBtn').style.display=unit?'':'none';
+  $('pubBtn').style.display=unit?'':'none';
+  updatePubBtn();
+  renderPubBox(unit);
+  show($('editor'),true);
+  $('editor').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('newBtn').onclick=function(){openEditor(null);};
+$('edClose').onclick=function(){show($('editor'),false);editing=null;};
+
+function collect(){
+  var welcome={}; WFIELDS.forEach(function(k){ var v=$('w_'+k).value.trim(); if(v)welcome[k]=v; });
+  return {
+    name:$('f_name').value.trim()||'Apartment',
+    building:$('f_building').value.trim(),
+    address:$('f_address').value.trim(),
+    lat:$('f_lat').value.trim(), lng:$('f_lng').value.trim(),
+    baseLang:$('f_lang').value,
+    content:{ hood:$('f_hood').value.trim(), radius:$('f_radius').value.trim(), welcome:welcome }
+  };
+}
+$('saveBtn').onclick=function(){
+  clearMsg($('edMsg'));
+  var payload=collect();
+  $('saveBtn').disabled=true;$('saveBtn').textContent='Saving…';
+  var body=Object.assign({action:editing?'update':'create'},payload);
+  if(editing)body.id=editing.id;
+  api('POST',body,true).then(function(r){
+    $('saveBtn').disabled=false;$('saveBtn').textContent='Save';
+    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||'Could not save.','err');}
+    editing=r.j.unit;
+    $('edTitle').textContent='Edit apartment';
+    $('delBtn').style.display='';$('pubBtn').style.display='';updatePubBtn();renderPubBox(editing);
+    msg($('edMsg'),'Saved.'+(editing.published?'':' Not visible to guests until you publish.'),'ok');
+    loadUnits();
+  });
+};
+function updatePubBtn(){ $('pubBtn').textContent=(editing&&editing.published)?'Unpublish':'Publish'; $('pubBtn').className='btn '+((editing&&editing.published)?'btn-ghost':'btn-primary'); }
+$('pubBtn').onclick=function(){
+  if(!editing)return;
+  var next=!editing.published;
+  $('pubBtn').disabled=true;
+  api('POST',{action:'publish',id:editing.id,published:next},true).then(function(r){
+    $('pubBtn').disabled=false;
+    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||'Could not update.','err');}
+    editing=r.j.unit;updatePubBtn();renderPubBox(editing);loadUnits();
+    msg($('edMsg'),next?'Published — your guest page is live.':'Unpublished.','ok');
+  });
+};
+$('delBtn').onclick=function(){
+  if(!editing)return;
+  if(!confirm('Delete this apartment? This cannot be undone.'))return;
+  api('POST',{action:'delete',id:editing.id},true).then(function(r){
+    if(!r.ok){return msg($('edMsg'),(r.j&&r.j.error)||'Could not delete.','err');}
+    show($('editor'),false);editing=null;loadUnits();
+  });
+};
+function renderPubBox(unit){
+  var box=$('pubBox');
+  if(!unit||!unit.published){ show(box,false); return; }
+  var url=LIVE_BASE+encodeURIComponent(unit.slug);
+  var qr='https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data='+encodeURIComponent(url);
+  $('pubQr').src=qr; $('pubUrl').textContent=url;
+  $('viewLive').href=url; $('qrDownload').href=qr;
+  show(box,true);
+}
+</script>
+</body>
+</html>
