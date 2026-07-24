@@ -98,6 +98,11 @@
   .wb-sec::after{content:'';position:absolute;left:0;bottom:0;width:42px;height:3px;border-radius:2px;background:var(--grad)}
   .wb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:10px}
   .wb-card{display:flex;gap:13px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow)}
+  a.wb-link{text-decoration:none;color:inherit;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
+  a.wb-link:hover{border-color:rgba(255,61,139,.4);transform:translateY(-1px);box-shadow:0 6px 16px rgba(20,16,30,.08)}
+  .wb-go{margin-left:auto;align-self:center;color:var(--cyan);font-weight:700;font-size:15px;flex:none;padding-left:6px}
+  .wb-dir{display:inline-block;margin-top:6px;color:var(--cyan);font-weight:700;font-size:12.5px;text-decoration:none}
+  .wb-dir:hover{text-decoration:underline}
   .wb-ic{font-size:20px;flex:none;line-height:1.3}
   .wb-tx{min-width:0}
   .wb-k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
@@ -446,6 +451,20 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
 const maps=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
 const DIR_URL='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(HOTEL.address);
+// Welcome-book POIs that are real places → Google Maps. Non-place entries (Wi-Fi,
+// check-out, heating…) have no target and stay static. Airport = live transit
+// directions from the apartment; the rest = a Maps search for the named place.
+const MAPQ={
+  parking:'Interparking Dansaert Brussels',
+  supermarket:'Delhaize Dansaert Brussels',
+  bakery:'Charli boulangerie Sainte-Catherine Brussels',
+  pharmacy:'Pharmacie Sainte-Catherine Brussels',
+  transport:'Sainte-Catherine metro station Brussels',
+};
+function wbMapUrl(k){
+  if(k==='airport') return 'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(HOTEL.address)+'&destination='+encodeURIComponent('Brussels Airport')+'&travelmode=transit';
+  return MAPQ[k]?maps(MAPQ[k]):null;
+}
 
 // ===== Curated neighbourhood recommendations — the "host's picks" =====
 // Dining / coffee / bars are local recommendations, NOT events, so they don't
@@ -658,7 +677,11 @@ function renderBook(){
       <div><b>${esc(t('qrTitle'))}</b><span>${esc(t('qrSub'))}</span></div>
     </div>`;
   const secs=WB_SECTIONS.map(s=>{
-    const cards=s.items.map(k=>{const it=WB[k];return `<div class="wb-card"><span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(wbVal(k))}</div></div></div>`;}).join('');
+    const cards=s.items.map(k=>{
+      const it=WB[k], url=wbMapUrl(k);
+      const inner=`<span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(wbVal(k))}</div></div>${url?'<span class="wb-go">↗</span>':''}`;
+      return url?`<a class="wb-card wb-link" href="${url}" target="_blank" rel="noopener">${inner}</a>`:`<div class="wb-card">${inner}</div>`;
+    }).join('');
     return `<h2 class="wb-sec">${esc(wb(s.title))}</h2><div class="wb-grid">${cards}</div>`;
   }).join('');
   document.getElementById('book').innerHTML=`<p class="wb-intro">${esc(t('bookIntro'))}</p>${qr}${secs}`;
@@ -957,7 +980,11 @@ function chatCard(e){ return evCard(e,e.date); }
 
 // Welcome-book intent match: apartment/neighbourhood questions answered instantly
 // from local data; everything else falls through to the live events concierge.
-function wbAnswerHTML(k){const it=WB[k];return `${esc(t('hereYouGo'))}<div class="wb-ans"><span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(wbVal(k))}</div></div></div>`;}
+function wbAnswerHTML(k){
+  const it=WB[k], url=wbMapUrl(k);
+  const dir=url?`<a class="wb-dir" href="${url}" target="_blank" rel="noopener">${esc(t('dir'))} ↗</a>`:'';
+  return `${esc(t('hereYouGo'))}<div class="wb-ans"><span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(wbVal(k))}</div>${dir}</div></div>`;
+}
 
 async function ask(q,forced){
   if(!q||!q.trim()||asking)return;
