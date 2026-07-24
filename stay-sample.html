@@ -103,6 +103,17 @@
   .wb-k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
   .wb-v{font-size:14px;color:var(--ink);font-weight:500;line-height:1.46}
   .wb-ans{display:flex;gap:12px;align-items:flex-start;margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+  /* concierge recommendation cards (host's picks) */
+  .rec-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .rec-card{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 13px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+  .rec-card:hover{border-color:rgba(255,61,139,.4);transform:translateY(-1px)}
+  .rec-ic{font-size:19px;flex:none}
+  .rec-tx{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
+  .rec-n{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink);line-height:1.2}
+  .rec-t{font-size:12.5px;color:var(--soft)}
+  .rec-go{font-size:12px;font-weight:700;color:var(--cyan);white-space:nowrap;flex:none}
+  .rec-map{display:inline-flex;align-items:center;gap:6px;margin-top:11px;font-size:13px;font-weight:700;color:var(--cyan);text-decoration:none}
+  .rec-map:hover{text-decoration:underline}
 
   /* Day filter timeline (matches this-week) */
   .tl-wrap{display:flex;align-items:center;gap:12px;margin:22px 0 6px}
@@ -422,6 +433,55 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
 const maps=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
 const DIR_URL='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(HOTEL.address);
+
+// ===== Curated neighbourhood recommendations — the "host's picks" =====
+// Dining / coffee / bars are local recommendations, NOT events, so they don't
+// belong in the events engine. In production the operator curates these per
+// building; here they're real, well-known spots near the apartment. Each opens
+// the real place in Google Maps — no fabricated hours or reviews.
+const REC_ICON={dinner:'🍽',coffee:'☕',bar:'🍸'};
+const RECS={
+  dinner:[
+    {n:'Nüetnigenough',q:'Nüetnigenough Brussels',tag:'Rustic Belgian bistro'},
+    {n:'Bij den Boer',q:'Bij den Boer Sainte-Catherine Brussels',tag:'Seafood · Sainte-Catherine'},
+    {n:'Henri',q:'Restaurant Henri Rue de Flandre Brussels',tag:'Modern bistro · Dansaert'},
+    {n:'Le Pré Salé',q:'Le Pré Salé Brussels',tag:'Mussels & Belgian classics'},
+  ],
+  coffee:[
+    {n:'OR Coffee Roasters',q:'OR Coffee Dansaert Brussels',tag:'Specialty coffee · Dansaert'},
+    {n:'MOK',q:'MOK coffee Brussels',tag:'Roastery & espresso bar'},
+    {n:'Charli',q:'Charli bakery Dansaert Brussels',tag:'Bakery & good coffee'},
+  ],
+  bar:[
+    {n:'Le Cirio',q:'Le Cirio Brussels',tag:'Historic belle-époque bar'},
+    {n:'Monk',q:'Monk bar Brussels',tag:'Classic Brussels beer café'},
+    {n:'Booze ’n’ Blues',q:'Booze n Blues Brussels',tag:'Cosy blues bar'},
+  ],
+};
+const REC_MAPQ={dinner:'restaurants near Rue Antoine Dansaert Brussels',coffee:'coffee near Rue Antoine Dansaert Brussels',bar:'bars near Rue Antoine Dansaert Brussels'};
+const REC_L={
+  en:{lead:"A few of the host's local picks:",map:'See more on the map',open:'Open'},
+  fr:{lead:"Quelques adresses conseillées par l'hôte :",map:'Voir plus sur la carte',open:'Ouvrir'},
+  nl:{lead:'Een paar favorieten van je gastheer:',map:'Meer op de kaart',open:'Openen'},
+  de:{lead:'Ein paar Tipps des Gastgebers:',map:'Mehr auf der Karte',open:'Öffnen'},
+  es:{lead:'Algunas recomendaciones del anfitrión:',map:'Ver más en el mapa',open:'Abrir'},
+  it:{lead:"Alcuni consigli dell'host:",map:'Vedi altro sulla mappa',open:'Apri'},
+  uk:{lead:'Кілька рекомендацій від господаря:',map:'Більше на карті',open:'Відкрити'},
+};
+const rl=k=>((REC_L[lang]||REC_L.en)[k]);
+function findRec(q){
+  const s=' '+String(q||'').toLowerCase()+' ';
+  if(/\b(dinner|dine|restaurant|where.*eat|good food|place to eat|lunch|brunch|eat nearby|somewhere to eat|belgian food|hungry)\b/.test(s))return 'dinner';
+  if(/\b(coffee shop|good coffee|best coffee|caf[eé]|flat white|cappuccino|coffee nearby|breakfast out|where.*coffee)\b/.test(s))return 'coffee';
+  if(/\b(bar|drinks|cocktail|beer|pub|where.*drink|nightcap|wine bar)\b/.test(s))return 'bar';
+  return null;
+}
+function recAnswerHTML(k){
+  const icon=REC_ICON[k]||'📍';
+  const cards=(RECS[k]||[]).map(r=>`<a class="rec-card" href="${maps(r.q)}" target="_blank" rel="noopener"><span class="rec-ic">${icon}</span><span class="rec-tx"><span class="rec-n">${esc(r.n)}</span><span class="rec-t">${esc(r.tag)}</span></span><span class="rec-go">${esc(rl('open'))} ↗</span></a>`).join('');
+  const mapLink=`<a class="rec-map" href="${maps(REC_MAPQ[k]||'Rue Antoine Dansaert Brussels')}" target="_blank" rel="noopener">🗺 ${esc(rl('map'))}</a>`;
+  return `${esc(rl('lead'))}<div class="rec-list">${cards}</div>${mapLink}`;
+}
 function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
 function km(e){return (Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine(HOTEL.lat,HOTEL.lng,e.lat,e.lng):999;}
 function distLabel(e){const k=km(e);if(k>60)return '';if(k<1.1)return Math.max(1,Math.round(k*12))+' '+t('walk');return k.toFixed(1)+' km';}
@@ -854,7 +914,7 @@ function findWB(q){
     ['parking',/parking|park the car|where.*car|garage/],
     ['heating',/heat|heating|cold|warm|temperature|thermostat|radiator/],
     ['laundry',/laundry|washing|washer|wash machine|do laundry|clothes/],
-    ['coffee',/coffee|nespresso|espresso/],
+    ['coffee',/coffee machine|nespresso|espresso machine|make.*coffee|coffee (pod|capsule|maker)|how.*coffee.*work/],
     ['trash',/trash|garbage|rubbish|\bbin\b|recycl|waste/],
     ['luggage',/luggage|drop.*bag|store.*bag|leave.*bag|suitcase/],
     ['supermarket',/supermarket|grocer|groceries|delhaize|buy food|food shop/],
@@ -880,6 +940,13 @@ async function ask(q){
   const wbKey=findWB(q);
   if(wbKey){
     addMsg('ai',wbAnswerHTML(wbKey));
+    asking=false; if(btn)btn.disabled=false; return;
+  }
+  // Curated neighbourhood recommendation (dinner / coffee / bars): host's picks
+  // with Google Maps links — these are recommendations, not events.
+  const recKey=findRec(q);
+  if(recKey){
+    addMsg('ai',recAnswerHTML(recKey));
     asking=false; if(btn)btn.disabled=false; return;
   }
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
