@@ -469,11 +469,49 @@ const REC_L={
   uk:{lead:'Кілька рекомендацій від господаря:',map:'Більше на карті',open:'Відкрити'},
 };
 const rl=k=>((REC_L[lang]||REC_L.en)[k]);
-function findRec(q){
-  const s=' '+String(q||'').toLowerCase()+' ';
-  if(/\b(dinner|dine|restaurant|where.*eat|good food|place to eat|lunch|brunch|eat nearby|somewhere to eat|belgian food|hungry)\b/.test(s))return 'dinner';
-  if(/\b(coffee shop|good coffee|best coffee|caf[eé]|flat white|cappuccino|coffee nearby|breakfast out|where.*coffee)\b/.test(s))return 'coffee';
-  if(/\b(bar|drinks|cocktail|beer|pub|where.*drink|nightcap|wine bar)\b/.test(s))return 'bar';
+// ===== Multilingual intent classifier =====
+// The concierge must understand the same questions in every language, so intents
+// are matched on a FOLDED query (accent-stripped, tokenised) against keyword sets
+// covering EN/FR/NL/DE/ES/IT/UK. Welcome-book intents are listed before
+// recommendation intents, so they win; anything unmatched falls through to the
+// live-events engine. Long keywords (≥5 chars) match as substrings so Dutch/German
+// compounds work (e.g. "parkeergelegenheid" contains "parkeer"); short ones need a
+// token boundary so "bar" doesn't fire inside "barber".
+const fold=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+function toks(q){return ' '+fold(q).replace(/[^0-9a-zа-яіїєґё]+/gi,' ').trim()+' ';}
+const INTENTS=[
+  {kind:'wb',id:'wifi',kw:['wifi','wi fi','internet','password','mot de passe','code wifi','wachtwoord','passwort','wlan','contrasena','clave','parola','пароль','вайфай','вай фай']},
+  {kind:'wb',id:'checkout',kw:['check out','checkout','departure','depart','leave','leaving','uitchecken','vertrek','uitchecktijd','abreise','auschecken','salida','partenza','uscita','liberer','виїзд','виезд']},
+  {kind:'wb',id:'checkin',kw:['check in','checkin','arrival','arrive','arrivee','door code','smart lock','einchecken','inchecken','aankomst','sleutel','schlussel','llave','chiave','entrada','ingresso','arrivo','заезд','ключ','заселення','entree','entrance']},
+  {kind:'wb',id:'coffee',kw:['coffee machine','nespresso','espresso machine','machine a cafe','koffiezetapparaat','kaffeemaschine','cafetera','macchina caffe','кавомашина','coffee maker','capsule','dosette','capsula','coffee pod']},
+  {kind:'wb',id:'heating',kw:['heating','heat','chauffage','verwarming','heizung','calefaccion','riscaldamento','thermostat','thermostaat','termostato','radiator','radiateur','опалення','heizen','froid','koud','kalt','freddo','холодно']},
+  {kind:'wb',id:'laundry',kw:['laundry','washing machine','washer','lave linge','machine a laver','wasmachine','waschmaschine','lavadora','lavatrice','пральна','bucato','lessive','wassen','colada']},
+  {kind:'wb',id:'trash',kw:['trash','garbage','rubbish','recycling','recycl','waste','poubelle','dechet','afval','vuilnis','mull','abfall','basura','reciclaje','spazzatura','rifiuti','сміття']},
+  {kind:'wb',id:'luggage',kw:['luggage','suitcase','drop bag','store bag','leave bag','bagage','koffer','valise','maleta','equipaje','bagaglio','valigia','багаж','consigne','gepack']},
+  {kind:'wb',id:'parking',kw:['parking','park the car','garage','voiture','se garer','stationnement','parkeren','parkeer','parkplatz','aparcamiento','aparcar','parcheggio','паркінг','парковка']},
+  {kind:'wb',id:'supermarket',kw:['supermarket','grocery','groceries','buy food','food shop','delhaize','courses','supermarche','boodschappen','supermarkt','einkaufen','lebensmittel','supermercado','comprar comida','spesa','supermercato','продукти']},
+  {kind:'wb',id:'bakery',kw:['bakery','bread','croissant','pastry','boulangerie','bakker','brood','backerei','panaderia','panetteria','пекарня','viennoiserie']},
+  {kind:'wb',id:'pharmacy',kw:['pharmacy','pharmacie','chemist','drugstore','apotheek','apotheke','farmacia','medicine','medicijn','medikament','medicina','аптека','ліки']},
+  {kind:'wb',id:'transport',kw:['tram','metro','bus','public transport','subway','station','openbaar vervoer','nahverkehr','transporte publico','trasporto','метро','транспорт','get around','se deplacer']},
+  {kind:'wb',id:'airport',kw:['airport','flight','aeroport','luchthaven','flughafen','aeropuerto','aeroporto','аеропорт','zaventem','vlucht','vuelo','рейс']},
+  {kind:'wb',id:'emergency',kw:['emergency','ambulance','police','hospital','urgent','urgence','noodgeval','notfall','emergencia','emergenza','надзвичайн','hopital','ziekenhuis','krankenhaus','ospedale','лікарня','host number','contact host']},
+  {kind:'wb',id:'rules',kw:['house rules','smoking','smoke','parties','party','noise','quiet hours','pets','reglement','fumer','bruit','animaux','huisregels','roken','feest','lawaai','huisdier','hausordnung','rauchen','haustier','normas','fumar','fiesta','ruido','mascota','regole','fumare','rumore','правила','курит']},
+  {kind:'rec',id:'dinner',kw:['dinner','dine','restaurant','where to eat','somewhere to eat','good food','place to eat','lunch','brunch','hungry','diner','manger','souper','restau','eten','avondeten','uit eten','essen','abendessen','cena','comer','cenare','pranzo','mangiare','вечеря','ресторан','поїсти']},
+  {kind:'rec',id:'coffee',kw:['coffee shop','good coffee','best coffee','cafe','flat white','cappuccino','coffee nearby','koffie','kaffee','caffe','кава','кави']},
+  {kind:'rec',id:'bar',kw:['bar','drinks','cocktail','beer','pub','nightcap','wine bar','boire','biere','prendre un verre','drankje','borrel','bier','trinken','tomar algo','cerveza','bere','birra','випити','пиво','коктейль']},
+];
+// Ideas-chip → intent map (chip order matches each language's T.ex array). Guarantees
+// the suggested questions route correctly in every language, independent of the matcher.
+const EX_INTENT=[{kind:'wb',id:'wifi'},{kind:'wb',id:'checkout'},{kind:'wb',id:'supermarket'},null,{kind:'rec',id:'dinner'},{kind:'wb',id:'parking'}];
+function classify(q){
+  const s=toks(q);
+  for(const it of INTENTS){
+    for(const kw of it.kw){
+      const k=fold(kw);
+      const hit = (k.indexOf(' ')>=0 || k.length>=5) ? s.indexOf(k)>=0 : s.indexOf(' '+k+' ')>=0;
+      if(hit) return {kind:it.kind,id:it.id};
+    }
+  }
   return null;
 }
 function recAnswerHTML(k){
@@ -905,48 +943,19 @@ function chatCard(e){ return evCard(e,e.date); }
 
 // Welcome-book intent match: apartment/neighbourhood questions answered instantly
 // from local data; everything else falls through to the live events concierge.
-function findWB(q){
-  const s=' '+String(q||'').toLowerCase()+' ';
-  const M=[
-    ['wifi',/wifi|wi-?fi|internet|password|wlan|pass ?word/],
-    ['checkout',/check\s*-?\s*out|checkout|leaving|leave|departure|what time.*out/],
-    ['checkin',/check\s*-?\s*in|checkin|arrive|arrival|get in|door code|smart.?lock|the key|keys|entrance/],
-    ['parking',/parking|park the car|where.*car|garage/],
-    ['heating',/heat|heating|cold|warm|temperature|thermostat|radiator/],
-    ['laundry',/laundry|washing|washer|wash machine|do laundry|clothes/],
-    ['coffee',/coffee machine|nespresso|espresso machine|make.*coffee|coffee (pod|capsule|maker)|how.*coffee.*work/],
-    ['trash',/trash|garbage|rubbish|\bbin\b|recycl|waste/],
-    ['luggage',/luggage|drop.*bag|store.*bag|leave.*bag|suitcase/],
-    ['supermarket',/supermarket|grocer|groceries|delhaize|buy food|food shop/],
-    ['bakery',/bakery|bread|croissant|pastr/],
-    ['pharmacy',/pharmac|chemist|drugstore|medicine/],
-    ['transport',/tram|metro|\bbus\b|public transport|subway|station|how.*get around/],
-    ['airport',/airport|flight|to the airport|airport transfer/],
-    ['emergency',/emergency|ambulance|police|urgent|hospital|host number|contact.*host|call.*host/],
-    ['rules',/house rules|smoking|smoke|party|parties|noise|quiet hours|\bpets?\b|\bdog/],
-  ];
-  for(const [k,re] of M){ if(re.test(s)) return k; }
-  return null;
-}
 function wbAnswerHTML(k){const it=WB[k];return `${esc(t('hereYouGo'))}<div class="wb-ans"><span class="wb-ic">${it.i}</span><div class="wb-tx"><div class="wb-k">${esc(wb(k))}</div><div class="wb-v">${esc(it.v)}</div></div></div>`;}
 
-async function ask(q){
+async function ask(q,forced){
   if(!q||!q.trim()||asking)return;
   asking=true;
   setChips(false);
   const btn=document.getElementById('chatBtn'); if(btn)btn.disabled=true;
   addMsg('me',esc(q));
-  // Local welcome-book answer first (Wi-Fi, check-out, parking…): instant, no network.
-  const wbKey=findWB(q);
-  if(wbKey){
-    addMsg('ai',wbAnswerHTML(wbKey));
-    asking=false; if(btn)btn.disabled=false; return;
-  }
-  // Curated neighbourhood recommendation (dinner / coffee / bars): host's picks
-  // with Google Maps links — these are recommendations, not events.
-  const recKey=findRec(q);
-  if(recKey){
-    addMsg('ai',recAnswerHTML(recKey));
+  // Instant local answer — welcome-book fact or curated recommendation — matched
+  // across all languages. `forced` = the exact intent when a suggestion chip is used.
+  const cls=forced||classify(q);
+  if(cls){
+    addMsg('ai', cls.kind==='rec' ? recAnswerHTML(cls.id) : wbAnswerHTML(cls.id));
     asking=false; if(btn)btn.disabled=false; return;
   }
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
@@ -993,11 +1002,12 @@ function applyChrome(){
     :`<button class="hlink" type="button" data-act="${esc(l.act)}">${l.i} ${esc(t(l.k))}</button>`).join('');
   document.querySelectorAll('.hlink[data-act]').forEach(b=>b.onclick=()=>setTab(b.getAttribute('data-act')));
   const sq=SURPRISE_L[lang]||SURPRISE_L.en;
+  const exList=(t('ex')||[]);
   const chips=[`<button class="ex ex-surprise" data-q="${esc(sq)}">✨ ${esc(sq)}</button>`]
-    .concat((t('ex')||[]).map(q=>`<button class="ex" data-q="${esc(q)}">${esc(q)}</button>`));
+    .concat(exList.map((q,i)=>{const it=EX_INTENT[i];const a=it?` data-k="${it.kind}" data-id="${esc(it.id)}"`:'';return `<button class="ex" data-q="${esc(q)}"${a}>${esc(q)}</button>`;}));
   document.getElementById('exs').innerHTML=chips.join('');
   document.getElementById('ideasLbl').textContent=IDEAS_L[lang]||IDEAS_L.en;
-  document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;setTab('ask');ask(q);});
+  document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;setTab('ask');const k=b.getAttribute('data-k'),id=b.getAttribute('data-id');ask(q,(k&&id)?{kind:k,id:id}:null);});
   renderBook();
 }
 document.getElementById('langSel').onchange=async e=>{
