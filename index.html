@@ -406,7 +406,7 @@
   <script>
     (function(){
       var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
-      fetch('https://shou-backend.vercel.app/api/ig-recent?v=3')
+      fetch('https://shou-backend.vercel.app/api/ig-recent?v=4')
         .then(function(r){ return r.json(); })
         .then(function(d){
           var posts = (d && d.posts) || [];
