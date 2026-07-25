@@ -828,7 +828,7 @@ function contactRow(c = {}, i) {
 }
 
 // Collapsible drawer sections — remembers which sections you keep open (per device).
-const SEC_DEFAULT = { contacts: true, outreach: true, notes: false, billing: false, history: false };
+const SEC_DEFAULT = { notes: true, contacts: true, outreach: false, billing: false, history: false };
 function secState() { try { return Object.assign({}, SEC_DEFAULT, JSON.parse(localStorage.getItem('crm_drawer_secs') || '{}')); } catch (e) { return Object.assign({}, SEC_DEFAULT); } }
 function saveSecState(s) { try { localStorage.setItem('crm_drawer_secs', JSON.stringify(s)); } catch (e) {} }
 function setupSections() {
@@ -888,17 +888,17 @@ function openDrawer(h) {
       </div>
     </div>
     ${isNew ? '' : `
-    <div class="d-section collapsible" id="outreach-box" data-sec="outreach">
-      <h3>Outreach <button class="btn" id="o-gen" style="font-size:13px;padding:8px 16px">✨ Generate personalized outreach</button></h3>
-      <div id="o-out">${h.outreach ? '' : '<p class="dim" style="font-size:13px">Nothing generated yet. Uses the hotel’s website + profile to write a subject line, first email and two follow-ups.</p>'}</div>
-      <div id="seq-box"></div>
-    </div>
     <div class="d-section collapsible" id="ai-box" data-sec="notes">
       <h3>AI notes</h3>
       <p class="dim" style="font-size:12.5px;margin:-2px 0 8px">Log an interaction or ask about this hotel — e.g. “booked a demo Monday 11am” or “when did I last email them?”. Logs are confirmed before saving.</p>
       <textarea id="ai-text" placeholder="Log an activity or ask a question about this hotel…"></textarea>
       <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" id="ai-go" style="font-size:13px;padding:8px 16px">Log or ask</button></div>
       <div id="ai-out"></div>
+    </div>
+    <div class="d-section collapsible" id="outreach-box" data-sec="outreach">
+      <h3>Outreach <button class="btn" id="o-gen" style="font-size:13px;padding:8px 16px">✨ Generate personalized outreach</button></h3>
+      <div id="o-out">${h.outreach ? '' : '<p class="dim" style="font-size:13px">Nothing generated yet. Uses the hotel’s website + profile to write a subject line, first email and two follow-ups.</p>'}</div>
+      <div id="seq-box"></div>
     </div>
     <div class="d-section collapsible" id="billing-box" data-sec="billing">
       <h3>Billing <span id="bill-badge"></span></h3>
