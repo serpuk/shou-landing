@@ -298,6 +298,15 @@
     <div id="proposal"></div>
   </div>
 
+  <!-- unmatched replies -->
+  <div class="card" id="unmatched" style="margin-top:14px;display:none;border-color:rgba(14,154,141,.3);background:linear-gradient(120deg,rgba(14,154,141,.05),rgba(255,155,61,.03))">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <b style="font-size:15px">💬 Replies to assign</b>
+      <span id="unmatched-count" class="dim" style="font-size:13px"></span>
+    </div>
+    <div id="unmatched-list"></div>
+  </div>
+
   <!-- metrics -->
   <div class="card" id="metrics" style="margin-top:14px;display:none">
     <div id="funnel"></div>
@@ -429,7 +438,7 @@ async function unlock(tok) {
     localStorage.setItem('shou_crm_token', tok);
     $('gate').style.display = 'none'; $('app').style.display = 'block';
     $('btn-add').style.display = ''; $('btn-logout').style.display = '';
-    hotels = d.hotels; stats = d.stats || null; renderList();
+    hotels = d.hotels; stats = d.stats || null; renderList(); loadUnmatched();
   } catch (e) {
     $('gate-err').style.display = 'block';
     $('gate-err').textContent = e.message === 'Unauthorized' ? 'Wrong token.' : 'Error: ' + e.message;
@@ -443,6 +452,48 @@ $('btn-logout').onclick = lock;
 async function refresh() {
   const d = await api('list');
   hotels = d.hotels; stats = d.stats || stats; renderList();
+  loadUnmatched();
+}
+
+/* ---------- unmatched inbound replies ---------- */
+async function loadUnmatched() {
+  try { const d = await api('inbound_unmatched'); renderUnmatched(d.inbound || []); } catch (e) { /* silent */ }
+}
+function fmtSnippet(t) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > 160 ? t.slice(0, 160) + '…' : t; }
+function renderUnmatched(list) {
+  const card = $('unmatched');
+  if (!list.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  $('unmatched-count').textContent = list.length + (list.length === 1 ? ' reply from an unknown address' : ' replies from unknown addresses');
+  const opts = '<option value="">Assign to hotel…</option>' + hotels.map(h => `<option value="${h.id}">${esc(h.name)}${h.city ? ' · ' + esc(h.city) : ''}</option>`).join('');
+  $('unmatched-list').innerHTML = list.map(r => `
+    <div data-inb="${r.id}" style="padding:12px 14px;margin-bottom:8px;border:1px solid rgba(20,16,30,.12);border-radius:12px;background:#fff">
+      <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
+        <b style="font-size:14px">${esc(r.from_name || r.from_email)}</b>
+        <span class="dim" style="font-size:12.5px">&lt;${esc(r.from_email)}&gt;</span>
+        <span class="dim" style="font-size:12px;margin-left:auto">${fmtDT(r.received_at)}</span>
+      </div>
+      <div style="font-size:13.5px;font-weight:600;margin:4px 0 2px">${esc(r.subject || '(no subject)')}</div>
+      <div class="dim" style="font-size:13px">${esc(fmtSnippet(r.body_text))}</div>
+      ${r.ai_intent ? `<div style="font-size:12.5px;color:#0e6b60;margin-top:4px">🤖 ${esc(r.ai_intent)}${r.ai_summary ? ' — ' + esc(r.ai_summary) : ''}</div>` : ''}
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+        <select class="inb-sel" style="flex:1;min-width:180px;padding:8px 10px;border:1px solid rgba(20,16,30,.15);border-radius:8px;font-family:inherit;font-size:13px">${opts}</select>
+        <button class="btn inb-assign">Assign</button>
+      </div>
+    </div>`).join('');
+  $('unmatched-list').querySelectorAll('[data-inb]').forEach(row => {
+    const sel = row.querySelector('.inb-sel');
+    row.querySelector('.inb-assign').onclick = () => assignInbound(row.getAttribute('data-inb'), sel.value, row.querySelector('.inb-assign'));
+  });
+}
+async function assignInbound(inboundId, hotelId, btn) {
+  if (!hotelId) { toast('Pick a hotel first'); return; }
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    await api('assign_inbound', { method: 'POST', body: { inboundId: Number(inboundId), hotelId: Number(hotelId) } });
+    toast('Reply assigned');
+    await refresh();
+  } catch (e) { btn.disabled = false; btn.textContent = 'Assign'; toast(e.message || 'Failed'); }
 }
 /* ---------- metrics ---------- */
 function renderMetrics() {
@@ -605,7 +656,7 @@ function renderList() {
     const c = (h.contacts || [])[0];
     const nt = nextTouch(h);
     return `<tr data-id="${h.id}">
-      <td><div class="h-name">${esc(h.name)}</div><div class="h-city">${esc(h.city || '')}${c ? (h.city ? ' · ' : '') + esc(c.name || c.email || '') : ''}</div></td>
+      <td><div class="h-name">${esc(h.name)}${h.last_reply_at ? ' <span class="badge" style="background:#e3f4f1;color:#0e6b60;font-size:10px;padding:2px 7px">💬 replied</span>' : ''}</div><div class="h-city">${esc(h.city || '')}${c ? (h.city ? ' · ' : '') + esc(c.name || c.email || '') : ''}</div></td>
       <td><span class="badge st-${esc(h.pilot_status)}">${esc(ST_LABEL[h.pilot_status] || h.pilot_status)}</span></td>
       <td>${nt ? `<span class="${followUpClass(nt.t)}">${fmtDT(nt.t)}</span>${nt.kind === 'auto' ? '<span class="auto-tag">✉ AUTO</span>' : nt.kind === 'revive' ? '<span class="revive-tag">♻ REVIVE</span>' : ''}` : '<span class="dim">—</span>'}</td>
       <td class="dim">${fmtDT(h.last_email_at, false) || '—'}</td>
