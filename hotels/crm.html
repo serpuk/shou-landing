@@ -186,6 +186,11 @@
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:rgba(255,61,139,.5)}
   .d-section{margin-top:22px}
   .d-section h3{font-size:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  .d-section.collapsible > h3 .sec-title{cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:8px}
+  .sec-chev{font-size:11px;color:var(--text-dim);transition:transform .18s;display:inline-block}
+  .d-section.collapsed .sec-chev{transform:rotate(-90deg)}
+  .d-section.collapsed > h3{margin-bottom:0}
+  .d-section.collapsed .sec-body{display:none}
   /* contact row: two columns (name/role, email/phone) so every value stays readable
      at the drawer's width on both desktop and mobile; actions on their own row */
   .contact-row{display:grid;gap:6px 8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line);
@@ -822,6 +827,30 @@ function contactRow(c = {}, i) {
   </div>`;
 }
 
+// Collapsible drawer sections — remembers which sections you keep open (per device).
+const SEC_DEFAULT = { contacts: true, outreach: true, notes: false, billing: false, history: false };
+function secState() { try { return Object.assign({}, SEC_DEFAULT, JSON.parse(localStorage.getItem('crm_drawer_secs') || '{}')); } catch (e) { return Object.assign({}, SEC_DEFAULT); } }
+function saveSecState(s) { try { localStorage.setItem('crm_drawer_secs', JSON.stringify(s)); } catch (e) {} }
+function setupSections() {
+  const state = secState();
+  document.querySelectorAll('#drawer-in .d-section.collapsible').forEach(sec => {
+    if (sec.dataset.wired) return; sec.dataset.wired = '1';
+    const key = sec.dataset.sec, h3 = sec.querySelector('h3'); if (!h3) return;
+    const body = document.createElement('div'); body.className = 'sec-body';
+    while (h3.nextSibling) body.appendChild(h3.nextSibling);
+    sec.appendChild(body);
+    const title = document.createElement('span'); title.className = 'sec-title';
+    Array.from(h3.childNodes).forEach(n => { if (!(n.nodeType === 1 && n.tagName === 'BUTTON')) title.appendChild(n); });
+    const chev = document.createElement('span'); chev.className = 'sec-chev'; chev.textContent = '▾';
+    title.insertBefore(chev, title.firstChild);
+    h3.insertBefore(title, h3.firstChild);
+    sec.classList.toggle('collapsed', state[key] === false);
+    title.addEventListener('click', () => {
+      const collapsed = sec.classList.toggle('collapsed');
+      const st = secState(); st[key] = !collapsed; saveSecState(st);
+    });
+  });
+}
 function openDrawer(h) {
   current = h;
   const isNew = !h.id;
@@ -848,7 +877,7 @@ function openDrawer(h) {
         <div class="field"><label>Billing address <span style="font-weight:400;color:var(--dim)">(invoices)</span></label><input id="f-billing-address" value="${esc(h.billing_address || '')}" placeholder="Street, postcode, city"></div>
         <div class="field full"><label>Notes</label><textarea id="f-notes">${esc(h.notes || '')}</textarea></div>
       </div>
-      <div class="d-section">
+      <div class="d-section collapsible" data-sec="contacts">
         <h3>Contacts <button class="btn2" id="c-add" style="font-size:12px;padding:6px 12px">+ Add</button></h3>
         <div id="contacts">${(h.contacts || []).map((c, i) => contactRow(c, i)).join('')}</div>
       </div>
@@ -859,23 +888,23 @@ function openDrawer(h) {
       </div>
     </div>
     ${isNew ? '' : `
-    <div class="d-section" id="outreach-box">
+    <div class="d-section collapsible" id="outreach-box" data-sec="outreach">
       <h3>Outreach <button class="btn" id="o-gen" style="font-size:13px;padding:8px 16px">✨ Generate personalized outreach</button></h3>
       <div id="o-out">${h.outreach ? '' : '<p class="dim" style="font-size:13px">Nothing generated yet. Uses the hotel’s website + profile to write a subject line, first email and two follow-ups.</p>'}</div>
       <div id="seq-box"></div>
     </div>
-    <div class="d-section" id="ai-box">
+    <div class="d-section collapsible" id="ai-box" data-sec="notes">
       <h3>AI notes</h3>
       <p class="dim" style="font-size:12.5px;margin:-2px 0 8px">Log an interaction or ask about this hotel — e.g. “booked a demo Monday 11am” or “when did I last email them?”. Logs are confirmed before saving.</p>
       <textarea id="ai-text" placeholder="Log an activity or ask a question about this hotel…"></textarea>
       <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" id="ai-go" style="font-size:13px;padding:8px 16px">Log or ask</button></div>
       <div id="ai-out"></div>
     </div>
-    <div class="d-section" id="billing-box">
+    <div class="d-section collapsible" id="billing-box" data-sec="billing">
       <h3>Billing <span id="bill-badge"></span></h3>
       <div id="bill-body"><p class="dim" style="font-size:13px">Loading…</p></div>
     </div>
-    <div class="d-section">
+    <div class="d-section collapsible" data-sec="history">
       <h3>History</h3>
       <div id="log"><p class="dim" style="font-size:13px">Loading…</p></div>
     </div>`}
@@ -896,6 +925,7 @@ function openDrawer(h) {
     $('ai-text').addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runAiNote(); });
     renderBilling(h);
   }
+  setupSections();
 }
 // Per-hotel AI box: log an interaction OR ask a question, scoped to this hotel.
 async function runAiNote() {
