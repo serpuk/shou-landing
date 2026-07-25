@@ -135,6 +135,10 @@
   .tile .t-num{font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--ink);line-height:1.1}
   .tile .t-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin-top:3px}
   .tile.warn .t-num{color:var(--red)}
+  .tile.clickable{cursor:pointer;transition:border-color .12s,box-shadow .12s,transform .12s}
+  .tile.clickable:hover{border-color:rgba(255,61,139,.4);transform:translateY(-1px)}
+  .tile.active{border-color:var(--pink);box-shadow:0 0 0 2px rgba(255,61,139,.12)}
+  .tile.active .t-num{color:var(--pink)}
   td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
   tbody tr{cursor:pointer;transition:background .12s}
   tbody tr:hover{background:rgba(255,61,139,.035)}
@@ -375,6 +379,16 @@ let token = localStorage.getItem('shou_crm_token') || '';
 let hotels = [];
 let stats = null;        // log-based totals from op=list
 let statusFilter = null; // active funnel chip
+let metricFilter = null; // active metric tile → filters the list
+const METRIC_PREDICATES = {
+  seq:       h => !!h.sequence,
+  active:    h => { const s = h.sequence; return !!(s && !s.canceled_at && (s.emails || []).some(e => e.status === 'scheduled')); },
+  delivered: h => ((h.sequence || {}).emails || []).some(e => e.delivered_at),
+  opened:    h => ((h.sequence || {}).emails || []).some(e => e.opened_at),
+  replied:   h => !!h.last_reply_at,
+  bounced:   h => ((h.sequence || {}).emails || []).some(e => e.status === 'bounced' || e.status === 'complained'),
+  overdue:   h => { const n = nextTouch(h); return !!(n && new Date(n.t) < Date.now()); },
+};
 let current = null;      // hotel open in drawer
 let proposal = null;     // pending parse proposal
 
@@ -520,16 +534,19 @@ function renderMetrics() {
     }
   }
   const overdue = hotels.filter(h => { const n = nextTouch(h); return n && new Date(n.t) < Date.now(); }).length;
-  const tile = (num, label, warn) => `<div class="tile${warn && num > 0 ? ' warn' : ''}"><div class="t-num">${num}</div><div class="t-label">${label}</div></div>`;
+  const tile = (num, label, warn, key) => `<div class="tile${warn && num > 0 ? ' warn' : ''}${key ? ' clickable' : ''}${key && metricFilter === key ? ' active' : ''}"${key ? ` data-metric="${key}"` : ''}><div class="t-num">${num}</div><div class="t-label">${label}</div></div>`;
   $('stat-tiles').innerHTML =
-    tile(stats ? stats.sequences_started : 0, 'Sequences sent') +
-    tile(active, 'Running now') +
-    tile(delivered, 'Delivered*') +
-    tile(opened, 'Opened*') +
-    tile(stats ? stats.replies : 0, 'Replies') +
-    tile(bounced, 'Bounced', true) +
-    tile(overdue, 'Overdue', true) +
+    tile(stats ? stats.sequences_started : 0, 'Sequences sent', false, 'seq') +
+    tile(active, 'Running now', false, 'active') +
+    tile(delivered, 'Delivered*', false, 'delivered') +
+    tile(opened, 'Opened*', false, 'opened') +
+    tile(stats ? stats.replies : 0, 'Replies', false, 'replied') +
+    tile(bounced, 'Bounced', true, 'bounced') +
+    tile(overdue, 'Overdue', true, 'overdue') +
     `<div class="tile" style="display:flex;align-items:center"><div class="t-label" style="margin:0">*current sequences; opens need Resend tracking enabled</div></div>`;
+  for (const el of $('stat-tiles').querySelectorAll('.tile.clickable')) {
+    el.onclick = () => { const k = el.dataset.metric; metricFilter = metricFilter === k ? null : k; renderList(); };
+  }
 }
 // Effective "next touch": the earliest of the manual follow-up date, the next
 // scheduled sequence email (✉ AUTO), and — for non-responders still stuck in
@@ -635,6 +652,7 @@ function renderList() {
   const q = $('search').value.trim().toLowerCase();
   const rows = hotels.filter(h => {
     if (statusFilter && h.pilot_status !== statusFilter) return false;
+    if (metricFilter && !(METRIC_PREDICATES[metricFilter] && METRIC_PREDICATES[metricFilter](h))) return false;
     if (calSelected && !allTouches(h).some(t => beDay(t.t) === calSelected)) return false;
     if (!q) return true;
     const hay = [h.name, h.city, h.notes, ...(h.contacts || []).map(c => `${c.name || ''} ${c.email || ''}`)].join(' ').toLowerCase();
