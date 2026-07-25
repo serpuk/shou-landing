@@ -191,6 +191,9 @@
   .d-section.collapsed .sec-chev{transform:rotate(-90deg)}
   .d-section.collapsed > h3{margin-bottom:0}
   .d-section.collapsed .sec-body{display:none}
+  .draft-box{margin-top:8px}
+  .draft-ta{width:100%;min-height:150px;font-family:inherit;font-size:13.5px;line-height:1.55;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;resize:vertical;color:var(--ink)}
+  .draft-ta:focus{outline:none;border-color:rgba(255,61,139,.5)}
   /* contact row: two columns (name/role, email/phone) so every value stays readable
      at the drawer's width on both desktop and mobile; actions on their own row */
   .contact-row{display:grid;gap:6px 8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line);
@@ -1462,15 +1465,40 @@ async function cancelSequence() {
 }
 
 /* ---------- log ---------- */
+let logCache = {};
 async function loadLog(hotelId) {
   try {
     const d = await api('log', { qs: `&hotelId=${hotelId}` });
+    logCache = {};
+    (d.log || []).forEach(l => { logCache[l.id] = l; });
     $('log').innerHTML = d.log.length ? d.log.map(l => `
       <div class="log-item">
         <span class="lk">${esc(l.kind)}</span><span class="lt">${esc(fmtDT(l.created_at))}</span>
         <div class="lr">${esc(l.raw || '')}</div>
+        ${l.kind === 'reply' ? `<button class="btn2 draft-btn" data-draft="${l.id}" style="font-size:12px;padding:6px 12px;margin-top:8px">✨ Draft reply</button><div class="draft-box" id="draft-${l.id}"></div>` : ''}
       </div>`).join('') : '<p class="dim" style="font-size:13px">No history yet.</p>';
+    $('log').querySelectorAll('.draft-btn').forEach(b => b.onclick = () => draftReply(b.dataset.draft, b));
   } catch (e) { $('log').innerHTML = `<p class="dim">Could not load history: ${esc(e.message)}</p>`; }
+}
+async function draftReply(logId, btn) {
+  const l = logCache[logId]; if (!l || !current || !current.id) return;
+  const box = document.getElementById('draft-' + logId);
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Drafting…';
+  try {
+    const d = await api('draft_reply', { method: 'POST', body: { hotelId: current.id, replyText: l.raw || '' } });
+    box.innerHTML = `
+      <textarea class="draft-ta">${esc(d.draft || '')}</textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+        <button class="btn2 draft-regen" style="font-size:12px;padding:6px 12px">↻ Redraft</button>
+        <button class="btn draft-copy" style="font-size:12px;padding:6px 16px">Copy</button>
+      </div>`;
+    box.querySelector('.draft-copy').onclick = () => {
+      const v = box.querySelector('.draft-ta').value;
+      navigator.clipboard.writeText(v).then(() => toast('Copied — paste it into your reply'), () => toast('Copy failed — select the text manually'));
+    };
+    box.querySelector('.draft-regen').onclick = () => draftReply(logId, btn);
+  } catch (e) { toast('Failed: ' + e.message); }
+  btn.disabled = false; btn.innerHTML = '✨ Draft reply';
 }
 
 /* ---------- CSV import / export ---------- */
