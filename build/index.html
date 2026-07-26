@@ -49,6 +49,7 @@
   <div class="nav-actions">
     <span id="count" class="dim" style="font-size:13px"></span>
     <a id="nav-team" href="/build/team" style="display:none;color:var(--dim);text-decoration:none;font-size:13.5px">Team ›</a>
+    <button id="btn-notify" class="btn ghost sm" style="display:none" title="Assignee notifications"></button>
     <button id="btn-logout" class="btn ghost sm" style="display:none">Lock</button>
   </div>
 </div></nav>
@@ -65,6 +66,20 @@
 </div>
 
 <div class="wrap" id="app" style="display:none">
+
+  <!-- overview / analytics -->
+  <div class="card" id="overview" style="display:none;margin-bottom:14px">
+    <div class="row" style="justify-content:space-between">
+      <h2>Overview</h2>
+      <span id="ov-sub" class="dim" style="font-size:12.5px"></span>
+    </div>
+    <div style="margin-top:12px">
+      <div class="prog-track" style="height:12px;display:flex" id="ov-bar"></div>
+      <div id="ov-legend" class="row" style="gap:16px;margin-top:8px;font-size:12.5px"></div>
+    </div>
+    <div id="ov-tiles" class="row" style="gap:10px;margin-top:14px"></div>
+    <div id="ov-people" style="margin-top:14px"></div>
+  </div>
 
   <!-- compose -->
   <div class="card">
@@ -181,7 +196,7 @@ async function api(op,{method='GET',body}={}){
 }
 
 /* ---------- gate ---------- */
-function lock(){localStorage.removeItem('shou_build_token');token='';$('app').style.display='none';$('gate').style.display='';$('btn-logout').style.display='none';$('nav-team').style.display='none';}
+function lock(){localStorage.removeItem('shou_build_token');token='';$('app').style.display='none';$('gate').style.display='';$('btn-logout').style.display='none';$('nav-team').style.display='none';$('btn-notify').style.display='none';}
 let teamUsers=[];
 async function loadUsers(){
   try{
@@ -189,13 +204,58 @@ async function loadUsers(){
     const dl=$('assignee-dl');if(dl)dl.innerHTML=teamUsers.filter(u=>u.active!==false).map(u=>`<option value="${esc(u.name)}">${u.email?esc(u.email):''}</option>`).join('');
   }catch(e){/* silent */}
 }
+
+/* ---------- notify toggle (Phase 4) ---------- */
+let notifyOn=true;
+function renderNotifyBtn(){
+  const b=$('btn-notify');if(!b)return;b.style.display='';
+  b.textContent=notifyOn?'🔔':'🔕';
+  b.title=notifyOn?'Assignee emails ON — click to mute':'Assignee emails OFF — click to enable';
+  b.style.opacity=notifyOn?'1':'.55';
+}
+async function toggleNotify(){
+  const next=!notifyOn;const b=$('btn-notify');if(b)b.disabled=true;
+  try{await api('set_notify',{method:'POST',body:{enabled:next}});notifyOn=next;renderNotifyBtn();toast(next?'🔔 Assignee emails on':'🔕 Assignee emails off');}
+  catch(e){toast(e.message||'Failed');}
+  finally{if(b)b.disabled=false;}
+}
+$('btn-notify').onclick=toggleNotify;
+
+/* ---------- overview / analytics (Phase 4) ---------- */
+function addDays(iso,n){const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function renderOverview(){
+  const ov=$('overview');
+  const tasks=items.filter(x=>x.kind==='task');
+  const roads=items.filter(x=>x.kind==='roadmap');
+  if(!tasks.length&&!roads.length){ov.style.display='none';return;}
+  ov.style.display='';
+  const done=tasks.filter(t=>t.status==='done').length;
+  const prog=tasks.filter(t=>t.status==='in_progress').length;
+  const todo=tasks.filter(t=>t.status==='todo').length;
+  const total=tasks.length||1;
+  const pct=Math.round(done/total*100);
+  const today=new Date().toISOString().slice(0,10);
+  const overdue=tasks.filter(t=>t.status!=='done'&&t.due_date&&t.due_date<today);
+  const soon=tasks.filter(t=>t.status!=='done'&&t.due_date&&t.due_date>=today&&t.due_date<=addDays(today,7));
+  const shipped=roads.filter(r=>{const rt=items.filter(e=>e.parent_id===r.id).flatMap(e=>items.filter(t=>t.parent_id===e.id));return r.status==='done'||(rt.length&&rt.every(t=>t.status==='done'));}).length;
+  $('ov-sub').textContent=tasks.length?`${pct}% complete · ${done}/${tasks.length} tasks`:`${roads.length} roadmap item${roads.length===1?'':'s'}`;
+  const seg=(n,c)=>n?`<div style="width:${n/total*100}%;background:${c}"></div>`:'';
+  $('ov-bar').innerHTML=seg(done,'var(--done)')+seg(prog,'var(--prog)')+seg(todo,'rgba(20,16,30,.13)');
+  $('ov-legend').innerHTML=`<span style="color:var(--done)">● Done ${done}</span><span style="color:var(--prog)">● In progress ${prog}</span><span class="dim">● To do ${todo}</span>`;
+  const tile=(label,val,color)=>`<div style="flex:1;min-width:90px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center"><div style="font-size:22px;font-weight:800;${color?`color:${color}`:''}">${val}</div><div class="dim" style="font-size:11.5px">${label}</div></div>`;
+  $('ov-tiles').innerHTML=tile('Roadmap items',roads.length)+tile('Shipped',shipped,shipped?'var(--done)':'')+tile('Overdue',overdue.length,overdue.length?'#c81e5b':'')+tile('Due ≤7d',soon.length,soon.length?'var(--prog)':'');
+  const byA={};tasks.forEach(t=>{if(t.assignee&&t.status!=='done')byA[t.assignee]=(byA[t.assignee]||0)+1;});
+  const people=Object.entries(byA).sort((a,b)=>b[1]-a[1]);
+  const mx=people.length?Math.max(...people.map(p=>p[1])):1;
+  $('ov-people').innerHTML=people.length?`<div class="dim" style="font-size:12px;margin-bottom:6px">Open work by assignee</div>`+people.map(([n,c])=>`<div class="row" style="gap:8px;margin:3px 0"><span style="width:130px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(n)}</span><div class="prog-track" style="flex:1;max-width:220px"><div class="prog-fill" style="width:${Math.round(c/mx*100)}%"></div></div><span class="dim" style="font-size:12px">${c} open</span></div>`).join(''):'';
+}
 async function unlock(tok){
   token=tok;
   try{
     const d=await api('list');
     localStorage.setItem('shou_build_token',tok);
     $('gate').style.display='none';$('app').style.display='';$('btn-logout').style.display='';$('nav-team').style.display='';
-    items=d.items||[];renderRoadmap();loadRequests();loadUsers();
+    items=d.items||[];notifyOn=d.notifyEnabled!==false;renderNotifyBtn();renderRoadmap();loadRequests();loadUsers();
   }catch(e){$('gate-err').style.display='block';$('gate-err').textContent=e.message==='Unauthorized'?'Wrong token.':'Error: '+e.message;}
 }
 $('gate-go').onclick=()=>unlock($('gate-token').value.trim());
@@ -414,13 +474,14 @@ $('edit-del').onclick=async()=>{
 $('btn-add-road').onclick=()=>openCreate('roadmap',null);
 
 /* ---------- roadmap ---------- */
-async function reload(){const d=await api('list');items=d.items||[];renderRoadmap();loadRequests();}
+async function reload(){const d=await api('list');items=d.items||[];notifyOn=d.notifyEnabled!==false;renderNotifyBtn();renderRoadmap();loadRequests();}
 const byId=id=>items.find(x=>x.id===id);
 const childrenOf=id=>items.filter(x=>x.parent_id===id);
 const nextStatus=s=>s==='todo'?'in_progress':s==='in_progress'?'done':'todo';
 const statusLabel=s=>s==='in_progress'?'in progress':s;
 
 function renderRoadmap(){
+  renderOverview();
   const roads=items.filter(x=>x.kind==='roadmap');
   $('count').textContent=roads.length?(roads.length+' roadmap item'+(roads.length>1?'s':'')):'';
   $('road-empty').style.display=roads.length?'none':'';
