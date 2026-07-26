@@ -39,6 +39,7 @@
   .gantt-row:hover{background:rgba(20,16,30,.03)}
   .gantt-bar{position:absolute;top:6px;height:16px;border-radius:5px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
   .gantt-bar:hover{filter:brightness(1.05)}
+  #gantt-split:hover{background:rgba(242,83,141,.35)}
   .epic{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line)}
   .task{display:flex;align-items:center;gap:10px;padding:6px 0}
   .task .t-title{flex:1}
@@ -554,6 +555,7 @@ $('btn-add-road').onclick=()=>openCreate('roadmap',null);
 
 /* ---------- timeline / gantt (Phase 4b) ---------- */
 let roadView=localStorage.getItem('build_roadview')||'list';
+let lblW=Math.min(560,Math.max(120,+localStorage.getItem('build_gantt_lbl')||240));
 function applyRoadView(){
   const t=roadView==='timeline';
   $('road-list').style.display=t?'none':'';
@@ -599,7 +601,7 @@ function renderTimeline(){
   minD=addD(minD,-4);maxD=addD(maxD,4);
   const range=(+maxD-+minD)||1;
   const W=Math.min(4000,Math.max(760,Math.round(range/864e5*7)));
-  const LBL=230,ROWH=30;
+  const LBL=lblW,ROWH=30;
   const x=d=>Math.round((+d-+minD)/range*W);
   let axis='',grid='';
   let cur=new Date(minD.getFullYear(),minD.getMonth(),1);
@@ -612,7 +614,7 @@ function renderTimeline(){
   rows.forEach((row,i)=>{
     const it=row.it,sp=row.span;
     const w=row.depth===0?'font-weight:700':row.depth===1?'font-weight:600':'';
-    labels+=`<div class="gantt-row" style="height:${ROWH}px;display:flex;align-items:center;padding-left:${8+row.depth*16}px;font-size:${row.depth===0?13.5:13}px;${w};overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${esc(it.title)}">${esc(it.title)}</div>`;
+    labels+=`<div class="gantt-row gantt-label" data-id="${it.id}" style="height:${ROWH}px;display:flex;align-items:center;padding-left:${8+row.depth*16}px;padding-right:10px;font-size:${row.depth===0?13.5:13}px;${w};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer" title="${esc(it.title)} — click to open">${esc(it.title)}</div>`;
     if(sp){const bx=x(sp.start),bw=Math.max(6,x(sp.end)-x(sp.start));const dd=it.due_date?` · due ${it.due_date}`:'';const drag=row.depth===2;
       bars+=`<div style="position:relative;height:${ROWH}px"><div class="gantt-bar${drag?' drag':''}" data-id="${it.id}" title="${esc(it.title)} (${fmtD(sp.start)} → ${fmtD(sp.end)})${dd}${drag?' — drag to reschedule, edges to resize':''}" style="left:${bx}px;width:${bw}px;background:${color(it.status)}${row.depth===0?';height:11px;top:9px;opacity:.85':''}${drag?';cursor:ew-resize':''}"></div></div>`;}
     else bars+=`<div style="height:${ROWH}px"></div>`;
@@ -631,8 +633,11 @@ function renderTimeline(){
     });
   });
   const svg=lines?`<svg width="${W}" height="${H}" style="position:absolute;left:0;top:0;pointer-events:none;z-index:2;overflow:visible">${lines}</svg>`:'';
-  el.innerHTML=`<div style="display:flex;min-width:${LBL+W}px">
-    <div style="width:${LBL}px;flex:none;position:sticky;left:0;background:#fff;z-index:3;border-right:1px solid var(--line)"><div style="height:22px"></div>${labels}</div>
+  el.innerHTML=`<div id="gantt-wrap" style="display:flex;min-width:${LBL+W}px">
+    <div id="gantt-lbl" style="width:${LBL}px;flex:none;position:sticky;left:0;background:#fff;z-index:3;border-right:1px solid var(--line)">
+      <div style="height:22px"></div>${labels}
+      <div id="gantt-split" title="Drag to resize" style="position:absolute;top:0;right:-3px;width:6px;height:100%;cursor:col-resize;z-index:4"></div>
+    </div>
     <div style="position:relative;width:${W}px">
       <div style="position:relative;height:22px">${axis}</div>
       <div style="position:relative">${grid}${todayLine}${bars}${svg}</div>
@@ -642,6 +647,27 @@ function renderTimeline(){
   el.querySelectorAll('.gantt-bar').forEach(b=>{
     b.onclick=()=>{if(b.dataset.dragged==='1'){b.dataset.dragged='';return;}openEdit(+b.getAttribute('data-id'));};
     if(b.classList.contains('drag'))attachBarDrag(b,minD,range,W);
+  });
+  el.querySelectorAll('.gantt-label').forEach(l=>l.onclick=()=>openEdit(+l.getAttribute('data-id')));
+  attachLabelResize();
+}
+function attachLabelResize(){
+  const split=$('gantt-split');if(!split)return;
+  split.addEventListener('mousedown',e=>{
+    e.preventDefault();e.stopPropagation();
+    const startX=e.clientX,startW=lblW;const lbl=$('gantt-lbl');
+    document.body.style.userSelect='none';
+    function onMove(ev){
+      lblW=Math.min(560,Math.max(120,startW+(ev.clientX-startX)));
+      if(lbl)lbl.style.width=lblW+'px';
+    }
+    function onUp(){
+      document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);
+      document.body.style.userSelect='';
+      localStorage.setItem('build_gantt_lbl',lblW);
+      renderTimeline();
+    }
+    document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
   });
 }
 
