@@ -159,10 +159,10 @@
         <div id="edit-due-wrap"><label class="dim" style="font-size:12px">Due</label><input class="f" id="edit-due" type="date" style="margin-top:3px"></div>
         <div id="edit-quarter-wrap"><label class="dim" style="font-size:12px">Quarter</label><input class="f" id="edit-quarter" style="margin-top:3px"></div>
       </div>
-      <div id="edit-deps-wrap" style="margin-top:10px">
+      <div id="edit-deps-wrap" style="margin-top:10px;position:relative">
         <label class="dim" style="font-size:12px">Depends on</label>
-        <input class="f" id="edit-dep-search" list="dep-dl" autocomplete="off" placeholder="Add a task this depends on…" style="margin-top:3px">
-        <datalist id="dep-dl"></datalist>
+        <input class="f" id="edit-dep-search" autocomplete="off" placeholder="Search tasks…" style="margin-top:3px">
+        <div id="edit-dep-results" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:5;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 26px -12px rgba(20,16,30,.3);max-height:210px;overflow:auto;margin-top:2px"></div>
         <div id="edit-dep-chips" class="row" style="gap:6px;margin-top:6px"></div>
       </div>
       <div id="edit-comments-wrap" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
@@ -462,29 +462,35 @@ function fillModal(kind,v){
   $('edit-assignee-wrap').style.display=kind==='task'?'':'none';
   $('edit-quarter-wrap').style.display=kind==='roadmap'?'':'none';
   editDeps=Array.isArray(v.depends_on)?v.depends_on.slice():[];
-  buildDepList();renderDepChips();$('edit-dep-search').value='';
+  renderDepChips();$('edit-dep-search').value='';$('edit-dep-results').style.display='none';
   $('edit-modal').style.display='';
   setTimeout(()=>$('edit-title').focus(),30);
-}
-function buildDepList(){
-  $('dep-dl').innerHTML=items.filter(x=>x.kind==='task'&&x.id!==editId).map(t=>`<option value="${esc(t.title)} · build#${t.id}">`).join('');
 }
 function renderDepChips(){
   const box=$('edit-dep-chips');
   box.innerHTML=editDeps.length?editDeps.map(id=>{const t=byId(id);return `<span class="chip" data-dep="${id}" style="cursor:pointer" title="Remove">${t?esc(t.title):'build#'+id} ✕</span>`;}).join(''):'<span class="dim" style="font-size:12px">None</span>';
   box.querySelectorAll('[data-dep]').forEach(c=>c.onclick=()=>{editDeps=editDeps.filter(x=>x!==+c.getAttribute('data-dep'));renderDepChips();});
 }
-function addDep(){
-  const v=$('edit-dep-search').value.trim();if(!v)return;
-  const m=v.match(/build#(\d+)/);let id=m?+m[1]:null;
-  if(!id){const t=items.find(x=>x.kind==='task'&&(x.title||'').toLowerCase()===v.toLowerCase());id=t?t.id:null;}
-  if(!id){toast('Pick a task from the list');return;}
+function depCandidates(q){
+  q=(q||'').toLowerCase().trim();
+  return items.filter(x=>x.kind==='task'&&x.id!==editId&&!editDeps.includes(x.id)&&(!q||(x.title||'').toLowerCase().includes(q)||('build#'+x.id).includes(q))).slice(0,8);
+}
+function renderDepResults(){
+  const box=$('edit-dep-results');const list=depCandidates($('edit-dep-search').value);
+  if(!list.length){box.style.display='none';return;}
+  box.innerHTML=list.map(t=>`<div class="dep-opt" data-id="${t.id}" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid rgba(20,16,30,.05)">${esc(t.title)} <span class="dim" style="font-size:11px">build#${t.id}</span></div>`).join('');
+  box.style.display='';
+  box.querySelectorAll('.dep-opt').forEach(o=>o.onmousedown=e=>{e.preventDefault();addDepById(+o.getAttribute('data-id'));});
+}
+function addDepById(id){
   if(id===editId){toast('A task can’t depend on itself');return;}
   if(!editDeps.includes(id))editDeps.push(id);
-  $('edit-dep-search').value='';renderDepChips();
+  $('edit-dep-search').value='';$('edit-dep-results').style.display='none';renderDepChips();
 }
-$('edit-dep-search').addEventListener('change',addDep);
-$('edit-dep-search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addDep();}});
+$('edit-dep-search').addEventListener('input',renderDepResults);
+$('edit-dep-search').addEventListener('focus',renderDepResults);
+$('edit-dep-search').addEventListener('blur',()=>setTimeout(()=>{$('edit-dep-results').style.display='none';},150));
+$('edit-dep-search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const c=depCandidates($('edit-dep-search').value);if(c.length)addDepById(c[0].id);}});
 /* comments */
 async function loadComments(id){
   $('edit-comments').innerHTML='<span class="dim" style="font-size:12px">Loading…</span>';
@@ -531,7 +537,8 @@ $('edit-save').onclick=async()=>{
       await api('create',{method:'POST',body:{item:{kind:createCtx.kind,parent_id:createCtx.parent_id,...fields}}});
       toast(createCtx.kind[0].toUpperCase()+createCtx.kind.slice(1)+' added');
     }else{
-      await api('update',{method:'POST',body:{id:editId,patch:fields}});toast('Saved');
+      const r=await api('update',{method:'POST',body:{id:editId,patch:fields}});
+      toast(r&&r.shifted&&r.shifted.length?`Saved · moved ${r.shifted.length} dependent${r.shifted.length>1?'s':''}`:'Saved');
     }
     closeEdit();await reload();
   }catch(e){toast(e.message||'Failed');}
@@ -578,7 +585,7 @@ function spanOf(it){
 function renderTimeline(){
   const el=$('timeline');
   const rows=[];
-  items.filter(x=>x.kind==='roadmap').forEach(r=>{
+  roadmapItems().forEach(r=>{
     rows.push({it:r,depth:0});
     childrenOf(r.id).forEach(e=>{rows.push({it:e,depth:1});childrenOf(e.id).forEach(t=>rows.push({it:t,depth:2}));});
   });
@@ -659,7 +666,7 @@ function attachBarDrag(bar,minD,range,W){
       const l=parseFloat(bar.style.left),w=parseFloat(bar.style.width);
       const patch={start_date:isoDate(+minD+l/W*range),due_date:isoDate(+minD+(l+w)/W*range)};
       const id=+bar.getAttribute('data-id');
-      try{await api('update',{method:'POST',body:{id,patch}});await reload();}
+      try{const r=await api('update',{method:'POST',body:{id,patch}});if(r&&r.shifted&&r.shifted.length)toast(`Moved ${r.shifted.length} dependent task${r.shifted.length>1?'s':''}`);await reload();}
       catch(err){toast(err.message||'Failed');renderTimeline();}
     }
     document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
@@ -669,13 +676,15 @@ function attachBarDrag(bar,minD,range,W){
 /* ---------- roadmap ---------- */
 async function reload(){const d=await api('list');items=d.items||[];notifyOn=d.notifyEnabled!==false;renderNotifyBtn();renderRoadmap();loadRequests();}
 const byId=id=>items.find(x=>x.id===id);
-const childrenOf=id=>items.filter(x=>x.parent_id===id);
+const cmpItems=(a,b)=>(a.sort||0)-(b.sort||0)||((a.created_at||'')<(b.created_at||'')?-1:(a.created_at||'')>(b.created_at||'')?1:0)||a.id-b.id;
+const childrenOf=id=>items.filter(x=>x.parent_id===id).sort(cmpItems);
+const roadmapItems=()=>items.filter(x=>x.kind==='roadmap').sort(cmpItems);
 const nextStatus=s=>s==='todo'?'in_progress':s==='in_progress'?'done':'todo';
 const statusLabel=s=>s==='in_progress'?'in progress':s;
 
 function renderRoadmap(){
   renderOverview();
-  const roads=items.filter(x=>x.kind==='roadmap');
+  const roads=roadmapItems();
   $('count').textContent=roads.length?(roads.length+' roadmap item'+(roads.length>1?'s':'')):'';
   $('road-empty').style.display=roads.length?'none':'';
   const list=$('road-list');
