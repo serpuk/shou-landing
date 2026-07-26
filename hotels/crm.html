@@ -37,6 +37,7 @@
   .filter-bar .f-lbl{color:var(--text-dim);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-right:2px}
   .f-pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:4px 4px 4px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink)}
   .f-pill .k{color:var(--text-dim);font-weight:600}
+  .f-pill .cnt{color:var(--text-dim);font-weight:600;font-variant-numeric:tabular-nums}
   .f-pill .x{cursor:pointer;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;color:var(--text-dim);font-size:12px;line-height:1}
   .f-pill .x:hover{background:rgba(255,61,139,.12);color:var(--pink)}
   .f-clear{font-size:12.5px;font-weight:600;color:var(--pink);background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 6px}
@@ -665,15 +666,17 @@ function sortVal(h, key) {
 function renderFilters() {
   const bar = $('filter-bar'); if (!bar) return;
   const q = $('search') ? $('search').value.trim() : '';
+  const ql = q.toLowerCase();
+  const searchMatch = h => [h.name, h.city, h.notes, ...(h.contacts || []).map(c => `${c.name || ''} ${c.email || ''}`)].join(' ').toLowerCase().includes(ql);
   const pills = [];
-  if (statusFilter) pills.push({ k: 'Status', v: ST_LABEL[statusFilter] || statusFilter, clear: () => { statusFilter = null; } });
-  if (metricFilter) pills.push({ k: 'Metric', v: METRIC_LABEL[metricFilter] || metricFilter, clear: () => { metricFilter = null; } });
-  if (calSelected)  pills.push({ k: 'Day', v: fmtDT(calSelected + 'T12:00:00', false) || calSelected, clear: () => { calSelected = null; } });
-  if (q)            pills.push({ k: 'Search', v: '“' + q + '”', clear: () => { if ($('search')) $('search').value = ''; } });
+  if (statusFilter) pills.push({ k: 'Status', v: ST_LABEL[statusFilter] || statusFilter, count: hotels.filter(h => h.pilot_status === statusFilter).length, clear: () => { statusFilter = null; } });
+  if (metricFilter) { const pred = METRIC_PREDICATES[metricFilter]; pills.push({ k: 'Metric', v: METRIC_LABEL[metricFilter] || metricFilter, count: pred ? hotels.filter(pred).length : 0, clear: () => { metricFilter = null; } }); }
+  if (calSelected)  pills.push({ k: 'Day', v: fmtDT(calSelected + 'T12:00:00', false) || calSelected, count: hotels.filter(h => allTouches(h).some(t => beDay(t.t) === calSelected)).length, clear: () => { calSelected = null; } });
+  if (q)            pills.push({ k: 'Search', v: '“' + q + '”', count: hotels.filter(searchMatch).length, clear: () => { if ($('search')) $('search').value = ''; } });
   if (!pills.length) { bar.style.display = 'none'; bar.innerHTML = ''; return; }
   bar.style.display = 'flex';
   bar.innerHTML = '<span class="f-lbl">Filters</span>' +
-    pills.map((p, i) => `<span class="f-pill"><span class="k">${esc(p.k)}:</span> ${esc(p.v)} <span class="x" data-i="${i}" title="Remove">✕</span></span>`).join('') +
+    pills.map((p, i) => `<span class="f-pill"><span class="k">${esc(p.k)}:</span> ${esc(p.v)} <span class="cnt">(${p.count})</span> <span class="x" data-i="${i}" title="Remove">✕</span></span>`).join('') +
     (pills.length > 1 ? '<button class="f-clear" id="f-clear-all">Clear all</button>' : '');
   bar.querySelectorAll('.x[data-i]').forEach(x => { x.onclick = () => { pills[Number(x.dataset.i)].clear(); renderList(); }; });
   const clr = $('f-clear-all'); if (clr) clr.onclick = () => { statusFilter = null; metricFilter = null; calSelected = null; if ($('search')) $('search').value = ''; renderList(); };
