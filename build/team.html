@@ -1,0 +1,198 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>shou · Build · Team</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{--ink:#15101b;--dim:#6b6675;--line:rgba(20,16,30,.12);--pink:#F2538D;--grad:linear-gradient(105deg,#F2538D,#FF8A61);--bg:#faf8fc;--card:#fff;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5}
+  nav{position:sticky;top:0;z-index:20;background:rgba(250,248,252,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:920px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+  .brand{font-weight:800;font-size:19px;text-decoration:none;color:var(--ink)}
+  .brand small{font-weight:600;color:var(--dim);font-size:12px;margin-left:6px}
+  .nav-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+  a.link{color:var(--dim);text-decoration:none;font-size:13.5px}
+  a.link:hover{color:var(--pink)}
+  .wrap{max-width:920px;margin:0 auto;padding:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 10px 26px -18px rgba(20,16,30,.25)}
+  h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:0}
+  .dim{color:var(--dim)}
+  input.f,select.f{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;font-family:inherit;font-size:14px;color:var(--ink)}
+  .btn{background:var(--grad);color:#fff;font-weight:700;font-size:14px;padding:10px 20px;border:none;border-radius:11px;cursor:pointer;transition:filter .15s}
+  .btn:hover:not(:disabled){filter:brightness(1.06)}.btn:disabled{opacity:.55;cursor:default}
+  .btn.ghost{background:#fff;color:#777;font-weight:600;border:1px solid var(--line)}
+  .btn.ghost:hover:not(:disabled){filter:none;border-color:rgba(20,16,30,.3);color:#444}
+  .btn.sm{padding:6px 12px;font-size:12.5px;border-radius:9px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--dim);padding:6px 10px;border-bottom:1px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid rgba(20,16,30,.06);vertical-align:middle}
+  .chip{font-size:11.5px;font-weight:600;color:var(--dim);background:rgba(20,16,30,.05);border-radius:20px;padding:2px 9px}
+  .chip.admin{color:#a13; background:rgba(200,30,91,.1)}
+  .chip.off{color:#999}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#15101b;color:#fff;padding:11px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+  .toast.show{opacity:1}
+  .proj{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13.5px}
+</style>
+
+<nav><div class="nav-in">
+  <a class="brand" href="/build">shou<small>Build · Team</small></a>
+  <div class="nav-actions">
+    <a class="link" href="/build">← Roadmap</a>
+    <button id="btn-add" class="btn sm" style="display:none">+ Add person</button>
+    <button id="btn-logout" class="btn ghost sm" style="display:none">Lock</button>
+  </div>
+</div></nav>
+
+<!-- gate -->
+<div class="wrap" id="gate" style="display:none">
+  <div class="card" style="max-width:420px;margin:40px auto">
+    <h1>Team</h1><p class="dim">Enter the admin token to unlock.</p>
+    <input id="gate-token" class="f" type="password" placeholder="Admin token" autocomplete="current-password" style="margin:8px 0">
+    <button id="gate-go" class="btn" style="width:100%">Unlock</button>
+    <p id="gate-err" style="color:#c81e5b;margin:10px 0 0;display:none">Wrong token.</p>
+  </div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h2>People</h2>
+      <span id="count" class="dim" style="font-size:13px"></span>
+    </div>
+    <div id="empty" class="dim" style="font-size:13.5px;margin-top:8px;display:none">No one yet — add your first teammate.</div>
+    <div style="overflow-x:auto;margin-top:10px"><table id="tbl"><thead>
+      <tr><th>Name</th><th>Email</th><th>Role</th><th>Projects</th><th>Status</th><th></th></tr>
+    </thead><tbody id="rows"></tbody></table></div>
+  </div>
+  <p class="dim" style="font-size:12.5px;margin-top:10px">Per-project access is stored for later — it isn't enforced yet (the tool is single-admin for now). Assignees on the roadmap are picked from this list.</p>
+</div>
+
+<!-- user modal -->
+<div id="modal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(20,16,30,.4);backdrop-filter:blur(2px)">
+  <div class="card" style="max-width:520px;margin:7vh auto;background:#fff;max-height:84vh;overflow:auto">
+    <div class="row" style="justify-content:space-between">
+      <h2 id="m-title">Add person</h2>
+      <button id="m-close" class="btn ghost sm">✕</button>
+    </div>
+    <div style="margin-top:10px">
+      <label class="dim" style="font-size:12px">Name</label>
+      <input class="f" id="m-name" style="margin:3px 0 8px">
+      <label class="dim" style="font-size:12px">Email</label>
+      <input class="f" id="m-email" type="email" style="margin:3px 0 8px">
+      <div class="row" style="gap:12px">
+        <div style="flex:1"><label class="dim" style="font-size:12px">Role</label>
+          <select class="f" id="m-role" style="margin-top:3px"><option value="member">Member</option><option value="admin">Admin</option></select></div>
+        <div style="flex:1"><label class="dim" style="font-size:12px">Status</label>
+          <select class="f" id="m-active" style="margin-top:3px"><option value="1">Active</option><option value="0">Inactive</option></select></div>
+      </div>
+      <div style="margin-top:12px">
+        <label class="dim" style="font-size:12px">Project access</label>
+        <div id="m-projects" style="margin-top:4px;max-height:180px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px 12px"></div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      <button id="m-save" class="btn">Save</button>
+      <button id="m-del" class="btn ghost sm" style="color:#c81e5b;border-color:rgba(200,30,91,.35);display:none">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API='https://shou-backend.vercel.app/api/build';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let token=localStorage.getItem('shou_build_token')||'';
+let users=[],roadmaps=[],mId=null;
+let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);}
+
+async function api(op,{method='GET',body}={}){
+  const opts={method,headers:{'X-Admin-Token':token}};let url=API;
+  if(method==='GET')url+='?op='+encodeURIComponent(op);
+  else{opts.headers['Content-Type']='application/json';opts.body=JSON.stringify({op,...body});}
+  const r=await fetch(url,opts);
+  if(r.status===401)throw new Error('Unauthorized');
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
+  return d;
+}
+
+function lock(){localStorage.removeItem('shou_build_token');token='';$('app').style.display='none';$('gate').style.display='';$('btn-add').style.display='none';$('btn-logout').style.display='none';}
+async function unlock(tok){
+  token=tok;
+  try{
+    const [u,l]=await Promise.all([api('users'),api('list')]);
+    localStorage.setItem('shou_build_token',tok);
+    users=u.users||[];roadmaps=(l.items||[]).filter(x=>x.kind==='roadmap');
+    $('gate').style.display='none';$('app').style.display='';$('btn-add').style.display='';$('btn-logout').style.display='';
+    render();
+  }catch(e){$('gate').style.display='';$('gate-err').style.display='block';$('gate-err').textContent=e.message==='Unauthorized'?'Wrong token.':'Error: '+e.message;}
+}
+$('gate-go').onclick=()=>unlock($('gate-token').value.trim());
+$('gate-token').addEventListener('keydown',e=>{if(e.key==='Enter')unlock($('gate-token').value.trim());});
+$('btn-logout').onclick=lock;
+
+function projNames(ids){
+  ids=Array.isArray(ids)?ids:[];
+  if(!ids.length)return '<span class="dim">All / none set</span>';
+  const names=ids.map(id=>{const r=roadmaps.find(x=>x.id===id);return r?esc(r.title):null}).filter(Boolean);
+  if(names.length<=2)return names.map(n=>`<span class="chip">${n}</span>`).join(' ');
+  return `<span class="chip">${names[0]}</span> <span class="chip">+${names.length-1}</span>`;
+}
+function render(){
+  $('count').textContent=users.length?users.length+(users.length===1?' person':' people'):'';
+  $('empty').style.display=users.length?'none':'';
+  $('rows').innerHTML=users.map(u=>`
+    <tr data-u="${u.id}" style="cursor:pointer">
+      <td><b>${esc(u.name)}</b></td>
+      <td class="dim">${esc(u.email||'')}</td>
+      <td><span class="chip ${u.role==='admin'?'admin':''}">${esc(u.role)}</span></td>
+      <td>${projNames(u.project_ids)}</td>
+      <td>${u.active?'<span class="chip">active</span>':'<span class="chip off">inactive</span>'}</td>
+      <td style="text-align:right"><button class="btn ghost sm u-edit">Edit</button></td>
+    </tr>`).join('');
+  $('rows').querySelectorAll('[data-u]').forEach(tr=>{
+    tr.onclick=()=>openModal(+tr.getAttribute('data-u'));
+  });
+}
+
+function openModal(id){
+  const u=id?users.find(x=>x.id===id):null;mId=id||null;
+  $('m-title').textContent=u?'Edit person':'Add person';
+  $('m-name').value=u?u.name:'';
+  $('m-email').value=u&&u.email?u.email:'';
+  $('m-role').value=u?u.role:'member';
+  $('m-active').value=u?(u.active?'1':'0'):'1';
+  $('m-del').style.display=u?'':'none';
+  const sel=new Set((u&&Array.isArray(u.project_ids))?u.project_ids:[]);
+  $('m-projects').innerHTML=roadmaps.length?roadmaps.map(r=>`
+    <label class="proj"><input type="checkbox" class="m-proj" value="${r.id}" ${sel.has(r.id)?'checked':''}> ${esc(r.title)}</label>`).join('')
+    :'<span class="dim" style="font-size:13px">No roadmap items yet.</span>';
+  $('modal').style.display='';
+  setTimeout(()=>$('m-name').focus(),30);
+}
+function closeModal(){$('modal').style.display='none';mId=null;}
+$('btn-add').onclick=()=>openModal(null);
+$('m-close').onclick=closeModal;
+$('modal').onclick=e=>{if(e.target===$('modal'))closeModal();};
+$('m-save').onclick=async()=>{
+  const name=$('m-name').value.trim();
+  if(!name){toast('Name is required');return;}
+  const project_ids=[...document.querySelectorAll('.m-proj:checked')].map(c=>+c.value);
+  const user={id:mId||undefined,name,email:$('m-email').value.trim(),role:$('m-role').value,active:$('m-active').value==='1',project_ids};
+  const b=$('m-save');b.disabled=true;b.textContent='Saving…';
+  try{await api('user_save',{method:'POST',body:{user}});toast('Saved');closeModal();await reloadUsers();}
+  catch(e){toast(e.message||'Failed');}
+  finally{b.disabled=false;b.textContent='Save';}
+};
+$('m-del').onclick=async()=>{
+  if(!mId)return;if(!confirm('Remove this person?'))return;
+  try{await api('user_delete',{method:'POST',body:{id:mId}});toast('Removed');closeModal();await reloadUsers();}
+  catch(e){toast(e.message||'Failed');}
+};
+async function reloadUsers(){const u=await api('users');users=u.users||[];render();}
+
+if(token)unlock(token);else $('gate').style.display='';
+</script>

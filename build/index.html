@@ -48,6 +48,7 @@
   <a class="brand" href="/">shou<small>Build · execution layer</small></a>
   <div class="nav-actions">
     <span id="count" class="dim" style="font-size:13px"></span>
+    <a id="nav-team" href="/build/team" style="display:none;color:var(--dim);text-decoration:none;font-size:13.5px">Team ›</a>
     <button id="btn-logout" class="btn ghost sm" style="display:none">Lock</button>
   </div>
 </div></nav>
@@ -128,7 +129,7 @@
         <input class="f" id="edit-desc" style="margin:3px 0 8px">
       </div>
       <div class="grid3">
-        <div id="edit-assignee-wrap"><label class="dim" style="font-size:12px">Assignee</label><input class="f" id="edit-assignee" style="margin-top:3px"></div>
+        <div id="edit-assignee-wrap"><label class="dim" style="font-size:12px">Assignee</label><input class="f" id="edit-assignee" list="assignee-dl" autocomplete="off" placeholder="Search team…" style="margin-top:3px"><datalist id="assignee-dl"></datalist></div>
         <div id="edit-due-wrap"><label class="dim" style="font-size:12px">Due</label><input class="f" id="edit-due" type="date" style="margin-top:3px"></div>
         <div id="edit-quarter-wrap"><label class="dim" style="font-size:12px">Quarter</label><input class="f" id="edit-quarter" style="margin-top:3px"></div>
       </div>
@@ -180,14 +181,21 @@ async function api(op,{method='GET',body}={}){
 }
 
 /* ---------- gate ---------- */
-function lock(){localStorage.removeItem('shou_build_token');token='';$('app').style.display='none';$('gate').style.display='';$('btn-logout').style.display='none';}
+function lock(){localStorage.removeItem('shou_build_token');token='';$('app').style.display='none';$('gate').style.display='';$('btn-logout').style.display='none';$('nav-team').style.display='none';}
+let teamUsers=[];
+async function loadUsers(){
+  try{
+    const d=await api('users');teamUsers=d.users||[];
+    const dl=$('assignee-dl');if(dl)dl.innerHTML=teamUsers.filter(u=>u.active!==false).map(u=>`<option value="${esc(u.name)}">${u.email?esc(u.email):''}</option>`).join('');
+  }catch(e){/* silent */}
+}
 async function unlock(tok){
   token=tok;
   try{
     const d=await api('list');
     localStorage.setItem('shou_build_token',tok);
-    $('gate').style.display='none';$('app').style.display='';$('btn-logout').style.display='';
-    items=d.items||[];renderRoadmap();loadRequests();
+    $('gate').style.display='none';$('app').style.display='';$('btn-logout').style.display='';$('nav-team').style.display='';
+    items=d.items||[];renderRoadmap();loadRequests();loadUsers();
   }catch(e){$('gate-err').style.display='block';$('gate-err').textContent=e.message==='Unauthorized'?'Wrong token.':'Error: '+e.message;}
 }
 $('gate-go').onclick=()=>unlock($('gate-token').value.trim());
