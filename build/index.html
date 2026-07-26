@@ -89,6 +89,15 @@
     </div>
   </div>
 
+  <!-- customer requests (from CRM inbound) -->
+  <div class="card" id="requests" style="display:none;margin-top:14px;border-color:rgba(14,154,141,.28);background:linear-gradient(120deg,rgba(14,154,141,.05),rgba(255,155,61,.03))">
+    <div class="row" style="justify-content:space-between">
+      <h2>💬 From customers <span id="req-count" class="chip"></span></h2>
+      <span class="dim" style="font-size:12.5px">Replies in the CRM — turn one into a plan</span>
+    </div>
+    <div id="requests-list" style="margin-top:10px"></div>
+  </div>
+
   <!-- roadmap -->
   <div style="margin-top:22px">
     <div class="row" style="justify-content:space-between;margin-bottom:10px">
@@ -96,6 +105,22 @@
       <span id="road-empty" class="dim" style="font-size:13px;display:none">Nothing yet — describe something above.</span>
     </div>
     <div id="road-list"></div>
+    <p class="dim" style="font-size:12.5px;margin-top:10px">Tip: reference <code>build#&lt;id&gt;</code> in a commit or PR to move a task automatically (needs the GitHub webhook connected).</p>
+  </div>
+</div>
+
+<!-- draft customer update modal -->
+<div id="draft-modal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(20,16,30,.4);backdrop-filter:blur(2px)">
+  <div class="card" style="max-width:560px;margin:8vh auto;background:#fff">
+    <div class="row" style="justify-content:space-between">
+      <h2>✉ Customer update <span class="chip">draft — not sent</span></h2>
+      <button id="draft-close" class="btn ghost sm">✕</button>
+    </div>
+    <textarea id="draft-text" style="margin-top:10px;min-height:200px"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button id="draft-copy" class="btn">Copy</button>
+      <span class="dim" style="font-size:12.5px">Paste into your inbox and send from there.</span>
+    </div>
   </div>
 </div>
 
@@ -131,7 +156,7 @@ async function unlock(tok){
     const d=await api('list');
     localStorage.setItem('shou_build_token',tok);
     $('gate').style.display='none';$('app').style.display='';$('btn-logout').style.display='';
-    items=d.items||[];renderRoadmap();
+    items=d.items||[];renderRoadmap();loadRequests();
   }catch(e){$('gate-err').style.display='block';$('gate-err').textContent=e.message==='Unauthorized'?'Wrong token.':'Error: '+e.message;}
 }
 $('gate-go').onclick=()=>unlock($('gate-token').value.trim());
@@ -217,8 +242,61 @@ function renderProposal(){
   });
 }
 
+/* ---------- customer requests (Phase 2) ---------- */
+const snippet=t=>{t=String(t||'').replace(/\s+/g,' ').trim();return t.length>140?t.slice(0,140)+'…':t;};
+const fmtDate=s=>{try{return new Date(s).toLocaleDateString(undefined,{month:'short',day:'numeric'});}catch{return '';}};
+async function loadRequests(){try{const d=await api('inbound');renderRequests(d.inbound||[]);}catch(e){/* silent */}}
+function renderRequests(list){
+  const card=$('requests');
+  if(!list.length){card.style.display='none';return;}
+  card.style.display='';
+  $('req-count').textContent=list.length;
+  $('requests-list').innerHTML=list.map((r,i)=>`
+    <div data-req="${i}" style="padding:11px 13px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:#fff">
+      <div class="row" style="gap:8px">
+        <b style="font-size:13.5px">${esc((r.hotel&&r.hotel.name)||r.from_name||r.from_email)}</b>
+        ${r.ai_intent?`<span class="chip">${esc(r.ai_intent)}</span>`:''}
+        <span class="dim" style="font-size:12px;margin-left:auto">${fmtDate(r.received_at)}</span>
+      </div>
+      ${r.subject?`<div style="font-size:13px;font-weight:600;margin:3px 0 1px">${esc(r.subject)}</div>`:''}
+      <div class="dim" style="font-size:12.5px">${esc(snippet(r.body_text))}</div>
+      <div style="margin-top:8px"><button class="btn sm req-plan">✨ Plan this</button></div>
+    </div>`).join('');
+  $('requests-list').querySelectorAll('[data-req]').forEach(row=>{
+    const r=list[+row.getAttribute('data-req')];
+    row.querySelector('.req-plan').onclick=e=>planFromEmail(r,e.currentTarget);
+  });
+}
+async function planFromEmail(inb,btn){
+  btn.disabled=true;btn.textContent='Planning…';
+  const text=(inb.subject?('Subject: '+inb.subject+'\n\n'):'')+(inb.body_text||'');
+  $('compose').value=text;
+  try{
+    const d=await api('propose',{method:'POST',body:{text}});
+    proposal=d.proposal;proposalOrigin=d.origin||text;proposal.epics=proposal.epics||[];
+    proposal.hotel_id=inb.hotel_id;
+    proposal.customer=(inb.hotel&&inb.hotel.name)||proposal.customer||inb.from_name||'';
+    renderProposal();$('proposal').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){toast(e.message||'Failed');}
+  finally{btn.disabled=false;btn.textContent='✨ Plan this';}
+}
+
+/* ---------- draft customer update (Phase 2) ---------- */
+$('draft-close').onclick=()=>$('draft-modal').style.display='none';
+$('draft-modal').onclick=e=>{if(e.target===$('draft-modal'))$('draft-modal').style.display='none';};
+$('draft-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('draft-text').value);toast('Copied');}catch{toast('Copy failed');}};
+async function draftUpdate(id,btn){
+  btn.disabled=true;const o=btn.textContent;btn.textContent='…';
+  try{
+    const d=await api('draft_update',{method:'POST',body:{id}});
+    $('draft-text').value=d.draft||'';$('draft-modal').style.display='';
+  }catch(e){toast(e.message||'Failed');}
+  finally{btn.disabled=false;btn.textContent=o;}
+}
+function copyRef(id){navigator.clipboard&&navigator.clipboard.writeText('build#'+id).then(()=>toast('Copied build#'+id),()=>{});}
+
 /* ---------- roadmap ---------- */
-async function reload(){const d=await api('list');items=d.items||[];renderRoadmap();}
+async function reload(){const d=await api('list');items=d.items||[];renderRoadmap();loadRequests();}
 const byId=id=>items.find(x=>x.id===id);
 const childrenOf=id=>items.filter(x=>x.parent_id===id);
 const nextStatus=s=>s==='todo'?'in_progress':s==='in_progress'?'done':'todo';
@@ -249,7 +327,10 @@ function renderRoadmap(){
             <span class="chip">${done}/${tasks.length} tasks</span>
           </div>
         </div>
-        <button class="btn ghost sm rd-del" title="Delete">✕</button>
+        <div class="row" style="gap:6px">
+          ${r.customer_label?`<button class="btn ghost sm rd-draft" title="Draft a 'shipped' update to the customer">✉ Update</button>`:''}
+          <button class="btn ghost sm rd-del" title="Delete">✕</button>
+        </div>
       </div>
       <div class="prog-track" style="margin-top:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
       <div class="epics">${epics.map(e=>epicHtml(e)).join('')}</div>
@@ -271,6 +352,7 @@ function epicHtml(e){
         <span class="t-title ${t.status==='done'?'muted':''}" style="${t.status==='done'?'text-decoration:line-through':''}">${esc(t.title)}</span>
         ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
         ${t.due_date?`<span class="chip">${esc(t.due_date)}</span>`:''}
+        <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR" style="cursor:pointer;font-family:ui-monospace,monospace">build#${t.id}</span>
       </div>`).join('')||'<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>'}</div>
   </div>`;
 }
@@ -292,6 +374,10 @@ function bindRoadmap(){
       catch(e){toast(e.message||'Failed');}
     };
   });
+  document.querySelectorAll('.rd-draft').forEach(b=>{
+    b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');draftUpdate(id,b);};
+  });
+  document.querySelectorAll('.idref').forEach(c=>{c.onclick=()=>copyRef(+c.getAttribute('data-ref'));});
 }
 
 if(token) unlock(token); else {$('gate').style.display='';}
