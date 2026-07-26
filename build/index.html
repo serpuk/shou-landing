@@ -96,6 +96,10 @@
       <span class="dim" style="font-size:12.5px">Replies in the CRM — turn one into a plan</span>
     </div>
     <div id="requests-list" style="margin-top:10px"></div>
+    <div id="req-ignored-wrap" style="display:none;margin-top:4px">
+      <button id="req-ignored-toggle" style="background:none;border:none;color:#888;font-size:12.5px;cursor:pointer;padding:4px 0">▸ <span id="req-ignored-count"></span></button>
+      <div id="req-ignored-list" style="display:none;margin-top:6px"></div>
+    </div>
   </div>
 
   <!-- roadmap -->
@@ -106,6 +110,33 @@
     </div>
     <div id="road-list"></div>
     <p class="dim" style="font-size:12.5px;margin-top:10px">Tip: reference <code>build#&lt;id&gt;</code> in a commit or PR to move a task automatically (needs the GitHub webhook connected).</p>
+  </div>
+</div>
+
+<!-- edit item modal -->
+<div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(20,16,30,.4);backdrop-filter:blur(2px)">
+  <div class="card" style="max-width:520px;margin:8vh auto;background:#fff">
+    <div class="row" style="justify-content:space-between">
+      <h2>Edit <span id="edit-kind" class="chip"></span></h2>
+      <button id="edit-close" class="btn ghost sm">✕</button>
+    </div>
+    <div style="margin-top:10px">
+      <label class="dim" style="font-size:12px">Title</label>
+      <input class="f" id="edit-title" style="margin:3px 0 8px">
+      <div id="edit-desc-wrap">
+        <label class="dim" style="font-size:12px">Description</label>
+        <input class="f" id="edit-desc" style="margin:3px 0 8px">
+      </div>
+      <div class="grid3">
+        <div id="edit-assignee-wrap"><label class="dim" style="font-size:12px">Assignee</label><input class="f" id="edit-assignee" style="margin-top:3px"></div>
+        <div id="edit-due-wrap"><label class="dim" style="font-size:12px">Due</label><input class="f" id="edit-due" type="date" style="margin-top:3px"></div>
+        <div id="edit-quarter-wrap"><label class="dim" style="font-size:12px">Quarter</label><input class="f" id="edit-quarter" style="margin-top:3px"></div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      <button id="edit-save" class="btn">Save</button>
+      <button id="edit-del" class="btn ghost sm" style="color:#c81e5b;border-color:rgba(200,30,91,.35)">Delete</button>
+    </div>
   </div>
 </div>
 
@@ -245,14 +276,10 @@ function renderProposal(){
 /* ---------- customer requests (Phase 2) ---------- */
 const snippet=t=>{t=String(t||'').replace(/\s+/g,' ').trim();return t.length>140?t.slice(0,140)+'…':t;};
 const fmtDate=s=>{try{return new Date(s).toLocaleDateString(undefined,{month:'short',day:'numeric'});}catch{return '';}};
-async function loadRequests(){try{const d=await api('inbound');renderRequests(d.inbound||[]);}catch(e){/* silent */}}
-function renderRequests(list){
-  const card=$('requests');
-  if(!list.length){card.style.display='none';return;}
-  card.style.display='';
-  $('req-count').textContent=list.length;
-  $('requests-list').innerHTML=list.map((r,i)=>`
-    <div data-req="${i}" style="padding:11px 13px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:#fff">
+let reqIgnoredOpen=false;
+async function loadRequests(){try{const d=await api('inbound');renderRequests(d.inbound||[],d.ignored||[]);}catch(e){/* silent */}}
+function reqCard(r,ignored){
+  return `<div data-req="${r.id}" style="padding:11px 13px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:#fff${ignored?';opacity:.72':''}">
       <div class="row" style="gap:8px">
         <b style="font-size:13.5px">${esc((r.hotel&&r.hotel.name)||r.from_name||r.from_email)}</b>
         ${r.ai_intent?`<span class="chip">${esc(r.ai_intent)}</span>`:''}
@@ -260,12 +287,42 @@ function renderRequests(list){
       </div>
       ${r.subject?`<div style="font-size:13px;font-weight:600;margin:3px 0 1px">${esc(r.subject)}</div>`:''}
       <div class="dim" style="font-size:12.5px">${esc(snippet(r.body_text))}</div>
-      <div style="margin-top:8px"><button class="btn sm req-plan">✨ Plan this</button></div>
-    </div>`).join('');
-  $('requests-list').querySelectorAll('[data-req]').forEach(row=>{
-    const r=list[+row.getAttribute('data-req')];
-    row.querySelector('.req-plan').onclick=e=>planFromEmail(r,e.currentTarget);
-  });
+      <div class="row" style="margin-top:8px;gap:8px">
+        <button class="btn sm req-plan">✨ Plan this</button>
+        ${ignored?`<button class="btn ghost sm req-restore">↩︎ Restore</button>`:`<button class="btn ghost sm req-ignore" title="Hide this — not a real request (re-assignable later)">Ignore</button>`}
+      </div>
+    </div>`;
+}
+function bindReqRow(row,byId){
+  const r=byId(+row.getAttribute('data-req'));
+  row.querySelector('.req-plan').onclick=e=>planFromEmail(r,e.currentTarget);
+  const ig=row.querySelector('.req-ignore'); if(ig) ig.onclick=e=>ignoreReq(r.id,e.currentTarget,true);
+  const rs=row.querySelector('.req-restore'); if(rs) rs.onclick=e=>ignoreReq(r.id,e.currentTarget,false);
+}
+function renderRequests(list,ignoredList){
+  ignoredList=ignoredList||[];
+  const card=$('requests');
+  if(!list.length&&!ignoredList.length){card.style.display='none';return;}
+  card.style.display='';
+  $('req-count').textContent=list.length;
+  const openById=id=>list.find(x=>x.id===id);
+  $('requests-list').innerHTML=list.length?list.map(r=>reqCard(r,false)).join(''):'<div class="dim" style="font-size:12.5px">No new requests.</div>';
+  $('requests-list').querySelectorAll('[data-req]').forEach(row=>bindReqRow(row,openById));
+  const wrap=$('req-ignored-wrap');
+  if(ignoredList.length){
+    wrap.style.display='';
+    $('req-ignored-count').textContent=`${ignoredList.length} ignored`;
+    $('req-ignored-toggle').firstChild.textContent=reqIgnoredOpen?'▾ ':'▸ ';
+    const box=$('req-ignored-list');box.style.display=reqIgnoredOpen?'':'none';
+    const ignById=id=>ignoredList.find(x=>x.id===id);
+    box.innerHTML=ignoredList.map(r=>reqCard(r,true)).join('');
+    box.querySelectorAll('[data-req]').forEach(row=>bindReqRow(row,ignById));
+  }else wrap.style.display='none';
+}
+async function ignoreReq(id,btn,ignore){
+  btn.disabled=true;btn.textContent='…';
+  try{await api('ignore_inbound',{method:'POST',body:{inboundId:id,ignore}});toast(ignore?'Ignored':'Restored');if(!ignore)reqIgnoredOpen=true;await loadRequests();}
+  catch(e){btn.disabled=false;btn.textContent=ignore?'Ignore':'↩︎ Restore';toast(e.message||'Failed');}
 }
 async function planFromEmail(inb,btn){
   btn.disabled=true;btn.textContent='Planning…';
@@ -294,6 +351,41 @@ async function draftUpdate(id,btn){
   finally{btn.disabled=false;btn.textContent=o;}
 }
 function copyRef(id){navigator.clipboard&&navigator.clipboard.writeText('build#'+id).then(()=>toast('Copied build#'+id),()=>{});}
+$('req-ignored-toggle').onclick=()=>{reqIgnoredOpen=!reqIgnoredOpen;const b=$('req-ignored-list');b.style.display=reqIgnoredOpen?'':'none';$('req-ignored-toggle').firstChild.textContent=reqIgnoredOpen?'▾ ':'▸ ';};
+
+/* ---------- edit / delete any item ---------- */
+let editId=null;
+function openEdit(id){
+  const it=byId(id);if(!it)return;editId=id;
+  $('edit-kind').textContent=it.kind;
+  $('edit-title').value=it.title||'';
+  $('edit-desc').value=it.description||'';
+  $('edit-assignee').value=it.assignee||'';
+  $('edit-due').value=it.due_date||'';
+  $('edit-quarter').value=it.quarter||'';
+  // show only fields relevant to the kind
+  $('edit-desc-wrap').style.display=it.kind==='task'?'none':'';
+  $('edit-assignee-wrap').style.display=it.kind==='task'?'':'none';
+  $('edit-quarter-wrap').style.display=it.kind==='roadmap'?'':'none';
+  $('edit-modal').style.display='';
+}
+$('edit-close').onclick=()=>{$('edit-modal').style.display='none';editId=null;};
+$('edit-modal').onclick=e=>{if(e.target===$('edit-modal')){$('edit-modal').style.display='none';editId=null;}};
+$('edit-save').onclick=async()=>{
+  if(!editId)return;
+  const patch={title:$('edit-title').value.trim(),description:$('edit-desc').value.trim(),assignee:$('edit-assignee').value.trim(),due_date:$('edit-due').value,quarter:$('edit-quarter').value.trim()};
+  if(!patch.title){toast('Title can’t be empty');return;}
+  const b=$('edit-save');b.disabled=true;b.textContent='Saving…';
+  try{await api('update',{method:'POST',body:{id:editId,patch}});$('edit-modal').style.display='none';editId=null;toast('Saved');await reload();}
+  catch(e){toast(e.message||'Failed');}
+  finally{b.disabled=false;b.textContent='Save';}
+};
+$('edit-del').onclick=async()=>{
+  if(!editId)return;const it=byId(editId);
+  if(!confirm(`Delete this ${it?it.kind:'item'}${it&&childrenOf(editId).length?' and everything under it':''}?`))return;
+  try{await api('delete',{method:'POST',body:{id:editId}});$('edit-modal').style.display='none';editId=null;toast('Deleted');await reload();}
+  catch(e){toast(e.message||'Failed');}
+};
 
 /* ---------- roadmap ---------- */
 async function reload(){const d=await api('list');items=d.items||[];renderRoadmap();loadRequests();}
@@ -329,6 +421,7 @@ function renderRoadmap(){
         </div>
         <div class="row" style="gap:6px">
           ${r.customer_label?`<button class="btn ghost sm rd-draft" title="Draft a 'shipped' update to the customer">✉ Update</button>`:''}
+          <button class="btn ghost sm it-edit" data-id="${r.id}" title="Edit">✎</button>
           <button class="btn ghost sm rd-del" title="Delete">✕</button>
         </div>
       </div>
@@ -345,6 +438,7 @@ function epicHtml(e){
       <span class="pill ${e.status}" data-st="${e.id}">${statusLabel(e.status)}</span>
       <b style="font-size:14px">${esc(e.title)}</b>
       ${e.description?`<span class="dim" style="font-size:12.5px">— ${esc(e.description)}</span>`:''}
+      <button class="btn ghost sm it-edit" data-id="${e.id}" title="Edit epic" style="margin-left:auto;padding:2px 9px">✎</button>
     </div>
     <div style="margin:2px 0 0 4px">${tasks.map(t=>`
       <div class="task" data-task="${t.id}">
@@ -353,6 +447,7 @@ function epicHtml(e){
         ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
         ${t.due_date?`<span class="chip">${esc(t.due_date)}</span>`:''}
         <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR" style="cursor:pointer;font-family:ui-monospace,monospace">build#${t.id}</span>
+        <button class="btn ghost sm it-edit" data-id="${t.id}" title="Edit task" style="padding:2px 8px">✎</button>
       </div>`).join('')||'<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>'}</div>
   </div>`;
 }
@@ -378,6 +473,7 @@ function bindRoadmap(){
     b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');draftUpdate(id,b);};
   });
   document.querySelectorAll('.idref').forEach(c=>{c.onclick=()=>copyRef(+c.getAttribute('data-ref'));});
+  document.querySelectorAll('.it-edit').forEach(b=>{b.onclick=e=>{e.stopPropagation();openEdit(+b.getAttribute('data-id'));};});
 }
 
 if(token) unlock(token); else {$('gate').style.display='';}
