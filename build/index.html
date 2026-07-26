@@ -150,6 +150,12 @@
     <div style="margin-top:10px">
       <label class="dim" style="font-size:12px">Title</label>
       <input class="f" id="edit-title" style="margin:3px 0 8px">
+      <div id="edit-move-wrap" class="row" style="gap:10px;margin:0 0 8px;display:none">
+        <div style="flex:1"><label class="dim" style="font-size:12px">Type</label>
+          <select class="f" id="edit-kind-sel" style="margin-top:3px"><option value="roadmap">Roadmap</option><option value="project">Project</option><option value="epic">Epic</option><option value="task">Task</option></select></div>
+        <div style="flex:2" id="edit-parent-box"><label class="dim" style="font-size:12px">Under</label>
+          <select class="f" id="edit-parent-sel" style="margin-top:3px"></select></div>
+      </div>
       <div id="edit-desc-wrap">
         <label class="dim" style="font-size:12px">Description</label>
         <textarea class="f" id="edit-desc" style="margin:3px 0 8px;min-height:64px;resize:vertical"></textarea>
@@ -339,6 +345,7 @@ function renderProposal(){
     <div class="epic" data-ep="${i}">
       <div class="row" style="gap:8px">
         <input class="f pe-title" value="${esc(e.title||'')}" placeholder="Epic" style="flex:1;font-weight:600">
+        <input class="f pe-project" value="${esc(e.project||'')}" placeholder="Project (optional)" title="Epics sharing a project name group under it" style="width:160px">
         <button class="btn ghost sm pe-del">✕</button>
       </div>
       <div class="pe-tasks" style="margin:6px 0 0 4px"></div>
@@ -347,6 +354,7 @@ function renderProposal(){
   ep.querySelectorAll('[data-ep]').forEach(row=>{
     const i=+row.getAttribute('data-ep');const e=p.epics[i];
     row.querySelector('.pe-title').oninput=ev=>e.title=ev.target.value;
+    row.querySelector('.pe-project').oninput=ev=>e.project=ev.target.value;
     row.querySelector('.pe-del').onclick=()=>{p.epics.splice(i,1);renderProposal();};
     row.querySelector('.pe-addtask').onclick=()=>{e.tasks=e.tasks||[];e.tasks.push({title:'',assignee:'',due_date:''});renderProposal();};
     const tb=row.querySelector('.pe-tasks');
@@ -460,8 +468,7 @@ function fillModal(kind,v){
   $('edit-due').value=v.due_date||'';
   $('edit-quarter').value=v.quarter||'';
   $('edit-desc-wrap').style.display='';
-  $('edit-assignee-wrap').style.display=kind==='task'?'':'none';
-  $('edit-quarter-wrap').style.display=(kind==='roadmap'||kind==='project')?'':'none';
+  applyKindVisibility(kind);
   editDeps=Array.isArray(v.depends_on)?v.depends_on.slice():[];
   renderDepChips();$('edit-dep-search').value='';$('edit-dep-results').style.display='none';
   $('edit-modal').style.display='';
@@ -514,18 +521,37 @@ $('edit-comment-add').onclick=async()=>{
   catch(e){toast(e.message||'Failed');}finally{b.disabled=false;}
 };
 $('edit-comment-body').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('edit-comment-add').click();}});
+let editKind=null;
+function applyKindVisibility(kind){
+  $('edit-assignee-wrap').style.display=kind==='task'?'':'none';
+  $('edit-quarter-wrap').style.display=(kind==='roadmap'||kind==='project')?'':'none';
+}
+const descendantsOf=id=>childrenOf(id).flatMap(c=>[c.id,...descendantsOf(c.id)]);
+function populateParents(kind){
+  const box=$('edit-parent-box'),sel=$('edit-parent-sel');
+  if(kind==='roadmap'){box.style.display='none';return;}
+  box.style.display='';
+  const kinds=kind==='project'?['roadmap']:kind==='epic'?['roadmap','project']:['epic'];
+  const excl=new Set([editId,...descendantsOf(editId)]);
+  const opts=items.filter(x=>kinds.includes(x.kind)&&!excl.has(x.id)).sort(cmpItems);
+  const cur=byId(editId);
+  sel.innerHTML=opts.length?opts.map(o=>`<option value="${o.id}" ${cur&&cur.parent_id===o.id?'selected':''}>${o.kind}: ${esc(o.title)}</option>`).join(''):'<option value="">(no valid parent — create one first)</option>';
+}
+$('edit-kind-sel').onchange=()=>{editKind=$('edit-kind-sel').value;$('edit-kind').textContent=editKind;applyKindVisibility(editKind);populateParents(editKind);};
 function openEdit(id){
-  const it=byId(id);if(!it)return;editId=id;createCtx=null;
+  const it=byId(id);if(!it)return;editId=id;createCtx=null;editKind=it.kind;
   $('edit-verb').textContent='Edit';$('edit-del').style.display='';
   const idref=$('edit-idref');idref.style.display='';idref.textContent='build#'+id;idref.onclick=()=>copyRef(id);
   fillModal(it.kind,it);
+  $('edit-move-wrap').style.display='';$('edit-kind-sel').value=it.kind;populateParents(it.kind);
   $('edit-comments-wrap').style.display='';loadComments(id);
 }
 function openCreate(kind,parentId){
-  editId=null;createCtx={kind,parent_id:parentId||null};
+  editId=null;createCtx={kind,parent_id:parentId||null};editKind=kind;
   $('edit-verb').textContent='Add';$('edit-del').style.display='none';
   $('edit-idref').style.display='none';
   fillModal(kind,{});
+  $('edit-move-wrap').style.display='none';
   $('edit-comments-wrap').style.display='none';
 }
 $('edit-close').onclick=closeEdit;
@@ -534,6 +560,11 @@ $('edit-save').onclick=async()=>{
   const title=$('edit-title').value.trim();
   if(!title){toast('Title can’t be empty');return;}
   const fields={title,description:$('edit-desc').value.trim(),assignee:$('edit-assignee').value.trim(),start_date:$('edit-start').value,due_date:$('edit-due').value,quarter:$('edit-quarter').value.trim(),depends_on:editDeps};
+  if(!createCtx){
+    fields.kind=editKind;
+    fields.parent_id=editKind==='roadmap'?null:(+$('edit-parent-sel').value||null);
+    if(editKind!=='roadmap'&&!fields.parent_id){toast('Pick a parent for this '+editKind);return;}
+  }
   const b=$('edit-save');b.disabled=true;b.textContent='Saving…';
   try{
     if(createCtx){
