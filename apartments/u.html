@@ -119,20 +119,21 @@ var API='https://shou-backend.vercel.app/api';
 var slug=new URLSearchParams(location.search).get('u');
 
 var ICON={wifi:'📶',checkin:'🔑',checkout:'🚪',heating:'🌡',laundry:'🧺',coffee:'☕',trash:'🗑',parking:'🚗',luggage:'🧳',rules:'📜',emergency:'🆘',
-  supermarket:'🛒',bakery:'🥐',pharmacy:'💊',transport:'🚋',airport:'✈️'};
+  supermarket:'🛒',bakery:'🥐',pharmacy:'💊',transport:'🚋',airport:'✈️',
+  atm:'🏧',attractions:'📸',taxi:'🚕',dinner:'🍽',breakfast:'🍳',bar:'🍸'};
 var APT_ORDER=['wifi','checkin','checkout','heating','laundry','coffee','trash','parking','luggage'];
 var SAFE_ORDER=['rules','emergency'];
 var POI_ORDER=['supermarket','bakery','pharmacy','transport'];
 
 var LANGS=[{c:'en',f:'🇬🇧',n:'English'},{c:'fr',f:'🇫🇷',n:'Français'},{c:'nl',f:'🇳🇱',n:'Nederlands'},{c:'de',f:'🇩🇪',n:'Deutsch'},{c:'es',f:'🇪🇸',n:'Español'},{c:'it',f:'🇮🇹',n:'Italiano'},{c:'uk',f:'🇺🇦',n:'Українська'}];
 var LBL={
-  en:{wifi:'Wi-Fi',checkin:'Check-in',checkout:'Check-out',heating:'Heating',laundry:'Washing machine',coffee:'Coffee',trash:'Trash & recycling',parking:'Parking',luggage:'Luggage',rules:'House rules',emergency:'Emergency',supermarket:'Supermarket',bakery:'Bakery',pharmacy:'Pharmacy',transport:'Public transport',airport:'To the airport'},
-  fr:{wifi:'Wi-Fi',checkin:'Arrivée',checkout:'Départ',heating:'Chauffage',laundry:'Machine à laver',coffee:'Café',trash:'Déchets & tri',parking:'Parking',luggage:'Bagages',rules:'Règlement',emergency:'Urgences',supermarket:'Supermarché',bakery:'Boulangerie',pharmacy:'Pharmacie',transport:'Transports',airport:'Vers l’aéroport'},
-  nl:{wifi:'Wifi',checkin:'Inchecken',checkout:'Uitchecken',heating:'Verwarming',laundry:'Wasmachine',coffee:'Koffie',trash:'Afval & recyclage',parking:'Parkeren',luggage:'Bagage',rules:'Huisregels',emergency:'Noodgeval',supermarket:'Supermarkt',bakery:'Bakkerij',pharmacy:'Apotheek',transport:'Openbaar vervoer',airport:'Naar de luchthaven'},
-  de:{wifi:'WLAN',checkin:'Check-in',checkout:'Check-out',heating:'Heizung',laundry:'Waschmaschine',coffee:'Kaffee',trash:'Müll & Recycling',parking:'Parken',luggage:'Gepäck',rules:'Hausordnung',emergency:'Notfall',supermarket:'Supermarkt',bakery:'Bäckerei',pharmacy:'Apotheke',transport:'Nahverkehr',airport:'Zum Flughafen'},
-  es:{wifi:'Wi-Fi',checkin:'Entrada',checkout:'Salida',heating:'Calefacción',laundry:'Lavadora',coffee:'Café',trash:'Basura y reciclaje',parking:'Aparcamiento',luggage:'Equipaje',rules:'Normas',emergency:'Emergencias',supermarket:'Supermercado',bakery:'Panadería',pharmacy:'Farmacia',transport:'Transporte',airport:'Al aeropuerto'},
-  it:{wifi:'Wi-Fi',checkin:'Check-in',checkout:'Check-out',heating:'Riscaldamento',laundry:'Lavatrice',coffee:'Caffè',trash:'Rifiuti & riciclo',parking:'Parcheggio',luggage:'Bagagli',rules:'Regole',emergency:'Emergenze',supermarket:'Supermercato',bakery:'Panetteria',pharmacy:'Farmacia',transport:'Trasporti',airport:'All’aeroporto'},
-  uk:{wifi:'Wi-Fi',checkin:'Заїзд',checkout:'Виїзд',heating:'Опалення',laundry:'Пральна машина',coffee:'Кава',trash:'Сміття та переробка',parking:'Паркінг',luggage:'Багаж',rules:'Правила',emergency:'Екстрені випадки',supermarket:'Супермаркет',bakery:'Пекарня',pharmacy:'Аптека',transport:'Транспорт',airport:'До аеропорту'},
+  en:{wifi:'Wi-Fi',checkin:'Check-in',checkout:'Check-out',heating:'Heating',laundry:'Washing machine',coffee:'Coffee',trash:'Trash & recycling',parking:'Parking',luggage:'Luggage',rules:'House rules',emergency:'Emergency',supermarket:'Supermarket',bakery:'Bakery',pharmacy:'Pharmacy',transport:'Public transport',airport:'To the airport',atm:'ATM',attractions:'Things to do',taxi:'Taxi',dinner:'Dinner',breakfast:'Breakfast',bar:'Bars'},
+  fr:{wifi:'Wi-Fi',checkin:'Arrivée',checkout:'Départ',heating:'Chauffage',laundry:'Machine à laver',coffee:'Café',trash:'Déchets & tri',parking:'Parking',luggage:'Bagages',rules:'Règlement',emergency:'Urgences',supermarket:'Supermarché',bakery:'Boulangerie',pharmacy:'Pharmacie',transport:'Transports',airport:'Vers l’aéroport',atm:'Distributeur',attractions:'À voir',taxi:'Taxi',dinner:'Dîner',breakfast:'Petit-déjeuner',bar:'Bars'},
+  nl:{wifi:'Wifi',checkin:'Inchecken',checkout:'Uitchecken',heating:'Verwarming',laundry:'Wasmachine',coffee:'Koffie',trash:'Afval & recyclage',parking:'Parkeren',luggage:'Bagage',rules:'Huisregels',emergency:'Noodgeval',supermarket:'Supermarkt',bakery:'Bakkerij',pharmacy:'Apotheek',transport:'Openbaar vervoer',airport:'Naar de luchthaven',atm:'Geldautomaat',attractions:'Bezienswaardigheden',taxi:'Taxi',dinner:'Uit eten',breakfast:'Ontbijt',bar:'Bars'},
+  de:{wifi:'WLAN',checkin:'Check-in',checkout:'Check-out',heating:'Heizung',laundry:'Waschmaschine',coffee:'Kaffee',trash:'Müll & Recycling',parking:'Parken',luggage:'Gepäck',rules:'Hausordnung',emergency:'Notfall',supermarket:'Supermarkt',bakery:'Bäckerei',pharmacy:'Apotheke',transport:'Nahverkehr',airport:'Zum Flughafen',atm:'Geldautomat',attractions:'Sehenswürdigkeiten',taxi:'Taxi',dinner:'Essen gehen',breakfast:'Frühstück',bar:'Bars'},
+  es:{wifi:'Wi-Fi',checkin:'Entrada',checkout:'Salida',heating:'Calefacción',laundry:'Lavadora',coffee:'Café',trash:'Basura y reciclaje',parking:'Aparcamiento',luggage:'Equipaje',rules:'Normas',emergency:'Emergencias',supermarket:'Supermercado',bakery:'Panadería',pharmacy:'Farmacia',transport:'Transporte',airport:'Al aeropuerto',atm:'Cajero',attractions:'Qué ver',taxi:'Taxi',dinner:'Cenar',breakfast:'Desayuno',bar:'Bares'},
+  it:{wifi:'Wi-Fi',checkin:'Check-in',checkout:'Check-out',heating:'Riscaldamento',laundry:'Lavatrice',coffee:'Caffè',trash:'Rifiuti & riciclo',parking:'Parcheggio',luggage:'Bagagli',rules:'Regole',emergency:'Emergenze',supermarket:'Supermercato',bakery:'Panetteria',pharmacy:'Farmacia',transport:'Trasporti',airport:'All’aeroporto',atm:'Bancomat',attractions:'Cosa vedere',taxi:'Taxi',dinner:'Cena',breakfast:'Colazione',bar:'Bar'},
+  uk:{wifi:'Wi-Fi',checkin:'Заїзд',checkout:'Виїзд',heating:'Опалення',laundry:'Пральна машина',coffee:'Кава',trash:'Сміття та переробка',parking:'Паркінг',luggage:'Багаж',rules:'Правила',emergency:'Екстрені випадки',supermarket:'Супермаркет',bakery:'Пекарня',pharmacy:'Аптека',transport:'Транспорт',airport:'До аеропорту',atm:'Банкомат',attractions:'Що подивитися',taxi:'Таксі',dinner:'Вечеря',breakfast:'Сніданок',bar:'Бари'},
 };
 var SEC={
   en:{apt:'Your apartment',building:'Around the corner',safety:'House & safety'},
@@ -258,27 +259,31 @@ function loadEvents(){
 var fold=function(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');};
 function toks(q){return ' '+fold(q).replace(/[^0-9a-zа-яіїєґё]+/gi,' ').trim()+' ';}
 var INTENTS=[
-  {t:'wb',id:'wifi',kw:['wifi','wi fi','internet','password','mot de passe','wachtwoord','passwort','wlan','contrasena','parola','пароль']},
-  {t:'wb',id:'checkout',kw:['check out','checkout','departure','depart','leave','uitchecken','vertrek','abreise','salida','partenza','виїзд']},
-  {t:'wb',id:'checkin',kw:['check in','checkin','arrival','arrive','door code','sleutel','llave','chiave','entrada','ключ','key','keys']},
-  {t:'wb',id:'heating',kw:['heating','heat','chauffage','verwarming','heizung','riscaldamento','thermostat','froid','cold','холодно']},
-  {t:'wb',id:'laundry',kw:['laundry','washing machine','washer','lave linge','wasmachine','waschmaschine','lavadora','lavatrice','пральна']},
-  {t:'wb',id:'coffee',kw:['coffee machine','nespresso','espresso machine','machine a cafe','koffiezetapparaat','kaffeemaschine','capsule']},
-  {t:'wb',id:'trash',kw:['trash','garbage','rubbish','recycling','waste','poubelle','dechet','afval','mull','basura','rifiuti','сміття']},
-  {t:'wb',id:'luggage',kw:['luggage','suitcase','drop bag','store bag','bagage','koffer','valise','maleta','bagaglio','багаж']},
-  {t:'wb',id:'parking',kw:['parking','park the car','garage','voiture','parkeren','parkeer','parkplatz','aparcamiento','parcheggio','паркінг']},
-  {t:'wb',id:'rules',kw:['house rules','smoking','smoke','parties','noise','quiet hours','pets','reglement','fumer','huisregels','rauchen','правила']},
-  {t:'wb',id:'emergency',kw:['emergency','ambulance','police','hospital','urgence','noodgeval','notfall','emergencia','emergenza','host number','надзвичайн']},
+  {t:'wb',id:'wifi',kw:['wifi','wi fi','internet','password','mot de passe','wachtwoord','passwort','wlan','contrasena','clave wifi','parola','пароль','код wifi']},
+  {t:'wb',id:'checkout',kw:['check out','checkout','departure','depart','leave','uitchecken','vertrek','auschecken','abreise','salida','partenza','check out ora','виїзд','коли виїзд']},
+  {t:'wb',id:'checkin',kw:['check in','checkin','arrival','arrive','arrivee','door code','key','keys','sleutel','schlussel','anreise','llave','chiave','entrada','ключ','заїзд']},
+  {t:'wb',id:'heating',kw:['heating','heat','thermostat','chauffage','verwarming','heizung','riscaldamento','calefaccion','froid','cold','холодно','опалення']},
+  {t:'wb',id:'laundry',kw:['laundry','washing machine','washer','lave linge','wasmachine','waschmaschine','lavadora','lavatrice','пральна','прати']},
+  {t:'wb',id:'coffee',kw:['coffee machine','nespresso','espresso machine','machine a cafe','koffiezetapparaat','kaffeemaschine','cafetera','macchina caffe','capsule','кавомашина']},
+  {t:'wb',id:'trash',kw:['trash','garbage','rubbish','recycling','waste','poubelle','dechet','afval','mull','abfall','basura','rifiuti','сміття']},
+  {t:'wb',id:'luggage',kw:['luggage','suitcase','drop bag','store bag','bagage','koffer','valise','gepack','maleta','bagaglio','deposito bagagli','багаж']},
+  {t:'wb',id:'parking',kw:['parking','park the car','where to park','garage','voiture','parkeren','parkeer','parkplatz','aparcamiento','parcheggio','паркінг']},
+  {t:'wb',id:'rules',kw:['house rules','smoking','smoke','parties','noise','quiet hours','pets','reglement','fumer','huisregels','rauchen','normas','fumar','regole','fumare','правила']},
+  {t:'wb',id:'emergency',kw:['emergency','ambulance','police','hospital','doctor','urgence','noodgeval','notfall','krankenhaus','emergencia','emergenza','ospedale','host number','надзвичайн','лікарня']},
   {t:'poi',id:'supermarket',kw:['supermarket','grocery','groceries','buy food','courses','boodschappen','supermarkt','einkaufen','supermercado','spesa','продукти']},
   {t:'poi',id:'pharmacy',kw:['pharmacy','pharmacie','chemist','apotheek','apotheke','farmacia','аптека']},
-  {t:'poi',id:'bakery',kw:['bakery','bread','croissant','boulangerie','bakker','backerei','panaderia','panetteria','пекарня']},
-  {t:'poi',id:'transport',kw:['tram','metro','bus','public transport','subway','station','openbaar vervoer','метро','транспорт']},
-  {t:'rec',id:'dinner',kw:['dinner','dine','restaurant','where to eat','good food','lunch','diner','manger','eten','essen','cena','ресторан','поїсти']},
+  {t:'poi',id:'bakery',kw:['bakery','bread','croissant','boulangerie','bakker','backerei','panaderia','panetteria','пекарня','хліб']},
+  {t:'poi',id:'transport',kw:['tram','metro','bus','public transport','subway','u bahn','station','openbaar vervoer','transporte','trasporti','метро','транспорт']},
+  {t:'poi',id:'atm',kw:['atm','cash machine','cash','withdraw money','distributeur','geldautomaat','bankomat','cajero','bancomat','банкомат','готівка']},
+  {t:'poi',id:'attractions',kw:['things to do','attractions','sightseeing','tourist','what to see','que faire','a voir','visiter','bezienswaardigheden','sehenswurdigkeiten','que ver','cosa vedere','visitare','що подивитися','визначні']},
+  {t:'poi',id:'taxi',kw:['taxi','cab','uber','bolt','такси','таксі']},
+  {t:'rec',id:'dinner',kw:['dinner','dine','restaurant','where to eat','good food','lunch','diner','manger','eten','essen','abendessen','restaurante','ristorante','comer','mangiare','cena','ресторан','поїсти']},
+  {t:'rec',id:'breakfast',kw:['breakfast','brunch','petit dejeuner','ontbijt','fruhstuck','desayuno','colazione','сніданок']},
   {t:'rec',id:'coffee',kw:['coffee shop','good coffee','best coffee','cafe','cappuccino','koffie','kaffee','caffe','кава']},
-  {t:'rec',id:'bar',kw:['bar','drinks','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','пиво']},
+  {t:'rec',id:'bar',kw:['bar','drinks','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','copa','aperitivo','пиво','бар']},
 ];
 function classify(q){var s=toks(q);for(var i=0;i<INTENTS.length;i++){var it=INTENTS[i];for(var j=0;j<it.kw.length;j++){var k=fold(it.kw[j]);var hit=(k.indexOf(' ')>=0||k.length>=5)?s.indexOf(k)>=0:s.indexOf(' '+k+' ')>=0;if(hit)return it;}}return null;}
-var REC_Q={dinner:'restaurants',coffee:'coffee',bar:'bars'};
+var REC_Q={dinner:'restaurants',breakfast:'breakfast brunch',coffee:'coffee',bar:'bars'};
 
 var asking=false;
 function addMsg(cls,html){var el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;document.getElementById('msgs').appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el;}
@@ -292,7 +297,7 @@ function ask(q){
   }
   if(cls&&(cls.t==='poi'||cls.t==='rec')){
     var near=U.address?(' near '+U.address):' Brussels';
-    var qy=(cls.t==='poi'?({supermarket:'supermarket',pharmacy:'pharmacy',bakery:'bakery',transport:'metro tram'})[cls.id]:REC_Q[cls.id]);
+    var qy=(cls.t==='poi'?({supermarket:'supermarket',pharmacy:'pharmacy',bakery:'bakery',transport:'metro tram',atm:'atm',attractions:'tourist attractions',taxi:'taxi rank'})[cls.id]:REC_Q[cls.id]);
     addMsg('ai',esc(chr('nearby'))+'<div class="ans"><span class="wb-ic">'+(ICON[cls.id]||'📍')+'</span><div><div class="k">'+esc(lbl(cls.id)||cls.id)+'</div><a href="'+esc(maps(qy+near))+'" target="_blank" rel="noopener">'+esc(chr('seemap'))+' ↗</a></div></div>');
     asking=false;return;
   }
