@@ -1,0 +1,298 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>shou · Build</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{--ink:#15101b;--dim:#6b6675;--line:rgba(20,16,30,.12);--pink:#F2538D;--grad:linear-gradient(105deg,#F2538D,#FF8A61);--bg:#faf8fc;--card:#fff;
+    --todo:#9aa0aa;--prog:#e08a2b;--done:#0e9a8d;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5}
+  nav{position:sticky;top:0;z-index:20;background:rgba(250,248,252,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1000px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+  .brand{font-weight:800;font-size:19px;text-decoration:none;color:var(--ink)}
+  .brand small{font-weight:600;color:var(--dim);font-size:12px;margin-left:6px}
+  .nav-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 10px 26px -18px rgba(20,16,30,.25)}
+  h1{font-size:22px;margin:0 0 4px}
+  h2{font-size:16px;margin:0}
+  .dim{color:var(--dim)}
+  textarea,input,select{font-family:inherit;font-size:14px;color:var(--ink)}
+  textarea{width:100%;min-height:110px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;resize:vertical;background:#fff}
+  input.f{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .btn{background:var(--grad);color:#fff;font-weight:700;font-size:14px;padding:10px 20px;border:none;border-radius:11px;cursor:pointer;transition:filter .15s}
+  .btn:hover:not(:disabled){filter:brightness(1.06)}
+  .btn:disabled{opacity:.55;cursor:default}
+  .btn.ghost{background:#fff;color:#777;font-weight:600;border:1px solid var(--line)}
+  .btn.ghost:hover:not(:disabled){filter:none;border-color:rgba(20,16,30,.3);color:#444}
+  .btn.sm{padding:6px 12px;font-size:12.5px;border-radius:9px}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;cursor:pointer;border:1px solid transparent;user-select:none}
+  .pill.todo{background:rgba(154,160,170,.14);color:var(--todo)}
+  .pill.in_progress{background:rgba(224,138,43,.14);color:var(--prog)}
+  .pill.done{background:rgba(14,154,141,.15);color:var(--done)}
+  .chip{font-size:11.5px;font-weight:600;color:var(--dim);background:rgba(20,16,30,.05);border-radius:20px;padding:2px 9px}
+  .prog-track{height:7px;background:rgba(20,16,30,.08);border-radius:6px;overflow:hidden}
+  .prog-fill{height:100%;background:var(--grad)}
+  .epic{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line)}
+  .task{display:flex;align-items:center;gap:10px;padding:6px 0}
+  .task .t-title{flex:1}
+  .muted{color:#aaa}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#15101b;color:#fff;padding:11px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+  .toast.show{opacity:1}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  @media(max-width:640px){.grid3{grid-template-columns:1fr}}
+</style>
+
+<nav><div class="nav-in">
+  <a class="brand" href="/">shou<small>Build · execution layer</small></a>
+  <div class="nav-actions">
+    <span id="count" class="dim" style="font-size:13px"></span>
+    <button id="btn-logout" class="btn ghost sm" style="display:none">Lock</button>
+  </div>
+</div></nav>
+
+<!-- gate -->
+<div class="wrap" id="gate">
+  <div class="card" style="max-width:420px;margin:40px auto">
+    <h1>Build</h1>
+    <p class="dim">Enter the admin token to unlock.</p>
+    <input id="gate-token" class="f" type="password" placeholder="Admin token" autocomplete="current-password" style="margin:8px 0">
+    <button id="gate-go" class="btn" style="width:100%">Unlock</button>
+    <p id="gate-err" style="color:#c81e5b;margin:10px 0 0;display:none">Wrong token.</p>
+  </div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+
+  <!-- compose -->
+  <div class="card">
+    <h2>Describe what to build — or paste a customer email</h2>
+    <p class="dim" style="margin:4px 0 10px;font-size:13.5px">The AI turns it into a roadmap item, epics and tasks on a timeline. You review and edit before anything is saved.</p>
+    <textarea id="compose" placeholder="e.g. Ship dark mode before September for Hotel Amigo — needs a theme engine, a toggle in settings, and QA across the app."></textarea>
+    <div class="row" style="margin-top:10px">
+      <button id="btn-propose" class="btn">✨ Propose plan</button>
+      <span id="propose-note" class="dim" style="font-size:13px"></span>
+    </div>
+  </div>
+
+  <!-- proposal (editable, unsaved) -->
+  <div class="card" id="proposal" style="display:none;margin-top:14px;border-color:rgba(242,83,141,.35);background:linear-gradient(120deg,rgba(242,83,141,.05),rgba(255,138,97,.03))">
+    <div class="row" style="justify-content:space-between">
+      <h2>Proposed plan <span class="chip">not saved yet</span></h2>
+      <button id="prop-discard" class="btn ghost sm">Discard</button>
+    </div>
+    <div id="prop-body" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:14px">
+      <button id="prop-commit" class="btn">✓ Confirm &amp; save</button>
+      <button id="prop-addepic" class="btn ghost sm">+ Add epic</button>
+    </div>
+  </div>
+
+  <!-- roadmap -->
+  <div style="margin-top:22px">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <h2>Roadmap</h2>
+      <span id="road-empty" class="dim" style="font-size:13px;display:none">Nothing yet — describe something above.</span>
+    </div>
+    <div id="road-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://shou-backend.vercel.app/api/build';
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let token = localStorage.getItem('shou_build_token') || '';
+let items = [];
+let proposal = null, proposalOrigin = '';
+let toastT;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+
+async function api(op,{method='GET',body}={}){
+  const opts={method,headers:{'X-Admin-Token':token}};
+  let url=API;
+  if(method==='GET') url+='?op='+encodeURIComponent(op);
+  else{opts.headers['Content-Type']='application/json';opts.body=JSON.stringify({op,...body});}
+  const r=await fetch(url,opts);
+  if(r.status===401){throw new Error('Unauthorized');}
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d.error||('HTTP '+r.status));
+  return d;
+}
+
+/* ---------- gate ---------- */
+function lock(){localStorage.removeItem('shou_build_token');token='';$('app').style.display='none';$('gate').style.display='';$('btn-logout').style.display='none';}
+async function unlock(tok){
+  token=tok;
+  try{
+    const d=await api('list');
+    localStorage.setItem('shou_build_token',tok);
+    $('gate').style.display='none';$('app').style.display='';$('btn-logout').style.display='';
+    items=d.items||[];renderRoadmap();
+  }catch(e){$('gate-err').style.display='block';$('gate-err').textContent=e.message==='Unauthorized'?'Wrong token.':'Error: '+e.message;}
+}
+$('gate-go').onclick=()=>unlock($('gate-token').value.trim());
+$('gate-token').addEventListener('keydown',e=>{if(e.key==='Enter')unlock($('gate-token').value.trim());});
+$('btn-logout').onclick=lock;
+
+/* ---------- propose ---------- */
+$('btn-propose').onclick=async()=>{
+  const text=$('compose').value.trim();
+  if(!text){toast('Describe something first');return;}
+  const b=$('btn-propose');b.disabled=true;b.textContent='Thinking…';$('propose-note').textContent='';
+  try{
+    const d=await api('propose',{method:'POST',body:{text}});
+    proposal=d.proposal; proposalOrigin=d.origin||text;
+    proposal.epics=proposal.epics||[];
+    renderProposal();
+    $('proposal').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){$('propose-note').textContent=e.message||'Failed';}
+  finally{b.disabled=false;b.textContent='✨ Propose plan';}
+};
+$('prop-discard').onclick=()=>{proposal=null;$('proposal').style.display='none';};
+$('prop-addepic').onclick=()=>{proposal.epics.push({title:'New epic',description:'',tasks:[]});renderProposal();};
+$('prop-commit').onclick=async()=>{
+  if(!proposal||!proposal.title){toast('Give the roadmap item a title');return;}
+  const b=$('prop-commit');b.disabled=true;b.textContent='Saving…';
+  try{
+    await api('commit',{method:'POST',body:{tree:proposal,origin:proposalOrigin,source:'ai'}});
+    toast('Saved to roadmap');
+    proposal=null;$('proposal').style.display='none';$('compose').value='';
+    await reload();
+  }catch(e){toast(e.message||'Failed');}
+  finally{b.disabled=false;b.textContent='✓ Confirm & save';}
+};
+
+function renderProposal(){
+  const p=proposal;$('proposal').style.display='';
+  const body=$('prop-body');
+  body.innerHTML=`
+    <input class="f" id="p-title" value="${esc(p.title||'')}" placeholder="Roadmap item" style="font-size:16px;font-weight:700">
+    <input class="f" id="p-desc" value="${esc(p.description||'')}" placeholder="Short description" style="margin-top:8px">
+    <div class="grid3" style="margin-top:8px">
+      <input class="f" id="p-quarter" value="${esc(p.quarter||'')}" placeholder="Quarter (e.g. Q3 2026)">
+      <input class="f" id="p-due" type="date" value="${esc(p.due_date||'')}">
+      <input class="f" id="p-customer" value="${esc(p.customer||'')}" placeholder="Customer (optional)">
+    </div>
+    <div id="p-epics" style="margin-top:6px"></div>`;
+  $('p-title').oninput=e=>p.title=e.target.value;
+  $('p-desc').oninput=e=>p.description=e.target.value;
+  $('p-quarter').oninput=e=>p.quarter=e.target.value;
+  $('p-due').oninput=e=>p.due_date=e.target.value;
+  $('p-customer').oninput=e=>p.customer=e.target.value;
+  const ep=$('p-epics');
+  ep.innerHTML=p.epics.map((e,i)=>`
+    <div class="epic" data-ep="${i}">
+      <div class="row" style="gap:8px">
+        <input class="f pe-title" value="${esc(e.title||'')}" placeholder="Epic" style="flex:1;font-weight:600">
+        <button class="btn ghost sm pe-del">✕</button>
+      </div>
+      <div class="pe-tasks" style="margin:6px 0 0 4px"></div>
+      <button class="btn ghost sm pe-addtask" style="margin-top:4px">+ task</button>
+    </div>`).join('');
+  ep.querySelectorAll('[data-ep]').forEach(row=>{
+    const i=+row.getAttribute('data-ep');const e=p.epics[i];
+    row.querySelector('.pe-title').oninput=ev=>e.title=ev.target.value;
+    row.querySelector('.pe-del').onclick=()=>{p.epics.splice(i,1);renderProposal();};
+    row.querySelector('.pe-addtask').onclick=()=>{e.tasks=e.tasks||[];e.tasks.push({title:'',assignee:'',due_date:''});renderProposal();};
+    const tb=row.querySelector('.pe-tasks');
+    e.tasks=e.tasks||[];
+    tb.innerHTML=e.tasks.map((t,j)=>`
+      <div class="row" data-tk="${j}" style="gap:6px;margin:4px 0">
+        <input class="f pt-title" value="${esc(t.title||'')}" placeholder="Task" style="flex:1">
+        <input class="f pt-ass" value="${esc(t.assignee||'')}" placeholder="Who" style="width:110px">
+        <input class="f pt-due" type="date" value="${esc(t.due_date||'')}" style="width:150px">
+        <button class="btn ghost sm pt-del">✕</button>
+      </div>`).join('');
+    tb.querySelectorAll('[data-tk]').forEach(tr=>{
+      const j=+tr.getAttribute('data-tk');const t=e.tasks[j];
+      tr.querySelector('.pt-title').oninput=ev=>t.title=ev.target.value;
+      tr.querySelector('.pt-ass').oninput=ev=>t.assignee=ev.target.value;
+      tr.querySelector('.pt-due').oninput=ev=>t.due_date=ev.target.value;
+      tr.querySelector('.pt-del').onclick=()=>{e.tasks.splice(j,1);renderProposal();};
+    });
+  });
+}
+
+/* ---------- roadmap ---------- */
+async function reload(){const d=await api('list');items=d.items||[];renderRoadmap();}
+const byId=id=>items.find(x=>x.id===id);
+const childrenOf=id=>items.filter(x=>x.parent_id===id);
+const nextStatus=s=>s==='todo'?'in_progress':s==='in_progress'?'done':'todo';
+const statusLabel=s=>s==='in_progress'?'in progress':s;
+
+function renderRoadmap(){
+  const roads=items.filter(x=>x.kind==='roadmap');
+  $('count').textContent=roads.length?(roads.length+' roadmap item'+(roads.length>1?'s':'')):'';
+  $('road-empty').style.display=roads.length?'none':'';
+  const list=$('road-list');
+  list.innerHTML=roads.map(r=>{
+    const epics=childrenOf(r.id);
+    const tasks=epics.flatMap(e=>childrenOf(e.id));
+    const done=tasks.filter(t=>t.status==='done').length;
+    const pct=tasks.length?Math.round(done/tasks.length*100):(r.status==='done'?100:0);
+    return `<div class="card" data-road="${r.id}" style="margin-bottom:12px">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div class="row" style="gap:8px">
+            <span class="pill ${r.status}" data-st="${r.id}">${statusLabel(r.status)}</span>
+            <b style="font-size:16px">${esc(r.title)}</b>
+          </div>
+          ${r.description?`<div class="dim" style="font-size:13.5px;margin-top:3px">${esc(r.description)}</div>`:''}
+          <div class="row" style="gap:6px;margin-top:6px">
+            ${r.quarter?`<span class="chip">${esc(r.quarter)}</span>`:''}
+            ${r.due_date?`<span class="chip">due ${esc(r.due_date)}</span>`:''}
+            ${r.customer_label?`<span class="chip">👤 ${esc(r.customer_label)}</span>`:''}
+            <span class="chip">${done}/${tasks.length} tasks</span>
+          </div>
+        </div>
+        <button class="btn ghost sm rd-del" title="Delete">✕</button>
+      </div>
+      <div class="prog-track" style="margin-top:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="epics">${epics.map(e=>epicHtml(e)).join('')}</div>
+    </div>`;
+  }).join('');
+  bindRoadmap();
+}
+function epicHtml(e){
+  const tasks=childrenOf(e.id);
+  return `<div class="epic" data-epic="${e.id}">
+    <div class="row" style="gap:8px">
+      <span class="pill ${e.status}" data-st="${e.id}">${statusLabel(e.status)}</span>
+      <b style="font-size:14px">${esc(e.title)}</b>
+      ${e.description?`<span class="dim" style="font-size:12.5px">— ${esc(e.description)}</span>`:''}
+    </div>
+    <div style="margin:2px 0 0 4px">${tasks.map(t=>`
+      <div class="task" data-task="${t.id}">
+        <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
+        <span class="t-title ${t.status==='done'?'muted':''}" style="${t.status==='done'?'text-decoration:line-through':''}">${esc(t.title)}</span>
+        ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
+        ${t.due_date?`<span class="chip">${esc(t.due_date)}</span>`:''}
+      </div>`).join('')||'<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>'}</div>
+  </div>`;
+}
+function bindRoadmap(){
+  document.querySelectorAll('.pill[data-st]').forEach(p=>{
+    p.onclick=async()=>{
+      const id=+p.getAttribute('data-st');const it=byId(id);if(!it)return;
+      const ns=nextStatus(it.status);it.status=ns; // optimistic
+      renderRoadmap();
+      try{await api('update',{method:'POST',body:{id,patch:{status:ns}}});}
+      catch(e){toast(e.message||'Failed');await reload();}
+    };
+  });
+  document.querySelectorAll('.rd-del').forEach(b=>{
+    b.onclick=async()=>{
+      const id=+b.closest('[data-road]').getAttribute('data-road');
+      if(!confirm('Delete this roadmap item and everything under it?'))return;
+      try{await api('delete',{method:'POST',body:{id}});toast('Deleted');await reload();}
+      catch(e){toast(e.message||'Failed');}
+    };
+  });
+}
+
+if(token) unlock(token); else {$('gate').style.display='';}
+</script>
