@@ -1,0 +1,126 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>shou · Apartments billing test</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{--ink:#15101b;--dim:#6b6675;--line:rgba(20,16,30,.14);--pink:#F2538D;--grad:linear-gradient(105deg,#F2538D,#FF8A61);--bg:#faf8fc;--ok:#0e9a8d;--red:#c81e5b;--amber:#e08a2b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.55}
+  .wrap{max-width:720px;margin:0 auto;padding:26px 20px}
+  h1{font-size:22px;margin:0 0 2px}.sub{color:var(--dim);font-size:13.5px;margin:0 0 18px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 10px 26px -18px rgba(20,16,30,.25);margin-bottom:14px}
+  input.f{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit}
+  .btn{background:var(--grad);color:#fff;font-weight:700;border:none;border-radius:11px;padding:11px 20px;cursor:pointer;font-size:14px}
+  .btn:disabled{opacity:.5;cursor:default}.btn.ghost{background:#fff;color:#555;border:1px solid var(--line);font-weight:600}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid rgba(20,16,30,.07)}
+  .step:first-child{border-top:none}
+  .num{flex:none;width:26px;height:26px;border-radius:50%;background:rgba(20,16,30,.06);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--dim)}
+  .step h3{margin:0 0 4px;font-size:14.5px}.step p{margin:0 0 8px;color:var(--dim);font-size:13px}
+  pre{background:#0f1020;color:#d7d9f0;border-radius:10px;padding:12px 14px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:8px 0 0}
+  .pill{display:inline-block;font-size:12px;font-weight:700;border-radius:20px;padding:3px 10px}
+  .pill.ok{background:rgba(14,154,141,.14);color:var(--ok)}.pill.bad{background:rgba(200,30,91,.12);color:var(--red)}.pill.warn{background:rgba(224,138,43,.14);color:var(--amber)}
+  a{color:var(--pink)}
+</style>
+
+<div class="wrap">
+  <h1>Apartments billing — test harness</h1>
+  <p class="sub">Sandbox only. Refuses to run unless the Mollie key is a <code>test_</code> key. Uses a throwaway owner (<code>billing-test@shou.be</code>).</p>
+
+  <div class="card" id="gate">
+    <p style="margin:0 0 8px">Enter the admin token to unlock.</p>
+    <input id="tok" class="f" type="password" placeholder="Admin token" autocomplete="current-password">
+    <div style="margin-top:10px"><button class="btn" id="unlock">Unlock</button></div>
+    <p id="gerr" style="color:var(--red);display:none;margin:10px 0 0">Wrong token.</p>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="card">
+      <div class="step">
+        <div class="num">1</div>
+        <div style="flex:1">
+          <h3>Check Mollie mode <span id="mode-pill"></span></h3>
+          <p>Confirms the key is a sandbox key before anything runs.</p>
+          <button class="btn ghost" id="btn-mode">Check mode</button>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div style="flex:1">
+          <h3>Start test — create mandate payment</h3>
+          <p>Creates the €1 Bancontact “first” payment (same params as real sign-up) and opens the Mollie checkout in a new tab. Complete it with <b>“Paid”</b>.</p>
+          <div class="row">
+            <button class="btn" id="btn-start">Start test (Solo)</button>
+            <a id="checkout-link" href="#" target="_blank" style="display:none">↗ Open checkout again</a>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div style="flex:1">
+          <h3>Verify — mandate + subscription <span id="verdict"></span></h3>
+          <p>After completing checkout, the webhook should refund the €1 and create the subscription. Poll until it shows.</p>
+          <button class="btn ghost" id="btn-status">Read status</button>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div style="flex:1">
+          <h3>Clean up</h3>
+          <p>Cancels the test subscription and deletes the throwaway owner.</p>
+          <button class="btn ghost" id="btn-cleanup">Cleanup</button>
+        </div>
+      </div>
+    </div>
+    <div class="card"><b style="font-size:13px">Output</b><pre id="out">—</pre></div>
+  </div>
+</div>
+
+<script>
+const API='https://shou-backend.vercel.app/api/apt-billing-test';
+const $=id=>document.getElementById(id);
+let token=localStorage.getItem('shou_crm_token')||'';
+function show(o){ $('out').textContent=typeof o==='string'?o:JSON.stringify(o,null,2); }
+async function call(action,extra){
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Token':token},body:JSON.stringify({action,...(extra||{})})});
+  const d=await r.json().catch(()=>({}));
+  if(r.status===401){throw new Error('Unauthorized');}
+  if(!r.ok) throw new Error(d.error||('HTTP '+r.status));
+  return d;
+}
+function pill(el,text,cls){el.innerHTML=`<span class="pill ${cls}">${text}</span>`;}
+$('unlock').onclick=async()=>{
+  token=$('tok').value.trim();
+  try{ const d=await call('mode'); localStorage.setItem('shou_crm_token',token); $('gate').style.display='none'; $('app').style.display=''; applyMode(d); }
+  catch(e){ $('gerr').style.display='block'; $('gerr').textContent=e.message==='Unauthorized'?'Wrong token.':e.message; }
+};
+$('tok').addEventListener('keydown',e=>{if(e.key==='Enter')$('unlock').click();});
+function applyMode(d){
+  if(d.mode==='test') pill($('mode-pill'),'test ✓','ok');
+  else if(d.mode==='live') pill($('mode-pill'),'LIVE — will not run','bad');
+  else pill($('mode-pill'),'no key','warn');
+  show(d);
+}
+$('btn-mode').onclick=async()=>{ try{ applyMode(await call('mode')); }catch(e){ show(e.message); } };
+$('btn-start').onclick=async()=>{
+  const b=$('btn-start');b.disabled=true;b.textContent='Creating…';
+  try{
+    const d=await call('start',{plan:'solo'});
+    show(d);
+    if(d.checkoutUrl){ $('checkout-link').href=d.checkoutUrl; $('checkout-link').style.display=''; window.open(d.checkoutUrl,'_blank'); }
+  }catch(e){ show('❌ '+e.message); }
+  finally{ b.disabled=false; b.textContent='Start test (Solo)'; }
+};
+$('btn-status').onclick=async()=>{
+  try{
+    const d=await call('status');
+    show(d);
+    const sub=d.subscription, mand=(d.mandates||[]).find(m=>m.status==='valid'||m.status==='pending');
+    if(d.owner&&d.owner.billing_status==='trialing'&&sub) pill($('verdict'),'✓ mandate + subscription fired','ok');
+    else if(mand&&!sub) pill($('verdict'),'mandate ok — waiting for subscription','warn');
+    else pill($('verdict'),'not yet — complete checkout & retry','warn');
+  }catch(e){ show(e.message); }
+};
+$('btn-cleanup').onclick=async()=>{ if(!confirm('Delete the test owner + cancel its test subscription?'))return; try{ show(await call('cleanup')); pill($('verdict'),'','') ; }catch(e){ show(e.message); } };
+if(token){ /* pre-filled from CRM unlock; still require an explicit unlock click to fetch */ }
+</script>
