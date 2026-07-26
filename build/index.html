@@ -144,7 +144,7 @@
 <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(20,16,30,.4);backdrop-filter:blur(2px)">
   <div class="card" style="max-width:540px;margin:6vh auto;background:#fff;max-height:86vh;overflow:auto">
     <div class="row" style="justify-content:space-between">
-      <h2><span id="edit-verb">Edit</span> <span id="edit-kind" class="chip"></span></h2>
+      <h2><span id="edit-verb">Edit</span> <span id="edit-kind" class="chip"></span> <span id="edit-idref" class="chip" title="Copy — reference in a commit/PR" style="display:none;cursor:pointer;font-family:ui-monospace,monospace"></span></h2>
       <button id="edit-close" class="btn ghost sm">✕</button>
     </div>
     <div style="margin-top:10px">
@@ -517,12 +517,14 @@ $('edit-comment-body').addEventListener('keydown',e=>{if(e.key==='Enter'){e.prev
 function openEdit(id){
   const it=byId(id);if(!it)return;editId=id;createCtx=null;
   $('edit-verb').textContent='Edit';$('edit-del').style.display='';
+  const idref=$('edit-idref');idref.style.display='';idref.textContent='build#'+id;idref.onclick=()=>copyRef(id);
   fillModal(it.kind,it);
   $('edit-comments-wrap').style.display='';loadComments(id);
 }
 function openCreate(kind,parentId){
   editId=null;createCtx={kind,parent_id:parentId||null};
   $('edit-verb').textContent='Add';$('edit-del').style.display='none';
+  $('edit-idref').style.display='none';
   fillModal(kind,{});
   $('edit-comments-wrap').style.display='none';
 }
@@ -744,6 +746,7 @@ function renderRoadmap(){
             ${r.due_date?`<span class="chip">due ${esc(r.due_date)}</span>`:''}
             ${r.customer_label?`<span class="chip">👤 ${esc(r.customer_label)}</span>`:''}
             <span class="chip">${done}/${tasks.length} tasks</span>
+            <span class="chip idref" data-ref="${r.id}" title="Copy build#${r.id}" style="cursor:pointer;font-family:ui-monospace,monospace">build#${r.id}</span>
           </div>
         </div>
         <div class="row" style="gap:6px">
@@ -767,7 +770,8 @@ function epicHtml(e){
       <span class="pill ${e.status}" data-st="${e.id}">${statusLabel(e.status)}</span>
       <b style="font-size:14px">${esc(e.title)}</b>
       ${e.description?`<span class="dim" style="font-size:12.5px">— ${esc(e.description)}</span>`:''}
-      <button class="btn ghost sm it-edit" data-id="${e.id}" title="Edit epic" style="margin-left:auto;padding:2px 9px">✎</button>
+      <span class="chip idref" data-ref="${e.id}" title="Copy build#${e.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${e.id}</span>
+      <button class="btn ghost sm it-edit" data-id="${e.id}" title="Edit epic" style="padding:2px 9px">✎</button>
     </div>
     <div style="margin:2px 0 0 4px">${tasks.map(t=>`
       <div class="task" data-task="${t.id}">
