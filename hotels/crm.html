@@ -292,6 +292,7 @@
   <a class="brand" href="/">shou<small>Hotels CRM</small></a>
   <div class="nav-actions">
     <span id="count"></span>
+    <button id="btn-reminder" style="display:none" title="Daily follow-up reminder email"></button>
     <button id="btn-add" style="display:none">+ Add hotel</button>
     <button id="btn-logout" style="display:none">Lock</button>
   </div>
@@ -461,6 +462,7 @@ function lock() {
   localStorage.removeItem('shou_crm_token'); token = '';
   $('app').style.display = 'none'; $('gate').style.display = 'block';
   $('btn-add').style.display = 'none'; $('btn-logout').style.display = 'none';
+  $('btn-reminder').style.display = 'none';
 }
 async function unlock(tok) {
   token = tok;
@@ -470,6 +472,7 @@ async function unlock(tok) {
     $('gate').style.display = 'none'; $('app').style.display = 'block';
     $('btn-add').style.display = ''; $('btn-logout').style.display = '';
     hotels = d.hotels; stats = d.stats || null; renderList(); loadUnmatched();
+    reminderOn = d.reminderEnabled !== false; renderReminderBtn();
   } catch (e) {
     $('gate-err').style.display = 'block';
     $('gate-err').textContent = e.message === 'Unauthorized' ? 'Wrong token.' : 'Error: ' + e.message;
@@ -478,12 +481,36 @@ async function unlock(tok) {
 $('gate-go').onclick = () => unlock($('gate-token').value.trim());
 $('gate-token').addEventListener('keydown', e => { if (e.key === 'Enter') unlock($('gate-token').value.trim()); });
 $('btn-logout').onclick = lock;
+$('btn-reminder').onclick = toggleReminder;
 
 /* ---------- list ---------- */
 async function refresh() {
   const d = await api('list');
   hotels = d.hotels; stats = d.stats || stats; renderList();
+  reminderOn = d.reminderEnabled !== false; renderReminderBtn();
   loadUnmatched();
+}
+
+/* ---------- daily reminder on/off ---------- */
+let reminderOn = true;
+function renderReminderBtn() {
+  const b = $('btn-reminder'); if (!b) return;
+  b.style.display = '';
+  b.textContent = reminderOn ? '🔔' : '🔕';
+  b.title = reminderOn
+    ? 'Daily follow-up reminder email is ON — click to turn off'
+    : 'Daily follow-up reminder email is OFF — click to turn on';
+  b.style.opacity = reminderOn ? '1' : '.55';
+}
+async function toggleReminder() {
+  const next = !reminderOn;
+  const b = $('btn-reminder'); if (b) b.disabled = true;
+  try {
+    await api('set_reminder', { method: 'POST', body: { enabled: next } });
+    reminderOn = next; renderReminderBtn();
+    toast(next ? '🔔 Daily reminders on' : '🔕 Daily reminders off');
+  } catch (e) { toast(e.message || 'Failed'); }
+  finally { if (b) b.disabled = false; }
 }
 
 /* ---------- unmatched inbound replies ---------- */
