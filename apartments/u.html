@@ -167,7 +167,14 @@ function metaVal(k){var c=U.content||{};var base=c[k];if(curLang===(U.baseLang||
 fetch(API+'/apt?slug='+encodeURIComponent(slug||'')).then(function(r){
   if(!r.ok)throw new Error('nf'); return r.json();
 }).then(function(d){ U=d.unit; curLang=U.baseLang||'en'; render(); loadEvents(); })
-.catch(function(){ document.getElementById('root').innerHTML='<div class="loading">This guest page isn\'t available.<br><br><a href="https://shou.be" style="color:#0e9a8d">shou.be</a></div>'; });
+.catch(function(){ document.getElementById('root').innerHTML=
+  '<div style="max-width:440px;margin:13vh auto;text-align:center;padding:0 24px">'
+  +'<div style="font-size:42px;margin-bottom:10px">🗝️</div>'
+  +'<h1 style="font-size:24px;margin:0 0 10px">This guest guide isn’t available</h1>'
+  +'<p style="color:#5b5566;font-size:15px;margin:0 0 22px">The digital welcome guide for this apartment is paused or hasn’t been published yet. If you’re staying here, please ask your host for the Wi-Fi, check-in and local details.</p>'
+  +'<a href="https://shou.be/apartments/offer" style="display:inline-block;background:linear-gradient(105deg,#ff3d8b,#ff9b3d);color:#fff;font-weight:700;text-decoration:none;padding:13px 26px;border-radius:14px">Discover shou for apartments →</a>'
+  +'<p style="margin-top:16px;font-size:13px;color:#8a8494">Are you the host? <a href="https://shou.be/apartments/dashboard" style="color:#0e9a8d;font-weight:600">Open your dashboard</a> to bring it back online.</p>'
+  +'</div>'; });
 
 function poiValue(k){
   var near = U.address ? (' near '+U.address) : (U.building?(' near '+U.building+' Brussels'):' Brussels');
