@@ -66,6 +66,8 @@
   .btn2{background:#fff;color:var(--ink);font-weight:600;font-size:13.5px;padding:9px 16px;border:1px solid var(--line);border-radius:11px}
   .btn2:hover{border-color:rgba(255,61,139,.5);color:var(--pink)}
   .btn-danger{background:#fff;color:var(--red);border:1px solid rgba(200,30,91,.35);font-weight:600;font-size:13px;padding:8px 14px;border-radius:10px}
+  .btn.ghost{background:#fff;color:#777;font-weight:600;font-size:13px;padding:8px 14px;border:1px solid rgba(20,16,30,.15);border-radius:10px}
+  .btn.ghost:hover:not(:disabled){filter:none;border-color:rgba(20,16,30,.3);color:#444}
 
   /* proposal */
   #proposal{margin-top:14px;border:1px dashed rgba(155,92,255,.5);background:rgba(155,92,255,.05);border-radius:12px;padding:14px 16px;display:none}
@@ -326,6 +328,11 @@
       <span id="unmatched-count" class="dim" style="font-size:13px"></span>
     </div>
     <div id="unmatched-list"></div>
+    <div id="ignored-wrap" style="display:none;margin-top:6px">
+      <button id="ignored-toggle" class="linkbtn" style="background:none;border:none;color:#888;font-size:12.5px;cursor:pointer;padding:4px 0">▸ <span id="ignored-count"></span></button>
+      <div id="ignored-list" style="display:none;margin-top:6px"></div>
+    </div>
+    <datalist id="hotels-dl"></datalist>
   </div>
 
   <!-- metrics -->
@@ -482,6 +489,7 @@ $('gate-go').onclick = () => unlock($('gate-token').value.trim());
 $('gate-token').addEventListener('keydown', e => { if (e.key === 'Enter') unlock($('gate-token').value.trim()); });
 $('btn-logout').onclick = lock;
 $('btn-reminder').onclick = toggleReminder;
+$('ignored-toggle').onclick = () => { ignoredOpen = !ignoredOpen; const b = $('ignored-list'); b.style.display = ignoredOpen ? '' : 'none'; $('ignored-toggle').firstChild.textContent = ignoredOpen ? '▾ ' : '▸ '; };
 
 /* ---------- list ---------- */
 async function refresh() {
@@ -514,18 +522,24 @@ async function toggleReminder() {
 }
 
 /* ---------- unmatched inbound replies ---------- */
+let ignoredOpen = false;
 async function loadUnmatched() {
-  try { const d = await api('inbound_unmatched'); renderUnmatched(d.inbound || []); } catch (e) { /* silent */ }
+  try { const d = await api('inbound_unmatched'); renderUnmatched(d.inbound || [], d.ignored || []); }
+  catch (e) { /* silent */ }
 }
 function fmtSnippet(t) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > 160 ? t.slice(0, 160) + '…' : t; }
-function renderUnmatched(list) {
-  const card = $('unmatched');
-  if (!list.length) { card.style.display = 'none'; return; }
-  card.style.display = '';
-  $('unmatched-count').textContent = list.length + (list.length === 1 ? ' reply from an unknown address' : ' replies from unknown addresses');
-  const opts = '<option value="">Assign to hotel…</option>' + hotels.map(h => `<option value="${h.id}">${esc(h.name)}${h.city ? ' · ' + esc(h.city) : ''}</option>`).join('');
-  $('unmatched-list').innerHTML = list.map(r => `
-    <div data-inb="${r.id}" style="padding:12px 14px;margin-bottom:8px;border:1px solid rgba(20,16,30,.12);border-radius:12px;background:#fff">
+function hotelLabel(h) { return h.name + (h.city ? ' · ' + h.city : ''); }
+// resolve a typed search string to a hotel id: exact label, else unique substring
+function resolveHotel(txt) {
+  const q = String(txt || '').trim().toLowerCase();
+  if (!q) return null;
+  let m = hotels.find(h => hotelLabel(h).toLowerCase() === q);
+  if (m) return m.id;
+  const hits = hotels.filter(h => hotelLabel(h).toLowerCase().includes(q) || (h.city || '').toLowerCase() === q);
+  return hits.length === 1 ? hits[0].id : null;
+}
+function inbCard(r, ignored) {
+  return `<div data-inb="${r.id}" style="padding:12px 14px;margin-bottom:8px;border:1px solid rgba(20,16,30,.12);border-radius:12px;background:#fff${ignored ? ';opacity:.72' : ''}">
       <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">
         <b style="font-size:14px">${esc(r.from_name || r.from_email)}</b>
         <span class="dim" style="font-size:12.5px">&lt;${esc(r.from_email)}&gt;</span>
@@ -535,14 +549,72 @@ function renderUnmatched(list) {
       <div class="dim" style="font-size:13px">${esc(fmtSnippet(r.body_text))}</div>
       ${r.ai_intent ? `<div style="font-size:12.5px;color:#0e6b60;margin-top:4px">🤖 ${esc(r.ai_intent)}${r.ai_summary ? ' — ' + esc(r.ai_summary) : ''}</div>` : ''}
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
-        <select class="inb-sel" style="flex:1;min-width:180px;padding:8px 10px;border:1px solid rgba(20,16,30,.15);border-radius:8px;font-family:inherit;font-size:13px">${opts}</select>
+        <input class="inb-search" list="hotels-dl" placeholder="Search hotel by name or city…" autocomplete="off"
+          style="flex:1;min-width:200px;padding:8px 10px;border:1px solid rgba(20,16,30,.15);border-radius:8px;font-family:inherit;font-size:13px">
         <button class="btn inb-assign">Assign</button>
+        ${ignored
+          ? `<button class="btn ghost inb-restore" title="Move back to the assign list">↩︎ Restore</button>`
+          : `<button class="btn ghost inb-ignore" title="Hide this — not a real reply (re-assignable later)">Ignore</button>`}
       </div>
-    </div>`).join('');
+    </div>`;
+}
+function renderUnmatched(list, ignoredList) {
+  const card = $('unmatched');
+  ignoredList = ignoredList || [];
+  if (!list.length && !ignoredList.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  // shared search datalist
+  $('hotels-dl').innerHTML = hotels.map(h => `<option value="${esc(hotelLabel(h))}">`).join('');
+
+  // open (assignable) replies
+  if (list.length) {
+    $('unmatched-count').textContent = list.length + (list.length === 1 ? ' reply from an unknown address' : ' replies from unknown addresses');
+    $('unmatched-list').innerHTML = list.map(r => inbCard(r, false)).join('');
+  } else {
+    $('unmatched-count').textContent = 'no replies waiting';
+    $('unmatched-list').innerHTML = '';
+  }
   $('unmatched-list').querySelectorAll('[data-inb]').forEach(row => {
-    const sel = row.querySelector('.inb-sel');
-    row.querySelector('.inb-assign').onclick = () => assignInbound(row.getAttribute('data-inb'), sel.value, row.querySelector('.inb-assign'));
+    const id = row.getAttribute('data-inb');
+    const inp = row.querySelector('.inb-search');
+    const assignBtn = row.querySelector('.inb-assign');
+    const doAssign = () => { const hid = resolveHotel(inp.value); if (!hid) { toast('Pick a hotel from the list'); inp.focus(); return; } assignInbound(id, hid, assignBtn); };
+    assignBtn.onclick = doAssign;
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') doAssign(); });
+    row.querySelector('.inb-ignore').onclick = e => ignoreInbound(id, e.currentTarget, true);
   });
+
+  // ignored (dismissed) replies — collapsible, restorable
+  const wrap = $('ignored-wrap');
+  if (ignoredList.length) {
+    wrap.style.display = '';
+    $('ignored-count').textContent = `${ignoredList.length} ignored`;
+    $('ignored-toggle').firstChild.textContent = ignoredOpen ? '▾ ' : '▸ ';
+    const box = $('ignored-list');
+    box.style.display = ignoredOpen ? '' : 'none';
+    box.innerHTML = ignoredList.map(r => inbCard(r, true)).join('');
+    box.querySelectorAll('[data-inb]').forEach(row => {
+      const id = row.getAttribute('data-inb');
+      const inp = row.querySelector('.inb-search');
+      const assignBtn = row.querySelector('.inb-assign');
+      const doAssign = () => { const hid = resolveHotel(inp.value); if (!hid) { toast('Pick a hotel from the list'); inp.focus(); return; } assignInbound(id, hid, assignBtn); };
+      assignBtn.onclick = doAssign;
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') doAssign(); });
+      row.querySelector('.inb-restore').onclick = e => ignoreInbound(id, e.currentTarget, false);
+    });
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+async function ignoreInbound(inboundId, btn, ignore) {
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    await api('assign_inbound', { method: 'POST', body: ignore ? { inboundId: Number(inboundId), ignore: true } : { inboundId: Number(inboundId), unignore: true } });
+    toast(ignore ? 'Ignored' : 'Restored to assign list');
+    if (!ignore) ignoredOpen = true;
+    await loadUnmatched();
+  } catch (e) { btn.disabled = false; btn.textContent = ignore ? 'Ignore' : '↩︎ Restore'; toast(e.message || 'Failed'); }
 }
 async function assignInbound(inboundId, hotelId, btn) {
   if (!hotelId) { toast('Pick a hotel first'); return; }
