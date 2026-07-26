@@ -751,6 +751,8 @@ const roadmapItems=()=>items.filter(x=>x.kind==='roadmap').sort(cmpItems);
 const descendantTasks=id=>childrenOf(id).flatMap(c=>c.kind==='task'?[c]:descendantTasks(c.id));
 const nextStatus=s=>s==='todo'?'in_progress':s==='in_progress'?'done':'todo';
 const statusLabel=s=>s==='in_progress'?'in progress':s;
+const KIND_ICON={roadmap:'🗺️',project:'📦',epic:'🧩',task:'▫️'};
+const kindIcon=k=>KIND_ICON[k]||'';
 
 function renderRoadmap(){
   renderOverview();
@@ -770,7 +772,7 @@ function renderRoadmap(){
         <div style="flex:1;min-width:0">
           <div class="row" style="gap:8px">
             <span class="pill ${r.status}" data-st="${r.id}">${statusLabel(r.status)}</span>
-            <b style="font-size:16px">${esc(r.title)}</b>
+            <b class="open-item" data-id="${r.id}" title="Open" style="font-size:16px;cursor:pointer">${kindIcon('roadmap')} ${esc(r.title)}</b>
           </div>
           ${r.description?`<div class="dim" style="font-size:13.5px;margin-top:3px">${esc(r.description)}</div>`:''}
           <div class="row" style="gap:6px;margin-top:6px">
@@ -806,7 +808,7 @@ function projectHtml(p){
   return `<div class="project" data-project="${p.id}" style="margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line)">
     <div class="row" style="gap:8px">
       <span class="pill ${p.status}" data-st="${p.id}">${statusLabel(p.status)}</span>
-      <b style="font-size:15px">📦 ${esc(p.title)}</b>
+      <b class="open-item" data-id="${p.id}" title="Open" style="font-size:15px;cursor:pointer">${kindIcon('project')} ${esc(p.title)}</b>
       ${p.description?`<span class="dim" style="font-size:12.5px">— ${esc(p.description)}</span>`:''}
       <span class="chip">${done}/${tasks.length}</span>
       <span class="chip idref" data-ref="${p.id}" title="Copy build#${p.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${p.id}</span>
@@ -822,7 +824,7 @@ function epicHtml(e){
   return `<div class="epic" data-epic="${e.id}">
     <div class="row" style="gap:8px">
       <span class="pill ${e.status}" data-st="${e.id}">${statusLabel(e.status)}</span>
-      <b style="font-size:14px">${esc(e.title)}</b>
+      <b class="open-item" data-id="${e.id}" title="Open" style="font-size:14px;cursor:pointer">${kindIcon('epic')} ${esc(e.title)}</b>
       ${e.description?`<span class="dim" style="font-size:12.5px">— ${esc(e.description)}</span>`:''}
       <span class="chip idref" data-ref="${e.id}" title="Copy build#${e.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${e.id}</span>
       <button class="btn ghost sm it-edit" data-id="${e.id}" title="Edit epic" style="padding:2px 9px">✎</button>
@@ -830,7 +832,7 @@ function epicHtml(e){
     <div style="margin:2px 0 0 4px">${tasks.map(t=>`
       <div class="task" data-task="${t.id}">
         <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
-        <span class="t-title ${t.status==='done'?'muted':''}" style="${t.status==='done'?'text-decoration:line-through':''}">${esc(t.title)}</span>
+        <span class="t-title open-item ${t.status==='done'?'muted':''}" data-id="${t.id}" title="Open" style="cursor:pointer;${t.status==='done'?'text-decoration:line-through':''}">${kindIcon('task')} ${esc(t.title)}</span>
         ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
         ${t.due_date?`<span class="chip">${esc(t.due_date)}</span>`:''}
         ${(t.depends_on&&t.depends_on.length)?`<span class="chip" title="Depends on ${t.depends_on.map(d=>{const x=byId(d);return x?x.title:'build#'+d;}).join(', ')}">⛓ ${t.depends_on.length}</span>`:''}
@@ -863,6 +865,7 @@ function bindRoadmap(){
   });
   document.querySelectorAll('.idref').forEach(c=>{c.onclick=()=>copyRef(+c.getAttribute('data-ref'));});
   document.querySelectorAll('.it-edit').forEach(b=>{b.onclick=e=>{e.stopPropagation();openEdit(+b.getAttribute('data-id'));};});
+  document.querySelectorAll('.open-item').forEach(el=>{el.onclick=e=>{e.stopPropagation();openEdit(+el.getAttribute('data-id'));};});
   document.querySelectorAll('.rd-addproject').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('project',id);};});
   document.querySelectorAll('.rd-addepic').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('epic',id);};});
   document.querySelectorAll('.pr-addepic').forEach(b=>{b.onclick=()=>openCreate('epic',+b.getAttribute('data-project-add'));});
