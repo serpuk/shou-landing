@@ -105,8 +105,8 @@
   <!-- roadmap -->
   <div style="margin-top:22px">
     <div class="row" style="justify-content:space-between;margin-bottom:10px">
-      <h2>Roadmap</h2>
-      <span id="road-empty" class="dim" style="font-size:13px;display:none">Nothing yet — describe something above.</span>
+      <div class="row" style="gap:10px"><h2>Roadmap</h2><span id="road-empty" class="dim" style="font-size:13px;display:none">Nothing yet — describe something above.</span></div>
+      <button id="btn-add-road" class="btn ghost sm">+ New item</button>
     </div>
     <div id="road-list"></div>
     <p class="dim" style="font-size:12.5px;margin-top:10px">Tip: reference <code>build#&lt;id&gt;</code> in a commit or PR to move a task automatically (needs the GitHub webhook connected).</p>
@@ -117,7 +117,7 @@
 <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(20,16,30,.4);backdrop-filter:blur(2px)">
   <div class="card" style="max-width:520px;margin:8vh auto;background:#fff">
     <div class="row" style="justify-content:space-between">
-      <h2>Edit <span id="edit-kind" class="chip"></span></h2>
+      <h2><span id="edit-verb">Edit</span> <span id="edit-kind" class="chip"></span></h2>
       <button id="edit-close" class="btn ghost sm">✕</button>
     </div>
     <div style="margin-top:10px">
@@ -353,39 +353,57 @@ async function draftUpdate(id,btn){
 function copyRef(id){navigator.clipboard&&navigator.clipboard.writeText('build#'+id).then(()=>toast('Copied build#'+id),()=>{});}
 $('req-ignored-toggle').onclick=()=>{reqIgnoredOpen=!reqIgnoredOpen;const b=$('req-ignored-list');b.style.display=reqIgnoredOpen?'':'none';$('req-ignored-toggle').firstChild.textContent=reqIgnoredOpen?'▾ ':'▸ ';};
 
-/* ---------- edit / delete any item ---------- */
-let editId=null;
-function openEdit(id){
-  const it=byId(id);if(!it)return;editId=id;
-  $('edit-kind').textContent=it.kind;
-  $('edit-title').value=it.title||'';
-  $('edit-desc').value=it.description||'';
-  $('edit-assignee').value=it.assignee||'';
-  $('edit-due').value=it.due_date||'';
-  $('edit-quarter').value=it.quarter||'';
-  // show only fields relevant to the kind
-  $('edit-desc-wrap').style.display=it.kind==='task'?'none':'';
-  $('edit-assignee-wrap').style.display=it.kind==='task'?'':'none';
-  $('edit-quarter-wrap').style.display=it.kind==='roadmap'?'':'none';
+/* ---------- add / edit / delete any item ---------- */
+let editId=null,createCtx=null;
+function closeEdit(){$('edit-modal').style.display='none';editId=null;createCtx=null;}
+function fillModal(kind,v){
+  $('edit-kind').textContent=kind;
+  $('edit-title').value=v.title||'';
+  $('edit-desc').value=v.description||'';
+  $('edit-assignee').value=v.assignee||'';
+  $('edit-due').value=v.due_date||'';
+  $('edit-quarter').value=v.quarter||'';
+  $('edit-desc-wrap').style.display=kind==='task'?'none':'';
+  $('edit-assignee-wrap').style.display=kind==='task'?'':'none';
+  $('edit-quarter-wrap').style.display=kind==='roadmap'?'':'none';
   $('edit-modal').style.display='';
+  setTimeout(()=>$('edit-title').focus(),30);
 }
-$('edit-close').onclick=()=>{$('edit-modal').style.display='none';editId=null;};
-$('edit-modal').onclick=e=>{if(e.target===$('edit-modal')){$('edit-modal').style.display='none';editId=null;}};
+function openEdit(id){
+  const it=byId(id);if(!it)return;editId=id;createCtx=null;
+  $('edit-verb').textContent='Edit';$('edit-del').style.display='';
+  fillModal(it.kind,it);
+}
+function openCreate(kind,parentId){
+  editId=null;createCtx={kind,parent_id:parentId||null};
+  $('edit-verb').textContent='Add';$('edit-del').style.display='none';
+  fillModal(kind,{});
+}
+$('edit-close').onclick=closeEdit;
+$('edit-modal').onclick=e=>{if(e.target===$('edit-modal'))closeEdit();};
 $('edit-save').onclick=async()=>{
-  if(!editId)return;
-  const patch={title:$('edit-title').value.trim(),description:$('edit-desc').value.trim(),assignee:$('edit-assignee').value.trim(),due_date:$('edit-due').value,quarter:$('edit-quarter').value.trim()};
-  if(!patch.title){toast('Title can’t be empty');return;}
+  const title=$('edit-title').value.trim();
+  if(!title){toast('Title can’t be empty');return;}
+  const fields={title,description:$('edit-desc').value.trim(),assignee:$('edit-assignee').value.trim(),due_date:$('edit-due').value,quarter:$('edit-quarter').value.trim()};
   const b=$('edit-save');b.disabled=true;b.textContent='Saving…';
-  try{await api('update',{method:'POST',body:{id:editId,patch}});$('edit-modal').style.display='none';editId=null;toast('Saved');await reload();}
-  catch(e){toast(e.message||'Failed');}
+  try{
+    if(createCtx){
+      await api('create',{method:'POST',body:{item:{kind:createCtx.kind,parent_id:createCtx.parent_id,...fields}}});
+      toast(createCtx.kind[0].toUpperCase()+createCtx.kind.slice(1)+' added');
+    }else{
+      await api('update',{method:'POST',body:{id:editId,patch:fields}});toast('Saved');
+    }
+    closeEdit();await reload();
+  }catch(e){toast(e.message||'Failed');}
   finally{b.disabled=false;b.textContent='Save';}
 };
 $('edit-del').onclick=async()=>{
   if(!editId)return;const it=byId(editId);
   if(!confirm(`Delete this ${it?it.kind:'item'}${it&&childrenOf(editId).length?' and everything under it':''}?`))return;
-  try{await api('delete',{method:'POST',body:{id:editId}});$('edit-modal').style.display='none';editId=null;toast('Deleted');await reload();}
+  try{await api('delete',{method:'POST',body:{id:editId}});closeEdit();toast('Deleted');await reload();}
   catch(e){toast(e.message||'Failed');}
 };
+$('btn-add-road').onclick=()=>openCreate('roadmap',null);
 
 /* ---------- roadmap ---------- */
 async function reload(){const d=await api('list');items=d.items||[];renderRoadmap();loadRequests();}
@@ -427,6 +445,7 @@ function renderRoadmap(){
       </div>
       <div class="prog-track" style="margin-top:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
       <div class="epics">${epics.map(e=>epicHtml(e)).join('')}</div>
+      <button class="btn ghost sm rd-addepic" style="margin-top:10px">+ Epic</button>
     </div>`;
   }).join('');
   bindRoadmap();
@@ -449,6 +468,7 @@ function epicHtml(e){
         <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR" style="cursor:pointer;font-family:ui-monospace,monospace">build#${t.id}</span>
         <button class="btn ghost sm it-edit" data-id="${t.id}" title="Edit task" style="padding:2px 8px">✎</button>
       </div>`).join('')||'<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>'}</div>
+    <button class="btn ghost sm ep-addtask" data-epic-add="${e.id}" style="margin:4px 0 0 4px">+ task</button>
   </div>`;
 }
 function bindRoadmap(){
@@ -474,6 +494,8 @@ function bindRoadmap(){
   });
   document.querySelectorAll('.idref').forEach(c=>{c.onclick=()=>copyRef(+c.getAttribute('data-ref'));});
   document.querySelectorAll('.it-edit').forEach(b=>{b.onclick=e=>{e.stopPropagation();openEdit(+b.getAttribute('data-id'));};});
+  document.querySelectorAll('.rd-addepic').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('epic',id);};});
+  document.querySelectorAll('.ep-addtask').forEach(b=>{b.onclick=()=>openCreate('task',+b.getAttribute('data-epic-add'));});
 }
 
 if(token) unlock(token); else {$('gate').style.display='';}
