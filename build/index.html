@@ -264,7 +264,7 @@ function renderOverview(){
   const today=new Date().toISOString().slice(0,10);
   const overdue=tasks.filter(t=>t.status!=='done'&&t.due_date&&t.due_date<today);
   const soon=tasks.filter(t=>t.status!=='done'&&t.due_date&&t.due_date>=today&&t.due_date<=addDays(today,7));
-  const shipped=roads.filter(r=>{const rt=items.filter(e=>e.parent_id===r.id).flatMap(e=>items.filter(t=>t.parent_id===e.id));return r.status==='done'||(rt.length&&rt.every(t=>t.status==='done'));}).length;
+  const shipped=roads.filter(r=>{const rt=descendantTasks(r.id);return r.status==='done'||(rt.length&&rt.every(t=>t.status==='done'));}).length;
   $('ov-sub').textContent=tasks.length?`${pct}% complete · ${done}/${tasks.length} tasks`:`${roads.length} roadmap item${roads.length===1?'':'s'}`;
   const seg=(n,c)=>n?`<div style="width:${n/total*100}%;background:${c}"></div>`:'';
   $('ov-bar').innerHTML=seg(done,'var(--done)')+seg(prog,'var(--prog)')+seg(todo,'rgba(20,16,30,.13)');
@@ -461,7 +461,7 @@ function fillModal(kind,v){
   $('edit-quarter').value=v.quarter||'';
   $('edit-desc-wrap').style.display='';
   $('edit-assignee-wrap').style.display=kind==='task'?'':'none';
-  $('edit-quarter-wrap').style.display=kind==='roadmap'?'':'none';
+  $('edit-quarter-wrap').style.display=(kind==='roadmap'||kind==='project')?'':'none';
   editDeps=Array.isArray(v.depends_on)?v.depends_on.slice():[];
   renderDepChips();$('edit-dep-search').value='';$('edit-dep-results').style.display='none';
   $('edit-modal').style.display='';
@@ -589,10 +589,8 @@ function spanOf(it){
 function renderTimeline(){
   const el=$('timeline');
   const rows=[];
-  roadmapItems().forEach(r=>{
-    rows.push({it:r,depth:0});
-    childrenOf(r.id).forEach(e=>{rows.push({it:e,depth:1});childrenOf(e.id).forEach(t=>rows.push({it:t,depth:2}));});
-  });
+  const walk=(id,depth)=>{childrenOf(id).forEach(c=>{rows.push({it:c,depth});if(c.kind!=='task')walk(c.id,depth+1);});};
+  roadmapItems().forEach(r=>{rows.push({it:r,depth:0});walk(r.id,1);});
   rows.forEach(row=>row.span=spanOf(row.it));
   const dated=rows.filter(r=>r.span);
   if(!dated.length){el.innerHTML='<div class="dim" style="padding:14px 18px;font-size:13.5px">No dates yet — add a start or due date (✎) to see items on the timeline.</div>';return;}
@@ -617,8 +615,8 @@ function renderTimeline(){
     const it=row.it,sp=row.span;
     const w=row.depth===0?'font-weight:700':row.depth===1?'font-weight:600':'';
     labels+=`<div class="gantt-row gantt-label" data-id="${it.id}" style="height:${ROWH}px;display:flex;align-items:center;padding-left:${8+row.depth*16}px;padding-right:10px;font-size:${row.depth===0?13.5:13}px;${w};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer" title="${esc(it.title)} — click to open">${esc(it.title)}</div>`;
-    if(sp){const bx=x(sp.start),bw=Math.max(6,x(sp.end)-x(sp.start));const dd=it.due_date?` · due ${it.due_date}`:'';const drag=row.depth===2;
-      bars+=`<div style="position:relative;height:${ROWH}px"><div class="gantt-bar${drag?' drag':''}" data-id="${it.id}" title="${esc(it.title)} (${fmtD(sp.start)} → ${fmtD(sp.end)})${dd}${drag?' — drag to reschedule, edges to resize':''}" style="left:${bx}px;width:${bw}px;background:${color(it.status)}${row.depth===0?';height:11px;top:9px;opacity:.85':''}${drag?';cursor:ew-resize':''}"></div></div>`;}
+    if(sp){const bx=x(sp.start),bw=Math.max(6,x(sp.end)-x(sp.start));const dd=it.due_date?` · due ${it.due_date}`:'';const drag=it.kind==='task';const summary=it.kind==='roadmap'||it.kind==='project';
+      bars+=`<div style="position:relative;height:${ROWH}px"><div class="gantt-bar${drag?' drag':''}" data-id="${it.id}" title="${esc(it.title)} (${fmtD(sp.start)} → ${fmtD(sp.end)})${dd}${drag?' — drag to reschedule, edges to resize':''}" style="left:${bx}px;width:${bw}px;background:${color(it.status)}${summary?';height:11px;top:9px;opacity:.85':''}${drag?';cursor:ew-resize':''}"></div></div>`;}
     else bars+=`<div style="height:${ROWH}px"></div>`;
   });
   // dependency connectors (prereq end → dependent start)
@@ -719,6 +717,7 @@ const byId=id=>items.find(x=>x.id===id);
 const cmpItems=(a,b)=>(a.sort||0)-(b.sort||0)||((a.created_at||'')<(b.created_at||'')?-1:(a.created_at||'')>(b.created_at||'')?1:0)||a.id-b.id;
 const childrenOf=id=>items.filter(x=>x.parent_id===id).sort(cmpItems);
 const roadmapItems=()=>items.filter(x=>x.kind==='roadmap').sort(cmpItems);
+const descendantTasks=id=>childrenOf(id).flatMap(c=>c.kind==='task'?[c]:descendantTasks(c.id));
 const nextStatus=s=>s==='todo'?'in_progress':s==='in_progress'?'done':'todo';
 const statusLabel=s=>s==='in_progress'?'in progress':s;
 
@@ -729,8 +728,10 @@ function renderRoadmap(){
   $('road-empty').style.display=roads.length?'none':'';
   const list=$('road-list');
   list.innerHTML=roads.map(r=>{
-    const epics=childrenOf(r.id);
-    const tasks=epics.flatMap(e=>childrenOf(e.id));
+    const kids=childrenOf(r.id);
+    const projects=kids.filter(k=>k.kind==='project');
+    const directEpics=kids.filter(k=>k.kind==='epic');
+    const tasks=descendantTasks(r.id);
     const done=tasks.filter(t=>t.status==='done').length;
     const pct=tasks.length?Math.round(done/tasks.length*100):(r.status==='done'?100:0);
     return `<div class="card" data-road="${r.id}" style="margin-bottom:12px">
@@ -756,12 +757,34 @@ function renderRoadmap(){
         </div>
       </div>
       <div class="prog-track" style="margin-top:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
-      <div class="epics">${epics.map(e=>epicHtml(e)).join('')}</div>
-      <button class="btn ghost sm rd-addepic" style="margin-top:10px">+ Epic</button>
+      <div class="epics">${projects.map(p=>projectHtml(p)).join('')}${directEpics.map(e=>epicHtml(e)).join('')}</div>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn ghost sm rd-addproject">+ Project</button>
+        <button class="btn ghost sm rd-addepic">+ Epic</button>
+      </div>
     </div>`;
   }).join('');
   bindRoadmap();
   applyRoadView();
+}
+function projectHtml(p){
+  const epics=childrenOf(p.id).filter(k=>k.kind==='epic');
+  const tasks=descendantTasks(p.id);
+  const done=tasks.filter(t=>t.status==='done').length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):(p.status==='done'?100:0);
+  return `<div class="project" data-project="${p.id}" style="margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line)">
+    <div class="row" style="gap:8px">
+      <span class="pill ${p.status}" data-st="${p.id}">${statusLabel(p.status)}</span>
+      <b style="font-size:15px">📦 ${esc(p.title)}</b>
+      ${p.description?`<span class="dim" style="font-size:12.5px">— ${esc(p.description)}</span>`:''}
+      <span class="chip">${done}/${tasks.length}</span>
+      <span class="chip idref" data-ref="${p.id}" title="Copy build#${p.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${p.id}</span>
+      <button class="btn ghost sm it-edit" data-id="${p.id}" title="Edit project" style="padding:2px 9px">✎</button>
+    </div>
+    <div class="prog-track" style="margin:8px 0 0"><div class="prog-fill" style="width:${pct}%"></div></div>
+    <div style="margin-left:14px">${epics.map(e=>epicHtml(e)).join('')}</div>
+    <button class="btn ghost sm pr-addepic" data-project-add="${p.id}" style="margin:8px 0 0 14px">+ Epic</button>
+  </div>`;
 }
 function epicHtml(e){
   const tasks=childrenOf(e.id);
@@ -809,7 +832,9 @@ function bindRoadmap(){
   });
   document.querySelectorAll('.idref').forEach(c=>{c.onclick=()=>copyRef(+c.getAttribute('data-ref'));});
   document.querySelectorAll('.it-edit').forEach(b=>{b.onclick=e=>{e.stopPropagation();openEdit(+b.getAttribute('data-id'));};});
+  document.querySelectorAll('.rd-addproject').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('project',id);};});
   document.querySelectorAll('.rd-addepic').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('epic',id);};});
+  document.querySelectorAll('.pr-addepic').forEach(b=>{b.onclick=()=>openCreate('epic',+b.getAttribute('data-project-add'));});
   document.querySelectorAll('.ep-addtask').forEach(b=>{b.onclick=()=>openCreate('task',+b.getAttribute('data-epic-add'));});
 }
 
