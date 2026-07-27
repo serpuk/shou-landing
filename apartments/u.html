@@ -285,12 +285,25 @@ var INTENTS=[
 function classify(q){var s=toks(q);for(var i=0;i<INTENTS.length;i++){var it=INTENTS[i];for(var j=0;j<it.kw.length;j++){var k=fold(it.kw[j]);var hit=(k.indexOf(' ')>=0||k.length>=5)?s.indexOf(k)>=0:s.indexOf(' '+k+' ')>=0;if(hit)return it;}}return null;}
 var REC_Q={dinner:'restaurants',breakfast:'breakfast brunch',coffee:'coffee',bar:'bars'};
 
+// Aggregate-only signal for the owner's "what guests asked" digest: the matched
+// intent id, never the question itself. Fire-and-forget; never blocks the guest.
+function logQ(intent,kind,answered){
+  try{
+    if(!U||!U.slug)return;
+    fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'log_q',slug:U.slug,intent:intent,kind:kind,lang:curLang,answered:answered!==false})}).catch(function(){});
+  }catch(e){}
+}
+
 var asking=false;
 function addMsg(cls,html){var el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;document.getElementById('msgs').appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el;}
 function ask(q){
   if(!q||!q.trim()||asking)return;asking=true;
   addMsg('me',esc(q));
   var cls=classify(q), w=(U.content&&U.content.welcome)||{};
+  // log the intent — and flag welcome-book questions the owner hasn't filled in
+  if(cls)logQ(cls.id,cls.t,!(cls.t==='wb'&&!String(w[cls.id]||'').trim()));
+  else logQ('other','events',true);
   if(cls&&cls.t==='wb'&&w[cls.id]){
     addMsg('ai',esc(chr('here'))+'<div class="ans"><span class="wb-ic">'+ICON[cls.id]+'</span><div><div class="k">'+esc(lbl(cls.id))+'</div><div class="v">'+esc(wval(cls.id))+'</div></div></div>');
     asking=false;return;
