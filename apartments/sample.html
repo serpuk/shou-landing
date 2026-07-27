@@ -239,6 +239,11 @@
   .exs-toggle:hover{color:var(--pink)}
   .exs-toggle .chev{display:inline-block;transition:transform .2s;font-size:11px}
   .exs-toggle[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+  /* "Ask anything" teaser — sits under the hero so the concierge is the first thing you see */
+  .ask-teaser{max-width:760px;margin:22px auto 0;border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px 18px;box-shadow:0 10px 28px -20px rgba(20,16,30,.4)}
+  .at-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:var(--ink);margin-bottom:10px}
+  .at-dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(120deg,var(--violet),var(--pink));flex:none}
+  .at-chips{display:flex;gap:8px;flex-wrap:wrap}
   .exs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:2px 1px 10px}
   .exs.collapsed{display:none}
   .ex{font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer;transition:.15s;white-space:nowrap;flex:none}
@@ -315,6 +320,13 @@
       </div>
     </section>
 
+    <!-- The concierge is the killer feature — show it immediately, above the tabs.
+         Chips reuse the localized example questions and the existing .ex handler. -->
+    <div class="ask-teaser" id="askTeaser">
+      <div class="at-head"><span class="at-dot"></span><span id="atLbl">Ask anything</span></div>
+      <div class="at-chips" id="atChips"></div>
+    </div>
+
     <div class="tabs">
       <button class="tab on" id="tabBookBtn"><span class="tab-dot"></span><span data-i="tabBook">Welcome book</span></button>
       <button class="tab" id="tabWeekBtn"><span class="tab-dot"></span><span data-i="tabWeek">This week</span></button>
@@ -385,6 +397,7 @@ const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};
 const SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--orange)',exhibition:'var(--violet)',theatre:'var(--violet)',dance:'var(--violet)',comedy:'var(--violet)',family:'var(--cyan)',sports:'var(--cyan)',sport:'var(--cyan)'};
 const SURPRISE_L={en:'Surprise me tonight',fr:'Surprends-moi ce soir',nl:'Verras me vanavond',de:'Überrasch mich heute Abend',es:'Sorpréndeme esta noche',it:'Sorprendimi stasera',uk:'Здивуй мене сьогодні ввечері'};
 const IDEAS_L={en:'Ideas',fr:'Idées',nl:'Ideeën',de:'Ideen',es:'Ideas',it:'Idee',uk:'Ідеї'};
+const ASK_L={en:'Ask anything',fr:'Demandez ce que vous voulez',nl:'Vraag wat je wil',de:'Frag einfach',es:'Pregunta lo que quieras',it:'Chiedi qualsiasi cosa',uk:'Запитайте будь-що'};
 
 const T={
   en:{pow:'Guest companion · powered by shou',eyebrow:'Your guest companion',welcome:'Everything for your stay.',sub:"Wi-Fi, check-out, the washing machine — and what's on in Brussels tonight. One QR code, any language.",building:'Dansaert Residence · 2nd floor',hood:'Dansaert · Sainte-Catherine',radius:'Everything within a 10-min walk',tabBook:'Welcome book',tabWeek:'This week',tabAsk:'Ask the concierge',bookIntro:'Everything about your stay — Wi-Fi, check-out, the washing machine and the neighbourhood — in one place. No more PDFs or laminated sheets.',qrTitle:'One QR in every apartment',qrSub:'Guests scan it on arrival — no app to download, no login.',near:'This week near your apartment',fromHotel:'Around the corner',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:"Ask me anything — your apartment, the neighbourhood, or what's on in Brussels tonight. In any language.",askPh:"What's the Wi-Fi password?",send:'Ask',foot:'Everything for your stay, in any language — your apartment, the neighbourhood, and what\'s on tonight.',thinking:'One moment…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',dir:'Directions',walk:'min walk',wifiCheck:'Wi-Fi & check-in',superK:'Supermarket',bakeK:'Bakery',pharmK:'Pharmacy',tramK:'Public transport',hereYouGo:'Here you go:',ex:["What's the Wi-Fi password?",'What time is check-out?','Where can we buy groceries?',"What's on tonight?",'Best dinner nearby?','Is there parking?']},
@@ -1046,6 +1059,11 @@ function applyChrome(){
   const chips=[`<button class="ex ex-surprise" data-q="${esc(sq)}">✨ ${esc(sq)}</button>`]
     .concat(exList.map((q,i)=>{const it=EX_INTENT[i];const a=it?` data-k="${it.kind}" data-id="${esc(it.id)}"`:'';return `<button class="ex" data-q="${esc(q)}"${a}>${esc(q)}</button>`;}));
   document.getElementById('exs').innerHTML=chips.join('');
+  // teaser under the hero: same localized questions, same .ex handler bound below
+  document.getElementById('atChips').innerHTML=exList.slice(0,4).map((q,i)=>{
+    const it=EX_INTENT[i];const a=it?` data-k="${it.kind}" data-id="${esc(it.id)}"`:'';
+    return `<button class="ex" data-q="${esc(q)}"${a}>${esc(q)}</button>`;}).join('');
+  document.getElementById('atLbl').textContent=ASK_L[lang]||ASK_L.en;
   document.getElementById('ideasLbl').textContent=IDEAS_L[lang]||IDEAS_L.en;
   document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;setTab('ask');const k=b.getAttribute('data-k'),id=b.getAttribute('data-id');ask(q,(k&&id)?{kind:k,id:id}:null);});
   renderBook();
