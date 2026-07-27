@@ -31,8 +31,14 @@
   .hlogo{width:44px;height:44px;border-radius:12px;background:var(--grad-cool);display:grid;place-items:center;font-size:22px;flex:none}
   .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
   .hpow{font-size:11px;color:var(--dim)}
-  .lang{margin-left:auto}
+  /* Inline SVG flag beside the picker. It can't go INSIDE the <option> —
+     browsers render option text only — and a native <select> is worth keeping
+     for the mobile picker, so the flag sits next to it and tracks the choice.
+     (Emoji flags were showing as bare letter-pairs on Windows.) */
+  .lang{margin-left:auto;display:flex;align-items:center;gap:8px}
   .lang select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;outline:none}
+  .langflag{line-height:0;flex:none}
+  .langflag svg{width:24px;height:16px;border-radius:3px;box-shadow:0 1px 3px rgba(20,16,30,.25);display:block}
 
   .welcome{padding:32px 0 4px;display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
   .welcome .eyebrow{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink)}
@@ -126,6 +132,19 @@ var SAFE_ORDER=['rules','emergency'];
 var POI_ORDER=['supermarket','bakery','pharmacy','transport'];
 
 var LANGS=[{c:'en',f:'🇬🇧',n:'English'},{c:'fr',f:'🇫🇷',n:'Français'},{c:'nl',f:'🇳🇱',n:'Nederlands'},{c:'de',f:'🇩🇪',n:'Deutsch'},{c:'es',f:'🇪🇸',n:'Español'},{c:'it',f:'🇮🇹',n:'Italiano'},{c:'uk',f:'🇺🇦',n:'Українська'}];
+// Inline SVG flags — emoji flags (LANGS[].f) render as bare letter-pairs on
+// Windows, which has no regional-indicator glyphs. Used beside the picker.
+var FLAG_SVG={
+  en:'<svg viewBox="0 0 60 30" preserveAspectRatio="none"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30 M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30 M60,0 0,30" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></svg>',
+  fr:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#002395"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#ED2939"/></svg>',
+  nl:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="1" y="0" fill="#AE1C28"/><rect width="3" height=".667" y="0.667" fill="#fff"/><rect width="3" height=".667" y="1.333" fill="#21468B"/></svg>',
+  de:'<svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg>',
+  es:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="2" fill="#AA151B"/><rect width="3" height="1" y=".5" fill="#F1BF00"/></svg>',
+  it:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#008C45"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#CD212A"/></svg>',
+  uk:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="1" y="0" fill="#0057B7"/><rect width="3" height="1" y="1" fill="#FFDD00"/></svg>'
+};
+function flagSvg(c){return FLAG_SVG[c]||FLAG_SVG.en;}
+function setLangFlag(c){var el=document.getElementById('langFlag');if(el)el.innerHTML=flagSvg(c);}
 var LBL={
   en:{wifi:'Wi-Fi',checkin:'Check-in',checkout:'Check-out',heating:'Heating',laundry:'Washing machine',coffee:'Coffee',trash:'Trash & recycling',parking:'Parking',luggage:'Luggage',rules:'House rules',emergency:'Emergency',supermarket:'Supermarket',bakery:'Bakery',pharmacy:'Pharmacy',transport:'Public transport',airport:'To the airport',atm:'ATM',attractions:'Things to do',taxi:'Taxi',dinner:'Dinner',breakfast:'Breakfast',bar:'Bars'},
   fr:{wifi:'Wi-Fi',checkin:'Arrivée',checkout:'Départ',heating:'Chauffage',laundry:'Machine à laver',coffee:'Café',trash:'Déchets & tri',parking:'Parking',luggage:'Bagages',rules:'Règlement',emergency:'Urgences',supermarket:'Supermarché',bakery:'Boulangerie',pharmacy:'Pharmacie',transport:'Transports',airport:'Vers l’aéroport',atm:'Distributeur',attractions:'À voir',taxi:'Taxi',dinner:'Dîner',breakfast:'Petit-déjeuner',bar:'Bars'},
@@ -199,10 +218,12 @@ function render(){
   var photo=(U.branding&&U.branding.photo)?('background-image:url(\''+U.branding.photo+'\')'):'';
   var hood=metaVal('hood')||'', radius=metaVal('radius')||'';
   document.title=(U.name||'Guest Companion')+' · powered by shou';
-  var langOpts=LANGS.map(function(l){return '<option value="'+l.c+'"'+(l.c===curLang?' selected':'')+'>'+l.f+' '+l.n+'</option>';}).join('');
+  // Option text is the language NAME only — the flag lives beside the select as
+  // SVG, because an <option> can't contain markup and emoji flags break on Windows.
+  var langOpts=LANGS.map(function(l){return '<option value="'+l.c+'"'+(l.c===curLang?' selected':'')+'>'+l.n+'</option>';}).join('');
   document.getElementById('root').innerHTML=
     '<header><div class="bar"><div class="hlogo">🔑</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">Guest companion · powered by shou</div></div>'+
-      '<div class="lang"><select id="langSel" aria-label="Language">'+langOpts+'</select></div></div></header>'+
+      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div></div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(chr('sub'))+'</p></div>'+
       '<div class="hcard" style="'+photo+'"><div class="hc-ov"></div><div class="hc-body">'+

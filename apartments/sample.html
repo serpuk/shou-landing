@@ -41,8 +41,10 @@
   .hlogo{width:44px;height:44px;border-radius:12px;background:var(--grad-cool);display:grid;place-items:center;font-size:22px;flex:none}
   .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
   .hpow{font-size:11px;color:var(--dim)}
-  .lang{margin-left:auto}
+  .lang{margin-left:auto;display:flex;align-items:center;gap:8px}
   .lang select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;outline:none}
+  .langflag{line-height:0;flex:none}
+  .langflag svg{width:24px;height:16px;border-radius:3px;box-shadow:0 1px 3px rgba(20,16,30,.25);display:block}
 
   .welcome{padding:36px 0 4px;display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
   .welcome .eyebrow{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink)}
@@ -290,9 +292,12 @@
     <div class="hlogo">🔑</div>
     <div><div class="hname">Brussels Serviced Apartments</div><div class="hpow" data-i="pow">Guest companion · powered by shou</div></div>
     <div class="lang">
+      <!-- SVG flag beside the picker: an <option> can't hold markup, and emoji
+           flags render as bare letter-pairs on Windows. -->
+      <span class="langflag" id="langFlag" role="img" aria-hidden="true"></span>
       <select id="langSel" aria-label="Language">
-        <option value="en">🇬🇧 English</option><option value="fr">🇫🇷 Français</option><option value="nl">🇳🇱 Nederlands</option>
-        <option value="de">🇩🇪 Deutsch</option><option value="es">🇪🇸 Español</option><option value="it">🇮🇹 Italiano</option><option value="uk">🇺🇦 Українська</option>
+        <option value="en">English</option><option value="fr">Français</option><option value="nl">Nederlands</option>
+        <option value="de">Deutsch</option><option value="es">Español</option><option value="it">Italiano</option><option value="uk">Українська</option>
       </select>
     </div>
   </div></header>
@@ -398,6 +403,17 @@ const SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--oran
 const SURPRISE_L={en:'Surprise me tonight',fr:'Surprends-moi ce soir',nl:'Verras me vanavond',de:'Überrasch mich heute Abend',es:'Sorpréndeme esta noche',it:'Sorprendimi stasera',uk:'Здивуй мене сьогодні ввечері'};
 const IDEAS_L={en:'Ideas',fr:'Idées',nl:'Ideeën',de:'Ideen',es:'Ideas',it:'Idee',uk:'Ідеї'};
 const ASK_L={en:'Ask anything',fr:'Demandez ce que vous voulez',nl:'Vraag wat je wil',de:'Frag einfach',es:'Pregunta lo que quieras',it:'Chiedi qualsiasi cosa',uk:'Запитайте будь-що'};
+// Inline SVG flags — emoji flags render as bare letter-pairs on Windows.
+const FLAG_SVG={
+  en:'<svg viewBox="0 0 60 30" preserveAspectRatio="none"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30 M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30 M60,0 0,30" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></svg>',
+  fr:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#002395"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#ED2939"/></svg>',
+  nl:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="1" y="0" fill="#AE1C28"/><rect width="3" height=".667" y="0.667" fill="#fff"/><rect width="3" height=".667" y="1.333" fill="#21468B"/></svg>',
+  de:'<svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg>',
+  es:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="2" fill="#AA151B"/><rect width="3" height="1" y=".5" fill="#F1BF00"/></svg>',
+  it:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#008C45"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#CD212A"/></svg>',
+  uk:'<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="1" y="0" fill="#0057B7"/><rect width="3" height="1" y="1" fill="#FFDD00"/></svg>'
+};
+function setLangFlag(c){const el=document.getElementById('langFlag');if(el)el.innerHTML=FLAG_SVG[c]||FLAG_SVG.en;}
 
 const T={
   en:{pow:'Guest companion · powered by shou',eyebrow:'Your guest companion',welcome:'Everything for your stay.',sub:"Wi-Fi, check-out, the washing machine — and what's on in Brussels tonight. One QR code, any language.",building:'Dansaert Residence · 2nd floor',hood:'Dansaert · Sainte-Catherine',radius:'Everything within a 10-min walk',tabBook:'Welcome book',tabWeek:'This week',tabAsk:'Ask the concierge',bookIntro:'Everything about your stay — Wi-Fi, check-out, the washing machine and the neighbourhood — in one place. No more PDFs or laminated sheets.',qrTitle:'One QR in every apartment',qrSub:'Guests scan it on arrival — no app to download, no login.',near:'This week near your apartment',fromHotel:'Around the corner',music:'Live music',art:'Art & exhibitions',theatre:'Theatre & performance',chatIntro:"Ask me anything — your apartment, the neighbourhood, or what's on in Brussels tonight. In any language.",askPh:"What's the Wi-Fi password?",send:'Ask',foot:'Everything for your stay, in any language — your apartment, the neighbourhood, and what\'s on tonight.',thinking:'One moment…',none:'Nothing came up for that — try another question.',tickets:'Details →',filterLbl:'Filter by day',allDays:'All days',dir:'Directions',walk:'min walk',wifiCheck:'Wi-Fi & check-in',superK:'Supermarket',bakeK:'Bakery',pharmK:'Pharmacy',tramK:'Public transport',hereYouGo:'Here you go:',ex:["What's the Wi-Fi password?",'What time is check-out?','Where can we buy groceries?',"What's on tonight?",'Best dinner nearby?','Is there parking?']},
@@ -1048,6 +1064,7 @@ async function retranslateChatCards(){
 
 function applyChrome(){
   document.documentElement.lang=lang;
+  setLangFlag(lang);
   document.querySelectorAll('[data-i]').forEach(el=>{const v=t(el.getAttribute('data-i'));if(v)el.textContent=v;});
   document.querySelectorAll('[data-i-ph]').forEach(el=>{const v=t(el.getAttribute('data-i-ph'));if(v)el.placeholder=v;});
   document.getElementById('hlinks').innerHTML=HOTEL_LINKS().map(l=>l.url
