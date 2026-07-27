@@ -290,7 +290,7 @@ var QI_LBL={
  en:{wifi:'Wi-Fi',checkin:'Check-in',checkout:'Check-out',heating:'Heating',laundry:'Washing machine',coffee:'Coffee',trash:'Trash',luggage:'Luggage',parking:'Parking',rules:'House rules',emergency:'Emergency',supermarket:'Groceries',pharmacy:'Pharmacy',bakery:'Bakery',transport:'Transport',atm:'Cash / ATM',attractions:'Things to do',taxi:'Taxi',dinner:'Dinner',breakfast:'Breakfast',bar:'Bars',events:'What’s on',other:'Other'},
  fr:{wifi:'Wi-Fi',checkin:'Arrivée',checkout:'Départ',heating:'Chauffage',laundry:'Machine à laver',coffee:'Café',trash:'Déchets',luggage:'Bagages',parking:'Parking',rules:'Règlement',emergency:'Urgences',supermarket:'Courses',pharmacy:'Pharmacie',bakery:'Boulangerie',transport:'Transports',atm:'Distributeur',attractions:'À voir',taxi:'Taxi',dinner:'Dîner',breakfast:'Petit-déjeuner',bar:'Bars',events:'Que faire',other:'Autre'},
  nl:{wifi:'Wifi',checkin:'Inchecken',checkout:'Uitchecken',heating:'Verwarming',laundry:'Wasmachine',coffee:'Koffie',trash:'Afval',luggage:'Bagage',parking:'Parkeren',rules:'Huisregels',emergency:'Noodgeval',supermarket:'Boodschappen',pharmacy:'Apotheek',bakery:'Bakkerij',transport:'Vervoer',atm:'Geldautomaat',attractions:'Bezienswaardigheden',taxi:'Taxi',dinner:'Uit eten',breakfast:'Ontbijt',bar:'Bars',events:'Wat te doen',other:'Overig'}};
-function qiLabel(k){var d=QI_LBL[lang]||QI_LBL.en;return d[k]||QI_LBL.en[k]||k;}
+function qiLabel(k){var d=QI_LBL[uiLang]||QI_LBL.en;return d[k]||QI_LBL.en[k]||k;}
 function loadQuestions(){
   api('POST',{action:'questions'},true).then(function(r){ if(r.ok)renderQuestions(r.j.units||[]); });
 }
