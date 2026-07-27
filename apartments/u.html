@@ -324,6 +324,22 @@ function ask(q){
     var list=[];var seen={};(d.events||[]).concat(d.suggestedEvents||[]).forEach(function(e){if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;list.push(e);}});
     list=list.slice(0,8);
     if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(evCard).join('');document.getElementById('msgs').appendChild(g);g.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    // Dead end → offer the LLM's follow-up chips instead of leaving the guest
+    // stuck. The API only fills suggestionChips when nothing matched at all, and
+    // the labels already come back in the guest's language. textContent (not
+    // innerHTML) so a label can never inject markup.
+    else if(Array.isArray(d.suggestionChips)&&d.suggestionChips.length){
+      var sg=document.createElement('div');
+      sg.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px';
+      d.suggestionChips.slice(0,3).forEach(function(c){
+        if(!c||!c.label||!c.query)return;
+        var b=document.createElement('button');
+        b.className='ex';b.type='button';b.textContent=c.label+' →';
+        b.addEventListener('click',function(){ask(c.query);});
+        sg.appendChild(b);
+      });
+      if(sg.children.length){document.getElementById('msgs').appendChild(sg);sg.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    }
     asking=false;
   }).catch(function(){typing.remove();addMsg('ai',chr('none'));asking=false;});
 }
