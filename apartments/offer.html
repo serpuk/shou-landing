@@ -149,7 +149,10 @@
   /* Ask flow (multilingual) */
   .ask-flow{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
   .ask{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 18px;box-shadow:var(--shadow)}
-  .ask .flag{font-size:26px;flex:none}
+  /* Inline SVG flags — Windows renders regional-indicator emoji (🇩🇪) as bare
+     letters ("DE"), so the emoji version silently degraded there. */
+  .ask .flag{flex:none;line-height:0}
+  .ask .flag svg{width:30px;height:20px;border-radius:3px;box-shadow:0 1px 4px rgba(20,16,30,.22);display:block}
   .ask .qa{min-width:0;flex:1}
   .ask .q{font-size:15px;color:var(--ink);font-weight:600}
   .ask .a{font-size:13.5px;color:var(--text-soft);margin-top:2px}
@@ -323,12 +326,13 @@
     <p>Real questions, in their own language — answered without you lifting a finger.</p>
   </div>
   <div class="ask-flow">
-    <div class="ask"><span class="flag">🇩🇪</span><div class="qa"><div class="q">„Wo kann man hier einkaufen?"</div><div class="a">→ <b>Delhaize Dansaert</b> · 2-min walk</div></div><span class="arr">↗</span></div>
-    <div class="ask"><span class="flag">🇬🇧</span><div class="qa"><div class="q">"How do we use the washing machine?"</div><div class="a">→ Under the counter · <b>Eco 40° ≈ 2 h</b></div></div><span class="arr">↗</span></div>
-    <div class="ask"><span class="flag">🇫🇷</span><div class="qa"><div class="q">« Une bonne bière belge à proximité ? »</div><div class="a">→ <b>Le Cirio</b> · historic bar · 6-min walk</div></div><span class="arr">↗</span></div>
-    <div class="ask"><span class="flag">🇪🇸</span><div class="qa"><div class="q">"¿Algo para hacer con niños mañana?"</div><div class="a">→ <b>live family events</b> near the apartment</div></div><span class="arr">↗</span></div>
-    <div class="ask"><span class="flag">🇮🇹</span><div class="qa"><div class="q">"Dove posso parcheggiare?"</div><div class="a">→ <b>Interparking Dansaert</b> · 3-min walk</div></div><span class="arr">↗</span></div>
-    <div class="ask"><span class="flag">🇳🇱</span><div class="qa"><div class="q">"Beste ontbijt in de buurt?"</div><div class="a">→ <b>Charli</b> · fresh croissants · 3-min walk</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="German"><svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg></span><div class="qa"><div class="q">„Wo kann man hier einkaufen?"</div><div class="a">→ <b>Delhaize Dansaert</b> · 2-min walk</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="English"><svg viewBox="0 0 60 30" preserveAspectRatio="none"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30 M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30 M60,0 0,30" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></svg></span><div class="qa"><div class="q">"How do we use the washing machine?"</div><div class="a">→ Under the counter · <b>Eco 40° ≈ 2 h</b></div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="French"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#002395"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#ED2939"/></svg></span><div class="qa"><div class="q">« Une bonne bière belge à proximité ? »</div><div class="a">→ <b>Le Cirio</b> · historic bar · 6-min walk</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="Ukrainian"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="1" y="0" fill="#0057B7"/><rect width="3" height="1" y="1" fill="#FFDD00"/></svg></span><div class="qa"><div class="q">«Що подивитися ввечері?»</div><div class="a">→ <b>tonight's concerts &amp; expos</b> · a short walk away</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="Spanish"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="2" fill="#AA151B"/><rect width="3" height="1" y=".5" fill="#F1BF00"/></svg></span><div class="qa"><div class="q">"¿Algo para hacer con niños mañana?"</div><div class="a">→ <b>live family events</b> near the apartment</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="Italian"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#008C45"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#CD212A"/></svg></span><div class="qa"><div class="q">"Dove posso parcheggiare?"</div><div class="a">→ <b>Interparking Dansaert</b> · 3-min walk</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="Dutch"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="1" y="0" fill="#AE1C28"/><rect width="3" height=".667" y="0.667" fill="#fff"/><rect width="3" height=".667" y="1.333" fill="#21468B"/></svg></span><div class="qa"><div class="q">"Beste ontbijt in de buurt?"</div><div class="a">→ <b>Charli</b> · fresh croissants · 3-min walk</div></div><span class="arr">↗</span></div>
   </div>
 </div></section>
 
