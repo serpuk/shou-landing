@@ -41,6 +41,12 @@
   .gantt-bar:hover{filter:brightness(1.05)}
   #gantt-split:hover{background:rgba(242,83,141,.35)}
   .caret:hover{color:var(--pink)!important}
+  .grip{display:inline-block;width:13px;text-align:center;cursor:grab;color:#cbc7d2;font-size:12px;line-height:1;user-select:none;flex:none}
+  .grip:hover{color:var(--pink)}
+  .grip:active{cursor:grabbing}
+  .drag-ghost{opacity:.4}
+  .drop-before{box-shadow:0 -3px 0 0 var(--pink)}
+  .drop-after{box-shadow:0 3px 0 0 var(--pink)}
   #btn-mic.rec{background:#c81e5b;color:#fff;border-color:#c81e5b;animation:micpulse 1.3s ease-in-out infinite}
   @keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,30,91,.45)}50%{box-shadow:0 0 0 7px rgba(200,30,91,0)}}
   .epic{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line)}
@@ -813,6 +819,49 @@ function caret(id){
 }
 function bindCarets(){document.querySelectorAll('.caret').forEach(c=>{c.onclick=e=>{e.stopPropagation();toggleCollapse(+c.getAttribute('data-c'));};});}
 
+/* ---------- drag to reorder (siblings only: same kind, same parent) ---------- */
+const NODE_ATTRS=['data-road','data-project','data-epic','data-task'];
+let dragId=null;
+const nodeIdOf=el=>{for(const a of NODE_ATTRS){const v=el.getAttribute(a);if(v)return +v;}return null;};
+const siblingsOf=it=>items.filter(x=>x.kind===it.kind&&(x.parent_id||null)===(it.parent_id||null)).sort(cmpItems);
+const canSwap=(a,b)=>a&&b&&a.id!==b.id&&a.kind===b.kind&&(a.parent_id||null)===(b.parent_id||null);
+function clearDrop(){document.querySelectorAll('.drop-before,.drop-after').forEach(x=>x.classList.remove('drop-before','drop-after'));}
+async function dropReorder(targetId,before){
+  const d=byId(dragId),t=byId(targetId);if(!canSwap(d,t))return;
+  const ids=siblingsOf(d).map(x=>x.id).filter(id=>id!==d.id);
+  const i=ids.indexOf(t.id);if(i<0)return;
+  ids.splice(before?i:i+1,0,d.id);
+  ids.forEach((id,n)=>{const it=byId(id);if(it)it.sort=n;});   // optimistic
+  renderRoadmap();
+  try{await api('reorder',{method:'POST',body:{ids}});}
+  catch(e){toast(e.message||'Could not save order');await reload();}
+}
+function bindDnD(){
+  document.querySelectorAll('.grip').forEach(g=>{
+    const host=g.closest('[data-road],[data-project],[data-epic],[data-task]');if(!host)return;
+    g.draggable=true;
+    g.ondragstart=e=>{
+      dragId=nodeIdOf(host);e.dataTransfer.effectAllowed='move';
+      try{e.dataTransfer.setData('text/plain',String(dragId));e.dataTransfer.setDragImage(host,14,14);}catch(_){}
+      host.classList.add('drag-ghost');
+    };
+    g.ondragend=()=>{host.classList.remove('drag-ghost');clearDrop();dragId=null;};
+  });
+  document.querySelectorAll('[data-road],[data-project],[data-epic],[data-task]').forEach(host=>{
+    const at=e=>{const r=host.getBoundingClientRect();return (e.clientY-r.top)<r.height/2;};
+    host.ondragover=e=>{
+      const d=byId(dragId),t=byId(nodeIdOf(host));if(!canSwap(d,t))return;   // no preventDefault → not a drop target
+      e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='move';
+      clearDrop();host.classList.add(at(e)?'drop-before':'drop-after');
+    };
+    host.ondragleave=e=>{if(!host.contains(e.relatedTarget))host.classList.remove('drop-before','drop-after');};
+    host.ondrop=e=>{
+      const d=byId(dragId),t=byId(nodeIdOf(host));if(!canSwap(d,t))return;
+      e.preventDefault();e.stopPropagation();const before=at(e);clearDrop();dropReorder(t.id,before);
+    };
+  });
+}
+
 function renderRoadmap(){
   renderOverview();
   const roads=roadmapItems();
@@ -835,7 +884,7 @@ function renderRoadmap(){
       <div class="row" style="justify-content:space-between;align-items:flex-start">
         <div style="flex:1;min-width:0">
           <div class="row" style="gap:8px">
-            ${caret(r.id)}
+            <span class="grip" title="Drag to reorder">⠿</span>${caret(r.id)}
             <span class="pill ${r.status}" data-st="${r.id}">${statusLabel(r.status)}</span>
             <b class="open-item" data-id="${r.id}" title="Open" style="font-size:16px;cursor:pointer">${kindIcon('roadmap')} ${esc(r.title)}</b>
           </div>
@@ -872,7 +921,7 @@ function projectHtml(p){
   const pct=tasks.length?Math.round(done/tasks.length*100):(p.status==='done'?100:0);
   return `<div class="project" data-project="${p.id}" style="margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line)">
     <div class="row" style="gap:8px">
-      ${caret(p.id)}
+      <span class="grip" title="Drag to reorder">⠿</span>${caret(p.id)}
       <span class="pill ${p.status}" data-st="${p.id}">${statusLabel(p.status)}</span>
       <b class="open-item" data-id="${p.id}" title="Open" style="font-size:15px;cursor:pointer">${kindIcon('project')} ${esc(p.title)}</b>
       ${p.description?`<span class="dim" style="font-size:12.5px">— ${esc(p.description)}</span>`:''}
@@ -889,7 +938,7 @@ function epicHtml(e){
   const tasks=childrenOf(e.id);
   return `<div class="epic" data-epic="${e.id}">
     <div class="row" style="gap:8px">
-      ${caret(e.id)}
+      <span class="grip" title="Drag to reorder">⠿</span>${caret(e.id)}
       <span class="pill ${e.status}" data-st="${e.id}">${statusLabel(e.status)}</span>
       <b class="open-item" data-id="${e.id}" title="Open" style="font-size:14px;cursor:pointer">${kindIcon('epic')} ${esc(e.title)}</b>
       ${e.description?`<span class="dim" style="font-size:12.5px">— ${esc(e.description)}</span>`:''}
@@ -899,6 +948,7 @@ function epicHtml(e){
     </div>
     ${isCollapsed(e.id)?'':`<div style="margin:2px 0 0 4px">${tasks.map(t=>`
       <div class="task" data-task="${t.id}">
+        <span class="grip" title="Drag to reorder">⠿</span>
         <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
         <span class="t-title open-item ${t.status==='done'?'muted':''}" data-id="${t.id}" title="Open" style="cursor:pointer;${t.status==='done'?'text-decoration:line-through':''}">${kindIcon('task')} ${esc(t.title)}</span>
         ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
@@ -934,7 +984,7 @@ function bindRoadmap(){
   document.querySelectorAll('.idref').forEach(c=>{c.onclick=()=>copyRef(+c.getAttribute('data-ref'));});
   document.querySelectorAll('.it-edit').forEach(b=>{b.onclick=e=>{e.stopPropagation();openEdit(+b.getAttribute('data-id'));};});
   document.querySelectorAll('.open-item').forEach(el=>{el.onclick=e=>{e.stopPropagation();openEdit(+el.getAttribute('data-id'));};});
-  bindCarets();
+  bindCarets();bindDnD();
   document.querySelectorAll('.rd-addproject').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('project',id);};});
   document.querySelectorAll('.rd-addepic').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('epic',id);};});
   document.querySelectorAll('.pr-addepic').forEach(b=>{b.onclick=()=>openCreate('epic',+b.getAttribute('data-project-add'));});
