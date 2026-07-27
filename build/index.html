@@ -40,6 +40,8 @@
   .gantt-bar{position:absolute;top:6px;height:16px;border-radius:5px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
   .gantt-bar:hover{filter:brightness(1.05)}
   #gantt-split:hover{background:rgba(242,83,141,.35)}
+  #btn-mic.rec{background:#c81e5b;color:#fff;border-color:#c81e5b;animation:micpulse 1.3s ease-in-out infinite}
+  @keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,30,91,.45)}50%{box-shadow:0 0 0 7px rgba(200,30,91,0)}}
   .epic{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line)}
   .task{display:flex;align-items:center;gap:10px;padding:6px 0}
   .task .t-title{flex:1}
@@ -90,11 +92,15 @@
 
   <!-- compose -->
   <div class="card">
-    <h2>Describe what to build — or paste a customer email</h2>
+    <h2>Describe what to build — type, speak, or paste a customer email</h2>
     <p class="dim" style="margin:4px 0 10px;font-size:13.5px">The AI turns it into a roadmap item, epics and tasks on a timeline. You review and edit before anything is saved.</p>
     <textarea id="compose" placeholder="e.g. Ship dark mode before September for Hotel Amigo — needs a theme engine, a toggle in settings, and QA across the app."></textarea>
     <div class="row" style="margin-top:10px">
       <button id="btn-propose" class="btn">✨ Propose plan</button>
+      <button id="btn-mic" class="btn ghost" style="display:none" title="Dictate — describe it out loud">🎤 <span id="mic-label">Speak</span></button>
+      <select id="mic-lang" class="f" style="display:none;width:auto;padding:6px 8px;font-size:12.5px;border:1px solid var(--line);border-radius:9px">
+        <option value="en-GB">EN</option><option value="fr-FR">FR</option><option value="nl-NL">NL</option>
+      </select>
       <span id="propose-note" class="dim" style="font-size:13px"></span>
     </div>
   </div>
@@ -309,6 +315,37 @@ $('btn-propose').onclick=async()=>{
   }catch(e){$('propose-note').textContent=e.message||'Failed';}
   finally{b.disabled=false;b.textContent='✨ Propose plan';}
 };
+/* ---------- dictation (Web Speech API — no backend, no API cost) ---------- */
+(function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return;                                   // Firefox: button stays hidden
+  $('btn-mic').style.display='';$('mic-lang').style.display='';
+  $('mic-lang').value=localStorage.getItem('build_mic_lang')||'en-GB';
+  $('mic-lang').onchange=()=>localStorage.setItem('build_mic_lang',$('mic-lang').value);
+  let rec=null,on=false,base='';
+  function paint(){$('btn-mic').classList.toggle('rec',on);$('mic-label').textContent=on?'Stop':'Speak';}
+  $('btn-mic').onclick=()=>{
+    if(on&&rec){rec.stop();return;}
+    rec=new SR();
+    rec.lang=$('mic-lang').value;rec.continuous=true;rec.interimResults=true;
+    base=$('compose').value.trim();if(base)base+=' ';
+    rec.onstart=()=>{on=true;paint();};
+    rec.onend=()=>{on=false;paint();$('compose').focus();};
+    rec.onerror=e=>{on=false;paint();
+      if(e.error==='not-allowed')toast('Microphone blocked — allow mic access for shou.be');
+      else if(e.error!=='aborted'&&e.error!=='no-speech')toast('Speech error: '+e.error);};
+    rec.onresult=ev=>{
+      let fin='',inter='';
+      for(let i=ev.resultIndex;i<ev.results.length;i++){
+        const tx=ev.results[i][0].transcript;
+        if(ev.results[i].isFinal)fin+=tx;else inter+=tx;
+      }
+      if(fin)base=(base+fin).replace(/\s+/g,' ')+' ';
+      $('compose').value=(base+inter).replace(/\s+/g,' ').trim();
+    };
+    try{rec.start();}catch(e){toast('Could not start the microphone');}
+  };
+})();
 $('prop-discard').onclick=()=>{proposal=null;$('proposal').style.display='none';};
 $('prop-addepic').onclick=()=>{proposal.epics.push({title:'New epic',description:'',tasks:[]});renderProposal();};
 $('prop-commit').onclick=async()=>{
