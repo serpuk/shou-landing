@@ -645,7 +645,7 @@ function renderTimeline(){
   rows.forEach((row,i)=>{
     const it=row.it,sp=row.span;
     const w=row.depth===0?'font-weight:700':row.depth===1?'font-weight:600':'';
-    labels+=`<div class="gantt-row gantt-label" data-id="${it.id}" style="height:${ROWH}px;display:flex;align-items:center;padding-left:${8+row.depth*16}px;padding-right:10px;font-size:${row.depth===0?13.5:13}px;${w};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer" title="${esc(it.title)} — click to open">${esc(it.title)}</div>`;
+    labels+=`<div class="gantt-row gantt-label" data-id="${it.id}" style="height:${ROWH}px;display:flex;align-items:center;padding-left:${8+row.depth*16}px;padding-right:10px;font-size:${row.depth===0?13.5:13}px;${w};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer" title="${esc(it.title)} — click to open">${kindIcon(it.kind)} ${esc(it.title)}</div>`;
     if(sp){const bx=x(sp.start),bw=Math.max(6,x(sp.end)-x(sp.start));const dd=it.due_date?` · due ${it.due_date}`:'';const drag=it.kind==='task';const summary=it.kind==='roadmap'||it.kind==='project';
       bars+=`<div style="position:relative;height:${ROWH}px"><div class="gantt-bar${drag?' drag':''}" data-id="${it.id}" title="${esc(it.title)} (${fmtD(sp.start)} → ${fmtD(sp.end)})${dd}${drag?' — drag to reschedule, edges to resize':''}" style="left:${bx}px;width:${bw}px;background:${color(it.status)}${summary?';height:11px;top:9px;opacity:.85':''}${drag?';cursor:ew-resize':''}"></div></div>`;}
     else bars+=`<div style="height:${ROWH}px"></div>`;
@@ -751,7 +751,7 @@ const roadmapItems=()=>items.filter(x=>x.kind==='roadmap').sort(cmpItems);
 const descendantTasks=id=>childrenOf(id).flatMap(c=>c.kind==='task'?[c]:descendantTasks(c.id));
 const nextStatus=s=>s==='todo'?'in_progress':s==='in_progress'?'done':'todo';
 const statusLabel=s=>s==='in_progress'?'in progress':s;
-const KIND_ICON={roadmap:'🗺️',project:'📦',epic:'🧩',task:'▫️'};
+const KIND_ICON={roadmap:'🗺️',project:'📁',epic:'🧩',task:'☑️'};
 const kindIcon=k=>KIND_ICON[k]||'';
 
 function renderRoadmap(){
