@@ -275,7 +275,10 @@ var INTENTS=[
   {t:'poi',id:'bakery',kw:['bakery','bread','croissant','boulangerie','bakker','backerei','panaderia','panetteria','пекарня','хліб']},
   {t:'poi',id:'transport',kw:['tram','metro','bus','public transport','subway','u bahn','station','openbaar vervoer','transporte','trasporti','метро','транспорт']},
   {t:'poi',id:'atm',kw:['atm','cash machine','cash','withdraw money','distributeur','geldautomaat','bankomat','cajero','bancomat','банкомат','готівка']},
-  {t:'poi',id:'attractions',kw:['things to do','attractions','sightseeing','tourist','what to see','que faire','a voir','visiter','bezienswaardigheden','sehenswurdigkeiten','que ver','cosa vedere','visitare','що подивитися','визначні']},
+  // NB: no bare 'que faire' / 'wat te doen' here — those are generic "what's on"
+  // questions ("Que faire ce soir ?"), which belong to the events engine, not a
+  // static sightseeing map link. Keep only genuinely sightseeing-y wording.
+  {t:'poi',id:'attractions',kw:['attractions','sightseeing','tourist','what to see','a voir','visiter','bezienswaardigheden','sehenswurdigkeiten','que ver','cosa vedere','visitare','визначні пам']},
   {t:'poi',id:'taxi',kw:['taxi','cab','uber','bolt','такси','таксі']},
   {t:'rec',id:'dinner',kw:['dinner','dine','restaurant','where to eat','good food','lunch','diner','manger','eten','essen','abendessen','restaurante','ristorante','comer','mangiare','cena','cenar','ресторан','поїсти']},
   {t:'rec',id:'breakfast',kw:['breakfast','brunch','petit dejeuner','ontbijt','fruhstuck','desayun','colazione','сніданок']},
