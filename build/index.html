@@ -40,6 +40,7 @@
   .gantt-bar{position:absolute;top:6px;height:16px;border-radius:5px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
   .gantt-bar:hover{filter:brightness(1.05)}
   #gantt-split:hover{background:rgba(242,83,141,.35)}
+  .caret:hover{color:var(--pink)!important}
   #btn-mic.rec{background:#c81e5b;color:#fff;border-color:#c81e5b;animation:micpulse 1.3s ease-in-out infinite}
   @keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,30,91,.45)}50%{box-shadow:0 0 0 7px rgba(200,30,91,0)}}
   .epic{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line)}
@@ -136,6 +137,7 @@
     <div class="row" style="justify-content:space-between;margin-bottom:10px">
       <div class="row" style="gap:10px"><h2>Roadmap</h2><span id="road-empty" class="dim" style="font-size:13px;display:none">Nothing yet — describe something above.</span></div>
       <div class="row" style="gap:8px">
+        <button id="btn-collapse" class="btn ghost sm" title="Collapse or expand every level">Collapse all</button>
         <div class="seg"><button id="seg-list" class="seg-btn on">List</button><button id="seg-time" class="seg-btn">Timeline</button></div>
         <button id="btn-add-road" class="btn ghost sm">+ New item</button>
       </div>
@@ -622,6 +624,12 @@ $('edit-del').onclick=async()=>{
   catch(e){toast(e.message||'Failed');}
 };
 $('btn-add-road').onclick=()=>openCreate('roadmap',null);
+$('btn-collapse').onclick=()=>{
+  const parents=items.filter(x=>hasKids(x.id)).map(x=>x.id);
+  const anyOpen=parents.some(id=>!collapsed.has(id));
+  collapsed=anyOpen?new Set(parents):new Set();
+  saveCollapsed();renderRoadmap();
+};
 
 /* ---------- timeline / gantt (Phase 4b) ---------- */
 let roadView=localStorage.getItem('build_roadview')||'list';
@@ -657,8 +665,8 @@ function spanOf(it){
 function renderTimeline(){
   const el=$('timeline');
   const rows=[];
-  const walk=(id,depth)=>{childrenOf(id).forEach(c=>{rows.push({it:c,depth});if(c.kind!=='task')walk(c.id,depth+1);});};
-  roadmapItems().forEach(r=>{rows.push({it:r,depth:0});walk(r.id,1);});
+  const walk=(id,depth)=>{childrenOf(id).forEach(c=>{rows.push({it:c,depth});if(c.kind!=='task'&&!isCollapsed(c.id))walk(c.id,depth+1);});};
+  roadmapItems().forEach(r=>{rows.push({it:r,depth:0});if(!isCollapsed(r.id))walk(r.id,1);});
   rows.forEach(row=>row.span=spanOf(row.it));
   const dated=rows.filter(r=>r.span);
   if(!dated.length){el.innerHTML='<div class="dim" style="padding:14px 18px;font-size:13.5px">No dates yet — add a start or due date (✎) to see items on the timeline.</div>';return;}
@@ -682,7 +690,7 @@ function renderTimeline(){
   rows.forEach((row,i)=>{
     const it=row.it,sp=row.span;
     const w=row.depth===0?'font-weight:700':row.depth===1?'font-weight:600':'';
-    labels+=`<div class="gantt-row gantt-label" data-id="${it.id}" style="height:${ROWH}px;display:flex;align-items:center;padding-left:${8+row.depth*16}px;padding-right:10px;font-size:${row.depth===0?13.5:13}px;${w};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer" title="${esc(it.title)} — click to open">${kindIcon(it.kind)} ${esc(it.title)}</div>`;
+    labels+=`<div class="gantt-row gantt-label" data-id="${it.id}" style="height:${ROWH}px;display:flex;align-items:center;padding-left:${8+row.depth*16}px;padding-right:10px;font-size:${row.depth===0?13.5:13}px;${w};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer" title="${esc(it.title)} — click to open">${caret(it.id)}${kindIcon(it.kind)} ${esc(it.title)}</div>`;
     if(sp){const bx=x(sp.start),bw=Math.max(6,x(sp.end)-x(sp.start));const dd=it.due_date?` · due ${it.due_date}`:'';const drag=it.kind==='task';const summary=it.kind==='roadmap'||it.kind==='project';
       bars+=`<div style="position:relative;height:${ROWH}px"><div class="gantt-bar${drag?' drag':''}" data-id="${it.id}" title="${esc(it.title)} (${fmtD(sp.start)} → ${fmtD(sp.end)})${dd}${drag?' — drag to reschedule, edges to resize':''}" style="left:${bx}px;width:${bw}px;background:${color(it.status)}${summary?';height:11px;top:9px;opacity:.85':''}${drag?';cursor:ew-resize':''}"></div></div>`;}
     else bars+=`<div style="height:${ROWH}px"></div>`;
@@ -717,6 +725,7 @@ function renderTimeline(){
     if(b.classList.contains('drag'))attachBarDrag(b,minD,range,W);
   });
   el.querySelectorAll('.gantt-label').forEach(l=>l.onclick=()=>openEdit(+l.getAttribute('data-id')));
+  bindCarets();
   attachLabelResize();
   // remember horizontal scroll so edits/status changes don't jump back to the start
   if(!el._scrollBound){el._scrollBound=true;el.addEventListener('scroll',()=>localStorage.setItem('build_gantt_scroll',el.scrollLeft));}
@@ -791,10 +800,28 @@ const statusLabel=s=>s==='in_progress'?'in progress':s;
 const KIND_ICON={roadmap:'🗺️',project:'📁',epic:'🧩',task:'☑️'};
 const kindIcon=k=>KIND_ICON[k]||'';
 
+/* ---------- collapse / expand (shared by List + Timeline) ---------- */
+let collapsed=new Set();
+try{collapsed=new Set(JSON.parse(localStorage.getItem('build_collapsed')||'[]'));}catch(e){}
+const hasKids=id=>items.some(x=>x.parent_id===id);
+const isCollapsed=id=>collapsed.has(id);
+function saveCollapsed(){try{localStorage.setItem('build_collapsed',JSON.stringify([...collapsed]));}catch(e){}}
+function toggleCollapse(id){collapsed.has(id)?collapsed.delete(id):collapsed.add(id);saveCollapsed();renderRoadmap();}
+function caret(id){
+  if(!hasKids(id))return '<span style="display:inline-block;width:15px"></span>';
+  return `<span class="caret" data-c="${id}" title="Collapse / expand" style="display:inline-block;width:15px;text-align:center;cursor:pointer;user-select:none;color:var(--dim);font-size:11px">${isCollapsed(id)?'▶':'▼'}</span>`;
+}
+function bindCarets(){document.querySelectorAll('.caret').forEach(c=>{c.onclick=e=>{e.stopPropagation();toggleCollapse(+c.getAttribute('data-c'));};});}
+
 function renderRoadmap(){
   renderOverview();
   const roads=roadmapItems();
   $('count').textContent=roads.length?(roads.length+' roadmap item'+(roads.length>1?'s':'')):'';
+  const parents=items.filter(x=>hasKids(x.id)).map(x=>x.id);
+  if($('btn-collapse')){
+    $('btn-collapse').style.display=parents.length?'':'none';
+    $('btn-collapse').textContent=parents.some(id=>!collapsed.has(id))?'Collapse all':'Expand all';
+  }
   $('road-empty').style.display=roads.length?'none':'';
   const list=$('road-list');
   list.innerHTML=roads.map(r=>{
@@ -808,6 +835,7 @@ function renderRoadmap(){
       <div class="row" style="justify-content:space-between;align-items:flex-start">
         <div style="flex:1;min-width:0">
           <div class="row" style="gap:8px">
+            ${caret(r.id)}
             <span class="pill ${r.status}" data-st="${r.id}">${statusLabel(r.status)}</span>
             <b class="open-item" data-id="${r.id}" title="Open" style="font-size:16px;cursor:pointer">${kindIcon('roadmap')} ${esc(r.title)}</b>
           </div>
@@ -827,11 +855,11 @@ function renderRoadmap(){
         </div>
       </div>
       <div class="prog-track" style="margin-top:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
-      <div class="epics">${projects.map(p=>projectHtml(p)).join('')}${directEpics.map(e=>epicHtml(e)).join('')}</div>
+      ${isCollapsed(r.id)?'':`<div class="epics">${projects.map(p=>projectHtml(p)).join('')}${directEpics.map(e=>epicHtml(e)).join('')}</div>
       <div class="row" style="gap:8px;margin-top:10px">
         <button class="btn ghost sm rd-addproject">+ Project</button>
         <button class="btn ghost sm rd-addepic">+ Epic</button>
-      </div>
+      </div>`}
     </div>`;
   }).join('');
   bindRoadmap();
@@ -844,6 +872,7 @@ function projectHtml(p){
   const pct=tasks.length?Math.round(done/tasks.length*100):(p.status==='done'?100:0);
   return `<div class="project" data-project="${p.id}" style="margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line)">
     <div class="row" style="gap:8px">
+      ${caret(p.id)}
       <span class="pill ${p.status}" data-st="${p.id}">${statusLabel(p.status)}</span>
       <b class="open-item" data-id="${p.id}" title="Open" style="font-size:15px;cursor:pointer">${kindIcon('project')} ${esc(p.title)}</b>
       ${p.description?`<span class="dim" style="font-size:12.5px">— ${esc(p.description)}</span>`:''}
@@ -852,21 +881,23 @@ function projectHtml(p){
       <button class="btn ghost sm it-edit" data-id="${p.id}" title="Edit project" style="padding:2px 9px">✎</button>
     </div>
     <div class="prog-track" style="margin:8px 0 0"><div class="prog-fill" style="width:${pct}%"></div></div>
-    <div style="margin-left:14px">${epics.map(e=>epicHtml(e)).join('')}</div>
-    <button class="btn ghost sm pr-addepic" data-project-add="${p.id}" style="margin:8px 0 0 14px">+ Epic</button>
+    ${isCollapsed(p.id)?'':`<div style="margin-left:14px">${epics.map(e=>epicHtml(e)).join('')}</div>
+    <button class="btn ghost sm pr-addepic" data-project-add="${p.id}" style="margin:8px 0 0 14px">+ Epic</button>`}
   </div>`;
 }
 function epicHtml(e){
   const tasks=childrenOf(e.id);
   return `<div class="epic" data-epic="${e.id}">
     <div class="row" style="gap:8px">
+      ${caret(e.id)}
       <span class="pill ${e.status}" data-st="${e.id}">${statusLabel(e.status)}</span>
       <b class="open-item" data-id="${e.id}" title="Open" style="font-size:14px;cursor:pointer">${kindIcon('epic')} ${esc(e.title)}</b>
       ${e.description?`<span class="dim" style="font-size:12.5px">— ${esc(e.description)}</span>`:''}
+      ${(isCollapsed(e.id)&&tasks.length)?`<span class="chip">${tasks.filter(t=>t.status==='done').length}/${tasks.length}</span>`:''}
       <span class="chip idref" data-ref="${e.id}" title="Copy build#${e.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${e.id}</span>
       <button class="btn ghost sm it-edit" data-id="${e.id}" title="Edit epic" style="padding:2px 9px">✎</button>
     </div>
-    <div style="margin:2px 0 0 4px">${tasks.map(t=>`
+    ${isCollapsed(e.id)?'':`<div style="margin:2px 0 0 4px">${tasks.map(t=>`
       <div class="task" data-task="${t.id}">
         <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
         <span class="t-title open-item ${t.status==='done'?'muted':''}" data-id="${t.id}" title="Open" style="cursor:pointer;${t.status==='done'?'text-decoration:line-through':''}">${kindIcon('task')} ${esc(t.title)}</span>
@@ -876,7 +907,7 @@ function epicHtml(e){
         <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR" style="cursor:pointer;font-family:ui-monospace,monospace">build#${t.id}</span>
         <button class="btn ghost sm it-edit" data-id="${t.id}" title="Edit task" style="padding:2px 8px">✎</button>
       </div>`).join('')||'<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>'}</div>
-    <button class="btn ghost sm ep-addtask" data-epic-add="${e.id}" style="margin:4px 0 0 4px">+ task</button>
+    <button class="btn ghost sm ep-addtask" data-epic-add="${e.id}" style="margin:4px 0 0 4px">+ task</button>`}
   </div>`;
 }
 function bindRoadmap(){
@@ -903,6 +934,7 @@ function bindRoadmap(){
   document.querySelectorAll('.idref').forEach(c=>{c.onclick=()=>copyRef(+c.getAttribute('data-ref'));});
   document.querySelectorAll('.it-edit').forEach(b=>{b.onclick=e=>{e.stopPropagation();openEdit(+b.getAttribute('data-id'));};});
   document.querySelectorAll('.open-item').forEach(el=>{el.onclick=e=>{e.stopPropagation();openEdit(+el.getAttribute('data-id'));};});
+  bindCarets();
   document.querySelectorAll('.rd-addproject').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('project',id);};});
   document.querySelectorAll('.rd-addepic').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('epic',id);};});
   document.querySelectorAll('.pr-addepic').forEach(b=>{b.onclick=()=>openCreate('epic',+b.getAttribute('data-project-add'));});
