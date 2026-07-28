@@ -345,8 +345,8 @@ const Q_KW=[
   ['parking',['parking','park the car','garage','parkeren','parkplatz','aparcamiento','parcheggio','паркінг']],
   ['laundry',['laundry','washing machine','wasserette','waschsalon','lavanderia','lavanderia','пральня']],
   ['breakfast',['breakfast','brunch','petit dejeuner','ontbijt','fruhstuck','desayun','colazione','сніданок']],
-  ['dinner',['dinner','restaurant','where to eat','diner','manger','eten','essen','cena','cenar','ristorante','ресторан','поїсти']],
-  ['bar',['bar','drinks','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','пиво']],
+  ['dinner',['dinner','restaurant','where to eat','eat','diner','manger','eten','essen','cena','cenar','ristorante','ресторан','поїсти']],
+  ['bar',['bar','bars','drinks','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','пиво']],
   ['coffee',['coffee','cafe','cappuccino','koffie','kaffee','caffe','кава']],
   ['supermarket',['supermarket','grocery','groceries','courses','boodschappen','supermarkt','supermercado','comprar comida','spesa','продукти']],
   ['pharmacy',['pharmacy','pharmacie','apotheek','apotheke','farmacia','аптека']],
@@ -393,11 +393,13 @@ function answerCard(icon,label,name,url,extra){
 }
 function conciergePick(q){
   const intent=qIntent(q);
-  if(Q_IN_ROOM.has(intent)) return '<div>'+esc(DESK_L[lang]||DESK_L.en)+'</div>';
+  // A curated card always beats the generic answer: if the hotel has picked a
+  // laundry or a restaurant, show THAT rather than sending them to reception.
   const cards=(typeof HOTEL_CARDS==='function')?HOTEL_CARDS():[];
   const keys=CARD_FOR[intent]||[];
   const hit=cards.filter(c=>c.url).find(c=>keys.indexOf(c.k)>=0);
   if(hit) return answerCard(hit.i||'📍',t(hit.k)||hit.k,hit.n||'',hit.url);
+  if(Q_IN_ROOM.has(intent)) return '<div>'+esc(DESK_L[lang]||DESK_L.en)+'</div>';
   const mq=MAPS_FOR[intent];
   if(mq){
     const near=(HOTEL&&HOTEL.name)?(' near '+HOTEL.name):'';
