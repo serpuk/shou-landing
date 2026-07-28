@@ -1273,7 +1273,21 @@ async function cancelBilling() {
     await api('billing_cancel', { method: 'POST', body: { hotelId: current.id } });
     current.billing_status = 'canceled';
     renderBilling(current); refresh();
-  } catch (e) { alert('Billing: ' + e.message); if (btn) { btn.disabled = false; btn.textContent = 'Cancel subscription'; } }
+  } catch (e) {
+    // Mollie 404 "wrong mode" = the subscription lives in the sandbox, so the
+    // live key cannot see it. Offer to retry with MOLLIE_TEST_KEY rather than
+    // leaving it stranded.
+    if (/wrong mode/i.test(e.message || '') &&
+        confirm('This subscription was created in Mollie TEST mode.\n\nRetry the cancellation using the test key?')) {
+      try {
+        await api('billing_cancel', { method: 'POST', body: { hotelId: current.id, test: true } });
+        current.billing_status = 'canceled';
+        renderBilling(current); refresh();
+        return;
+      } catch (e2) { alert('Billing (test mode): ' + e2.message); }
+    } else { alert('Billing: ' + e.message); }
+    if (btn) { btn.disabled = false; btn.textContent = 'Cancel subscription'; }
+  }
 }
 async function retrySubscription() {
   if (!current || !current.id) return;
