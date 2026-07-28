@@ -130,11 +130,11 @@
       <div class="sec-head"><h2>Subscription</h2><span class="sub" id="billStatus"></span></div>
       <dl class="kv" id="billInfo"></dl>
       <div class="plans" id="plans"></div>
-      <div class="row" style="margin-top:16px">
+      <div class="row" style="margin-top:16px" id="planActions">
         <button class="btn btn-ghost btn-sm" id="reqDown">Request a downgrade</button>
         <button class="btn btn-ghost btn-sm" id="reqCancel">Request cancellation</button>
       </div>
-      <p class="muted" style="font-size:12.5px;margin-top:10px">Upgrades apply straight away. Downgrades and cancellations reach your account manager so we can confirm timing and any notice period with you.</p>
+      <p class="muted" id="planNote" style="font-size:12.5px;margin-top:10px">Upgrades apply straight away. Downgrades and cancellations reach your account manager so we can confirm timing and any notice period with you.</p>
       <div class="msg" id="billMsg"></div>
     </div>
 
@@ -276,6 +276,20 @@ function renderBilling(){
   // Only tiers ABOVE the current one are self-serve; everything else is a request.
   const cur=b.plan||'';
   const curIdx=PLAN_ORDER.indexOf(cur);
+  // No plan yet: the tier grid has nothing to compare against, so every card
+  // would render as a dead "—". Say what is actually going on instead. Hotel
+  // billing is started by us from the CRM (a checkout link), never self-serve
+  // from here, so there is deliberately nothing to click.
+  if(!cur){
+    $('plans').innerHTML='<div class="muted" style="font-size:13.5px;line-height:1.6">'
+      +'Billing is not set up yet. We will send a secure checkout link — your plan, '
+      +'renewal date and invoices all appear here once it is active.</div>';
+    const pa=$('planActions'); if(pa)pa.style.display='none';
+    const pn=$('planNote'); if(pn)pn.style.display='none';
+    return;
+  }
+  const pa=$('planActions'); if(pa)pa.style.display='';
+  const pn=$('planNote'); if(pn)pn.style.display='';
   $('plans').innerHTML=PLAN_ORDER.map(function(p,i){
     const isCur=p===cur;
     const canUp=curIdx>=0&&i>curIdx;
