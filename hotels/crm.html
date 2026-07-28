@@ -1195,6 +1195,9 @@ async function renderBilling(h) {
   }
   if (status !== 'none' && status !== 'canceled')
     html += `<div style="margin-top:12px"><button class="btn2" id="bill-reset" style="font-size:11.5px;padding:4px 10px;color:var(--dim)">Reset billing state</button></div>`;
+  // Read-only admin view of the hotel's own dashboard — mints a 1-hour session
+  // via hotel-portal and logs the access to this hotel's history.
+  html += `<div style="margin-top:10px"><button class="btn2" id="bill-viewdash" style="font-size:11.5px;padding:4px 10px">👁 Open their dashboard</button></div>`;
   html += '<div id="bill-charges" style="margin-top:12px"></div>';
   box.innerHTML = html;
 
@@ -1218,6 +1221,7 @@ async function renderBilling(h) {
   }
   const restart = $('bill-restart'); if (restart) restart.onclick = startBilling;
   if ($('bill-cancel')) $('bill-cancel').onclick = cancelBilling;
+  if ($('bill-viewdash')) $('bill-viewdash').onclick = openHotelDashboard;
   if ($('bill-retrysub')) $('bill-retrysub').onclick = retrySubscription;
   if ($('bill-reset')) $('bill-reset').onclick = resetBilling;
   if ($('bill-changeplan')) {
@@ -1264,6 +1268,22 @@ function checkoutBox(url, to) {
     `<div style="display:flex;gap:6px;margin-top:6px"><input readonly value="${esc(url || '')}" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--line);border-radius:8px" onclick="this.select()">` +
     `<button class="btn2" style="font-size:12px;padding:6px 10px" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent='Copied'">Copy</button>` +
     `<a class="btn2" style="font-size:12px;padding:6px 10px;text-decoration:none" href="${esc(url || '#')}" target="_blank" rel="noopener">Open ↗</a></div></div>`;
+}
+async function openHotelDashboard() {
+  if (!current || !current.id) return;
+  const btn = $('bill-viewdash'); if (btn) { btn.disabled = true; btn.textContent = 'Opening…'; }
+  try {
+    const resp = await fetch('https://shou-backend.vercel.app/api/hotel-portal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify({ action: 'admin_session', hotelId: current.id, who: 'shou admin' }),
+    });
+    const j = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(j.error || ('HTTP ' + resp.status));
+    window.open('/hotels/dashboard?s=' + encodeURIComponent(j.token), '_blank', 'noopener');
+    loadLog();                                     // the access is logged to History
+  } catch (e) { alert('Could not open dashboard: ' + e.message); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = '👁 Open their dashboard'; } }
 }
 async function cancelBilling() {
   if (!current || !current.id) return;

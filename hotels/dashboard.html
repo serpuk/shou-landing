@@ -205,6 +205,20 @@ async function enterApp(){
   $('signout').style.display='';
   $('who').textContent=(DATA.hotel&&DATA.hotel.name)||'';
   renderHotel();renderQr();renderBilling();renderInvoices();renderQuestions();
+  // Admin view: make it unmistakable whose account this is, and remove the
+  // controls that would act on the customer's behalf (the API refuses them too).
+  if(DATA.admin){
+    const b=document.createElement('div');
+    b.style.cssText='background:#15101b;color:#fff;border-radius:14px;padding:12px 18px;margin-bottom:16px;'
+      +'font-size:13.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap';
+    b.innerHTML='<b>👁 Admin view — read-only</b><span style="opacity:.75">You are seeing '
+      +esc((DATA.hotel&&DATA.hotel.name)||'this hotel')+' exactly as they see it. Changes are disabled.</span>';
+    $('app').insertBefore(b,$('app').firstChild);
+    ['reqDown','reqCancel'].forEach(function(id){const el=$(id);if(el)el.style.display='none';});
+    document.querySelectorAll('.up').forEach(function(el){el.style.display='none';});
+    document.querySelectorAll('.plan .pr').forEach(function(el){
+      if(/Upgrade available/.test(el.textContent))el.textContent='—';});
+  }
 }
 
 /* ---------- hotel ---------- */
@@ -335,6 +349,15 @@ function renderQuestions(){
 /* ---------- boot: ?t= magic-link exchange ---------- */
 (async function(){
   const u=new URL(location.href);
+  // ?s= carries an already-minted session (the CRM's read-only admin view).
+  // ?t= is a magic-link token that still needs exchanging.
+  const s=u.searchParams.get('s');
+  if(s){
+    token=s;
+    try{localStorage.setItem('shou_hotel_sess',token);}catch(e){}
+    u.searchParams.delete('s');
+    history.replaceState({},'',u.pathname+(u.search||''));
+  }
   const t=u.searchParams.get('t');
   if(t){
     const r=await api('session',{loginToken:t});
