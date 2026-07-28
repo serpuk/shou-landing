@@ -975,6 +975,7 @@ function openDrawer(h) {
         <div class="field"><label>Longitude</label><input id="f-lng" value="${h.lng ?? ''}" inputmode="decimal"></div>
         <div class="field full"><label>Website</label><input id="f-website" value="${esc(h.website || '')}" placeholder="https://…"></div>
         <div class="field full"><label>Demo URL</label><input id="f-demo" value="${esc(h.demo_url || '')}" placeholder="https://shou.be/hotels/sample…"></div>
+        <div class="field full"><label>Portal slug <span class="dim" style="font-weight:400">— must match shou.be/hotels/<b>slug</b>, or guest questions are not logged</span></label><input id="f-slug" value="${esc(h.portal_slug || '')}" placeholder="made-in-louise"></div>
         <div class="field"><label>Next follow-up</label><input id="f-next" type="datetime-local" value="${toLocalInput(h.next_follow_up)}"></div>
         <div class="field"><label>Last email sent</label><input id="f-lastmail" type="datetime-local" value="${toLocalInput(h.last_email_at)}"></div>
         <div class="field"><label>Last reply</label><input id="f-lastreply" type="datetime-local" value="${toLocalInput(h.last_reply_at)}"></div>
@@ -1107,6 +1108,7 @@ async function saveDrawer() {
       lat: $('f-lat').value.trim(), lng: $('f-lng').value.trim(),
       website: $('f-website').value.trim(),
       demo_url: $('f-demo').value.trim(),
+      portal_slug: $('f-slug').value.trim(),
       next_follow_up: $('f-next').value,
       last_email_at: $('f-lastmail').value,
       last_reply_at: $('f-lastreply').value,
