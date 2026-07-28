@@ -45,6 +45,10 @@
       "destination": "/hotels/getaway-studios-leuven.html"
     },
     {
+      "source": "/hotels/made-in-louise",
+      "destination": "/hotels/made-in-louise.html"
+    },
+    {
       "source": "/hotels/apply",
       "destination": "/hotels/apply.html"
     },
