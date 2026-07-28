@@ -280,12 +280,47 @@ function renderBilling(){
   // would render as a dead "—". Say what is actually going on instead. Hotel
   // billing is started by us from the CRM (a checkout link), never self-serve
   // from here, so there is deliberately nothing to click.
-  if(!cur){
-    $('plans').innerHTML='<div class="muted" style="font-size:13.5px;line-height:1.6">'
-      +'Billing is not set up yet. We will send a secure checkout link — your plan, '
-      +'renewal date and invoices all appear here once it is active.</div>';
+  const termsSet = !!(cur && b.price_cents > 0);
+  const notActive = ['none','canceled',''].indexOf(b.status||'') >= 0;
+  const gross = c => ((c*(1+(b.vat_rate||21)/100))/100).toFixed(2).replace('.',',');
+  if(!termsSet || notActive || b.status==='mandate_pending'){
     const pa=$('planActions'); if(pa)pa.style.display='none';
     const pn=$('planNote'); if(pn)pn.style.display='none';
+    if(!termsSet){
+      // No agreed price on file — there is nothing honest to charge, so do not
+      // offer a button. Terms are set by us on the account first.
+      $('plans').innerHTML='<div class="muted" style="font-size:13.5px;line-height:1.6">'
+        +'Billing is not set up yet. We will confirm your plan and pricing with you first — '
+        +'once agreed you can activate it right here.</div>';
+    } else if(b.status==='mandate_pending'){
+      $('plans').innerHTML='<div class="muted" style="font-size:13.5px;line-height:1.6">'
+        +'Checkout has been started. Once the payment clears, your plan and invoices appear here. '
+        +'If you closed the payment window, contact us and we will send a fresh link.</div>';
+    } else {
+      // Terms agreed → let them activate. Figures come from the account, not this page.
+      const setupLine = (b.setup_cents>0)
+        ? ('<div class="muted" style="font-size:13px;margin-top:4px">One-off setup € '+gross(b.setup_cents)+' incl. VAT, charged today.</div>')
+        : '<div class="muted" style="font-size:13px;margin-top:4px">Setup fee waived. Your first month is charged today.</div>';
+      $('plans').innerHTML='<div style="border:1px solid rgba(14,154,141,.45);background:rgba(14,154,141,.05);'
+        +'border-radius:14px;padding:16px 18px">'
+        +'<div style="font-family:Fraunces,serif;font-weight:600;font-size:17px">Ready to start — '
+        +esc(PLAN_LABEL[cur]||cur)+'</div>'
+        +'<div style="font-size:14px;margin-top:3px">€ '+gross(b.price_cents)+' / month incl. VAT</div>'
+        +setupLine
+        +'<button class="btn btn-primary" id="startSub" style="margin-top:12px">Start subscription →</button>'
+        +'<div class="muted" style="font-size:12px;margin-top:8px">Secure payment via Mollie · Bancontact · cancel by contacting us.</div>'
+        +'</div>';
+      const sb=$('startSub');
+      if(sb) sb.onclick=async function(){
+        sb.disabled=true;sb.textContent='Opening checkout…';
+        const r=await api('start_checkout',{},true);
+        if(!r.ok||!r.j||!r.j.checkoutUrl){
+          sb.disabled=false;sb.textContent='Start subscription →';
+          return msg($('billMsg'),(r.j&&r.j.error)||'Could not open checkout.','err');
+        }
+        location.href=r.j.checkoutUrl;
+      };
+    }
     return;
   }
   const pa=$('planActions'); if(pa)pa.style.display='';
