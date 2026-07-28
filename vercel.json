@@ -10,6 +10,7 @@
     { "source": "/hotels/thanks", "destination": "/hotels/thanks.html" },
     { "source": "/hotels/nhow-brussels-bloom", "destination": "/hotels/nhow-brussels-bloom.html" },
     { "source": "/hotels/the-dominican", "destination": "/hotels/the-dominican.html" },
+    { "source": "/hotels/getaway-studios-leuven", "destination": "/hotels/getaway-studios-leuven.html" },
     { "source": "/hotels/apply", "destination": "/hotels/apply.html" },
     { "source": "/hotels/crm", "destination": "/hotels/crm.html" },
     { "source": "/apartments/sample", "destination": "/apartments/sample.html" },
