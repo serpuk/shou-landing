@@ -370,6 +370,49 @@ function qIntent(q){
       if(kk.indexOf(' ')>=0||kk.length>=5?s.indexOf(kk)>=0:s.indexOf(' '+kk+' ')>=0)return id;}
   return 'events';
 }
+
+// ---- concierge: answer from the hotel's own picks --------------------------
+// The page already shows curated "From your hotel" cards, but every question used
+// to fall through to the EVENTS engine — so "where can we eat?" returned concerts
+// while a Restaurant card sat right above. Reuse the qIntent() classifier (already
+// here for question logging) to answer from those cards first.
+// Typographic apostrophes below on purpose: an ASCII ' would end the JS string.
+const CARD_FOR={dinner:['dine','italian'],breakfast:['dine'],coffee:['dine'],
+                bar:['bar'],supermarket:['market'],laundry:['laundry'],spa:['spa']};
+const MAPS_FOR={pharmacy:'pharmacy',bakery:'bakery',atm:'atm',taxi:'taxi rank',
+                transport:'public transport stop',attractions:'tourist attractions'};
+const DESK_L={en:'Your front desk can help with that one — just ask at reception.',
+  fr:'La réception pourra vous aider — demandez-leur directement.',
+  nl:'De receptie helpt je daarmee — vraag het even aan de balie.',
+  de:'Die Rezeption hilft Ihnen dabei gern weiter.',
+  es:'La recepción puede ayudarte con eso — pregúntales directamente.',
+  it:'La reception può aiutarti — chiedi pure al banco.',
+  uk:'Стійка реєстрації допоможе вам із цим — просто запитайте.'};
+function answerCard(icon,label,name,url,extra){
+  return '<div style="display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);'
+    +'border-radius:14px;padding:12px 14px;margin-top:8px">'
+    +'<span style="font-size:20px;line-height:1.3;flex:none">'+icon+'</span><div style="min-width:0">'
+    +'<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)">'+esc(label)+'</div>'
+    +(name?'<div style="font-size:15px;font-weight:600;color:var(--ink)">'+esc(name)+'</div>':'')
+    +'<a href="'+esc(url)+'" target="_blank" rel="noopener" style="font-size:13.5px;color:var(--cyan);font-weight:600">Open in Maps ↗</a>'
+    +(extra?'<div style="font-size:12.5px;color:var(--dim);margin-top:2px">'+esc(extra)+'</div>':'')
+    +'</div></div>';
+}
+function conciergePick(q){
+  const intent=qIntent(q);
+  if(Q_IN_ROOM.has(intent)) return '<div>'+esc(DESK_L[lang]||DESK_L.en)+'</div>';
+  const cards=(typeof HOTEL_CARDS==='function')?HOTEL_CARDS():[];
+  const keys=CARD_FOR[intent]||[];
+  const hit=cards.filter(c=>c.url).find(c=>keys.indexOf(c.k)>=0);
+  if(hit) return answerCard(hit.i||'📍',t(hit.k)||hit.k,hit.n||'',hit.url);
+  const mq=MAPS_FOR[intent];
+  if(mq){
+    const near=(HOTEL&&HOTEL.name)?(' near '+HOTEL.name):'';
+    return answerCard('📍',mq,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near));
+  }
+  return null;                                   // fall through to the events engine
+}
+
 function logQ(q){
   try{
     const intent=qIntent(q);
@@ -877,6 +920,9 @@ async function ask(q){
   const btn=document.getElementById('chatBtn'); if(btn)btn.disabled=true;
   addMsg('me',esc(q));
   logQ(q);
+  // Answer from the hotel's own picks when the question is about them.
+  const pick=conciergePick(q);
+  if(pick){ addMsg('ai',pick); asking=false; if(btn)btn.disabled=false; return; }
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
   try{
     const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng,source:SAMPLE_SOURCE,sessionId:VISITOR_ID})});
