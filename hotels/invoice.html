@@ -63,17 +63,26 @@ function fmt(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-GB
 
 (async function(){
   const token=localStorage.getItem('shou_hotel_sess')||'';
-  const id=new URLSearchParams(location.search).get('id');
+  const qs=new URLSearchParams(location.search);
+  const id=qs.get('id');
+  const preview=qs.get('preview')==='1';
   const out=document.getElementById('out');
   if(!token){out.innerHTML='<div class="state">Please <a href="/hotels/dashboard">sign in</a> to view this invoice.</div>';return;}
-  if(!id){out.innerHTML='<div class="state">No invoice selected.</div>';return;}
+  if(!id&&!preview){out.innerHTML='<div class="state">No invoice selected.</div>';return;}
 
   const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-                          body:JSON.stringify({action:'invoice',chargeId:Number(id)})});
+                          body:JSON.stringify(preview?{action:'invoice',preview:true}:{action:'invoice',chargeId:Number(id)})});
   const j=await r.json().catch(()=>({}));
   if(!r.ok){out.innerHTML='<div class="state">'+esc((j&&j.error)||'Could not load this invoice.')+'</div>';return;}
 
   const inv=j.invoice, b=j.buyer, s=j.seller;
+  // A preview must never be mistakable for a real invoice — the marker is part
+  // of the sheet itself and is deliberately NOT hidden by the print stylesheet.
+  const previewBanner = j.preview
+    ? '<div style="background:#15101b;color:#fff;text-align:center;padding:10px 16px;border-radius:10px;'
+      +'margin-bottom:22px;font-size:12.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">'
+      +'Preview only · sample figures · not a valid invoice</div>'
+    : '';
   // Never print a placeholder company — if the seller block is unconfigured we
   // say so, because an invoice with invented identity details is worthless.
   if(!j.sellerReady){
@@ -83,6 +92,7 @@ function fmt(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-GB
   const desc=inv.kind==='setup'?'shou — setup fee':'shou — monthly subscription';
   out.innerHTML=
    '<div class="sheet">'
+   +previewBanner
    +'<div class="top"><div><div class="brand">shou</div>'
      +(s?'<div style="font-size:13px;color:var(--soft);margin-top:6px">'+esc(s.name)+'</div>':'')
    +'</div>'
