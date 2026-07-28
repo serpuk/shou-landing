@@ -292,14 +292,18 @@ function renderInvoices(){
   const inv=(DATA.invoices||[]).filter(function(c){return c.status==='paid'||c.invoice_no;});
   $('invSub').textContent=inv.length?(inv.length+(inv.length===1?' invoice':' invoices')):'';
   if(!inv.length){$('invBody').innerHTML='<div class="empty">No invoices yet. They appear here once your first payment is collected.</div>';return;}
-  $('invBody').innerHTML='<table><thead><tr><th>Invoice</th><th>Date</th><th>Description</th><th class="num">Net</th><th class="num">VAT</th><th class="num">Total</th></tr></thead><tbody>'
+  $('invBody').innerHTML='<table><thead><tr><th>Invoice</th><th>Date</th><th>Description</th><th class="num">Net</th><th class="num">VAT</th><th class="num">Total</th><th></th></tr></thead><tbody>'
     +inv.map(function(c){
       return '<tr><td>'+(c.invoice_no?esc(c.invoice_no):'<span class="muted">pending</span>')+'</td>'
         +'<td>'+fmtDate(c.paid_at||c.created_at)+'</td>'
         +'<td>'+(c.kind==='setup'?'Setup':'Subscription')+(c.status!=='paid'?' <span class="muted">('+esc(c.status)+')</span>':'')+'</td>'
         +'<td class="num">€ '+eur(c.net_cents)+'</td>'
         +'<td class="num">€ '+eur(c.vat_cents)+'</td>'
-        +'<td class="num"><b>€ '+eur(c.gross_cents)+'</b></td></tr>';
+        +'<td class="num"><b>€ '+eur(c.gross_cents)+'</b></td>'
+        // A PDF only exists once the charge carries an invoice number.
+        +'<td class="num">'+(c.invoice_no
+            ?'<a class="btn btn-ghost btn-sm" href="/hotels/invoice?id='+c.id+'" target="_blank" rel="noopener">PDF</a>'
+            :'<span class="muted" style="font-size:12.5px">—</span>')+'</td></tr>';
     }).join('')+'</tbody></table>'
     +'<p class="muted" style="font-size:12.5px;margin-top:10px">Need a PDF or a change of billing details? Reply to any shou email and we will sort it.</p>';
 }

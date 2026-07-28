@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice — shou</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#15101b;--soft:#5b5566;--dim:#8a8494;--line:rgba(20,16,30,.14);--pink:#ff3d8b;--orange:#ff9b3d;--grad:linear-gradient(105deg,var(--pink),var(--orange))}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f4f1f8;font-family:'Inter',system-ui,sans-serif;color:var(--ink);padding:24px 16px;line-height:1.55}
+  .bar{max-width:760px;margin:0 auto 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .bar h1{font-family:'Fraunces';font-size:19px;font-weight:600}
+  .btn{margin-left:auto;font-family:inherit;font-weight:700;font-size:14px;padding:10px 18px;border:none;border-radius:11px;background:var(--grad);color:#fff;cursor:pointer;text-decoration:none;display:inline-block}
+  .back{font-size:13.5px;color:var(--soft);text-decoration:none}
+  .sheet{max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:44px 46px;box-shadow:0 18px 44px -20px rgba(20,16,30,.3)}
+  .top{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-start;border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:24px}
+  .brand{font-family:'Fraunces';font-weight:700;font-size:30px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .doc{text-align:right}
+  .doc h2{font-family:'Fraunces';font-size:24px;font-weight:600}
+  .doc .no{font-size:14px;color:var(--soft);margin-top:2px}
+  .parties{display:flex;gap:36px;flex-wrap:wrap;margin-bottom:28px}
+  .party{flex:1;min-width:220px;font-size:13.5px}
+  .party .lbl{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+  .party .nm{font-weight:700;font-size:15px;margin-bottom:3px}
+  .party .ln{color:var(--soft);white-space:pre-line}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:6px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);padding:0 8px 8px 0;border-bottom:1px solid var(--line)}
+  td{padding:12px 8px 12px 0;border-bottom:1px solid rgba(20,16,30,.07)}
+  .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .totals{margin-left:auto;width:290px;margin-top:14px;font-size:14px}
+  .totals .r{display:flex;justify-content:space-between;padding:6px 0}
+  .totals .r.tot{border-top:2px solid var(--ink);margin-top:6px;padding-top:10px;font-weight:700;font-size:17px}
+  .paid{display:inline-block;margin-top:18px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#0e9a8d;background:rgba(14,154,141,.12);border-radius:999px;padding:5px 13px}
+  .foot{margin-top:32px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--dim);white-space:pre-line}
+  .warn{max-width:760px;margin:0 auto 16px;background:#fff6ec;border:1px solid #ffd8ad;border-radius:14px;padding:14px 18px;font-size:13.5px}
+  .state{max-width:760px;margin:60px auto;text-align:center;color:var(--soft)}
+  @media print{
+    body{background:#fff;padding:0}
+    .bar,.warn{display:none}
+    .sheet{box-shadow:none;border:none;border-radius:0;max-width:none;padding:0}
+    @page{margin:16mm}
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <a class="back" href="/hotels/dashboard">← Dashboard</a>
+    <h1 style="margin-left:12px">Invoice</h1>
+    <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+  <div id="warn"></div>
+  <div id="out"><div class="state">Loading…</div></div>
+
+<script>
+const API='https://shou-backend.vercel.app/api/hotel-portal';
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const eur=c=>((c||0)/100).toFixed(2).replace('.',',');
+function fmt(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}catch(e){return d;}}
+
+(async function(){
+  const token=localStorage.getItem('shou_hotel_sess')||'';
+  const id=new URLSearchParams(location.search).get('id');
+  const out=document.getElementById('out');
+  if(!token){out.innerHTML='<div class="state">Please <a href="/hotels/dashboard">sign in</a> to view this invoice.</div>';return;}
+  if(!id){out.innerHTML='<div class="state">No invoice selected.</div>';return;}
+
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+                          body:JSON.stringify({action:'invoice',chargeId:Number(id)})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){out.innerHTML='<div class="state">'+esc((j&&j.error)||'Could not load this invoice.')+'</div>';return;}
+
+  const inv=j.invoice, b=j.buyer, s=j.seller;
+  // Never print a placeholder company — if the seller block is unconfigured we
+  // say so, because an invoice with invented identity details is worthless.
+  if(!j.sellerReady){
+    document.getElementById('warn').innerHTML=
+      '<b>Seller details not set.</b> Add your company name, address and VAT number to <code>app_config.crm_seller</code> before issuing this to a customer — the invoice below is incomplete without them.';
+  }
+  const desc=inv.kind==='setup'?'shou — setup fee':'shou — monthly subscription';
+  out.innerHTML=
+   '<div class="sheet">'
+   +'<div class="top"><div><div class="brand">shou</div>'
+     +(s?'<div style="font-size:13px;color:var(--soft);margin-top:6px">'+esc(s.name)+'</div>':'')
+   +'</div>'
+   +'<div class="doc"><h2>Invoice</h2><div class="no">'+esc(inv.no)+'</div>'
+     +'<div class="no">'+fmt(inv.issued_at||inv.paid_at)+'</div></div></div>'
+
+   +'<div class="parties">'
+     +'<div class="party"><div class="lbl">From</div>'
+       +(s?'<div class="nm">'+esc(s.name)+'</div><div class="ln">'+esc(s.address||'')+'</div>'
+           +(s.vat?'<div class="ln">VAT '+esc(s.vat)+'</div>':'')
+           +(s.email?'<div class="ln">'+esc(s.email)+'</div>':'')
+          :'<div class="ln">— not configured —</div>')
+     +'</div>'
+     +'<div class="party"><div class="lbl">Bill to</div>'
+       +'<div class="nm">'+esc(b.name||'')+'</div>'
+       +'<div class="ln">'+esc(b.address||b.city||'')+'</div>'
+       +(b.vat?'<div class="ln">VAT '+esc(b.vat)+'</div>':'')
+     +'</div>'
+   +'</div>'
+
+   +'<table><thead><tr><th>Description</th><th class="num">Net</th><th class="num">VAT</th><th class="num">Total</th></tr></thead>'
+   +'<tbody><tr><td>'+esc(desc)+'</td>'
+     +'<td class="num">€ '+eur(inv.net_cents)+'</td>'
+     +'<td class="num">'+(inv.vat_rate||21)+'% · € '+eur(inv.vat_cents)+'</td>'
+     +'<td class="num">€ '+eur(inv.gross_cents)+'</td></tr></tbody></table>'
+
+   +'<div class="totals">'
+     +'<div class="r"><span>Net</span><span>€ '+eur(inv.net_cents)+'</span></div>'
+     +'<div class="r"><span>VAT '+(inv.vat_rate||21)+'%</span><span>€ '+eur(inv.vat_cents)+'</span></div>'
+     +'<div class="r tot"><span>Total</span><span>€ '+eur(inv.gross_cents)+'</span></div>'
+   +'</div>'
+   +(inv.status==='paid'?'<div class="paid">Paid '+fmt(inv.paid_at)+' — no payment due</div>':'')
+   +'<div class="foot">'+esc((s&&s.note)||'')+(s&&s.iban?'\\nIBAN '+esc(s.iban):'')+'\\npowered by shou · shou.be</div>'
+   +'</div>';
+  document.title='Invoice '+inv.no+' — shou';
+})();
+</script>
+</body>
+</html>
