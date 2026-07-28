@@ -109,7 +109,8 @@
   .wk-railwrap{position:relative}
   .wk-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);color:var(--ink);box-shadow:0 4px 14px rgba(20,16,30,.14);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .15s}
   .wk-arrow.left{left:4px}.wk-arrow.right{right:4px}
-  .wk-railwrap:hover .wk-arrow.show{opacity:1;pointer-events:auto}
+  .wk-arrow.show{opacity:.9;pointer-events:auto}          /* discoverable at rest, not hover-only */
+  .wk-railwrap:hover .wk-arrow.show{opacity:1}
   .wk-arrow:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
   @media(hover:none){.wk-arrow{display:none}}
   .ev{display:flex;gap:16px;align-items:center;padding:15px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
@@ -507,7 +508,18 @@ function setupArrows(){
   const R='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
   const page=el=>Math.max(el.clientWidth*0.85,240);
   document.querySelectorAll('#week .wk-rail').forEach(el=>{
-    el.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;if(el.scrollWidth<=el.clientWidth)return;e.preventDefault();el.scrollLeft+=e.deltaY;},{passive:false});
+    el.addEventListener('wheel',e=>{
+      // Vertical wheel scrolls the rail sideways — but ONLY while the rail can
+      // still move that way. Previously it preventDefault()ed unconditionally, so
+      // once a rail hit its end it swallowed the wheel and the PAGE stopped
+      // scrolling while the cursor sat over it (rails are tall, so that was most
+      // of the tab). At an edge we now hand the gesture back to the page.
+      if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;
+      const max=el.scrollWidth-el.clientWidth; if(max<=0)return;
+      const atStart=el.scrollLeft<=0, atEnd=el.scrollLeft>=max-1;
+      if((e.deltaY<0&&atStart)||(e.deltaY>0&&atEnd))return;
+      e.preventDefault(); el.scrollLeft+=e.deltaY;
+    },{passive:false});
     if(el.scrollWidth<=el.clientWidth+4)return;
     const wrap=document.createElement('div');wrap.className='wk-railwrap';el.parentNode.insertBefore(wrap,el);wrap.appendChild(el);
     const l=document.createElement('button');l.className='wk-arrow left';l.setAttribute('aria-label','Scroll left');l.innerHTML=L;
