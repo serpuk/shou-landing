@@ -324,6 +324,50 @@ const HOTEL={name:'The Dominican',lat:50.8493,lng:4.3547};
 // anonymous visitor id (localStorage) so the backend can report queries/day,
 // unique visitors, and top queries per hotel. No PII — just a random id.
 const SAMPLE_SOURCE='hotel-'+((location.pathname.split('/').filter(Boolean).pop()||'sample').replace(/\.html$/,''));
+const PORTAL_SLUG=(location.pathname.split('/').filter(Boolean).pop()||'').replace(/\.html$/,'');
+// ---- guest-question signal (aggregate only) --------------------------------
+// The hotel page answers city questions, not in-room ones. We tag each question
+// with a coarse intent purely so the hotel's dashboard can show WHAT guests ask
+// — never the question text, never anything identifying the guest. In-room
+// intents (wifi, check-out, luggage…) are logged as answered:false, because this
+// page genuinely cannot answer them: that is the useful signal.
+const Q_IN_ROOM=new Set(['wifi','checkin','checkout','heating','laundry','luggage','rules','parking']);
+const Q_KW=[
+  ['wifi',['wifi','wi fi','internet','password','mot de passe','wachtwoord','passwort','contrasena','пароль']],
+  ['checkout',['check out','checkout','uitchecken','abreise','salida','partenza','виїзд','depart']],
+  ['checkin',['check in','checkin','arrival','arrivee','anreise','entrada','заїзд']],
+  ['luggage',['luggage','suitcase','bagage','koffer','valise','gepack','maleta','bagaglio','багаж']],
+  ['parking',['parking','park the car','garage','parkeren','parkplatz','aparcamiento','parcheggio','паркінг']],
+  ['laundry',['laundry','washing machine','wasserette','waschsalon','lavanderia','lavanderia','пральня']],
+  ['breakfast',['breakfast','brunch','petit dejeuner','ontbijt','fruhstuck','desayun','colazione','сніданок']],
+  ['dinner',['dinner','restaurant','where to eat','diner','manger','eten','essen','cena','cenar','ristorante','ресторан','поїсти']],
+  ['bar',['bar','drinks','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','пиво']],
+  ['coffee',['coffee','cafe','cappuccino','koffie','kaffee','caffe','кава']],
+  ['supermarket',['supermarket','grocery','groceries','courses','boodschappen','supermarkt','supermercado','comprar comida','spesa','продукти']],
+  ['pharmacy',['pharmacy','pharmacie','apotheek','apotheke','farmacia','аптека']],
+  ['transport',['tram','metro','bus','public transport','station','openbaar vervoer','trasporti','метро','транспорт']],
+  ['taxi',['taxi','cab','uber','такси','таксі']],
+  ['atm',['atm','cash machine','withdraw money','distributeur','geldautomaat','cajero','bancomat','банкомат']],
+  ['attractions',['sightseeing','tourist','what to see','a voir','visiter','bezienswaardigheden','sehenswurdigkeiten','que ver','cosa vedere','визначні пам']]
+];
+const Q_FOLD=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+function qIntent(q){
+  const s=' '+Q_FOLD(q).replace(/[^0-9a-zЀ-ӿ]+/gi,' ').trim()+' ';
+  for(const [id,kws] of Q_KW)
+    for(const k of kws){const kk=Q_FOLD(k);
+      if(kk.indexOf(' ')>=0||kk.length>=5?s.indexOf(kk)>=0:s.indexOf(' '+kk+' ')>=0)return id;}
+  return 'events';
+}
+function logQ(q){
+  try{
+    const intent=qIntent(q);
+    fetch(`${API}/hotel-portal`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'log_q',slug:PORTAL_SLUG,intent:intent,
+        kind:Q_IN_ROOM.has(intent)?'wb':'events',lang:lang,
+        answered:!Q_IN_ROOM.has(intent)})}).catch(function(){});
+  }catch(e){}
+}
+
 const VISITOR_ID=(()=>{ try{ let v=localStorage.getItem('shou_vid'); if(!v){ v=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)); localStorage.setItem('shou_vid',v); } return v; }catch(_){ return null; } })();
 // Log a demo interaction (click-through / tickets / directions) to the sample
 // analytics. Routed to /api/track with a source, which the backend logs to
@@ -819,6 +863,7 @@ async function ask(q){
   setChips(false);                            // collapse suggestions once a query is sent — frees the screen
   const btn=document.getElementById('chatBtn'); if(btn)btn.disabled=true;
   addMsg('me',esc(q));
+  logQ(q);
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
   try{
     const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng,source:SAMPLE_SOURCE,sessionId:VISITOR_ID})});

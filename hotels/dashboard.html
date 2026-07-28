@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — shou for hotels</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#15101b;--text:#1a1622;--soft:#5b5566;--dim:#8a8494;--bg:#f7f5fa;--panel:#fff;
+        --line:rgba(20,16,30,.10);--pink:#ff3d8b;--orange:#ff9b3d;--cyan:#0e9a8d;--violet:#9b5cff;
+        --grad:linear-gradient(105deg,var(--pink),var(--orange));--shadow:0 1px 3px rgba(20,16,30,.06);
+        --shadow-lift:0 14px 34px -14px rgba(20,16,30,.22)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.015em;color:var(--ink);line-height:1.15}
+  a{color:inherit}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px}
+  header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+  .bar{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:12px}
+  .brand{font-family:'Fraunces';font-weight:700;font-size:22px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+  .brand small{font-family:'Inter';font-weight:600;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);-webkit-text-fill-color:var(--dim);margin-left:8px}
+  .who{margin-left:auto;font-size:13px;color:var(--soft)}
+  .signout{font-size:13px;font-weight:600;color:var(--soft);background:none;border:none;cursor:pointer;font-family:inherit;margin-left:14px}
+  .signout:hover{color:var(--pink)}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:700;font-size:14px;padding:10px 18px;border-radius:11px;border:none;cursor:pointer;text-decoration:none;transition:filter .15s}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 20px -10px rgba(255,61,139,.55)}
+  .btn-primary:hover:not(:disabled){filter:brightness(1.05)}
+  .btn:disabled{opacity:.55;cursor:default}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:600}
+  .btn-ghost:hover{border-color:rgba(255,61,139,.5);color:var(--pink)}
+  .btn-sm{padding:8px 13px;font-size:13px}
+
+  .auth{max-width:440px;margin:64px auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-lift);padding:34px 30px;text-align:center}
+  .auth h1{font-size:26px;margin-bottom:8px}
+  .auth p{color:var(--soft);font-size:15px;margin-bottom:22px}
+  .auth input{width:100%;font-family:inherit;font-size:15px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;margin-bottom:14px;outline:none}
+  .auth input:focus{border-color:rgba(255,61,139,.55);box-shadow:0 0 0 3px rgba(255,61,139,.1)}
+  .auth .btn{width:100%;justify-content:center}
+  .msg{margin-top:14px;font-size:14px;padding:11px 14px;border-radius:12px;display:none}
+  .msg.show{display:block}
+  .msg.ok{color:var(--cyan);background:rgba(14,154,141,.07);border:1px solid rgba(14,154,141,.25)}
+  .msg.err{color:#c81e5b;background:rgba(255,61,139,.06);border:1px solid rgba(255,61,139,.25)}
+
+  #app{display:none}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:16px}
+  .card h2{font-size:19px;margin-bottom:2px}
+  .card .sub{color:var(--soft);font-size:13.5px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .sec-head .sub{margin-left:auto}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .kv{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;font-size:14.5px}
+  .kv dt{color:var(--soft)}
+  .kv dd{color:var(--ink);font-weight:500}
+  .pill{font-size:11.5px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:999px;text-transform:uppercase}
+  .pill.active{color:var(--cyan);background:rgba(14,154,141,.12)}
+  .pill.trial{color:#a06a00;background:rgba(255,155,61,.16)}
+  .pill.none{color:var(--dim);background:rgba(20,16,30,.06)}
+  .pill.bad{color:#c81e5b;background:rgba(200,30,91,.1)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);padding:6px 10px 6px 0;border-bottom:1px solid var(--line)}
+  td{padding:9px 10px 9px 0;border-bottom:1px solid rgba(20,16,30,.06)}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:14px}
+  .plan{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:#fff}
+  .plan.cur{border-color:rgba(14,154,141,.5);background:rgba(14,154,141,.05)}
+  .plan .nm{font-family:'Fraunces';font-weight:600;font-size:16px}
+  .plan .pr{font-size:13.5px;color:var(--soft);margin:2px 0 10px}
+  .qrow{display:flex;align-items:center;gap:10px;margin:5px 0}
+  .qrow .lbl{width:130px;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .qbar{flex:1;max-width:280px;height:8px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden}
+  .qfill{height:100%;background:var(--grad)}
+  .gap{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(255,155,61,.10);border:1px solid rgba(255,155,61,.35);font-size:13.5px}
+  .muted{color:var(--soft)}
+  .empty{color:var(--dim);font-size:14px;padding:8px 0}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <a class="brand" href="/hotels/offer">shou<small>Hotels</small></a>
+  <span class="who" id="who"></span>
+  <button class="signout" id="signout" style="display:none">Sign out</button>
+</div></header>
+
+<div class="wrap">
+  <!-- SIGN IN -->
+  <div id="authWrap">
+    <div class="auth">
+      <h1>Your dashboard</h1>
+      <p>Enter the email we have on file for your hotel and we will send you a secure sign-in link — no password needed.</p>
+      <input id="email" type="email" placeholder="you@hotel.com" autocomplete="email">
+      <button class="btn btn-primary" id="loginBtn">Email me a link →</button>
+      <div class="msg" id="authMsg"></div>
+      <p class="muted" style="font-size:13px;margin-top:16px">Access is tied to the contacts on your account. If your address is not recognised, ask us to add you.</p>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app">
+    <!-- HOTEL -->
+    <div class="card">
+      <div class="sec-head"><h2 id="hName">—</h2><span class="sub" id="hSub"></span></div>
+      <dl class="kv" id="hInfo"></dl>
+    </div>
+
+    <!-- SUBSCRIPTION -->
+    <div class="card">
+      <div class="sec-head"><h2>Subscription</h2><span class="sub" id="billStatus"></span></div>
+      <dl class="kv" id="billInfo"></dl>
+      <div class="plans" id="plans"></div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn btn-ghost btn-sm" id="reqDown">Request a downgrade</button>
+        <button class="btn btn-ghost btn-sm" id="reqCancel">Request cancellation</button>
+      </div>
+      <p class="muted" style="font-size:12.5px;margin-top:10px">Upgrades apply straight away. Downgrades and cancellations reach your account manager so we can confirm timing and any notice period with you.</p>
+      <div class="msg" id="billMsg"></div>
+    </div>
+
+    <!-- INVOICES -->
+    <div class="card">
+      <div class="sec-head"><h2>Invoices</h2><span class="sub" id="invSub"></span></div>
+      <div id="invBody"></div>
+    </div>
+
+    <!-- GUEST QUESTIONS -->
+    <div class="card">
+      <div class="sec-head"><h2>What your guests asked</h2><span class="sub">Last 30 days · counts only, never the questions themselves</span></div>
+      <div id="qBody"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API='https://shou-backend.vercel.app/api/hotel-portal';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const eur=c=>(((c||0)/100).toFixed(2)).replace('.',',');
+let token=localStorage.getItem('shou_hotel_sess')||'';
+let DATA=null;
+
+function msg(el,txt,cls){el.textContent=txt;el.className='msg show '+(cls||'');}
+function clearMsg(el){el.className='msg';el.textContent='';}
+
+async function api(action,body,auth){
+  const h={'Content-Type':'application/json'};
+  if(auth&&token)h['Authorization']='Bearer '+token;
+  const r=await fetch(API,{method:'POST',headers:h,body:JSON.stringify(Object.assign({action:action},body||{}))});
+  const j=await r.json().catch(()=>({}));
+  return {ok:r.ok,status:r.status,j:j};
+}
+
+/* ---------- auth ---------- */
+$('loginBtn').onclick=async function(){
+  const email=$('email').value.trim();
+  clearMsg($('authMsg'));
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){return msg($('authMsg'),'Please enter a valid email address.','err');}
+  $('loginBtn').disabled=true;$('loginBtn').textContent='Sending…';
+  const r=await api('login',{email:email});
+  $('loginBtn').disabled=false;$('loginBtn').textContent='Email me a link →';
+  if(!r.ok){return msg($('authMsg'),(r.j&&r.j.error)||'Something went wrong.','err');}
+  if(r.j&&r.j.emailed===false){
+    // Deliberately identical wording whether or not the address is on file,
+    // so this page can't be used to discover who our customers are.
+    return msg($('authMsg'),'If that address is on a shou account, a sign-in link is on its way to '+email+'.','ok');
+  }
+  msg($('authMsg'),'Check your inbox — we sent a sign-in link to '+email+'.','ok');
+};
+$('email').addEventListener('keydown',function(e){if(e.key==='Enter')$('loginBtn').click();});
+$('signout').onclick=function(){try{localStorage.removeItem('shou_hotel_sess');}catch(e){}location.href='/hotels/dashboard';};
+
+async function enterApp(){
+  const r=await api('me',{},true);
+  if(!r.ok){
+    try{localStorage.removeItem('shou_hotel_sess');}catch(e){}
+    token='';
+    if(r.status===403)msg($('authMsg'),'Your access to this account has been removed.','err');
+    return;
+  }
+  DATA=r.j;
+  $('authWrap').style.display='none';$('app').style.display='block';
+  $('signout').style.display='';
+  $('who').textContent=(DATA.hotel&&DATA.hotel.name)||'';
+  renderHotel();renderBilling();renderInvoices();renderQuestions();
+}
+
+/* ---------- hotel ---------- */
+function renderHotel(){
+  const h=DATA.hotel||{};
+  $('hName').textContent=h.name||'—';
+  $('hSub').textContent=h.city||'';
+  const rows=[];
+  if(h.city)rows.push(['City',esc(h.city)]);
+  if(h.website)rows.push(['Website','<a href="'+esc(h.website)+'" target="_blank" rel="noopener" style="color:var(--cyan)">'+esc(h.website)+'</a>']);
+  if(h.portal_slug)rows.push(['Guest page','<a href="/hotels/'+esc(h.portal_slug)+'" target="_blank" rel="noopener" style="color:var(--cyan)">shou.be/hotels/'+esc(h.portal_slug)+' ↗</a>']);
+  const cs=(h.contacts||[]).filter(function(c){return c&&(c.name||c.email);});
+  if(cs.length)rows.push(['Contacts',cs.map(function(c){return esc(c.name||'')+(c.email?' <span class="muted">&lt;'+esc(c.email)+'&gt;</span>':'');}).join('<br>')]);
+  $('hInfo').innerHTML=rows.map(function(r){return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>';}).join('');
+}
+
+/* ---------- subscription ---------- */
+const PLAN_ORDER=['lite','pro','enterprise'];
+const PLAN_LABEL={lite:'Lite',pro:'Pro',enterprise:'Enterprise'};
+function statusPill(s){
+  const map={active:['active','Active'],trialing:['trial','Trial'],past_due:['bad','Payment due'],
+             canceled:['bad','Canceled'],mandate_pending:['trial','Setup pending'],none:['none','Not set up']};
+  const m=map[s]||map.none;
+  return '<span class="pill '+m[0]+'">'+m[1]+'</span>';
+}
+function fmtDate(d){if(!d)return '—';try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}catch(e){return d;}}
+function renderBilling(){
+  const b=DATA.billing||{};
+  $('billStatus').innerHTML=statusPill(b.status);
+  const rows=[];
+  rows.push(['Plan',b.plan?esc(PLAN_LABEL[b.plan]||b.plan):'—']);
+  if(b.price_cents)rows.push(['Monthly','€ '+eur(b.price_cents)+' <span class="muted">+ VAT '+(b.vat_rate||21)+'%</span>']);
+  if(b.current_period_end)rows.push([b.status==='canceled'?'Access until':'Next charge',fmtDate(b.current_period_end)]);
+  if(b.vat)rows.push(['VAT number',esc(b.vat)]);
+  if(b.address)rows.push(['Billing address',esc(b.address)]);
+  $('billInfo').innerHTML=rows.map(function(r){return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>';}).join('');
+
+  // Only tiers ABOVE the current one are self-serve; everything else is a request.
+  const cur=b.plan||'';
+  const curIdx=PLAN_ORDER.indexOf(cur);
+  $('plans').innerHTML=PLAN_ORDER.map(function(p,i){
+    const isCur=p===cur;
+    const canUp=curIdx>=0&&i>curIdx;
+    return '<div class="plan'+(isCur?' cur':'')+'">'
+      +'<div class="nm">'+PLAN_LABEL[p]+'</div>'
+      +'<div class="pr">'+(isCur?'Your current plan':(canUp?'Upgrade available':'—'))+'</div>'
+      +(canUp?'<button class="btn btn-primary btn-sm up" data-plan="'+p+'">Upgrade now</button>':'')
+      +'</div>';
+  }).join('');
+  document.querySelectorAll('.up').forEach(function(btn){
+    btn.onclick=function(){sendRequest('upgrade',{plan:btn.getAttribute('data-plan')},btn,'Upgrade requested — we will confirm by email shortly.');};
+  });
+}
+async function sendRequest(action,extra,btn,okText){
+  clearMsg($('billMsg'));
+  if(btn){btn.disabled=true;}
+  const r=await api(action,extra,true);
+  if(btn){btn.disabled=false;}
+  if(!r.ok)return msg($('billMsg'),(r.j&&r.j.error)||'Could not send that request.','err');
+  msg($('billMsg'),okText,'ok');
+}
+$('reqDown').onclick=function(){sendRequest('request',{kind:'downgrade'},$('reqDown'),'Downgrade request sent — your account manager will be in touch.');};
+$('reqCancel').onclick=function(){
+  if(!confirm('Send a cancellation request? Nothing is cancelled automatically — we will contact you to confirm.'))return;
+  sendRequest('request',{kind:'cancellation'},$('reqCancel'),'Cancellation request sent — we will contact you to confirm.');
+};
+
+/* ---------- invoices ---------- */
+function renderInvoices(){
+  const inv=(DATA.invoices||[]).filter(function(c){return c.status==='paid'||c.invoice_no;});
+  $('invSub').textContent=inv.length?(inv.length+(inv.length===1?' invoice':' invoices')):'';
+  if(!inv.length){$('invBody').innerHTML='<div class="empty">No invoices yet. They appear here once your first payment is collected.</div>';return;}
+  $('invBody').innerHTML='<table><thead><tr><th>Invoice</th><th>Date</th><th>Description</th><th class="num">Net</th><th class="num">VAT</th><th class="num">Total</th></tr></thead><tbody>'
+    +inv.map(function(c){
+      return '<tr><td>'+(c.invoice_no?esc(c.invoice_no):'<span class="muted">pending</span>')+'</td>'
+        +'<td>'+fmtDate(c.paid_at||c.created_at)+'</td>'
+        +'<td>'+(c.kind==='setup'?'Setup':'Subscription')+(c.status!=='paid'?' <span class="muted">('+esc(c.status)+')</span>':'')+'</td>'
+        +'<td class="num">€ '+eur(c.net_cents)+'</td>'
+        +'<td class="num">€ '+eur(c.vat_cents)+'</td>'
+        +'<td class="num"><b>€ '+eur(c.gross_cents)+'</b></td></tr>';
+    }).join('')+'</tbody></table>'
+    +'<p class="muted" style="font-size:12.5px;margin-top:10px">Need a PDF or a change of billing details? Reply to any shou email and we will sort it.</p>';
+}
+
+/* ---------- guest questions ---------- */
+const Q_LABEL={wifi:'Wi-Fi',checkin:'Check-in',checkout:'Check-out',heating:'Heating',laundry:'Laundry',
+  coffee:'Coffee',trash:'Trash',luggage:'Luggage',parking:'Parking',rules:'House rules',emergency:'Emergency',
+  supermarket:'Groceries',pharmacy:'Pharmacy',bakery:'Bakery',transport:'Transport',atm:'Cash / ATM',
+  attractions:'Things to do',taxi:'Taxi',dinner:'Dinner',breakfast:'Breakfast',bar:'Bars',events:'What is on',other:'Other'};
+function renderQuestions(){
+  const q=DATA.questions||{};
+  const list=(q.intents||[]).slice(0,10);
+  if(!list.length){$('qBody').innerHTML='<div class="empty">No guest questions logged yet. They appear here as guests use your page.</div>';return;}
+  const max=list[0].count||1;
+  const gaps=(q.intents||[]).filter(function(e){return e.unanswered>0;}).slice(0,4);
+  $('qBody').innerHTML='<div class="muted" style="font-size:13px;margin-bottom:8px">'+q.total+' question'+(q.total===1?'':'s')+' in the last 30 days</div>'
+    +list.map(function(e){
+      return '<div class="qrow"><span class="lbl">'+esc(Q_LABEL[e.intent]||e.intent)+'</span>'
+        +'<div class="qbar"><div class="qfill" style="width:'+Math.round(e.count/max*100)+'%"></div></div>'
+        +'<span class="muted" style="font-size:12.5px">'+e.count+'</span></div>';
+    }).join('')
+    +(gaps.length?'<div class="gap"><b>⚠️ Guests asked about things your page could not answer</b><div style="margin-top:3px">'
+      +gaps.map(function(g){return esc(Q_LABEL[g.intent]||g.intent)+' <span class="muted">('+g.count+'×)</span>';}).join(' · ')
+      +'</div><div class="muted" style="font-size:12.5px;margin-top:5px">Send us the details and we will add them to your page.</div></div>':'');
+}
+
+/* ---------- boot: ?t= magic-link exchange ---------- */
+(async function(){
+  const u=new URL(location.href);
+  const t=u.searchParams.get('t');
+  if(t){
+    const r=await api('session',{loginToken:t});
+    if(r.ok&&r.j&&r.j.token){
+      token=r.j.token;
+      try{localStorage.setItem('shou_hotel_sess',token);}catch(e){}
+    }else{
+      msg($('authMsg'),'That sign-in link has expired. Please request a new one.','err');
+    }
+    u.searchParams.delete('t');
+    history.replaceState({},'',u.pathname+(u.search||''));
+  }
+  if(token)await enterApp();
+})();
+</script>
+</body>
+</html>

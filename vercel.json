@@ -13,6 +13,7 @@
     { "source": "/hotels/getaway-studios-leuven", "destination": "/hotels/getaway-studios-leuven.html" },
     { "source": "/hotels/apply", "destination": "/hotels/apply.html" },
     { "source": "/hotels/crm", "destination": "/hotels/crm.html" },
+    { "source": "/hotels/dashboard", "destination": "/hotels/dashboard.html" },
     { "source": "/apartments/sample", "destination": "/apartments/sample.html" },
     { "source": "/apartments/offer", "destination": "/apartments/offer.html" },
     { "source": "/apartments/pricing", "destination": "/apartments/pricing.html" },
