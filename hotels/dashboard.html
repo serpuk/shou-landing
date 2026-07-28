@@ -107,6 +107,24 @@
       <dl class="kv" id="hInfo"></dl>
     </div>
 
+    <!-- GUEST PAGE / QR -->
+    <div class="card" id="qrCard" style="display:none">
+      <div class="sec-head"><h2>Your guest page</h2><span class="sub">Print the QR and leave it where guests will see it</span></div>
+      <div class="row" style="gap:22px;align-items:flex-start">
+        <img id="qrImg" alt="QR code to your guest page" width="150" height="150"
+             style="width:150px;height:150px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff;flex:none">
+        <div style="flex:1;min-width:220px">
+          <div style="font-size:14px;word-break:break-all"><a id="qrUrl" href="#" target="_blank" rel="noopener" style="color:var(--cyan);font-weight:600"></a></div>
+          <p class="muted" style="font-size:13px;margin:6px 0 14px">Guests scan it and the page opens in their browser — no app, no login, in their own language.</p>
+          <div class="row">
+            <a class="btn btn-primary btn-sm" id="flyerBtn" target="_blank" rel="noopener">🖨 Printable guest card</a>
+            <a class="btn btn-ghost btn-sm" id="qrDl" download="shou-qr.png">Download QR</a>
+            <a class="btn btn-ghost btn-sm" id="viewLive" target="_blank" rel="noopener">View live ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- SUBSCRIPTION -->
     <div class="card">
       <div class="sec-head"><h2>Subscription</h2><span class="sub" id="billStatus"></span></div>
@@ -184,7 +202,7 @@ async function enterApp(){
   $('authWrap').style.display='none';$('app').style.display='block';
   $('signout').style.display='';
   $('who').textContent=(DATA.hotel&&DATA.hotel.name)||'';
-  renderHotel();renderBilling();renderInvoices();renderQuestions();
+  renderHotel();renderQr();renderBilling();renderInvoices();renderQuestions();
 }
 
 /* ---------- hotel ---------- */
@@ -199,6 +217,23 @@ function renderHotel(){
   const cs=(h.contacts||[]).filter(function(c){return c&&(c.name||c.email);});
   if(cs.length)rows.push(['Contacts',cs.map(function(c){return esc(c.name||'')+(c.email?' <span class="muted">&lt;'+esc(c.email)+'&gt;</span>':'');}).join('<br>')]);
   $('hInfo').innerHTML=rows.map(function(r){return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>';}).join('');
+}
+
+/* ---------- guest page / QR ---------- */
+function renderQr(){
+  const h=DATA.hotel||{};
+  if(!h.portal_slug){document.getElementById('qrCard').style.display='none';return;}
+  const url='https://shou.be/hotels/'+h.portal_slug;
+  // ecc=H keeps it scannable once printed, folded or scuffed.
+  const qr='https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=0&ecc=H&color=15101b&data='+encodeURIComponent(url);
+  $('qrImg').src=qr;
+  $('qrUrl').textContent='shou.be/hotels/'+h.portal_slug;
+  $('qrUrl').href=url;
+  $('viewLive').href=url;
+  $('qrDl').href=qr;
+  $('qrDl').setAttribute('download',h.portal_slug+'-shou-qr.png');
+  $('flyerBtn').href='/hotels/flyer?slug='+encodeURIComponent(h.portal_slug)+'&name='+encodeURIComponent(h.name||'');
+  document.getElementById('qrCard').style.display='';
 }
 
 /* ---------- subscription ---------- */
