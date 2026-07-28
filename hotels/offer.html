@@ -321,6 +321,8 @@
   .pp-main .pp-per{color:var(--text-soft);font-family:'Inter';font-size:15px;font-weight:500}
   .pp-main .pp-plus{color:var(--text-dim);margin:0 5px;font-family:'Inter';font-weight:400}
   .pp-fine{font-size:13px;color:var(--text-soft);white-space:nowrap}
+  /* nowrap forces this 465px line past a phone viewport and scrolls the whole page sideways */
+  @media(max-width:560px){.pp-fine{white-space:normal;text-align:center;line-height:1.5}}
 
   /* === Guest journey (One QR code) === */
   .journey{display:flex;align-items:flex-start;justify-content:center;gap:6px;max-width:980px;margin:0 auto}
