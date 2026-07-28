@@ -377,7 +377,10 @@ function qIntent(q){
 // while a Restaurant card sat right above. Reuse the qIntent() classifier (already
 // here for question logging) to answer from those cards first.
 // Typographic apostrophes below on purpose: an ASCII ' would end the JS string.
-const CARD_FOR={dinner:['dine','italian'],breakfast:['dine'],coffee:['dine'],attractions:['artnouveau'],
+// No attractions->artnouveau mapping on purpose: "what to see" is often time-scoped
+// ("anything to see tonight?") and keyword matching can't separate that from "show me a
+// landmark", so sightseeing goes to the events engine. The Horta card stays a visible pick.
+const CARD_FOR={dinner:['dine','italian'],breakfast:['dine'],coffee:['dine'],
                 bar:['bar'],supermarket:['market'],laundry:['laundry'],spa:['spa']};
 const MAPS_FOR={pharmacy:'pharmacy',bakery:'bakery',atm:'atm',taxi:'taxi rank',
                 transport:'public transport stop',attractions:'tourist attractions'};
