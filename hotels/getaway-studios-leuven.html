@@ -876,6 +876,14 @@ function applyChrome(){
   document.getElementById('atLbl').textContent=ASK_L[lang]||ASK_L.en;
   document.getElementById('ideasLbl').textContent=IDEAS_L[lang]||IDEAS_L.en;
   document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;ask(q);});
+  // Teaser chips live OUTSIDE the tab panels, so they must open the concierge
+  // tab as well — otherwise the answer renders in a hidden panel. Bound after
+  // the generic handler above so it wins for these chips only.
+  document.querySelectorAll('#atChips .ex').forEach(b=>b.onclick=()=>{
+    const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;
+    setTab(false);ask(q);
+    document.getElementById('msgs').scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
 }
 document.getElementById('langSel').onchange=async e=>{
   lang=e.target.value;applyChrome();
