@@ -233,6 +233,27 @@
   .ask .q{display:block;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin-bottom:9px;font-size:14px;color:var(--text)}
   .ask .q::before{content:'“';color:var(--pink);font-weight:700}
   .ask .q::after{content:'”';color:var(--pink);font-weight:700}
+  /* dashboard mock — rendered in page CSS (not a screenshot) so it never goes stale */
+  .dash{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;align-items:start}
+  .dash-col{display:flex;flex-direction:column;gap:20px}
+  .dash-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .dash-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .dash-card h3{font-size:19px}
+  .dash-tag{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-dim);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
+  .qrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);font-size:14.5px}
+  .qrow .qq{flex:1;color:var(--text)}
+  .qrow .qc{color:var(--text-dim);font-size:13px;font-variant-numeric:tabular-nums}
+  .pill{font-size:11.5px;font-weight:600;border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .pill.ok{background:rgba(14,154,141,.10);color:var(--cyan)}
+  .pill.no{background:rgba(255,61,139,.10);color:var(--pink)}
+  .dash-note{margin-top:16px;font-size:13.5px;color:var(--text-soft);line-height:1.55}
+  .dash-note b{color:var(--ink)}
+  .plan-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .plan-row b{font-size:15.5px;color:var(--ink)}
+  .plan-sub{font-size:13px;color:var(--text-dim)}
+  .fakebtn{display:inline-block;margin-top:14px;font-size:13.5px;font-weight:600;color:var(--cyan);border:1px solid var(--line);border-radius:10px;padding:8px 14px}
+  .inv{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+  .inv .lnk{color:var(--cyan);font-weight:600;font-size:13px}
 
   /* Demo cards */
   .demos{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
@@ -277,6 +298,7 @@
     .hero-grid{grid-template-columns:1fr;gap:36px}
     .hero .pm{order:-1}
     .get{grid-template-columns:1fr}
+    .dash{grid-template-columns:1fr}
     .steps{grid-template-columns:1fr}
   }
   @media(max-width:520px){
@@ -560,7 +582,7 @@
 
 <!-- WHAT YOU GET -->
 <section><div class="wrap">
-  <div class="sec-head"><h2>What your hotel gets</h2><p>A branded page at <b style="color:var(--cyan)">shou.be/hotel/your-name</b> — with two tabs.</p></div>
+  <div class="sec-head"><h2>What your hotel gets</h2><p>A branded page at <b style="color:var(--cyan)">shou.be/hotel/your-name</b> — two tabs for your guests, and a private dashboard for you.</p></div>
   <div class="get">
     <div class="get-list">
       <h3>1 · Your branded concierge page</h3>
@@ -574,14 +596,46 @@
       </ul>
     </div>
     <div class="ask">
-      <h3>2 · AI concierge for events</h3>
-      <p class="sm">Built on the shou app — guests can ask anything, any time:</p>
+      <h3>2 · AI concierge for your neighbourhood</h3>
+      <p class="sm">Built on the shou app — guests can ask anything, any time, in any language:</p>
       <span class="q">What should we do with the kids tomorrow?</span>
+      <span class="q">Where should we eat tonight?</span>
       <span class="q">Best jazz near our hotel?</span>
-      <span class="q">Free activities this evening?</span>
-      <span class="q">Indoor things to do today?</span>
+      <span class="q">Is there a laundry nearby?</span>
       <span class="q">The most authentic Belgian experience within walking distance?</span>
       <span class="q">Where can I watch football tonight?</span>
+      <p class="sm" style="margin:16px 0 0">Dining, bars and errands are answered with <b style="color:var(--ink)">your own picks</b> — not a generic map. Questions about the hotel itself point guests to reception.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- YOUR DASHBOARD -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>And a dashboard <span class="grad-text">only you can see</span></h2>
+    <p>What your guests asked, your plan, your invoices. Nothing to install — you sign in with your work email, no password to remember.</p></div>
+  <div class="dash">
+    <div class="dash-card">
+      <div class="dash-h"><h3>What your guests asked</h3><span class="dash-tag">Example view</span></div>
+      <div class="qrow"><span class="qq">Where should we eat tonight?</span><span class="pill ok">answered</span><span class="qc">14</span></div>
+      <div class="qrow"><span class="qq">What's on this weekend?</span><span class="pill ok">answered</span><span class="qc">11</span></div>
+      <div class="qrow"><span class="qq">Is there a pharmacy nearby?</span><span class="pill ok">answered</span><span class="qc">6</span></div>
+      <div class="qrow"><span class="qq">What time is breakfast?</span><span class="pill no">not answered</span><span class="qc">9</span></div>
+      <div class="qrow"><span class="qq">Can we park at the hotel?</span><span class="pill no">not answered</span><span class="qc">5</span></div>
+      <p class="dash-note">No hotel has ever had this list. Questions your page <b>couldn't</b> answer are flagged — so you can see, in your guests' own words, what they keep coming to your desk for.</p>
+    </div>
+    <div class="dash-col">
+      <div class="dash-card">
+        <h3 style="margin-bottom:14px">Your plan</h3>
+        <div class="plan-row"><b>Concierge Lite</b><span class="pill ok">Active</span></div>
+        <div class="plan-sub">€99 / month + VAT · renews monthly</div>
+        <span class="fakebtn">Change plan →</span>
+      </div>
+      <div class="dash-card">
+        <h3 style="margin-bottom:6px">Invoices</h3>
+        <div class="inv"><span>2026-1007 · August</span><span class="lnk">PDF ↓</span></div>
+        <div class="inv"><span>2026-1004 · July</span><span class="lnk">PDF ↓</span></div>
+        <p class="plan-sub" style="margin-top:12px">Belgian VAT invoices, issued automatically on payment. Nothing to chase.</p>
+      </div>
     </div>
   </div>
 </div></section>
