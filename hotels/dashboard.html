@@ -53,6 +53,19 @@
   .sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
   .sec-head .sub{margin-left:auto}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  /* legal / billing details form */
+  .lgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .lfield.full{grid-column:1/-1}
+  .lfield{display:flex;flex-direction:column;gap:6px}
+  .lfield>span{font-size:13px;color:var(--soft);font-weight:600}
+  .lfield .req{color:var(--pink)}
+  .lfield input,.lfield textarea{font:inherit;font-size:14.5px;color:var(--ink);background:#fff;
+    border:1px solid var(--line);border-radius:11px;padding:10px 13px;width:100%;resize:vertical}
+  .lfield input:focus,.lfield textarea:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,61,139,.12)}
+  .lfield input:disabled,.lfield textarea:disabled{background:var(--panel-soft);color:var(--soft)}
+  .legal-warn{background:rgba(255,61,139,.08);border:1px solid rgba(255,61,139,.28);color:var(--ink);
+    border-radius:12px;padding:11px 14px;font-size:13.5px;margin:-4px 0 16px}
+  @media(max-width:620px){ .lgrid{grid-template-columns:1fr} }
   .kv{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;font-size:14.5px}
   .kv dt{color:var(--soft)}
   .kv dd{color:var(--ink);font-weight:500}
@@ -138,6 +151,26 @@
       <div class="msg" id="billMsg"></div>
     </div>
 
+    <!-- LEGAL / BILLING DETAILS -->
+    <div class="card" id="legalCard">
+      <div class="sec-head"><h2>Billing details</h2><span class="sub" id="legalSub">Required on every invoice</span></div>
+      <p class="muted" style="font-size:13px;margin:-4px 0 16px">These appear on your invoices exactly as entered. Your accountant needs them to reclaim the VAT, so please use the registered company details — not the trading name.</p>
+      <div class="lgrid">
+        <label class="lfield full"><span>Legal company name <b class="req">*</b></span>
+          <input id="lg-name" maxlength="200" placeholder="e.g. Hotel Louise SA" autocomplete="organization"></label>
+        <label class="lfield full"><span>Registered address <b class="req">*</b></span>
+          <textarea id="lg-addr" maxlength="300" rows="3" placeholder="Rue Veydt 40&#10;1050 Ixelles&#10;Belgium"></textarea></label>
+        <label class="lfield"><span>VAT number <b class="req">*</b></span>
+          <input id="lg-vat" maxlength="20" placeholder="BE0123456789" autocomplete="off" spellcheck="false"></label>
+        <label class="lfield"><span>Invoice email <span class="muted" style="font-weight:400">— optional</span></span>
+          <input id="lg-email" maxlength="160" type="email" placeholder="accounting@…" autocomplete="off"></label>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn btn-primary btn-sm" id="lgSave">Save billing details</button>
+      </div>
+      <div class="msg" id="lgMsg"></div>
+    </div>
+
     <!-- INVOICES -->
     <div class="card">
       <div class="sec-head"><h2>Invoices</h2><span class="sub" id="invSub"></span>
@@ -204,7 +237,7 @@ async function enterApp(){
   $('authWrap').style.display='none';$('app').style.display='block';
   $('signout').style.display='';
   $('who').textContent=(DATA.hotel&&DATA.hotel.name)||'';
-  renderHotel();renderQr();renderBilling();renderInvoices();renderQuestions();
+  renderHotel();renderQr();renderLegal();renderBilling();renderInvoices();renderQuestions();
   // Admin view: make it unmistakable whose account this is, and remove the
   // controls that would act on the customer's behalf (the API refuses them too).
   if(DATA.admin){
@@ -252,6 +285,41 @@ function renderQr(){
   document.getElementById('qrCard').style.display='';
 }
 
+/* ---------- legal / billing details ---------- */
+// Mandatory before checkout: the first invoice is issued automatically on
+// payment, and an invoice made out to the wrong entity cannot be re-addressed.
+function renderLegal(){
+  const L=DATA.legal||{};
+  $('lg-name').value=L.name||''; $('lg-addr').value=L.address||'';
+  $('lg-vat').value=L.vat||'';   $('lg-email').value=L.email||'';
+  const card=document.getElementById('legalCard');
+  card.querySelector('.legal-warn')?.remove();
+  if(!L.complete){
+    const w=document.createElement('div');
+    w.className='legal-warn';
+    w.innerHTML='<b>Needed before you can activate.</b> We cannot issue a valid VAT invoice without your legal name, registered address and VAT number.';
+    card.querySelector('.sec-head').after(w);
+  }
+  $('legalSub').textContent=L.complete?'On file':'Incomplete';
+  if(DATA.admin){   // admin view is read-only everywhere else too
+    ['lg-name','lg-addr','lg-vat','lg-email'].forEach(id=>$(id).disabled=true);
+    $('lgSave').disabled=true;
+  }
+}
+document.getElementById('lgSave').onclick=async function(){
+  const btn=this, box=$('lgMsg');
+  btn.disabled=true; const old=btn.textContent; btn.textContent='Saving…';
+  const r=await api('save_legal',{name:$('lg-name').value,address:$('lg-addr').value,
+                                  vat:$('lg-vat').value,email:$('lg-email').value},true);
+  btn.disabled=false; btn.textContent=old;
+  if(!r.ok||!r.j||!r.j.ok) return msg(box,(r.j&&r.j.error)||'Could not save.','err');
+  DATA.legal=r.j.legal||DATA.legal;
+  DATA.billing=DATA.billing||{};
+  DATA.billing.vat=DATA.legal.vat; DATA.billing.address=DATA.legal.address;
+  msg(box,'Saved. Your invoices will use these details.','ok');
+  renderLegal(); renderBilling();            // may unlock the activation button
+};
+
 /* ---------- subscription ---------- */
 const PLAN_ORDER=['lite','pro','enterprise'];
 const PLAN_LABEL={lite:'Lite',pro:'Pro',enterprise:'Enterprise'};
@@ -264,6 +332,7 @@ function statusPill(s){
 function fmtDate(d){if(!d)return '—';try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}catch(e){return d;}}
 function renderBilling(){
   const b=DATA.billing||{};
+  const legalOk=!!(DATA.legal&&DATA.legal.complete);
   $('billStatus').innerHTML=statusPill(b.status);
   const rows=[];
   rows.push(['Plan',b.plan?esc(PLAN_LABEL[b.plan]||b.plan):'—']);
@@ -307,11 +376,20 @@ function renderBilling(){
         +esc(PLAN_LABEL[cur]||cur)+'</div>'
         +'<div style="font-size:14px;margin-top:3px">€ '+gross(b.price_cents)+' / month incl. VAT</div>'
         +setupLine
-        +'<button class="btn btn-primary" id="startSub" style="margin-top:12px">Start subscription →</button>'
+        // Invoicing identity must be on file first — the first invoice is issued
+        // automatically on payment and cannot be re-addressed afterwards.
+        +(legalOk
+          ? '<button class="btn btn-primary" id="startSub" style="margin-top:12px">Start subscription →</button>'
+          : '<button class="btn btn-primary" id="startSub" style="margin-top:12px" disabled title="Complete your billing details first">Start subscription →</button>'
+            +'<div style="font-size:13px;margin-top:8px"><a href="#legalCard" id="toLegal" style="color:var(--pink);font-weight:600;text-decoration:none">Complete your billing details first →</a></div>')
         +'<div class="muted" style="font-size:12px;margin-top:8px">Secure payment via Mollie · Bancontact · cancel by contacting us.</div>'
         +'</div>';
+      const tl=$('toLegal');
+      if(tl) tl.onclick=e=>{e.preventDefault();
+        document.getElementById('legalCard').scrollIntoView({behavior:'smooth',block:'center'});
+        $('lg-name').focus();};
       const sb=$('startSub');
-      if(sb) sb.onclick=async function(){
+      if(sb && legalOk) sb.onclick=async function(){
         sb.disabled=true;sb.textContent='Opening checkout…';
         const r=await api('start_checkout',{},true);
         if(!r.ok||!r.j||!r.j.checkoutUrl){
