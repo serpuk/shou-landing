@@ -157,7 +157,7 @@
   <div class="done" id="doneBox">
     <div class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 6.5" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <h2>You're in — welcome aboard.</h2>
-    <p>Check your inbox — we sent a sign-in link to <b id="doneEmail">your email</b>. It expires in 20 minutes. Your first month is free.</p>
+    <p id="doneMsg">Check your inbox — we sent a sign-in link to <b id="doneEmail">your email</b>. It expires in 20 minutes. Your first month is free.</p>
     <a class="btn-back" href="/apartments/dashboard">Open your dashboard →</a>
   </div>
 </div></main>
@@ -220,12 +220,16 @@
         return showErr((res.j && res.j.error) || 'Something went wrong. Please email apartments@shou.be.');
       }
       // Send the sign-in link the panel below promises: /api/apt action "login"
-      // upserts the owner and emails the magic link. Never block the panel on it.
+      // upserts the owner and emails the magic link. Never block the panel on it —
+      // but rewrite the panel if it fails, or we promise mail that never arrives.
+      // fetch only rejects on network errors, so the 502 needs an explicit r.ok check.
       fetch(API + '/api/apt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action:'login', email: payload.email, name: payload.contactName })
-      }).catch(function(){});
+      }).then(function(r){ if(!r.ok) throw 0; }).catch(function(){
+        document.getElementById('doneMsg').innerHTML = 'Your account is created, but we could not email the sign-in link. Open your dashboard below and click “Email me a link”, or write to <a href="mailto:apartments@shou.be">apartments@shou.be</a>.';
+      });
       // Open the dashboard in the visitor's language (same key dashboard.html reads).
       if(payload.lang === 'fr' || payload.lang === 'nl'){ try{ localStorage.setItem('apt_ui_lang', payload.lang); }catch(e){} }
       document.getElementById('head').style.display = 'none';
