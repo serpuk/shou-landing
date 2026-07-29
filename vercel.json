@@ -89,6 +89,10 @@
       "destination": "/apartments/dashboard.html"
     },
     {
+      "source": "/apartments/invoice",
+      "destination": "/apartments/invoice.html"
+    },
+    {
       "source": "/apartments/u/:slug",
       "destination": "/apartments/u.html?u=:slug"
     },
