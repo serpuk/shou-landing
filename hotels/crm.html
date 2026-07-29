@@ -326,8 +326,17 @@
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
       <b style="font-size:15px">💬 Replies to assign</b>
       <span id="unmatched-count" class="dim" style="font-size:13px"></span>
+      <span id="imap-checked" class="dim" style="font-size:12px;margin-left:auto"></span>
     </div>
     <div id="unmatched-list"></div>
+    <!-- Matched replies never reach the queue above; without this a prospect can
+         write back and nothing on screen says so. -->
+    <div id="matched-wrap" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(20,16,30,.10)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#0e6b60;margin-bottom:7px">
+        ↩︎ Replied — already on the hotel
+      </div>
+      <div id="matched-list"></div>
+    </div>
     <div id="ignored-wrap" style="display:none;margin-top:6px">
       <button id="ignored-toggle" class="linkbtn" style="background:none;border:none;color:#888;font-size:12.5px;cursor:pointer;padding:4px 0">▸ <span id="ignored-count"></span></button>
       <div id="ignored-list" style="display:none;margin-top:6px"></div>
@@ -524,7 +533,7 @@ async function toggleReminder() {
 /* ---------- unmatched inbound replies ---------- */
 let ignoredOpen = false;
 async function loadUnmatched() {
-  try { const d = await api('inbound_unmatched'); renderUnmatched(d.inbound || [], d.ignored || []); }
+  try { const d = await api('inbound_unmatched'); renderUnmatched(d.inbound || [], d.ignored || [], d.matched || [], d.last_checked); }
   catch (e) { /* silent */ }
 }
 function fmtSnippet(t) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > 160 ? t.slice(0, 160) + '…' : t; }
@@ -558,11 +567,49 @@ function inbCard(r, ignored) {
       </div>
     </div>`;
 }
-function renderUnmatched(list, ignoredList) {
+function renderUnmatched(list, ignoredList, matched, lastChecked) {
   const card = $('unmatched');
   ignoredList = ignoredList || [];
-  if (!list.length && !ignoredList.length) { card.style.display = 'none'; return; }
+  matched = matched || [];
+  // Show the card whenever a reply arrived at all — an empty queue is only
+  // reassuring next to a recent "last checked" and the matched list.
+  if (!list.length && !ignoredList.length && !matched.length) { card.style.display = 'none'; return; }
   card.style.display = '';
+
+  const chk = $('imap-checked');
+  if (chk) {
+    if (lastChecked) {
+      const t = new Date(lastChecked), mins = Math.round((Date.now() - t.getTime()) / 60000);
+      const stale = mins > 45;      // cron runs every 10 min; 45 means something is wrong
+      chk.textContent = 'mail checked ' + (mins < 1 ? 'just now' : mins < 60 ? mins + ' min ago'
+        : t.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }));
+      chk.style.color = stale ? '#c81e5b' : '';
+      chk.title = stale ? 'The IMAP poller should run every 10 minutes — this looks stalled.' : '';
+    } else { chk.textContent = 'mail check: never run'; chk.style.color = '#c81e5b'; }
+  }
+
+  const mw = $('matched-wrap');
+  if (mw) {
+    if (matched.length) {
+      mw.style.display = '';
+      $('matched-list').innerHTML = matched.map(r => {
+        const who = esc(r.from_name || r.from_email || 'someone');
+        const when = new Date(r.received_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const gist = r.ai_summary || r.subject || '';
+        return `<div class="matched-row" data-hid="${r.hotel_id}" style="display:flex;gap:9px;align-items:baseline;padding:6px 0;cursor:pointer;font-size:13px">
+          <span style="color:#0e6b60;font-weight:700">${esc(r.hotel_name || 'hotel #' + r.hotel_id)}</span>
+          <span style="color:#555">${who}</span>
+          <span class="dim" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(gist)}</span>
+          <span class="dim" style="font-size:12px;white-space:nowrap">${esc(when)}</span></div>`;
+      }).join('');
+      $('matched-list').querySelectorAll('.matched-row').forEach(row => {
+        row.onclick = () => {
+          const h = hotels.find(x => x.id === +row.getAttribute('data-hid'));
+          if (h) openDrawer(h); else toast('That hotel is not in the current view');
+        };
+      });
+    } else { mw.style.display = 'none'; }
+  }
 
   // shared search datalist
   $('hotels-dl').innerHTML = hotels.map(h => `<option value="${esc(hotelLabel(h))}">`).join('');
