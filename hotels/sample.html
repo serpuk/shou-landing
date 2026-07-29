@@ -204,6 +204,10 @@
   #ask{display:none}#ask.on{display:block}
   .chat{max-width:720px;margin:8px auto 0}
   .chat-intro{text-align:center;color:var(--soft);font-size:15px;margin-bottom:18px}
+  .ask-teaser{max-width:760px;margin:22px auto 0;border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px 18px;box-shadow:0 10px 28px -20px rgba(20,16,30,.4)}
+  .at-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:var(--ink);margin-bottom:10px}
+  .at-dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(120deg,var(--violet),var(--pink));flex:none}
+  .at-chips{display:flex;gap:8px;flex-wrap:wrap}
   /* suggestion chips — collapsible strip docked above the input */
   .exs-toggle{display:flex;align-items:center;gap:6px;margin:0 auto 8px;background:none;border:none;color:var(--soft);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:999px}
   .exs-toggle:hover{color:var(--pink)}
@@ -289,6 +293,11 @@
         </div>
       </div>
     </section>
+
+    <div class="ask-teaser" id="askTeaser">
+      <div class="at-head"><span class="at-dot"></span><span id="atLbl">Ask anything</span></div>
+      <div class="at-chips" id="atChips"></div>
+    </div>
 
     <div class="tabs">
       <button class="tab on" id="tabWeekBtn"><span class="tab-dot"></span><span data-i="tabWeek">This week</span></button>
@@ -447,6 +456,7 @@ const ml=k=>(ML[lang]||ML.en)[k];
 const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
 const SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--orange)',exhibition:'var(--violet)',theatre:'var(--violet)',dance:'var(--violet)',comedy:'var(--violet)',family:'var(--cyan)',sports:'var(--cyan)',sport:'var(--cyan)'};
 const SURPRISE_L={en:'Surprise me tonight',fr:'Surprends-moi ce soir',nl:'Verras me vanavond',de:'Überrasch mich heute Abend',es:'Sorpréndeme esta noche',it:'Sorprendimi stasera',uk:'Здивуй мене сьогодні ввечері'};
+const ASK_L={en:'Ask anything',fr:'Demandez ce que vous voulez',nl:'Vraag wat je wil',de:'Frag einfach',es:'Pregunta lo que quieras',it:'Chiedi qualsiasi cosa',uk:'Запитайте будь-що'};
 const IDEAS_L={en:'Ideas',fr:'Idées',nl:'Ideeën',de:'Ideen',es:'Ideas',it:'Idee',uk:'Ідеї'};
 
 const T={
@@ -968,7 +978,18 @@ function applyChrome(){
     .concat((t('ex')||[]).map(q=>`<button class="ex" data-q="${esc(q)}">${esc(q)}</button>`));
   document.getElementById('exs').innerHTML=chips.join('');
   document.getElementById('ideasLbl').textContent=IDEAS_L[lang]||IDEAS_L.en;
+  document.getElementById('atChips').innerHTML=(t('ex')||[]).slice(0,4)
+    .map(q=>`<button class="ex" data-q="${esc(q)}">${esc(q)}</button>`).join('');
+  document.getElementById('atLbl').textContent=ASK_L[lang]||ASK_L.en;
   document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;ask(q);});
+  // Teaser chips live OUTSIDE the tab panels, so they must open the concierge
+  // tab as well — otherwise the answer renders in a hidden panel. Bound after
+  // the generic handler above so it wins for these chips only.
+  document.querySelectorAll('#atChips .ex').forEach(b=>b.onclick=()=>{
+    const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;
+    setTab(false);ask(q);
+    document.getElementById('msgs').scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
 }
 document.getElementById('langSel').onchange=async e=>{
   lang=e.target.value;applyChrome();
