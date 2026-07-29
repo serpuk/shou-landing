@@ -314,6 +314,7 @@ var INTENTS=[
   {t:'rec',id:'bar',kw:['bar','drinks','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','copa','aperitivo','пиво','бар']},
 ];
 function classify(q){var s=toks(q);for(var i=0;i<INTENTS.length;i++){var it=INTENTS[i];for(var j=0;j<it.kw.length;j++){var k=fold(it.kw[j]);var hit=(k.indexOf(' ')>=0||k.length>=5)?s.indexOf(k)>=0:s.indexOf(' '+k+' ')>=0;if(hit)return it;}}return null;}
+var REC_LEAD={dinner:{en:'For dinner, the host recommends:',fr:"Pour dîner, l'hôte recommande :",nl:'Om te eten raadt je gastheer aan:',de:'Zum Essen empfiehlt der Gastgeber:',es:'Para comer, el anfitrión recomienda:',it:"Per mangiare, l'host consiglia:",uk:'Поїсти господар радить:'},coffee:{en:'For coffee, the host recommends:',fr:"Pour un café, l'hôte recommande :",nl:'Voor koffie raadt je gastheer aan:',de:'Für einen Kaffee empfiehlt der Gastgeber:',es:'Para un café, el anfitrión recomienda:',it:"Per un caffè, l'host consiglia:",uk:'На каву господар радить:'},bar:{en:'For a drink, the host recommends:',fr:"Pour un verre, l'hôte recommande :",nl:'Voor een drankje raadt je gastheer aan:',de:'Für einen Drink empfiehlt der Gastgeber:',es:'Para una copa, el anfitrión recomienda:',it:"Per un drink, l'host consiglia:",uk:'Випити господар радить:'}};
 var REC_Q={dinner:'restaurants',breakfast:'breakfast brunch',coffee:'coffee',bar:'bars'};
 
 // Aggregate-only signal for the owner's "what guests asked" digest: the matched
@@ -350,7 +351,10 @@ function ask(q){
           +'<span class="pick-n">'+esc(p.n)+'</span>'
           +(p.note?'<span class="pick-t">'+esc(p.note)+'</span>':'')+'</a>';
       }).join('');
-      addMsg('ai',esc(chr(picks.length===1?'hostpick1':'hostpicks'))
+      // Category-aware and number-neutral, so it reads right for one pick or five.
+      var lead=(REC_LEAD[cls.id]&&(REC_LEAD[cls.id][curLang]||REC_LEAD[cls.id].en))
+               ||chr(picks.length===1?'hostpick1':'hostpicks');
+      addMsg('ai',esc(lead)
         +'<div class="picks">'+rows+'</div>'
         +'<a class="pick-more" href="'+esc(maps(REC_Q[cls.id]+' near '+addr))+'" target="_blank" rel="noopener">'
         +esc(chr('seemap'))+' \u2197</a>');

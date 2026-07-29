@@ -384,6 +384,9 @@ const CARD_FOR={dinner:['dine','italian'],breakfast:['dine'],coffee:['dine'],
                 bar:['bar'],supermarket:['market'],laundry:['laundry'],spa:['spa']};
 const MAPS_FOR={pharmacy:'pharmacy',bakery:'bakery',atm:'atm',taxi:'taxi rank',
                 transport:'public transport stop',attractions:'tourist attractions'};
+const PICK_L={en:'Of course — this is our pick:',fr:'Bien sûr — voici notre adresse :',nl:'Natuurlijk — dit is onze favoriet:',de:'Sehr gern — das ist unsere Empfehlung:',es:'Por supuesto — esta es nuestra recomendación:',it:'Certamente — ecco il nostro consiglio:',uk:'Звісно — ось наша рекомендація:'};
+const MAPS_L={en:"Here's the closest I can find:",fr:'Voici le plus proche :',nl:'Dit is het dichtstbijzijnde:',de:'Das Nächstgelegene:',es:'Esto es lo más cercano:',it:'Ecco il più vicino:',uk:'Ось найближче:'};
+const OPEN_L={en:'Open in Maps',fr:'Ouvrir dans Maps',nl:'Openen in Maps',de:'In Maps öffnen',es:'Abrir en Maps',it:'Apri in Maps',uk:'Відкрити на карті'};
 const DESK_L={en:'Your front desk can help with that one — just ask at reception.',
   fr:'La réception pourra vous aider — demandez-leur directement.',
   nl:'De receptie helpt je daarmee — vraag het even aan de balie.',
@@ -397,7 +400,7 @@ function answerCard(icon,label,name,url,extra){
     +'<span style="font-size:20px;line-height:1.3;flex:none">'+icon+'</span><div style="min-width:0">'
     +'<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)">'+esc(label)+'</div>'
     +(name?'<div style="font-size:15px;font-weight:600;color:var(--ink)">'+esc(name)+'</div>':'')
-    +'<a href="'+esc(url)+'" target="_blank" rel="noopener" style="font-size:13.5px;color:var(--cyan);font-weight:600">Open in Maps ↗</a>'
+    +'<a href="'+esc(url)+'" target="_blank" rel="noopener" style="font-size:13.5px;color:var(--cyan);font-weight:600">'+esc(OPEN_L[lang]||OPEN_L.en)+' ↗</a>'
     +(extra?'<div style="font-size:12.5px;color:var(--dim);margin-top:2px">'+esc(extra)+'</div>':'')
     +'</div></div>';
 }
@@ -408,12 +411,14 @@ function conciergePick(q){
   const cards=(typeof HOTEL_CARDS==='function')?HOTEL_CARDS():[];
   const keys=CARD_FOR[intent]||[];
   const hit=cards.filter(c=>c.url).find(c=>keys.indexOf(c.k)>=0);
-  if(hit) return answerCard(hit.i||'📍',t(hit.k)||hit.k,hit.n||'',hit.url);
+  if(hit) return '<div style="margin-bottom:2px">'+esc(PICK_L[lang]||PICK_L.en)+'</div>'
+                 +answerCard(hit.i||'📍',t(hit.k)||hit.k,hit.n||'',hit.url);
   if(Q_IN_ROOM.has(intent)) return '<div>'+esc(DESK_L[lang]||DESK_L.en)+'</div>';
   const mq=MAPS_FOR[intent];
   if(mq){
     const near=(HOTEL&&HOTEL.name)?(' near '+HOTEL.name):'';
-    return answerCard('📍',mq,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near));
+    return '<div style="margin-bottom:2px">'+esc(MAPS_L[lang]||MAPS_L.en)+'</div>'
+           +answerCard('📍',mq,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near));
   }
   return null;                                   // fall through to the events engine
 }
