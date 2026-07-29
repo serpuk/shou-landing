@@ -381,6 +381,9 @@ const CARD_FOR={dinner:['dine','italian'],breakfast:['dine'],coffee:['dine'],
                 bar:['bar'],supermarket:['market'],laundry:['laundry'],spa:['spa']};
 const MAPS_FOR={pharmacy:'pharmacy',bakery:'bakery',atm:'atm',taxi:'taxi rank',
                 transport:'public transport stop',attractions:'tourist attractions'};
+// Label shown to the guest. MAPS_FOR stays English because it is the
+// Google Maps QUERY, not display text.
+const POI_L={pharmacy:{en:'Pharmacy',fr:'Pharmacie',nl:'Apotheek',de:'Apotheke',es:'Farmacia',it:'Farmacia',uk:'Аптека'},bakery:{en:'Bakery',fr:'Boulangerie',nl:'Bakkerij',de:'Bäckerei',es:'Panadería',it:'Panetteria',uk:'Пекарня'},atm:{en:'ATM',fr:'Distributeur',nl:'Geldautomaat',de:'Geldautomat',es:'Cajero',it:'Bancomat',uk:'Банкомат'},taxi:{en:'Taxi',fr:'Taxi',nl:'Taxi',de:'Taxi',es:'Taxi',it:'Taxi',uk:'Таксі'},transport:{en:'Public transport',fr:'Transports',nl:'Openbaar vervoer',de:'Nahverkehr',es:'Transporte',it:'Trasporti',uk:'Транспорт'},attractions:{en:'Things to do',fr:'À voir',nl:'Bezienswaardigheden',de:'Sehenswürdigkeiten',es:'Qué ver',it:'Cosa vedere',uk:'Що подивитися'}};
 const PICK_L={en:'Of course — this is our pick:',fr:'Bien sûr — voici notre adresse :',nl:'Natuurlijk — dit is onze favoriet:',de:'Sehr gern — das ist unsere Empfehlung:',es:'Por supuesto — esta es nuestra recomendación:',it:'Certamente — ecco il nostro consiglio:',uk:'Звісно — ось наша рекомендація:'};
 const MAPS_L={en:"Here's the closest I can find:",fr:'Voici le plus proche :',nl:'Dit is het dichtstbijzijnde:',de:'Das Nächstgelegene:',es:'Esto es lo más cercano:',it:'Ecco il più vicino:',uk:'Ось найближче:'};
 const OPEN_L={en:'Open in Maps',fr:'Ouvrir dans Maps',nl:'Openen in Maps',de:'In Maps öffnen',es:'Abrir en Maps',it:'Apri in Maps',uk:'Відкрити на карті'};
@@ -414,8 +417,9 @@ function conciergePick(q){
   const mq=MAPS_FOR[intent];
   if(mq){
     const near=(HOTEL&&HOTEL.name)?(' near '+HOTEL.name):'';
+    const poiLabel=(POI_L[intent]&&(POI_L[intent][lang]||POI_L[intent].en))||mq;
     return '<div style="margin-bottom:2px">'+esc(MAPS_L[lang]||MAPS_L.en)+'</div>'
-           +answerCard('📍',mq,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near));
+           +answerCard('📍',poiLabel,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near));
   }
   return null;                                   // fall through to the events engine
 }
