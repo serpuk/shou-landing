@@ -1003,7 +1003,9 @@ function openDrawer(h) {
       <div id="ai-out"></div>
     </div>
     <div class="d-section collapsible" id="outreach-box" data-sec="outreach">
-      <h3>Outreach <button class="btn" id="o-gen" style="font-size:13px;padding:8px 16px">✨ Generate personalized outreach</button></h3>
+      <h3>Outreach <button class="btn" id="o-gen" style="font-size:13px;padding:8px 16px">✨ Generate personalized outreach</button>
+        <button class="btn2" id="o-demofu" style="font-size:13px;padding:8px 16px" title="Ready-to-paste message for after a demo — this hotel's own live links">📋 Demo follow-up</button></h3>
+      <div id="o-demofu-out"></div>
       <div id="o-out">${h.outreach ? '' : '<p class="dim" style="font-size:13px">Nothing generated yet. Uses the hotel’s website + profile to write a subject line, first email and two follow-ups.</p>'}</div>
       <div id="seq-box"></div>
     </div>
@@ -1025,6 +1027,7 @@ function openDrawer(h) {
   if (!isNew) {
     $('d-delete').onclick = deleteCurrent;
     $('o-gen').onclick = generateOutreach;
+    $('o-demofu').onclick = demoFollowup;
     if (h.outreach) renderOutreach(h.outreach);
     renderSeq();
     loadLog(h.id);
@@ -1532,6 +1535,34 @@ async function generateOutreach() {
     refresh();
   } catch (e) { toast('Generation failed: ' + e.message); }
   btn.disabled = false; btn.textContent = '✨ Generate personalized outreach';
+}
+
+/* ---------- post-demo follow-up (deterministic, copy/paste) ---------- */
+async function demoFollowup() {
+  const btn = $('o-demofu'), box = $('o-demofu-out');
+  btn.disabled = true; const old = btn.textContent; btn.textContent = 'Building…';
+  try {
+    const d = await api('demo_followup', { method: 'POST', body: { hotelId: current.id } });
+    const warn = d.has_own_page ? '' :
+      '<div style="background:rgba(255,61,139,.08);border:1px solid rgba(255,61,139,.28);border-radius:10px;'
+      + 'padding:9px 12px;font-size:12.5px;margin-bottom:9px">No <b>Portal slug</b> on this hotel yet, so the message '
+      + 'links to the shared demo instead of their own page. Set one above and rebuild.</div>';
+    box.innerHTML = warn
+      + '<div class="o-block"><div class="o-bhead"><span class="o-toggle" style="cursor:default">Subject</span>'
+      + '<button class="copy-btn" id="dfu-cs">Copy</button></div>'
+      + '<input class="o-ta" id="dfu-subject" style="min-height:0;padding:9px 12px;margin-top:9px" value="' + esc(d.subject) + '"></div>'
+      + '<div class="o-block"><div class="o-bhead"><span class="o-toggle" style="cursor:default">Demo follow-up</span>'
+      + '<button class="copy-btn" id="dfu-ct">Copy text</button></div>'
+      + '<textarea class="o-ta" id="dfu-text" style="min-height:340px">' + esc(d.text) + '</textarea></div>';
+    const cp = (el, btnEl, label) => btnEl.onclick = () => {
+      navigator.clipboard.writeText(el.value).then(
+        () => { btnEl.textContent = 'Copied ✓'; setTimeout(() => btnEl.textContent = label, 1500); },
+        () => toast('Copy failed — select the text manually'));
+    };
+    cp($('dfu-subject'), $('dfu-cs'), 'Copy');
+    cp($('dfu-text'), $('dfu-ct'), 'Copy text');
+  } catch (e) { toast('Could not build it: ' + e.message); }
+  btn.disabled = false; btn.textContent = old;
 }
 
 /* ---------- send sequence ---------- */
