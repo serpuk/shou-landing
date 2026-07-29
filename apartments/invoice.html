@@ -60,6 +60,9 @@ const API='https://shou-backend.vercel.app/api/apt';
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const eur=c=>((c||0)/100).toFixed(2).replace('.',',');
 function fmt(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}catch(e){return d;}}
+// Printed only when the buyer is outside Belgium — a Belgian address on a
+// Belgian invoice does not need restating. Falls back to the raw code.
+function countryName(cc){try{return new Intl.DisplayNames(['en'],{type:'region'}).of(cc)||cc;}catch(e){return cc;}}
 
 (async function(){
   // Two ways in: the signed link from the invoice email (?t=), or a signed-in
@@ -107,6 +110,7 @@ function fmt(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-GB
      +'<div class="party"><div class="lbl">Bill to</div>'
        +'<div class="nm">'+esc(b.name||'')+'</div>'
        +'<div class="ln">'+esc(b.address||'')+'</div>'
+       +(b.country&&b.country!=='BE'?'<div class="ln">'+esc(countryName(b.country))+'</div>':'')
        +(b.vat?'<div class="ln">VAT '+esc(b.vat)+'</div>':'')
      +'</div>'
    +'</div>'
