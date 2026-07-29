@@ -48,32 +48,52 @@
 </head>
 <body>
   <div class="bar">
-    <a class="back" href="/hotels/dashboard">← Dashboard</a>
-    <h1 style="margin-left:12px">Invoice</h1>
-    <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+    <a class="back" href="/apartments/dashboard" data-i="dash">← Dashboard</a>
+    <h1 style="margin-left:12px" data-i="invoice">Invoice</h1>
+    <button class="btn" onclick="window.print()" data-i="print">Print / Save as PDF</button>
   </div>
   <div id="warn"></div>
-  <div id="out"><div class="state">Loading…</div></div>
+  <div id="out"><div class="state" data-i="loading">Loading…</div></div>
 
 <script>
 const API='https://shou-backend.vercel.app/api/apt';
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const eur=c=>((c||0)/100).toFixed(2).replace('.',',');
-function fmt(d){if(!d)return '';try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}catch(e){return d;}}
+
+// ---------- i18n (owner UI: EN / FR / NL, same three as the dashboard) ----------
+var T={
+ en:{dash:'← Dashboard',invoice:'Invoice',print:'Print / Save as PDF',from:'From',billTo:'Bill to',descr:'Description',net:'Net',vat:'VAT',total:'Total',paid:'Paid {d} — no payment due',loading:'Loading…',signin:'Please {a}sign in{/a} to view this invoice.',notCfg:'— not configured —'},
+ fr:{dash:'← Tableau de bord',invoice:'Facture',print:'Imprimer / Enregistrer en PDF',from:'De',billTo:'Facturé à',descr:'Description',net:'Net',vat:'TVA',total:'Total',paid:'Payé le {d} — aucun paiement dû',loading:'Chargement…',signin:'Veuillez vous {a}connecter{/a} pour consulter cette facture.',notCfg:'— non renseigné —'},
+ nl:{dash:'← Dashboard',invoice:'Factuur',print:'Afdrukken / Opslaan als PDF',from:'Van',billTo:'Factuur voor',descr:'Omschrijving',net:'Netto',vat:'Btw',total:'Totaal',paid:'Betaald op {d} — niets meer verschuldigd',loading:'Laden…',signin:'{a}Meld je aan{/a} om deze factuur te bekijken.',notCfg:'— niet ingesteld —'}
+};
+// The emailed ?t= link cannot carry a language (apt_owners has no language column),
+// so the choice the dashboard stored on this same origin is what makes FR/NL stick.
+// ?lang= stays as a manual override.
+var L=new URLSearchParams(location.search).get('lang')
+      ||(function(){try{return localStorage.getItem('apt_ui_lang');}catch(e){return null;}})()
+      ||(navigator.language||'en').slice(0,2).toLowerCase();
+if(!T[L])L='en';
+document.documentElement.lang=L;
+// tr(), not the dashboard's t() — `t` is already the signed-link query param below.
+function tr(k){var d=T[L];return d[k]!=null?d[k]:T.en[k];}
+document.querySelectorAll('[data-i]').forEach(function(el){el.textContent=tr(el.getAttribute('data-i'));});
+
+function fmt(d){if(!d)return '';try{return new Date(d).toLocaleDateString(L==='en'?'en-GB':L,{day:'numeric',month:'long',year:'numeric'});}catch(e){return d;}}
 // Printed only when the buyer is outside Belgium — a Belgian address on a
 // Belgian invoice does not need restating. Falls back to the raw code.
-function countryName(cc){try{return new Intl.DisplayNames(['en'],{type:'region'}).of(cc)||cc;}catch(e){return cc;}}
+function countryName(cc){try{return new Intl.DisplayNames([L],{type:'region'}).of(cc)||cc;}catch(e){return cc;}}
 
 (async function(){
   // Two ways in: the signed link from the invoice email (?t=), or a signed-in
   // owner opening it from the dashboard (?id=). Never a guessable number.
   const qs=new URLSearchParams(location.search);
   const t=qs.get('t'), id=qs.get('id');
-  const token=localStorage.getItem('apt_sess')||'';
+  // apt_sess holds the whole session envelope — read it exactly like dashboard.html.
+  let token=''; try{ const s=JSON.parse(localStorage.getItem('apt_sess')||'null'); if(s&&s.token) token=s.token; }catch(e){}
   let body, headers={'Content-Type':'application/json'};
   if(t){ body={action:'invoice',t:t}; }
   else if(id&&token){ body={action:'invoice',id:Number(id)}; headers['Authorization']='Bearer '+token; }
-  else { out.innerHTML='<div class="state">Please <a href="/apartments/dashboard">sign in</a> to view this invoice.</div>'; return; }
+  else { out.innerHTML='<div class="state">'+tr('signin').replace('{a}','<a href="/apartments/dashboard">').replace('{/a}','</a>')+'</div>'; return; }
 
   const r=await fetch(API,{method:'POST',headers:headers,body:JSON.stringify(body)});
   const j=await r.json().catch(function(){return {};});
@@ -97,39 +117,41 @@ function countryName(cc){try{return new Intl.DisplayNames(['en'],{type:'region'}
    +'<div class="top"><div><div class="brand">shou</div>'
      +(s?'<div style="font-size:13px;color:var(--soft);margin-top:6px">'+esc(s.name)+'</div>':'')
    +'</div>'
-   +'<div class="doc"><h2>Invoice</h2><div class="no">'+esc(inv.no)+'</div>'
+   +'<div class="doc"><h2>'+tr('invoice')+'</h2><div class="no">'+esc(inv.no)+'</div>'
      +'<div class="no">'+fmt(inv.invoiced_at||inv.paid_at)+'</div></div></div>'
 
    +'<div class="parties">'
-     +'<div class="party"><div class="lbl">From</div>'
+     +'<div class="party"><div class="lbl">'+tr('from')+'</div>'
        +(s?'<div class="nm">'+esc(s.name)+'</div><div class="ln">'+esc(s.address||'')+'</div>'
-           +(s.vat?'<div class="ln">VAT '+esc(s.vat)+'</div>':'')
+           +(s.vat?'<div class="ln">'+tr('vat')+' '+esc(s.vat)+'</div>':'')
            +(s.email?'<div class="ln">'+esc(s.email)+'</div>':'')
-          :'<div class="ln">— not configured —</div>')
+          :'<div class="ln">'+tr('notCfg')+'</div>')
      +'</div>'
-     +'<div class="party"><div class="lbl">Bill to</div>'
+     +'<div class="party"><div class="lbl">'+tr('billTo')+'</div>'
        +'<div class="nm">'+esc(b.name||'')+'</div>'
        +'<div class="ln">'+esc(b.address||'')+'</div>'
        +(b.country&&b.country!=='BE'?'<div class="ln">'+esc(countryName(b.country))+'</div>':'')
-       +(b.vat?'<div class="ln">VAT '+esc(b.vat)+'</div>':'')
+       +(b.vat?'<div class="ln">'+tr('vat')+' '+esc(b.vat)+'</div>':'')
      +'</div>'
    +'</div>'
 
-   +'<table><thead><tr><th>Description</th><th class="num">Net</th><th class="num">VAT</th><th class="num">Total</th></tr></thead>'
+   +'<table><thead><tr><th>'+tr('descr')+'</th><th class="num">'+tr('net')+'</th><th class="num">'+tr('vat')+'</th><th class="num">'+tr('total')+'</th></tr></thead>'
    +'<tbody><tr><td>'+esc(desc)+'</td>'
      +'<td class="num">€ '+eur(inv.net_cents)+'</td>'
      +'<td class="num">'+(inv.vat_rate||21)+'% · € '+eur(inv.vat_cents)+'</td>'
      +'<td class="num">€ '+eur(inv.gross_cents)+'</td></tr></tbody></table>'
 
    +'<div class="totals">'
-     +'<div class="r"><span>Net</span><span>€ '+eur(inv.net_cents)+'</span></div>'
-     +'<div class="r"><span>VAT '+(inv.vat_rate||21)+'%</span><span>€ '+eur(inv.vat_cents)+'</span></div>'
-     +'<div class="r tot"><span>Total</span><span>€ '+eur(inv.gross_cents)+'</span></div>'
+     +'<div class="r"><span>'+tr('net')+'</span><span>€ '+eur(inv.net_cents)+'</span></div>'
+     +'<div class="r"><span>'+tr('vat')+' '+(inv.vat_rate||21)+'%</span><span>€ '+eur(inv.vat_cents)+'</span></div>'
+     +'<div class="r tot"><span>'+tr('total')+'</span><span>€ '+eur(inv.gross_cents)+'</span></div>'
    +'</div>'
-   +(inv.status==='paid'?'<div class="paid">Paid '+fmt(inv.paid_at)+' — no payment due</div>':'')
-   +'<div class="foot">'+esc((s&&s.note)||'')+(s&&s.iban?'\\nIBAN '+esc(s.iban):'')+'\\npowered by shou · shou.be</div>'
+   +(inv.status==='paid'?'<div class="paid">'+tr('paid').replace('{d}',fmt(inv.paid_at))+'</div>':'')
+   // .foot is white-space:pre-line, so real newlines break the lines — and building
+   // from the non-empty parts keeps a missing note from leaving a blank first line.
+   +'<div class="foot">'+[(s&&s.note)||'',(s&&s.iban)?'IBAN '+s.iban:'','powered by shou · shou.be'].filter(Boolean).map(esc).join('\n')+'</div>'
    +'</div>';
-  document.title='Invoice '+inv.no+' — shou';
+  document.title=tr('invoice')+' '+inv.no+' — shou';
 })();
 </script>
 </body>

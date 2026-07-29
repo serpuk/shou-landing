@@ -96,7 +96,7 @@
   <div class="head" id="head">
     <span class="eyebrow"><span class="dot"></span>First month free</span>
     <h1>Start your <span class="grad-text">guest companion.</span></h1>
-    <p>Tell us about your apartments and we'll send your setup link to build your first page. First month free — no charge today.</p>
+    <p>Tell us about your apartments and we'll email you a sign-in link to build your first page. First month free — no charge today.</p>
   </div>
 
   <div class="card">
@@ -141,7 +141,7 @@
       </div>
 
       <button type="submit" class="submit" id="submitBtn">Start free →</button>
-      <div class="err" id="errBox"></div>
+      <div class="err" id="errBox" role="alert"></div>
     </form>
 
     <div class="perks">
@@ -157,8 +157,8 @@
   <div class="done" id="doneBox">
     <div class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 6.5" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <h2>You're in — welcome aboard.</h2>
-    <p>We'll email <b id="doneEmail">you</b> your setup link so you can add your first apartment and go live. Your first month is free.</p>
-    <a class="btn-back" href="/apartments/offer">← Back to overview</a>
+    <p>Check your inbox — we sent a sign-in link to <b id="doneEmail">your email</b>. It expires in 20 minutes. Your first month is free.</p>
+    <a class="btn-back" href="/apartments/dashboard">Open your dashboard →</a>
   </div>
 </div></main>
 
@@ -169,7 +169,8 @@
   var err  = document.getElementById('errBox');
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-  function showErr(msg){ err.textContent = msg; err.classList.add('show'); }
+  // Reveal first, then write: a display:none live region is not in the a11y tree.
+  function showErr(msg, el){ err.classList.add('show'); err.textContent = msg; if(el) el.focus(); }
 
   (function(){
     var p = new URLSearchParams(location.search).get('plan');
@@ -189,14 +190,18 @@
       apartments:  document.getElementById('apartments').value.trim(),
       city:        document.getElementById('city').value.trim(),
       plan:        document.getElementById('plan').value,
-      message:     document.getElementById('message').value.trim()
+      message:     document.getElementById('message').value.trim(),
+      lang:        (navigator.language || 'en').slice(0,2).toLowerCase()
     };
 
     if(!payload.company || !payload.contactName || !payload.email){
-      return showErr('Please fill in your company name, your name, and email.');
+      return showErr('Please fill in your company name, your name, and email.',
+        !payload.company ? document.getElementById('company')
+        : !payload.contactName ? document.getElementById('contactName')
+        : document.getElementById('email'));
     }
     if(!EMAIL_RE.test(payload.email)){
-      return showErr('That email doesn’t look right — please check it.');
+      return showErr('That email doesn’t look right — please check it.', document.getElementById('email'));
     }
 
     btn.disabled = true;
@@ -214,6 +219,15 @@
         btn.disabled = false; btn.textContent = original;
         return showErr((res.j && res.j.error) || 'Something went wrong. Please email apartments@shou.be.');
       }
+      // Send the sign-in link the panel below promises: /api/apt action "login"
+      // upserts the owner and emails the magic link. Never block the panel on it.
+      fetch(API + '/api/apt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action:'login', email: payload.email, name: payload.contactName })
+      }).catch(function(){});
+      // Open the dashboard in the visitor's language (same key dashboard.html reads).
+      if(payload.lang === 'fr' || payload.lang === 'nl'){ try{ localStorage.setItem('apt_ui_lang', payload.lang); }catch(e){} }
       document.getElementById('head').style.display = 'none';
       form.style.display = 'none';
       document.querySelectorAll('.perks,.foot-note,.terms').forEach(function(el){ el.style.display='none'; });
