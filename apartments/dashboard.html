@@ -590,7 +590,9 @@ $('newBtn').onclick=function(){openEditor(null);};
 $('edClose').onclick=function(){show($('editor'),false);editing=null;};
 
 /* ---------- photo, geocoding note, one-click prefill ---------- */
-var STOCK=['apt1','apt2','apt5','apt7','apt11','apt12'].map(function(f){return '/apartments/img/'+f+'.jpg';});
+// Absolute: the API only stores http(s) URLs (branding.photo is interpolated
+// into a CSS url() on the guest page), so a relative path is silently dropped.
+var STOCK=['apt1','apt2','apt5','apt7','apt11','apt12'].map(function(f){return 'https://shou.be/apartments/img/'+f+'.jpg';});
 function photoUrl(){ return $('f_photo').value.trim(); }
 function renderPhoto(){
   var v=photoUrl(), pv=$('photoPrev');
