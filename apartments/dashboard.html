@@ -22,7 +22,7 @@
   h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.015em;color:var(--ink);line-height:1.15}
   a{color:inherit}
   .wrap{max-width:920px;margin:0 auto;padding:0 20px}
-  header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+  header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
   .bar{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:12px}
   .brand{font-family:'Fraunces';font-weight:700;font-size:22px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
   .brand small{font-family:'Inter';font-weight:600;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);-webkit-text-fill-color:var(--dim);margin-left:8px}
@@ -95,7 +95,7 @@
   #editor.show{display:block}
   .ed-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
   /* the form runs to six cards, so the actions have to travel with you */
-  .ed-head{position:sticky;top:0;z-index:30;background:var(--panel);padding:12px 0 10px;
+  .ed-head{position:sticky;top:var(--hdr,64px);z-index:20;background:var(--panel);padding:12px 0 10px;
     border-bottom:1px solid var(--line);flex-wrap:wrap}
   .ed-head h2{margin-right:auto}
   .ed-head .btn{margin-left:0}
@@ -364,6 +364,15 @@ var LIVE_BASE='https://shou.be/apartments/u/';   // dynamic renderer (published 
 var token=null, owner=null, editing=null, lastUnits=null;   // editing = unit object or null (new)
 
 function $(id){return document.getElementById(id);}
+// The editor's sticky bar parks directly under the page header; both are sticky,
+// so without this they occupy the same 63px and the header is unreadable.
+function syncHeaderOffset(){
+  var h=document.querySelector('header');
+  document.documentElement.style.setProperty('--hdr',(h?Math.round(h.getBoundingClientRect().height):64)+'px');
+}
+syncHeaderOffset();
+window.addEventListener('resize',syncHeaderOffset);
+window.addEventListener('load',syncHeaderOffset);
 function show(el,on){el.classList.toggle('show',on!==false);}
 function msg(el,text,kind){el.textContent=text;el.className='msg show '+(kind||'ok');}
 function clearMsg(el){el.className='msg';}
