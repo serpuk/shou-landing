@@ -451,6 +451,9 @@ function setTab(n){
   ['book','week','ask'].forEach(function(x){var p=document.getElementById(x),t=document.getElementById(({book:'tBook',week:'tWeek',ask:'tAsk'})[x]);
     if(p)p.classList.toggle('on',x===n);if(t)t.classList.toggle('on',x===n);});
   var sp=document.getElementById('subpage');sp.className='subpage '+({book:'mint',week:'warm',ask:'cool'})[n];
+  // A hidden panel measures zero, so the rails can only be sized once the tab is
+  // actually on screen — wiring them at render time attaches nothing.
+  if(n==='week'&&typeof setupArrows==='function')setupArrows();
 }
 
 // ---- events ----
@@ -525,18 +528,23 @@ function setupArrows(){
   var L='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
   var R='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
   [].slice.call(document.querySelectorAll('#week .rail')).forEach(function(el){
-    if(el.dataset.wired)return; el.dataset.wired='1';
     var page=function(){return Math.max(el.clientWidth*0.85,240);};
-    el.addEventListener('wheel',function(e){
-      // A vertical wheel scrolls the rail sideways, but only while it can still
-      // move that way — at an edge the gesture goes back to the page, or a tall
-      // rail under the cursor would swallow it and freeze the whole tab.
-      if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;
-      var max=el.scrollWidth-el.clientWidth; if(max<=0)return;
-      if((e.deltaY<0&&el.scrollLeft<=0)||(e.deltaY>0&&el.scrollLeft>=max-1))return;
-      e.preventDefault(); el.scrollLeft+=e.deltaY;
-    },{passive:false});
+    if(!el.dataset.wheel){ el.dataset.wheel='1';
+      el.addEventListener('wheel',function(e){
+        // A vertical wheel scrolls the rail sideways, but only while it can still
+        // move that way — at an edge the gesture goes back to the page, or a tall
+        // rail under the cursor would swallow it and freeze the whole tab.
+        if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;
+        var max=el.scrollWidth-el.clientWidth; if(max<=0)return;
+        if((e.deltaY<0&&el.scrollLeft<=0)||(e.deltaY>0&&el.scrollLeft>=max-1))return;
+        e.preventDefault(); el.scrollLeft+=e.deltaY;
+      },{passive:false});
+    }
+    // Not latched on the measurement: a hidden panel measures zero, so this has
+    // to stay retryable until the tab is actually shown.
+    if(el.dataset.arrows)return;
     if(el.scrollWidth<=el.clientWidth+4)return;
+    el.dataset.arrows='1';
     var wrap=document.createElement('div');wrap.className='railwrap';
     el.parentNode.insertBefore(wrap,el);wrap.appendChild(el);
     var l=document.createElement('button');l.className='wk-arrow left';l.setAttribute('aria-label','Scroll left');l.innerHTML=L;
