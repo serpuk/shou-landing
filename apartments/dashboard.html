@@ -246,7 +246,6 @@
         <option value="en">English</option><option value="fr">Français</option><option value="nl">Nederlands</option>
         <option value="de">Deutsch</option><option value="es">Español</option><option value="it">Italiano</option><option value="uk">Українська</option>
       </select></div>
-      <div class="f"><label><span data-i="fRadius">Walking radius label</span> <span class="hint" data-i="optional">(optional)</span></label><input id="f_radius" placeholder="Everything within a 10-min walk" data-i-ph="phRadius"></div>
     </div>
 
     </div>
@@ -636,7 +635,6 @@ function openEditor(unit){
   $('f_hood').value=c.hood||'';
   $('f_address').value=unit?unit.address||'':'';
   $('f_lang').value=(unit&&unit.baseLang)||uiLang;   // a new unit is written in the owner's own language
-  $('f_radius').value=c.radius||'';
   WFIELDS.forEach(function(k){ $('w_'+k).value=(w[k]!=null?w[k]:''); });
   renderPicks((c&&c.picks)||{});
   var _b=(unit&&unit.branding)||{};
@@ -944,7 +942,8 @@ function collect(){
     // Only sent when the owner picked from the list; otherwise the server geocodes.
     lat:(addrLat==null?'':addrLat), lng:(addrLng==null?'':addrLng),
     branding:{photo:photoUrl(),theme:themeSel,tone:toneSel},
-    content:{ hood:$('f_hood').value.trim(), radius:$('f_radius').value.trim(), welcome:welcome, picks:collectPicks() }
+    // radius removed from the form — the guest page generates the badge now.
+    content:{ hood:$('f_hood').value.trim(), welcome:welcome, picks:collectPicks() }
   };
 }
 $('saveBtn').onclick=function(){
