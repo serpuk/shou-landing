@@ -61,7 +61,9 @@
   .page-head h1{font-size:26px}
   .page-head .btn{margin-left:auto}
   .units{display:flex;flex-direction:column;gap:12px;margin-bottom:40px}
-  .unit{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
+  .unit{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);cursor:pointer}
+  .unit:hover{border-color:rgba(255,61,139,.4)}
+  .unit:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
   .unit .u-i{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--pink));display:grid;place-items:center;font-size:20px;flex:none}
   .unit .u-ph{background-size:cover;background-position:center}
   /* four actions wrap rather than squeezing the name on a phone */
@@ -144,6 +146,11 @@
   .pk-list button:last-child{border-bottom:none}
   .pk-list button:hover{background:var(--bg);color:var(--pink)}
   .pk-list .w{color:var(--soft);font-size:11.5px}
+  #lgHead{display:flex;align-items:baseline;gap:10px;width:100%;background:none;border:none;
+    padding:0 0 4px;font:inherit;text-align:left;cursor:pointer}
+  #lgHead .chev{margin-left:auto;color:var(--dim);font-size:14px}
+  #legalCard.shut #lgS,#legalCard.shut .fields,#legalCard.shut .row,#legalCard.shut .msg{display:none}
+  #legalCard.shut{padding-bottom:14px}
   .langwarn{display:none;background:rgba(255,155,61,.12);border:1px solid rgba(255,155,61,.4);
     border-radius:10px;padding:8px 11px;font-size:12.5px;color:var(--ink);margin-bottom:8px}
   .themes,.tones{display:flex;gap:9px;flex-wrap:wrap}
@@ -211,10 +218,11 @@
 
   <div id="billing"></div>
   <div id="legalCard" class="bill" style="display:none">
-    <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
-      <div class="bill-t" id="lgT">Billing details</div>
+    <button type="button" id="lgHead" aria-expanded="true">
+      <span class="bill-t" id="lgT">Billing details</span>
       <span class="muted" style="font-size:12.5px" id="lgState"></span>
-    </div>
+      <span class="chev" id="lgChev">▾</span>
+    </button>
     <div class="bill-s" id="lgS" style="margin-bottom:14px"></div>
     <div class="fields">
       <label style="grid-column:1/-1"><span class="lgl" id="lgNameL"></span>
@@ -501,6 +509,14 @@ function countryOpts(sel,lang){
     return '<option value="'+o.c+'"'+(o.c===(sel||'BE')?' selected':'')+'>'+esc(o.n)+'</option>';
   }).join('');
 }
+// Complete = collapsed; incomplete = open, because that is the one state where
+// the owner still has something to do here.
+function setLegalOpen(open){
+  var c=$('legalCard'); if(!c)return;
+  c.classList.toggle('shut',!open);
+  $('lgChev').textContent=open?'▾':'▸';
+  $('lgHead').setAttribute('aria-expanded',open?'true':'false');
+}
 function renderLegal(L,keep){        // keep = leave what the owner typed alone (language switch)
   L=L||{}; LEGAL=L;
   var card=$('legalCard'); if(!card)return;
@@ -520,6 +536,8 @@ function renderLegal(L,keep){        // keep = leave what the owner typed alone 
   if(!keep){ $('lg-name').value=L.name||''; $('lg-addr').value=L.address||'';
              $('lg-vat').value=L.vat||'';   $('lg-email').value=L.email||''; }
   $('lgState').textContent=L.complete?t('lgOn'):t('lgOff');
+  if(!keep) setLegalOpen(!L.complete);
+  $('lgHead').onclick=function(){ setLegalOpen($('legalCard').classList.contains('shut')); };
 }
 function saveLegal(){
   var btn=$('lgSave'), box=$('lgMsg'); clearMsg(box);
@@ -573,6 +591,7 @@ function renderBilling(d){
 function wirePlans(){ document.querySelectorAll('#billing [data-plan]').forEach(function(x){
   x.onclick=function(){
     if(!LEGAL.complete){ var m=$('billMsg'); if(m)msg(m,t('lgNeed'),'err');
+      setLegalOpen(true);                       // scrolling to a shut card explains nothing
       var c=$('legalCard'); if(c&&c.scrollIntoView)c.scrollIntoView({behavior:'smooth',block:'center'});
       var n=$('lg-name'); if(n)n.focus(); return; }
     startBilling(x.getAttribute('data-plan'),x);
@@ -632,7 +651,7 @@ function renderUnits(units){
     var live=u.published&&!DARK, paused=u.published&&DARK;   // published but billing not live = dark page
     // The photo the owner chose, so a list of six apartments is scannable.
     var ph=(u.branding&&u.branding.photo)||'';
-    return '<div class="unit">'+(ph
+    return '<div class="unit" data-open="'+u.id+'" role="button" tabindex="0">'+(ph
       ? '<div class="u-i u-ph" style="background-image:url(&quot;'+esc(ph)+'&quot;)"></div>'
       : '<div class="u-i">🔑</div>')+
       '<div class="u-m"><div class="u-n">'+esc(u.name||'Apartment')+'</div>'+
@@ -647,6 +666,13 @@ function renderUnits(units){
       '</div></div>';
   }).join('');
   el.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-edit');openEditor(units.filter(function(u){return u.id===id;})[0]);};});
+  // The whole row opens the editor; the buttons inside keep their own meaning.
+  el.querySelectorAll('[data-open]').forEach(function(row){
+    var go=function(){ var id=row.getAttribute('data-open');
+      openEditor(units.filter(function(u){return u.id===id;})[0]); };
+    row.onclick=function(e){ if(e.target.closest('button,a'))return; go(); };
+    row.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
   el.querySelectorAll('[data-dup]').forEach(function(b){b.onclick=function(){
     b.disabled=true;
     api('POST',{action:'duplicate',id:b.getAttribute('data-dup')},true).then(function(r){
