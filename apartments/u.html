@@ -236,7 +236,10 @@ function metaVal(k){var c=U.content||{};var base=c[k];if(curLang===(U.baseLang||
 var navLang=(navigator.language||'en').slice(0,2).toLowerCase();
 if(CHR[navLang])curLang=navLang;
 
-fetch(API+'/apt?slug='+encodeURIComponent(slug||'')).then(function(r){
+// ?pv= is the owner's preview pass, forwarded verbatim so a draft renders
+// exactly as a guest will see it once published.
+var _pv=new URLSearchParams(location.search).get('pv');
+fetch(API+'/apt?slug='+encodeURIComponent(slug||'')+(_pv?'&pv='+encodeURIComponent(_pv):'')).then(function(r){
   if(!r.ok)throw new Error('nf'); return r.json();
 }).then(function(d){ U=d.unit;
   // A guest who picked a language keeps it — re-scanning the QR is how they come
