@@ -459,6 +459,15 @@ function setTab(n){
 // ---- events ----
 function fmtDate(d){if(!d)return'';var dt=/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00'):new Date(d);if(isNaN(dt))return d;
   try{return dt.toLocaleDateString(({fr:'fr-BE',nl:'nl-BE',de:'de-DE',es:'es-ES',it:'it-IT',uk:'uk-UA'})[curLang]||'en-GB',{weekday:'short',day:'numeric',month:'short'});}catch(e){return d;}}
+// A multi-night run comes back as one row per date, so an unfiltered rail shows
+// the same concert three cards in a row. Same title+venue collapses to the first
+// (earliest) occurrence, as on the hotel pages.
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');}
+function cleanTitle(x){var s=String(x||'').trim();var p=s.indexOf(' | ');if(p>0)s=s.slice(0,p).trim();return s||String(x||'').trim();}
+function dedupe(list){var seen={},out=[];(list||[]).forEach(function(e){
+  var k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);
+  if(k&&seen[k])return; if(k)seen[k]=1; out.push(e);});return out;}
+
 /* ---------- the event card, opened in place ---------- */
 // Everything we render is remembered by id, so a click can show the full card
 // rather than navigating away.
@@ -477,7 +486,7 @@ function mvHtml(e){
     +'<div class="mv-body">'
     +(seg?'<span class="qpill" style="display:inline-block;margin-bottom:8px;background:'
         +(SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)')+'">'+esc(seg)+'</span>':'')
-    +'<div class="mv-t">'+esc(e.name||'')+'</div>'
+    +'<div class="mv-t">'+esc(cleanTitle(e.name))+'</div>'
     +(when?'<div class="mv-row"><span class="k">'+esc(chr('mDate'))+'</span><span class="v">'+esc(when)+'</span></div>':'')
     +(where?'<div class="mv-row"><span class="k">'+esc(chr('mVenue'))+'</span><span class="v">'+esc(where)
         +(ds?' · '+esc(ds):'')+'</span></div>':'')
@@ -580,7 +589,7 @@ function evCard(e){
   return '<a class="ev" data-id="'+esc(e.id||'')+'" href="'+esc(e.url||'#')+'" target="_blank" rel="noopener">'
     +'<span class="thumb">'+img+'</span><span class="meta">'
     +(seg?'<span class="qpill" style="background:'+(SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)')+'">'+esc(seg)+'</span>':'')
-    +'<span class="t">'+esc(e.name||'')+'</span>'
+    +'<span class="t">'+esc(cleanTitle(e.name))+'</span>'
     +(desc?'<span class="qdesc">'+esc(desc)+'</span>':'')
     +(when?'<span class="d">'+esc(when)+'</span>':'')
     +'<span class="vn">'+esc(vn||'TBA')+'</span>'
@@ -599,7 +608,7 @@ function loadEvents(){
     if(!merged.length){wk.innerHTML='<div class="empty">'+esc(chr('noevents'))+'</div>';return;}
     function rail(title,list){if(!list.length)return'';return '<h2 class="wk-h">'+esc(title)+'<span class="cnt">'+list.length+'</span></h2><div class="rail">'+list.map(evCard).join('')+'</div>';}
     var byCat=function(c){return merged.filter(function(e){return e.categorySlug===c;}).slice(0,15);};
-    rememberEvents(merged);
+    merged=dedupe(merged); rememberEvents(merged);
     wk.innerHTML=rail(chr('near'),merged.slice(0,15))+rail('🎶 '+chr('music'),byCat('music'))+rail('🎨 '+chr('art'),byCat('exhibition'))+rail('🎭 '+chr('theatre'),byCat('theatre'));
     setupArrows();
   });
@@ -697,7 +706,7 @@ function ask(q){
   .then(function(r){return r.json();}).then(function(d){
     typing.remove();addMsg('ai',esc(d.reasoning||'')||chr('none'));
     var list=[];var seen={};(d.events||[]).concat(d.suggestedEvents||[]).forEach(function(e){if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;list.push(e);}});
-    list=list.slice(0,8); rememberEvents(list);
+    list=dedupe(list).slice(0,8); rememberEvents(list);
     if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(evCard).join('');document.getElementById('msgs').appendChild(g);g.scrollIntoView({behavior:'smooth',block:'nearest'});}
     // Dead end → offer the LLM's follow-up chips instead of leaving the guest
     // stuck. The API only fills suggestionChips when nothing matched at all, and
