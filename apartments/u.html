@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex,follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=Lora:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#15101b; --text:#1a1622; --soft:#5b5566; --dim:#8a8494;
@@ -22,6 +22,45 @@
     --shadow:0 1px 3px rgba(20,16,30,.06);
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  /* ---- themes: owner picks one; each is a variable override, never a layout
+     change, so a bad choice can still only look different, not broken. ---- */
+  body[data-theme="warm"]{
+    --ink:#2b1b13; --text:#33241c; --soft:#6d5648; --dim:#9a8577;
+    --bg:#fdf6ef; --card:#fffaf5; --panel-soft:#f6ebe0; --line:rgba(60,35,20,.13);
+    --pink:#c2622f; --orange:#e0913f; --grad:linear-gradient(105deg,#c2622f,#e0913f);
+    --warm-bg:#f7e3d3; --warm-bd:#e8c4a8; --warm-ink:#8a4218;
+  }
+  body[data-theme="warm"] h1,body[data-theme="warm"] h2,body[data-theme="warm"] .hname{font-family:'Lora',Georgia,serif}
+
+  body[data-theme="nordic"]{
+    --ink:#1b2430; --text:#26313d; --soft:#5d6b7a; --dim:#8b98a5;
+    --bg:#f4f7f9; --card:#ffffff; --panel-soft:#e9eff4; --line:rgba(27,36,48,.12);
+    --pink:#3d7ea6; --orange:#6aa3c0; --grad:linear-gradient(105deg,#3d7ea6,#6aa3c0);
+    --cool-bg:#e2edf4; --cool-bd:#c3daea; --cool-ink:#255d80;
+  }
+  body[data-theme="nordic"] h1,body[data-theme="nordic"] h2,body[data-theme="nordic"] .hname{font-family:'Inter',system-ui,sans-serif;letter-spacing:-.02em}
+
+  body[data-theme="bold"]{
+    --ink:#f5f3f7; --text:#e8e4ee; --soft:#a9a2b6; --dim:#8a8299;
+    --bg:#17141d; --card:#211d2a; --panel-soft:#1c1825; --line:rgba(255,255,255,.14);
+    --pink:#ff4d8d; --orange:#ffb03d; --grad:linear-gradient(105deg,#ff4d8d,#ffb03d);
+    --warm-bg:#3a2130; --warm-bd:#5a3247; --warm-ink:#ffb3cd;
+    --cool-bg:#241f3a; --cool-bd:#3b3260; --cool-ink:#c9bcff;
+    --mint-bg:#123330; --mint-bd:#1d4f49; --mint-ink:#7fd8cb;
+    --shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+  body[data-theme="bold"] h1,body[data-theme="bold"] h2,body[data-theme="bold"] .hname{font-family:'Space Grotesk',system-ui,sans-serif}
+
+  body[data-theme="botanical"]{
+    --ink:#152a20; --text:#1d3529; --soft:#4f6a5c; --dim:#83988c;
+    --bg:#f2f7f3; --card:#ffffff; --panel-soft:#e6efe8; --line:rgba(21,42,32,.13);
+    --pink:#2f7d5b; --orange:#6fae74; --grad:linear-gradient(105deg,#2f7d5b,#6fae74);
+    --mint-bg:#dcefe2; --mint-bd:#b9dcc4; --mint-ink:#1f6144;
+    /* a whisper of pattern, not wallpaper */
+    background-image:radial-gradient(circle at 1px 1px, rgba(47,125,91,.10) 1px, transparent 0);
+    background-size:22px 22px;
+  }
+  body[data-theme="botanical"] h1,body[data-theme="botanical"] h2,body[data-theme="botanical"] .hname{font-family:'Lora',Georgia,serif}
   body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
   h1,h2{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.015em;line-height:1.1;color:var(--ink)}
   a{color:inherit}
@@ -232,7 +271,17 @@ function bookHtml(){
     (safeCards?'<h2 class="wb-sec">'+esc(sec('safety'))+'</h2><div class="wb-grid">'+safeCards+'</div>':'');
 }
 
+// Theme is a fixed id from the owner's picker; anything unknown falls back to
+// the default look rather than leaving an unstyled page.
+var THEMES=['warm','nordic','bold','botanical'];
+function applyTheme(){
+  var th=(U.branding&&U.branding.theme)||'';
+  if(THEMES.indexOf(th)>=0)document.body.setAttribute('data-theme',th);
+  else document.body.removeAttribute('data-theme');
+}
+
 function render(){
+  applyTheme();
   var photo=(U.branding&&U.branding.photo)?('background-image:url(\''+U.branding.photo+'\')'):'';
   var hood=metaVal('hood')||'', radius=metaVal('radius')||'';
   // No coordinates → no events to show, so drop the tab rather than paint a dead one.
@@ -384,7 +433,10 @@ function ask(q){
     asking=false;return;
   }
   var typing=document.createElement('div');typing.className='typing';typing.textContent=chr('thinking');document.getElementById('msgs').appendChild(typing);
-  fetch(API+'/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang:curLang,lat:U.lat,lng:U.lng,source:'stay-'+(U.slug||'unit')})})
+  fetch(API+'/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang:curLang,lat:U.lat,lng:U.lng,source:'stay-'+(U.slug||'unit'),
+    // Owner's chosen voice. Server-side enum — an unknown value is ignored,
+    // so a stale or hand-edited value can only fall back to neutral.
+    tone:((U.branding&&U.branding.tone)||null)})})
   .then(function(r){return r.json();}).then(function(d){
     typing.remove();addMsg('ai',esc(d.reasoning||'')||chr('none'));
     var list=[];var seen={};(d.events||[]).concat(d.suggestedEvents||[]).forEach(function(e){if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;list.push(e);}});
