@@ -62,7 +62,11 @@
   .page-head .btn{margin-left:auto}
   .units{display:flex;flex-direction:column;gap:12px;margin-bottom:40px}
   .unit{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
-  .unit .u-i{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--pink));display:grid;place-items:center;font-size:20px;flex:none}
+  .unit .u-i{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--pink));display:grid;place-items:center;font-size:20px;flex:none}
+  .unit .u-ph{background-size:cover;background-position:center}
+  /* four actions wrap rather than squeezing the name on a phone */
+  .u-actions{flex-wrap:wrap;justify-content:flex-end}
+  @media(max-width:560px){ .unit{flex-wrap:wrap} .unit .u-m{flex:1 1 100%;order:2} .u-actions{order:3;flex:1 1 100%} }
   .unit .u-m{min-width:0;flex:1}
   .unit .u-n{font-family:'Fraunces';font-weight:600;font-size:17px;color:var(--ink)}
   .unit .u-s{font-size:13px;color:var(--soft)}
@@ -199,6 +203,13 @@
 
 <!-- APP -->
 <div id="app"><div class="wrap">
+  <div class="page-head">
+    <h1 data-i="yourApts">Your apartments</h1>
+    <button class="btn btn-primary" id="newBtn"><span data-i="addApt">＋ Add apartment</span></button>
+  </div>
+  <div class="units" id="units"></div>
+
+  <div id="billing"></div>
   <div id="legalCard" class="bill" style="display:none">
     <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
       <div class="bill-t" id="lgT">Billing details</div>
@@ -220,16 +231,10 @@
     <div style="margin-top:13px"><button class="btn btn-primary btn-sm" id="lgSave"></button></div>
     <div class="msg" id="lgMsg"></div>
   </div>
-  <div id="billing"></div>
   <div id="invCard" class="bill" style="display:none">
     <div class="bill-t" id="invT">Invoices</div>
     <div id="invBody" style="margin-top:10px"></div>
   </div>
-  <div class="page-head">
-    <h1 data-i="yourApts">Your apartments</h1>
-    <button class="btn btn-primary" id="newBtn"><span data-i="addApt">＋ Add apartment</span></button>
-  </div>
-  <div class="units" id="units"></div>
 
   <!-- GUEST INTELLIGENCE -->
   <div id="qi" style="display:none;margin-top:26px">
@@ -625,7 +630,11 @@ function renderUnits(units){
   if(!units.length){ el.innerHTML='<div class="empty">'+esc(t('empty'))+'</div>'; return; }
   el.innerHTML=units.map(function(u){
     var live=u.published&&!DARK, paused=u.published&&DARK;   // published but billing not live = dark page
-    return '<div class="unit"><div class="u-i">🔑</div><div class="u-m"><div class="u-n">'+esc(u.name||'Apartment')+'</div>'+
+    // The photo the owner chose, so a list of six apartments is scannable.
+    var ph=(u.branding&&u.branding.photo)||'';
+    return '<div class="unit">'+(ph
+      ? '<div class="u-i u-ph" style="background-image:url(&quot;'+esc(ph)+'&quot;)"></div>'
+      : '<div class="u-i">🔑</div>')+<div class="u-m"><div class="u-n">'+esc(u.name||'Apartment')+'</div>'+
       '<div class="u-s">'+esc(u.building||u.address||'')+'</div></div>'+
       '<span class="pill '+(paused?'paused':(live?'live':'draft'))+'">'+esc(t(paused?'pausedBadge':(live?'liveBadge':'draftBadge')))+'</span>'+
       '<div class="u-actions"><button class="btn btn-ghost btn-sm" data-edit="'+u.id+'">'+esc(t('edit'))+'</button>'+
