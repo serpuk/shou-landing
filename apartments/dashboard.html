@@ -634,7 +634,8 @@ function renderUnits(units){
     var ph=(u.branding&&u.branding.photo)||'';
     return '<div class="unit">'+(ph
       ? '<div class="u-i u-ph" style="background-image:url(&quot;'+esc(ph)+'&quot;)"></div>'
-      : '<div class="u-i">🔑</div>')+<div class="u-m"><div class="u-n">'+esc(u.name||'Apartment')+'</div>'+
+      : '<div class="u-i">🔑</div>')+
+      '<div class="u-m"><div class="u-n">'+esc(u.name||'Apartment')+'</div>'+
       '<div class="u-s">'+esc(u.building||u.address||'')+'</div></div>'+
       '<span class="pill '+(paused?'paused':(live?'live':'draft'))+'">'+esc(t(paused?'pausedBadge':(live?'liveBadge':'draftBadge')))+'</span>'+
       '<div class="u-actions"><button class="btn btn-ghost btn-sm" data-edit="'+u.id+'">'+esc(t('edit'))+'</button>'+
