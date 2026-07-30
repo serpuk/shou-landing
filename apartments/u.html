@@ -132,57 +132,113 @@
   .wk-h{font-family:'Fraunces';font-weight:600;font-size:22px;margin:22px 0 14px;display:flex;align-items:center;gap:10px;color:var(--ink);position:relative;padding-bottom:10px}
   .wk-h::after{content:'';position:absolute;left:0;bottom:0;width:42px;height:3px;border-radius:2px;background:var(--grad)}
   .wk-h .cnt{font-size:12px;font-weight:700;color:var(--soft);background:rgba(20,16,30,.05);border-radius:999px;padding:2px 9px;margin-left:auto}
-  .rail{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 14px;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;scrollbar-width:none}
-  .rail::-webkit-scrollbar{display:none}
-  .rail>*{flex-shrink:0}
-  .rail .ev{flex:0 0 290px;scroll-snap-align:start}
-  /* Arrows: without them a rail is unscrollable on a desktop with no trackpad. */
-  .railwrap{position:relative}
-  .wk-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line);color:var(--ink);box-shadow:0 4px 14px rgba(20,16,30,.14);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .15s}
+  .wk-rail{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 14px;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;scrollbar-width:none}
+  .wk-rail::-webkit-scrollbar{display:none}
+  .wk-rail>*{flex-shrink:0}
+  .wk-rail .ev{flex:0 0 290px;scroll-snap-align:start}
+  .wk-railwrap{position:relative}
+  .wk-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);color:var(--ink);box-shadow:0 4px 14px rgba(20,16,30,.14);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .15s}
   .wk-arrow.left{left:4px}.wk-arrow.right{right:4px}
-  .wk-arrow.show{opacity:.9;pointer-events:auto}
-  .railwrap:hover .wk-arrow.show{opacity:1}
+  .wk-arrow.show{opacity:.9;pointer-events:auto}          /* discoverable at rest, not hover-only */
+  .wk-railwrap:hover .wk-arrow.show{opacity:1}
   .wk-arrow:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
   @media(hover:none){.wk-arrow{display:none}}
-  .ev{display:flex;gap:16px;align-items:stretch;padding:15px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
-  .ev:hover{box-shadow:0 8px 22px rgba(20,16,30,.1);border-color:rgba(20,16,30,.14);transform:translateY(-2px)}
+  .ev{display:flex;gap:16px;align-items:center;padding:15px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
+  .ev:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);border-color:rgba(20,16,30,.14);transform:translateY(-2px)}
   .ev:hover .t{color:var(--pink)}
-  .thumb{width:96px;min-height:96px;align-self:stretch;border-radius:13px;flex:none;overflow:hidden;background:linear-gradient(135deg,var(--violet),var(--pink))}
+  .thumb{width:84px;height:84px;border-radius:14px;flex:none;overflow:hidden;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff' fill-opacity='0.5'%3E%3Crect x='3' y='13' width='3' height='8' rx='1.5'/%3E%3Crect x='8' y='9' width='3' height='12' rx='1.5'/%3E%3Crect x='13' y='6' width='3' height='15' rx='1.5'/%3E%3Crect x='18' y='11' width='3' height='10' rx='1.5'/%3E%3C/svg%3E") center / 40px no-repeat, linear-gradient(135deg,var(--violet),var(--pink))}
   .thumb img{width:100%;height:100%;object-fit:cover;display:block}
-  .ev .meta{min-width:0;display:flex;flex-direction:column;gap:4px;justify-content:center}
-  .ev .qpill{align-self:flex-start;color:#fff;font-weight:700;font-size:10.5px;letter-spacing:.03em;padding:3px 9px;border-radius:999px}
-  .ev .t{font-family:'Fraunces';font-weight:600;font-size:18px;line-height:1.18;color:var(--ink);transition:color .15s;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .ev .qdesc{font-size:12.5px;color:var(--soft);line-height:1.42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .ev .d{font-weight:700;font-size:12.5px;color:var(--cyan);letter-spacing:.02em}
-  .ev .vn{color:var(--soft);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
-  .ev .evdist{display:flex;align-items:center;gap:5px;color:var(--cyan);font-weight:600;font-size:13px}
-  .ev .evdist svg{width:13px;height:13px;flex:none}
-
-  /* The app's rich card, opened in-page — a guest who taps an event should not
-     be handed off to a ticketing site they never asked for. */
-  .mv{position:fixed;inset:0;background:rgba(20,16,30,.55);backdrop-filter:blur(3px);z-index:60;
-    display:none;align-items:flex-end;justify-content:center}
+  .thumb.hotelthumb{display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,rgba(255,61,139,.16),rgba(255,155,61,.13))}
+  .meta{min-width:0;display:flex;flex-direction:column;gap:5px}
+  .t{font-family:'Fraunces',serif;font-weight:600;font-size:20px;line-height:1.18;color:var(--ink);transition:color .15s;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .date{font-weight:700;font-size:12.5px;color:var(--cyan);letter-spacing:.02em}
+  .venue{color:var(--soft);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .venue .dist{color:var(--cyan);font-weight:600;white-space:nowrap}
+  /* Distance from the hotel on its own line — ALWAYS visible (the concierge's
+     key signal), never truncated by the venue-name clamp. */
+  .evdist{display:flex;align-items:center;gap:5px;color:var(--cyan);font-weight:600;font-size:13px;margin-top:1px}
+  .evdist svg{width:13px;height:13px;flex:none}
+  .skel{flex:0 0 290px;height:170px;border-radius:16px;background:linear-gradient(100deg,var(--panel-soft),#efeaf3,var(--panel-soft));background-size:200% 100%;animation:sh 1.2s infinite}
+  @keyframes sh{to{background-position:-200% 0}}
+  .empty{text-align:center;color:var(--dim);padding:30px 0}
+  .ev-res{align-items:stretch}
+  .ev-res .thumb{width:104px;height:auto;min-height:104px;align-self:stretch}
+  .ev-res .meta{gap:4px;justify-content:center}
+  .ev-res .qpill{margin-bottom:1px}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s,border-color .15s}
+  .qcard:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);transform:translateY(-2px);border-color:rgba(20,16,30,.14)}
+  .qthumb{position:relative;height:132px;flex:none;overflow:hidden;background:linear-gradient(135deg,var(--violet),var(--pink))}
+  .qthumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .qcb{padding:12px 13px 13px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .qpill{align-self:flex-start;color:#fff;font-weight:700;font-size:10.5px;letter-spacing:.03em;padding:3px 9px;border-radius:999px}
+  .qtitle{font-family:'Fraunces',serif;font-weight:600;font-size:16px;line-height:1.18;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .qdesc{font-size:12.5px;color:var(--soft);line-height:1.42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  /* event modal — the app's rich card, opened in-page (keeps the guest on the hotel page) */
+  .mv{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;background:rgba(20,16,30,.55);backdrop-filter:blur(3px)}
   .mv.on{display:flex}
-  .mv-in{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;
-    border-radius:20px 20px 0 0;position:relative}
-  @media(min-width:640px){ .mv{align-items:center} .mv-in{border-radius:20px} }
-  .mv-hero{width:100%;height:210px;object-fit:cover;display:block;background:var(--line)}
-  .mv-body{padding:18px 20px 22px}
-  .mv-t{font-family:'Fraunces';font-weight:600;font-size:22px;color:var(--ink);line-height:1.2}
-  .mv-row{display:flex;gap:10px;margin-top:12px;font-size:14px}
-  .mv-row .k{color:var(--dim);min-width:66px;flex:none}
-  .mv-row .v{color:var(--ink)}
-  .mv-desc{margin-top:14px;font-size:14.5px;color:var(--soft);line-height:1.6;white-space:pre-line}
-  .mv-cta{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
-  .mv-cta a{font-size:14px;font-weight:700;text-decoration:none;border-radius:12px;padding:11px 18px}
-  .mv-cta .go{background:var(--grad);color:#fff}
-  .mv-cta .alt{background:var(--card);border:1px solid var(--line);color:var(--ink)}
-  .mv-x{position:absolute;top:10px;right:12px;z-index:2;background:rgba(20,16,30,.55);color:#fff;border:none;
-    width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer}
-  .mv-nav{display:flex;justify-content:space-between;margin-top:16px;gap:10px}
-  .mv-nav button{font:inherit;font-size:13.5px;font-weight:600;background:var(--card);border:1px solid var(--line);
-    color:var(--soft);border-radius:10px;padding:8px 13px;cursor:pointer}
-  .mv-nav button[disabled]{opacity:.4;cursor:default}
+  /* Swipe track (mirrors the main app): a horizontal window clipping a 3-pane
+     row [prev][current][next]; we translate the track to follow the thumb. */
+  .mv-clip{width:100%;max-width:560px;overflow-x:hidden}
+  .mv-track{display:flex;width:300%;transform:translateX(-33.3333%);align-items:flex-end;will-change:transform}
+  .mv-track.mv-track-anim{transition:transform 280ms cubic-bezier(.2,.8,.2,1)}
+  .mv-track.mv-track-drag{transition:none}          /* 1:1 finger tracking */
+  .mv-pane{flex:0 0 33.3333%;width:33.3333%;min-width:0}
+  .mv-card{background:var(--card);width:100%;max-width:560px;max-height:94vh;overflow-y:auto;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(20,16,30,.3);-webkit-overflow-scrolling:touch}
+  #mvCur>.mv-card{animation:mvup .25s ease}
+  @media(min-width:640px){.mv{align-items:center;padding:20px}.mv-track{align-items:center}.mv-card{border-radius:22px}#mvCur>.mv-card{animation:mvin .2s ease}}
+  @keyframes mvup{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+  @keyframes mvin{from{transform:scale(.97);opacity:.6}to{transform:none;opacity:1}}
+  .mv-hero{position:relative;height:230px;background:linear-gradient(135deg,var(--violet),var(--pink));overflow:hidden}
+  .mv-hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .mv-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,16,30,.55),rgba(20,16,30,0) 55%)}
+  /* Close X: anchored to the overlay (not the hero), floating top-right like the main app's modal */
+  .mv-x{position:absolute;top:16px;right:16px;z-index:4;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(20,16,30,.8);backdrop-filter:blur(8px);color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 16px rgba(20,16,30,.3);transition:transform .12s,background .15s}
+  .mv-x:hover{background:var(--pink)}
+  .mv-x:active{transform:scale(.92)}
+  .mv-cal{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.95);border-radius:12px;padding:7px 11px;display:flex;flex-direction:column;align-items:center;line-height:1.05;box-shadow:0 2px 10px rgba(20,16,30,.18);z-index:2}
+  .mv-cal span{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--soft);text-transform:uppercase}
+  .mv-cal b{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink)}
+  .mv-pill{position:absolute;left:14px;bottom:14px;color:#fff;font-weight:700;font-size:11.5px;letter-spacing:.03em;padding:5px 12px;border-radius:999px;box-shadow:0 2px 10px rgba(20,16,30,.22);z-index:2;max-width:calc(100% - 28px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mv-b{padding:20px 22px 26px}
+  .mv-title{font-family:'Fraunces',serif;font-weight:600;font-size:26px;line-height:1.14;color:var(--ink)}
+  .mv-sub{color:var(--soft);font-size:14px;margin-top:5px}
+  .mv-rows{display:flex;flex-direction:column;gap:14px;margin:18px 0 4px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .mv-row{display:flex;gap:12px;align-items:flex-start}
+  .mv-row .ic{flex:none;width:22px;text-align:center;font-size:15px;opacity:.9}
+  .mv-tx .k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+  .mv-tx .v{font-size:14.5px;color:var(--ink);font-weight:500}
+  .mv-dist{color:var(--cyan);font-weight:600;white-space:nowrap;margin-left:4px}
+  .mv-dir,.mv-link{color:var(--cyan);font-weight:600;text-decoration:none;white-space:nowrap;margin-left:8px}
+  .mv-dir:hover,.mv-link:hover{text-decoration:underline}
+  .mv-about{margin:18px 0 4px}
+  .mv-about h4{font-family:'Fraunces',serif;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+  .mv-about p{font-size:14.5px;line-height:1.62;color:var(--text);white-space:pre-line}
+  .mv-about p.mv-clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+  .mv-more{margin-top:7px;background:none;border:none;color:var(--cyan);font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit;padding:0}
+  .mv-map{position:relative;margin:18px 0 4px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+  .mv-map iframe{width:100%;height:180px;border:0;display:block;filter:grayscale(.12) contrast(1.02)}
+  .mv-map-cta{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,.95);color:var(--ink);font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;text-decoration:none;box-shadow:0 2px 10px rgba(20,16,30,.2)}
+  /* recurring: weekly timetable + upcoming-date chips (mirrors the app modal) */
+  .mv-tt,.mv-od{margin:18px 0 4px}
+  .mv-tt h4,.mv-od h4{font-family:'Fraunces',serif;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  .mv-run{font-size:13px;color:var(--soft);font-weight:600;margin-bottom:9px}
+  .tt-grid{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .tt-row{display:flex;justify-content:space-between;gap:12px;padding:8px 13px;font-size:13px}
+  .tt-row:nth-child(odd){background:var(--panel-soft)}
+  .tt-day{color:var(--ink);font-weight:600;text-transform:capitalize}
+  .tt-hrs{color:var(--soft);white-space:nowrap}
+  .tt-row.tt-closed .tt-day{color:var(--dim)}
+  .tt-row.tt-closed .tt-hrs{color:var(--dim)}
+  .od-grid{display:flex;flex-wrap:wrap;gap:6px}
+  .od-chip{font-size:12px;font-weight:600;color:var(--ink);background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+  .od-more{font-size:12px;font-weight:600;color:var(--dim);padding:5px 4px;align-self:center}
+  .mv-appt{font-size:12.5px;color:var(--dim);font-weight:600;margin-top:8px}
+  .mv-cta{display:block;text-align:center;background:var(--grad);color:#fff;font-weight:700;font-size:15px;padding:15px;border-radius:14px;text-decoration:none;margin-top:20px;box-shadow:0 8px 20px -8px rgba(255,61,139,.6)}
+  .mv-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,.95);color:var(--ink);font-size:26px;font-weight:400;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(20,16,30,.24);transition:transform .12s,background .15s}
+  .mv-prev{left:max(16px,calc(50% - 560px/2 - 62px))}
+  .mv-next{right:max(16px,calc(50% - 560px/2 - 62px))}
+  .mv-nav:hover{background:var(--pink);color:#fff}
+  .mv-nav:active{transform:translateY(-50%) scale(.93)}
   .empty{text-align:center;color:var(--dim);padding:24px 0}
 
   .chat{max-width:720px;margin:6px auto 0}
@@ -225,7 +281,7 @@
   .ans .k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
   .ans .v{font-size:14px;color:var(--ink);font-weight:500}
   .ans a{color:var(--cyan);font-weight:700;text-decoration:none;font-size:13px}
-  .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:6px}
+  .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:2px 0 4px;width:100%}
   .chatform{display:flex;gap:10px;position:sticky;bottom:0;background:linear-gradient(to top,var(--fade) 75%,transparent);padding:10px 0 14px}
   .chatform input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;font-family:inherit;font-size:15px;outline:none;box-shadow:var(--shadow)}
   .chatform input:focus{border-color:rgba(255,61,139,.5)}
@@ -235,12 +291,13 @@
   footer{text-align:center;padding:34px 20px;color:var(--dim);font-size:13px;border-top:1px solid var(--line);margin-top:22px}
   footer b{font-family:'Fraunces';font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .loading{text-align:center;padding:80px 20px;color:var(--dim)}
-  @media(max-width:760px){.welcome{grid-template-columns:1fr;gap:20px}.rail .ev{flex:0 0 82vw}}
+  @media(max-width:760px){.welcome{grid-template-columns:1fr;gap:22px}.wk-rail .ev{flex:0 0 82vw}}
 </style>
 </head>
 <body>
   <div id="root"><div class="loading">Loading…</div></div>
 
+<div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
@@ -289,13 +346,13 @@ var SEC={
   uk:{apt:'Ваша квартира',building:'За рогом',safety:'Дім і безпека'},
 };
 var CHR={
-  en:{mDate:'Date',mVenue:'Venue',mTickets:'Tickets ↗',mDir:'Directions ↗',mClose:'Close',walk:'min walk',festival:'Festivals',family:'Family',pickSec:"The host's picks",addrSec:'Where you are',dirs:'Directions ↗',teaseT:'Ask me anything',teaseS:'Your apartment, the neighbourhood, or what is on tonight.',gHost:'Make yourself at home. The Wi-Fi, the check-out time and my favourite places nearby are all here — and you can just ask me anything else.',gConcierge:'Welcome. Everything for your stay is here — the Wi-Fi, your check-out, and our recommendations nearby. Do ask if you need anything further.',gBrief:'Wi-Fi, check-out, recommendations nearby, and what is on this week. Ask for anything else.',gPlayful:'You made it! Wi-Fi, check-out, the best places round the corner — and if you want something else, just ask.',walkNear:'Everything close by',hostpick1:"The host's pick:",hostpicks:"A few of the host's local picks:",pow:'Guest companion · powered by shou',eyebrow:'Your guest companion',welcomeH:'Everything for your stay.',sub:"Wi-Fi, check-out and the neighbourhood — plus what's on nearby, any time.",book:'Welcome book',week:'This week',ask:'Ask the concierge',intro:"Ask me anything — your apartment, the neighbourhood, or what's on nearby.",here:'Here you go:',seemap:'See on the map',nearby:'Here are a few nearby:',near:'This week near you',music:'Live music',art:'Art & exhibitions',theatre:'Theatre',none:'Nothing came up — try another question.',noevents:'Nothing on nearby this week.',errH:'This guest guide isn’t available',errP:'The digital welcome guide for this apartment is paused or hasn’t been published yet. If you’re staying here, please ask your host for the Wi-Fi, check-in and local details.',thinking:'One moment…',ph:"What's the Wi-Fi password?",chips:["What's the Wi-Fi password?","What time is check-out?","Best dinner nearby?","What's on tonight?","Where can we buy groceries?","Is there parking?"]},
-  fr:{mDate:'Date',mVenue:'Lieu',mTickets:'Billets ↗',mDir:'Itinéraire ↗',mClose:'Fermer',walk:'min à pied',festival:'Festivals',family:'En famille',pickSec:"Les adresses de l'hôte",addrSec:'Où vous êtes',dirs:'Itinéraire ↗',teaseT:'Demandez-moi tout',teaseS:'Votre appartement, le quartier, ou que faire ce soir.',gHost:"Faites comme chez vous. Le Wi-Fi, l'heure du départ et mes adresses préférées sont ici — et vous pouvez me demander tout le reste.",gConcierge:'Bienvenue. Tout pour votre séjour se trouve ici — le Wi-Fi, votre départ et nos recommandations à proximité. N’hésitez pas à demander autre chose.',gBrief:'Wi-Fi, départ, adresses à proximité et que faire cette semaine. Demandez le reste.',gPlayful:'Vous y êtes ! Le Wi-Fi, le départ, les meilleures adresses du coin — et pour le reste, demandez-moi.',walkNear:'Tout à proximité',hostpick1:"L'adresse conseillée par l'hôte :",hostpicks:"Quelques adresses conseillées par l'hôte :",pow:'Compagnon de séjour · propulsé par shou',eyebrow:'Votre compagnon de séjour',welcomeH:'Tout pour votre séjour.',sub:'Le Wi-Fi, le départ et le quartier — et que faire à proximité, à tout moment.',book:'Livret d’accueil',week:'Cette semaine',ask:'Demander au concierge',intro:"Demandez-moi tout — votre appartement, le quartier, ou que faire à proximité.",here:'Voici :',seemap:'Voir sur la carte',nearby:'Quelques adresses à proximité :',near:'Cette semaine près de vous',music:'Concerts',art:'Art & expositions',theatre:'Théâtre',none:'Rien trouvé — posez une autre question.',noevents:'Rien à proximité cette semaine.',errH:'Ce livret d’accueil n’est pas disponible',errP:'Le livret d’accueil numérique de cet appartement est en pause ou n’a pas encore été publié. Si vous séjournez ici, demandez à votre hôte le Wi-Fi, les détails d’arrivée et les infos pratiques.',thinking:'Un instant…',ph:'Quel est le mot de passe Wi-Fi ?',chips:['Quel est le mot de passe Wi-Fi ?','À quelle heure est le départ ?','Un bon dîner à proximité ?','Que faire ce soir ?','Où faire les courses ?','Y a-t-il un parking ?']},
-  nl:{mDate:'Datum',mVenue:'Locatie',mTickets:'Tickets ↗',mDir:'Route ↗',mClose:'Sluiten',walk:'min lopen',festival:'Festivals',family:'Familie',pickSec:'De favorieten van je gastheer',addrSec:'Waar je bent',dirs:'Route ↗',teaseT:'Vraag me alles',teaseS:'Je appartement, de buurt, of wat er vanavond te doen is.',gHost:'Voel je thuis. De wifi, het uitchecken en mijn favoriete plekken staan hier — en de rest vraag je gewoon aan mij.',gConcierge:'Welkom. Alles voor je verblijf staat hier — de wifi, het uitchecken en onze aanraders in de buurt. Vraag gerust naar meer.',gBrief:'Wifi, uitchecken, aanraders in de buurt en wat er deze week te doen is. Vraag de rest.',gPlayful:'Je bent er! Wifi, uitchecken, de leukste plekken om de hoek — en voor de rest vraag je het mij.',walkNear:'Alles in de buurt',hostpick1:'De favoriet van je gastheer:',hostpicks:'Een paar favorieten van je gastheer:',pow:'Gastencompagnon · powered by shou',eyebrow:'Jouw gastencompagnon',welcomeH:'Alles voor je verblijf.',sub:'Wifi, uitchecken en de buurt — plus wat er in de buurt te doen is.',book:'Welkomstboekje',week:'Deze week',ask:'Vraag de concierge',intro:'Vraag me alles — je appartement, de buurt, of wat er in de buurt te doen is.',here:'Alsjeblieft:',seemap:'Bekijk op de kaart',nearby:'Een paar plekken in de buurt:',near:'Deze week bij jou in de buurt',music:'Livemuziek',art:'Kunst & tentoonstellingen',theatre:'Theater',none:'Niets gevonden — probeer een andere vraag.',noevents:'Deze week niets in de buurt.',errH:'Dit gastenboekje is niet beschikbaar',errP:'Het digitale welkomstboekje van dit appartement staat op pauze of is nog niet gepubliceerd. Verblijf je hier? Vraag je gastheer om de wifi, het inchecken en de praktische info.',thinking:'Even geduld…',ph:'Wat is het wifi-wachtwoord?',chips:['Wat is het wifi-wachtwoord?','Hoe laat is uitchecken?','Lekker eten in de buurt?','Wat is er vanavond te doen?','Waar kunnen we boodschappen doen?','Is er parkeergelegenheid?']},
-  de:{mDate:'Datum',mVenue:'Ort',mTickets:'Tickets ↗',mDir:'Route ↗',mClose:'Schließen',walk:'Min. zu Fuß',festival:'Festivals',family:'Familie',pickSec:'Die Tipps des Gastgebers',addrSec:'Wo Sie sind',dirs:'Route ↗',teaseT:'Fragen Sie mich alles',teaseS:'Ihre Wohnung, das Viertel oder was heute Abend los ist.',gHost:'Fühlen Sie sich wie zu Hause. WLAN, Check-out und meine Lieblingsorte in der Nähe finden Sie hier — alles Weitere fragen Sie mich einfach.',gConcierge:'Willkommen. Alles für Ihren Aufenthalt finden Sie hier — WLAN, Check-out und unsere Empfehlungen in der Nähe. Fragen Sie gern nach mehr.',gBrief:'WLAN, Check-out, Empfehlungen in der Nähe und was diese Woche los ist. Alles Weitere auf Nachfrage.',gPlayful:'Angekommen! WLAN, Check-out, die besten Orte um die Ecke — und alles andere fragen Sie mich.',walkNear:'Alles in der Nähe',hostpick1:'Der Tipp des Gastgebers:',hostpicks:'Ein paar Tipps des Gastgebers:',pow:'Gäste-Begleiter · powered by shou',eyebrow:'Ihr Gäste-Begleiter',welcomeH:'Alles für Ihren Aufenthalt.',sub:'WLAN, Check-out und das Viertel — plus was in der Nähe los ist.',book:'Willkommensmappe',week:'Diese Woche',ask:'Concierge fragen',intro:'Fragen Sie mich alles — Ihre Wohnung, das Viertel oder was in der Nähe los ist.',here:'Bitte sehr:',seemap:'Auf der Karte ansehen',nearby:'Ein paar Orte in der Nähe:',near:'Diese Woche in Ihrer Nähe',music:'Livemusik',art:'Kunst & Ausstellungen',theatre:'Theater',none:'Nichts gefunden — stellen Sie eine andere Frage.',noevents:'Diese Woche nichts in der Nähe.',errH:'Diese Gästemappe ist nicht verfügbar',errP:'Die digitale Willkommensmappe dieser Wohnung ist pausiert oder noch nicht veröffentlicht. Wenn Sie hier wohnen, fragen Sie Ihren Gastgeber nach WLAN, Check-in und den Infos vor Ort.',thinking:'Einen Moment…',ph:'Wie lautet das WLAN-Passwort?',chips:['Wie lautet das WLAN-Passwort?','Wann ist der Check-out?','Gutes Abendessen in der Nähe?','Was ist heute Abend los?','Wo können wir einkaufen?','Gibt es einen Parkplatz?']},
-  es:{mDate:'Fecha',mVenue:'Lugar',mTickets:'Entradas ↗',mDir:'Cómo llegar ↗',mClose:'Cerrar',walk:'min a pie',festival:'Festivales',family:'Familia',pickSec:'Las recomendaciones del anfitrión',addrSec:'Dónde estás',dirs:'Cómo llegar ↗',teaseT:'Pregúntame lo que quieras',teaseS:'Tu apartamento, el barrio o qué hay esta noche.',gHost:'Siéntete como en casa. El Wi-Fi, la hora de salida y mis sitios favoritos están aquí — y lo demás me lo puedes preguntar.',gConcierge:'Bienvenido. Todo para su estancia está aquí — el Wi-Fi, su salida y nuestras recomendaciones cerca. Pregunte lo que necesite.',gBrief:'Wi-Fi, salida, recomendaciones cerca y qué hay esta semana. Pregunta lo demás.',gPlayful:'¡Ya estás aquí! Wi-Fi, salida, los mejores sitios de la esquina — y para lo demás, pregúntame.',walkNear:'Todo cerca',hostpick1:'La recomendación del anfitrión:',hostpicks:'Algunas recomendaciones del anfitrión:',pow:'Compañero de estancia · con tecnología shou',eyebrow:'Tu compañero de estancia',welcomeH:'Todo para tu estancia.',sub:'Wi-Fi, salida y el barrio — y qué hacer cerca, en cualquier momento.',book:'Guía de bienvenida',week:'Esta semana',ask:'Pregunta al conserje',intro:'Pregúntame lo que quieras — tu apartamento, el barrio o qué hacer cerca.',here:'Aquí tienes:',seemap:'Ver en el mapa',nearby:'Algunos sitios cerca:',near:'Esta semana cerca de ti',music:'Música en vivo',art:'Arte y exposiciones',theatre:'Teatro',none:'No encontré nada — prueba otra pregunta.',noevents:'Nada cerca esta semana.',errH:'Esta guía del huésped no está disponible',errP:'La guía de bienvenida digital de este apartamento está en pausa o aún no se ha publicado. Si te alojas aquí, pide a tu anfitrión el Wi-Fi, los datos de entrada y la información local.',thinking:'Un momento…',ph:'¿Cuál es la contraseña del Wi-Fi?',chips:['¿Cuál es la contraseña del Wi-Fi?','¿A qué hora es la salida?','¿Dónde cenar cerca?','¿Qué hay esta noche?','¿Dónde comprar comida?','¿Hay aparcamiento?']},
-  it:{mDate:'Data',mVenue:'Luogo',mTickets:'Biglietti ↗',mDir:'Indicazioni ↗',mClose:'Chiudi',walk:'min a piedi',festival:'Festival',family:'Famiglia',pickSec:"I consigli dell'host",addrSec:'Dove ti trovi',dirs:'Indicazioni ↗',teaseT:'Chiedimi qualsiasi cosa',teaseS:'Il tuo appartamento, il quartiere o cosa c’è stasera.',gHost:'Fai come a casa tua. Il Wi-Fi, il check-out e i miei posti preferiti sono qui — per il resto chiedimi pure.',gConcierge:'Benvenuto. Tutto per il suo soggiorno è qui — il Wi-Fi, il check-out e i nostri consigli nelle vicinanze. Chieda pure altro.',gBrief:'Wi-Fi, check-out, consigli nelle vicinanze e cosa c’è questa settimana. Per il resto, chiedi.',gPlayful:'Sei arrivato! Wi-Fi, check-out, i posti migliori dietro l’angolo — e per il resto chiedi a me.',walkNear:'Tutto nelle vicinanze',hostpick1:"Il consiglio dell'host:",hostpicks:"Alcuni consigli dell'host:",pow:'Compagno di soggiorno · powered by shou',eyebrow:'Il tuo compagno di soggiorno',welcomeH:'Tutto per il tuo soggiorno.',sub:'Wi-Fi, check-out e il quartiere — e cosa fare nei dintorni, in qualsiasi momento.',book:'Guida di benvenuto',week:'Questa settimana',ask:'Chiedi al concierge',intro:'Chiedimi qualsiasi cosa — il tuo appartamento, il quartiere o cosa fare nei dintorni.',here:'Ecco:',seemap:'Vedi sulla mappa',nearby:'Alcuni posti nelle vicinanze:',near:'Questa settimana vicino a te',music:'Musica dal vivo',art:'Arte e mostre',theatre:'Teatro',none:'Nessun risultato — prova un’altra domanda.',noevents:'Niente nei dintorni questa settimana.',errH:'Questa guida per gli ospiti non è disponibile',errP:'La guida di benvenuto digitale di questo appartamento è in pausa o non è ancora stata pubblicata. Se soggiorni qui, chiedi al tuo host il Wi-Fi, il check-in e le info locali.',thinking:'Un attimo…',ph:'Qual è la password del Wi-Fi?',chips:['Qual è la password del Wi-Fi?','A che ora è il check-out?','Dove cenare qui vicino?','Cosa c’è stasera?','Dove fare la spesa?','C’è un parcheggio?']},
-  uk:{mDate:'Дата',mVenue:'Місце',mTickets:'Квитки ↗',mDir:'Маршрут ↗',mClose:'Закрити',walk:'хв пішки',festival:'Фестивалі',family:'Родина',pickSec:'Рекомендації господаря',addrSec:'Де ви',dirs:'Маршрут ↗',teaseT:'Запитайте мене про що завгодно',teaseS:'Ваша квартира, район або що відбувається сьогодні.',gHost:'Почувайтеся як удома. Wi-Fi, час виїзду та мої улюблені місця поруч — тут, а про решту просто запитайте.',gConcierge:'Вітаємо. Усе для вашого перебування тут — Wi-Fi, виїзд і наші рекомендації поруч. Запитуйте, якщо потрібно ще щось.',gBrief:'Wi-Fi, виїзд, місця поруч і що відбувається цього тижня. Решту — запитайте.',gPlayful:'Ви на місці! Wi-Fi, виїзд, найкращі місця за рогом — а про решту просто запитайте.',walkNear:'Усе поруч',hostpick1:'Рекомендація господаря:',hostpicks:'Кілька рекомендацій від господаря:',pow:'Помічник гостя · powered by shou',eyebrow:'Ваш помічник гостя',welcomeH:'Усе для вашого перебування.',sub:'Wi-Fi, виїзд і район — а також що відбувається поруч, будь-коли.',book:'Довідник гостя',week:'Цього тижня',ask:'Запитати консьєржа',intro:'Запитайте мене про що завгодно — вашу квартиру, район чи що подивитися поруч.',here:'Ось:',seemap:'Подивитися на карті',nearby:'Кілька місць поруч:',near:'Цього тижня поруч із вами',music:'Жива музика',art:'Мистецтво та виставки',theatre:'Театр',none:'Нічого не знайдено — спробуйте інше запитання.',noevents:'Цього тижня поруч нічого немає.',errH:'Цей довідник гостя недоступний',errP:'Цифровий довідник гостя для цієї квартири призупинено або ще не опубліковано. Якщо ви зупинилися тут, запитайте у господаря Wi-Fi, деталі заїзду та місцеву інформацію.',thinking:'Хвилинку…',ph:'Який пароль від Wi-Fi?',chips:['Який пароль від Wi-Fi?','О котрій виїзд?','Гарна вечеря поруч?','Куди піти ввечері?','Де купити продукти?','Чи є паркінг?']},
+  en:{tickets:'Tickets',dir:'Directions',mDate:'Date',mVenue:'Venue',mTickets:'Tickets ↗',mDir:'Directions ↗',mClose:'Close',walk:'min walk',festival:'Festivals',family:'Family',pickSec:"The host's picks",addrSec:'Where you are',dirs:'Directions ↗',teaseT:'Ask me anything',teaseS:'Your apartment, the neighbourhood, or what is on tonight.',gHost:'Make yourself at home. The Wi-Fi, the check-out time and my favourite places nearby are all here — and you can just ask me anything else.',gConcierge:'Welcome. Everything for your stay is here — the Wi-Fi, your check-out, and our recommendations nearby. Do ask if you need anything further.',gBrief:'Wi-Fi, check-out, recommendations nearby, and what is on this week. Ask for anything else.',gPlayful:'You made it! Wi-Fi, check-out, the best places round the corner — and if you want something else, just ask.',walkNear:'Everything close by',hostpick1:"The host's pick:",hostpicks:"A few of the host's local picks:",pow:'Guest companion · powered by shou',eyebrow:'Your guest companion',welcomeH:'Everything for your stay.',sub:"Wi-Fi, check-out and the neighbourhood — plus what's on nearby, any time.",book:'Welcome book',week:'This week',ask:'Ask the concierge',intro:"Ask me anything — your apartment, the neighbourhood, or what's on nearby.",here:'Here you go:',seemap:'See on the map',nearby:'Here are a few nearby:',near:'This week near you',music:'Live music',art:'Art & exhibitions',theatre:'Theatre',none:'Nothing came up — try another question.',noevents:'Nothing on nearby this week.',errH:'This guest guide isn’t available',errP:'The digital welcome guide for this apartment is paused or hasn’t been published yet. If you’re staying here, please ask your host for the Wi-Fi, check-in and local details.',thinking:'One moment…',ph:"What's the Wi-Fi password?",chips:["What's the Wi-Fi password?","What time is check-out?","Best dinner nearby?","What's on tonight?","Where can we buy groceries?","Is there parking?"]},
+  fr:{tickets:'Billets',dir:'Itinéraire',mDate:'Date',mVenue:'Lieu',mTickets:'Billets ↗',mDir:'Itinéraire ↗',mClose:'Fermer',walk:'min à pied',festival:'Festivals',family:'En famille',pickSec:"Les adresses de l'hôte",addrSec:'Où vous êtes',dirs:'Itinéraire ↗',teaseT:'Demandez-moi tout',teaseS:'Votre appartement, le quartier, ou que faire ce soir.',gHost:"Faites comme chez vous. Le Wi-Fi, l'heure du départ et mes adresses préférées sont ici — et vous pouvez me demander tout le reste.",gConcierge:'Bienvenue. Tout pour votre séjour se trouve ici — le Wi-Fi, votre départ et nos recommandations à proximité. N’hésitez pas à demander autre chose.',gBrief:'Wi-Fi, départ, adresses à proximité et que faire cette semaine. Demandez le reste.',gPlayful:'Vous y êtes ! Le Wi-Fi, le départ, les meilleures adresses du coin — et pour le reste, demandez-moi.',walkNear:'Tout à proximité',hostpick1:"L'adresse conseillée par l'hôte :",hostpicks:"Quelques adresses conseillées par l'hôte :",pow:'Compagnon de séjour · propulsé par shou',eyebrow:'Votre compagnon de séjour',welcomeH:'Tout pour votre séjour.',sub:'Le Wi-Fi, le départ et le quartier — et que faire à proximité, à tout moment.',book:'Livret d’accueil',week:'Cette semaine',ask:'Demander au concierge',intro:"Demandez-moi tout — votre appartement, le quartier, ou que faire à proximité.",here:'Voici :',seemap:'Voir sur la carte',nearby:'Quelques adresses à proximité :',near:'Cette semaine près de vous',music:'Concerts',art:'Art & expositions',theatre:'Théâtre',none:'Rien trouvé — posez une autre question.',noevents:'Rien à proximité cette semaine.',errH:'Ce livret d’accueil n’est pas disponible',errP:'Le livret d’accueil numérique de cet appartement est en pause ou n’a pas encore été publié. Si vous séjournez ici, demandez à votre hôte le Wi-Fi, les détails d’arrivée et les infos pratiques.',thinking:'Un instant…',ph:'Quel est le mot de passe Wi-Fi ?',chips:['Quel est le mot de passe Wi-Fi ?','À quelle heure est le départ ?','Un bon dîner à proximité ?','Que faire ce soir ?','Où faire les courses ?','Y a-t-il un parking ?']},
+  nl:{tickets:'Tickets',dir:'Route',mDate:'Datum',mVenue:'Locatie',mTickets:'Tickets ↗',mDir:'Route ↗',mClose:'Sluiten',walk:'min lopen',festival:'Festivals',family:'Familie',pickSec:'De favorieten van je gastheer',addrSec:'Waar je bent',dirs:'Route ↗',teaseT:'Vraag me alles',teaseS:'Je appartement, de buurt, of wat er vanavond te doen is.',gHost:'Voel je thuis. De wifi, het uitchecken en mijn favoriete plekken staan hier — en de rest vraag je gewoon aan mij.',gConcierge:'Welkom. Alles voor je verblijf staat hier — de wifi, het uitchecken en onze aanraders in de buurt. Vraag gerust naar meer.',gBrief:'Wifi, uitchecken, aanraders in de buurt en wat er deze week te doen is. Vraag de rest.',gPlayful:'Je bent er! Wifi, uitchecken, de leukste plekken om de hoek — en voor de rest vraag je het mij.',walkNear:'Alles in de buurt',hostpick1:'De favoriet van je gastheer:',hostpicks:'Een paar favorieten van je gastheer:',pow:'Gastencompagnon · powered by shou',eyebrow:'Jouw gastencompagnon',welcomeH:'Alles voor je verblijf.',sub:'Wifi, uitchecken en de buurt — plus wat er in de buurt te doen is.',book:'Welkomstboekje',week:'Deze week',ask:'Vraag de concierge',intro:'Vraag me alles — je appartement, de buurt, of wat er in de buurt te doen is.',here:'Alsjeblieft:',seemap:'Bekijk op de kaart',nearby:'Een paar plekken in de buurt:',near:'Deze week bij jou in de buurt',music:'Livemuziek',art:'Kunst & tentoonstellingen',theatre:'Theater',none:'Niets gevonden — probeer een andere vraag.',noevents:'Deze week niets in de buurt.',errH:'Dit gastenboekje is niet beschikbaar',errP:'Het digitale welkomstboekje van dit appartement staat op pauze of is nog niet gepubliceerd. Verblijf je hier? Vraag je gastheer om de wifi, het inchecken en de praktische info.',thinking:'Even geduld…',ph:'Wat is het wifi-wachtwoord?',chips:['Wat is het wifi-wachtwoord?','Hoe laat is uitchecken?','Lekker eten in de buurt?','Wat is er vanavond te doen?','Waar kunnen we boodschappen doen?','Is er parkeergelegenheid?']},
+  de:{tickets:'Tickets',dir:'Route',mDate:'Datum',mVenue:'Ort',mTickets:'Tickets ↗',mDir:'Route ↗',mClose:'Schließen',walk:'Min. zu Fuß',festival:'Festivals',family:'Familie',pickSec:'Die Tipps des Gastgebers',addrSec:'Wo Sie sind',dirs:'Route ↗',teaseT:'Fragen Sie mich alles',teaseS:'Ihre Wohnung, das Viertel oder was heute Abend los ist.',gHost:'Fühlen Sie sich wie zu Hause. WLAN, Check-out und meine Lieblingsorte in der Nähe finden Sie hier — alles Weitere fragen Sie mich einfach.',gConcierge:'Willkommen. Alles für Ihren Aufenthalt finden Sie hier — WLAN, Check-out und unsere Empfehlungen in der Nähe. Fragen Sie gern nach mehr.',gBrief:'WLAN, Check-out, Empfehlungen in der Nähe und was diese Woche los ist. Alles Weitere auf Nachfrage.',gPlayful:'Angekommen! WLAN, Check-out, die besten Orte um die Ecke — und alles andere fragen Sie mich.',walkNear:'Alles in der Nähe',hostpick1:'Der Tipp des Gastgebers:',hostpicks:'Ein paar Tipps des Gastgebers:',pow:'Gäste-Begleiter · powered by shou',eyebrow:'Ihr Gäste-Begleiter',welcomeH:'Alles für Ihren Aufenthalt.',sub:'WLAN, Check-out und das Viertel — plus was in der Nähe los ist.',book:'Willkommensmappe',week:'Diese Woche',ask:'Concierge fragen',intro:'Fragen Sie mich alles — Ihre Wohnung, das Viertel oder was in der Nähe los ist.',here:'Bitte sehr:',seemap:'Auf der Karte ansehen',nearby:'Ein paar Orte in der Nähe:',near:'Diese Woche in Ihrer Nähe',music:'Livemusik',art:'Kunst & Ausstellungen',theatre:'Theater',none:'Nichts gefunden — stellen Sie eine andere Frage.',noevents:'Diese Woche nichts in der Nähe.',errH:'Diese Gästemappe ist nicht verfügbar',errP:'Die digitale Willkommensmappe dieser Wohnung ist pausiert oder noch nicht veröffentlicht. Wenn Sie hier wohnen, fragen Sie Ihren Gastgeber nach WLAN, Check-in und den Infos vor Ort.',thinking:'Einen Moment…',ph:'Wie lautet das WLAN-Passwort?',chips:['Wie lautet das WLAN-Passwort?','Wann ist der Check-out?','Gutes Abendessen in der Nähe?','Was ist heute Abend los?','Wo können wir einkaufen?','Gibt es einen Parkplatz?']},
+  es:{tickets:'Entradas',dir:'Cómo llegar',mDate:'Fecha',mVenue:'Lugar',mTickets:'Entradas ↗',mDir:'Cómo llegar ↗',mClose:'Cerrar',walk:'min a pie',festival:'Festivales',family:'Familia',pickSec:'Las recomendaciones del anfitrión',addrSec:'Dónde estás',dirs:'Cómo llegar ↗',teaseT:'Pregúntame lo que quieras',teaseS:'Tu apartamento, el barrio o qué hay esta noche.',gHost:'Siéntete como en casa. El Wi-Fi, la hora de salida y mis sitios favoritos están aquí — y lo demás me lo puedes preguntar.',gConcierge:'Bienvenido. Todo para su estancia está aquí — el Wi-Fi, su salida y nuestras recomendaciones cerca. Pregunte lo que necesite.',gBrief:'Wi-Fi, salida, recomendaciones cerca y qué hay esta semana. Pregunta lo demás.',gPlayful:'¡Ya estás aquí! Wi-Fi, salida, los mejores sitios de la esquina — y para lo demás, pregúntame.',walkNear:'Todo cerca',hostpick1:'La recomendación del anfitrión:',hostpicks:'Algunas recomendaciones del anfitrión:',pow:'Compañero de estancia · con tecnología shou',eyebrow:'Tu compañero de estancia',welcomeH:'Todo para tu estancia.',sub:'Wi-Fi, salida y el barrio — y qué hacer cerca, en cualquier momento.',book:'Guía de bienvenida',week:'Esta semana',ask:'Pregunta al conserje',intro:'Pregúntame lo que quieras — tu apartamento, el barrio o qué hacer cerca.',here:'Aquí tienes:',seemap:'Ver en el mapa',nearby:'Algunos sitios cerca:',near:'Esta semana cerca de ti',music:'Música en vivo',art:'Arte y exposiciones',theatre:'Teatro',none:'No encontré nada — prueba otra pregunta.',noevents:'Nada cerca esta semana.',errH:'Esta guía del huésped no está disponible',errP:'La guía de bienvenida digital de este apartamento está en pausa o aún no se ha publicado. Si te alojas aquí, pide a tu anfitrión el Wi-Fi, los datos de entrada y la información local.',thinking:'Un momento…',ph:'¿Cuál es la contraseña del Wi-Fi?',chips:['¿Cuál es la contraseña del Wi-Fi?','¿A qué hora es la salida?','¿Dónde cenar cerca?','¿Qué hay esta noche?','¿Dónde comprar comida?','¿Hay aparcamiento?']},
+  it:{tickets:'Biglietti',dir:'Indicazioni',mDate:'Data',mVenue:'Luogo',mTickets:'Biglietti ↗',mDir:'Indicazioni ↗',mClose:'Chiudi',walk:'min a piedi',festival:'Festival',family:'Famiglia',pickSec:"I consigli dell'host",addrSec:'Dove ti trovi',dirs:'Indicazioni ↗',teaseT:'Chiedimi qualsiasi cosa',teaseS:'Il tuo appartamento, il quartiere o cosa c’è stasera.',gHost:'Fai come a casa tua. Il Wi-Fi, il check-out e i miei posti preferiti sono qui — per il resto chiedimi pure.',gConcierge:'Benvenuto. Tutto per il suo soggiorno è qui — il Wi-Fi, il check-out e i nostri consigli nelle vicinanze. Chieda pure altro.',gBrief:'Wi-Fi, check-out, consigli nelle vicinanze e cosa c’è questa settimana. Per il resto, chiedi.',gPlayful:'Sei arrivato! Wi-Fi, check-out, i posti migliori dietro l’angolo — e per il resto chiedi a me.',walkNear:'Tutto nelle vicinanze',hostpick1:"Il consiglio dell'host:",hostpicks:"Alcuni consigli dell'host:",pow:'Compagno di soggiorno · powered by shou',eyebrow:'Il tuo compagno di soggiorno',welcomeH:'Tutto per il tuo soggiorno.',sub:'Wi-Fi, check-out e il quartiere — e cosa fare nei dintorni, in qualsiasi momento.',book:'Guida di benvenuto',week:'Questa settimana',ask:'Chiedi al concierge',intro:'Chiedimi qualsiasi cosa — il tuo appartamento, il quartiere o cosa fare nei dintorni.',here:'Ecco:',seemap:'Vedi sulla mappa',nearby:'Alcuni posti nelle vicinanze:',near:'Questa settimana vicino a te',music:'Musica dal vivo',art:'Arte e mostre',theatre:'Teatro',none:'Nessun risultato — prova un’altra domanda.',noevents:'Niente nei dintorni questa settimana.',errH:'Questa guida per gli ospiti non è disponibile',errP:'La guida di benvenuto digitale di questo appartamento è in pausa o non è ancora stata pubblicata. Se soggiorni qui, chiedi al tuo host il Wi-Fi, il check-in e le info locali.',thinking:'Un attimo…',ph:'Qual è la password del Wi-Fi?',chips:['Qual è la password del Wi-Fi?','A che ora è il check-out?','Dove cenare qui vicino?','Cosa c’è stasera?','Dove fare la spesa?','C’è un parcheggio?']},
+  uk:{tickets:'Квитки',dir:'Маршрут',mDate:'Дата',mVenue:'Місце',mTickets:'Квитки ↗',mDir:'Маршрут ↗',mClose:'Закрити',walk:'хв пішки',festival:'Фестивалі',family:'Родина',pickSec:'Рекомендації господаря',addrSec:'Де ви',dirs:'Маршрут ↗',teaseT:'Запитайте мене про що завгодно',teaseS:'Ваша квартира, район або що відбувається сьогодні.',gHost:'Почувайтеся як удома. Wi-Fi, час виїзду та мої улюблені місця поруч — тут, а про решту просто запитайте.',gConcierge:'Вітаємо. Усе для вашого перебування тут — Wi-Fi, виїзд і наші рекомендації поруч. Запитуйте, якщо потрібно ще щось.',gBrief:'Wi-Fi, виїзд, місця поруч і що відбувається цього тижня. Решту — запитайте.',gPlayful:'Ви на місці! Wi-Fi, виїзд, найкращі місця за рогом — а про решту просто запитайте.',walkNear:'Усе поруч',hostpick1:'Рекомендація господаря:',hostpicks:'Кілька рекомендацій від господаря:',pow:'Помічник гостя · powered by shou',eyebrow:'Ваш помічник гостя',welcomeH:'Усе для вашого перебування.',sub:'Wi-Fi, виїзд і район — а також що відбувається поруч, будь-коли.',book:'Довідник гостя',week:'Цього тижня',ask:'Запитати консьєржа',intro:'Запитайте мене про що завгодно — вашу квартиру, район чи що подивитися поруч.',here:'Ось:',seemap:'Подивитися на карті',nearby:'Кілька місць поруч:',near:'Цього тижня поруч із вами',music:'Жива музика',art:'Мистецтво та виставки',theatre:'Театр',none:'Нічого не знайдено — спробуйте інше запитання.',noevents:'Цього тижня поруч нічого немає.',errH:'Цей довідник гостя недоступний',errP:'Цифровий довідник гостя для цієї квартири призупинено або ще не опубліковано. Якщо ви зупинилися тут, запитайте у господаря Wi-Fi, деталі заїзду та місцеву інформацію.',thinking:'Хвилинку…',ph:'Який пароль від Wi-Fi?',chips:['Який пароль від Wi-Fi?','О котрій виїзд?','Гарна вечеря поруч?','Куди піти ввечері?','Де купити продукти?','Чи є паркінг?']},
 };
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -457,86 +514,298 @@ function setTab(n){
 }
 
 // ---- events ----
-function fmtDate(d){if(!d)return'';var dt=/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00'):new Date(d);if(isNaN(dt))return d;
-  try{return dt.toLocaleDateString(({fr:'fr-BE',nl:'nl-BE',de:'de-DE',es:'es-ES',it:'it-IT',uk:'uk-UA'})[curLang]||'en-GB',{weekday:'short',day:'numeric',month:'short'});}catch(e){return d;}}
-// A multi-night run comes back as one row per date, so an unfiltered rail shows
-// the same concert three cards in a row. Same title+venue collapses to the first
-// (earliest) occurrence, as on the hotel pages.
-function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');}
-function cleanTitle(x){var s=String(x||'').trim();var p=s.indexOf(' | ');if(p>0)s=s.slice(0,p).trim();return s||String(x||'').trim();}
-function dedupe(list){var seen={},out=[];(list||[]).forEach(function(e){
-  var k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);
-  if(k&&seen[k])return; if(k)seen[k]=1; out.push(e);});return out;}
-
-/* ---------- the event card, opened in place ---------- */
-// Everything we render is remembered by id, so a click can show the full card
-// rather than navigating away.
-var evById={}, mvList=[], mvIdx=0;
-function rememberEvents(list){ (list||[]).forEach(function(e){ if(e&&e.id) evById[e.id]=e; }); }
-
-function mvHtml(e){
-  var when=[fmtDate(e.date),(e.time||'')].filter(Boolean).join(' · ');
-  var where=[e.venue,e.city].filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i;}).join(' · ');
-  var ds=distLabel(e), seg=e.seg||catLabel(e.categorySlug);
-  var dir='https://www.google.com/maps/dir/?api=1&destination='+
-    encodeURIComponent((isFinite(e.lat)&&isFinite(e.lng))?(e.lat+','+e.lng):[e.venue,e.city].filter(Boolean).join(' '));
-  return '<div class="mv-in" role="dialog" aria-modal="true">'
-    +'<button class="mv-x" aria-label="'+esc(chr('mClose'))+'">&times;</button>'
-    +(e.img?'<img class="mv-hero" src="'+esc(e.img)+'" alt="">':'')
-    +'<div class="mv-body">'
-    +(seg?'<span class="qpill" style="display:inline-block;margin-bottom:8px;background:'
-        +(SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)')+'">'+esc(seg)+'</span>':'')
-    +'<div class="mv-t">'+esc(cleanTitle(e.name))+'</div>'
-    +(when?'<div class="mv-row"><span class="k">'+esc(chr('mDate'))+'</span><span class="v">'+esc(when)+'</span></div>':'')
-    +(where?'<div class="mv-row"><span class="k">'+esc(chr('mVenue'))+'</span><span class="v">'+esc(where)
-        +(ds?' · '+esc(ds):'')+'</span></div>':'')
-    +(e.desc?'<div class="mv-desc">'+esc(String(e.desc).slice(0,900))+'</div>':'')
-    +'<div class="mv-cta">'
-      +(e.url?'<a class="go" href="'+esc(e.url)+'" target="_blank" rel="noopener">'+esc(chr('mTickets'))+'</a>':'')
-      +'<a class="alt" href="'+esc(dir)+'" target="_blank" rel="noopener">'+esc(chr('mDir'))+'</a>'
-    +'</div>'
-    +(mvList.length>1?'<div class="mv-nav"><button data-mv="-1"'+(mvIdx<=0?' disabled':'')+'>←</button>'
-      +'<button data-mv="1"'+(mvIdx>=mvList.length-1?' disabled':'')+'>→</button></div>':'')
-    +'</div></div>';
+function fmtDate(d){if(!d)return '';const dt=/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00'):new Date(d);if(isNaN(dt))return d;
+  try{return dt.toLocaleDateString(LOCMAP[curLang]||'en-GB',{weekday:'short',day:'numeric',month:'short'});}catch(e){return d;}}
+const ML={
+  en:{date:'Date',venue:'Venue',price:'Price',free:'Free',more:'See more',less:'See less',about:'About',tt:'Opening times',upDates:'Upcoming dates',closed:'Closed',open:'Open',byAppt:'Also by appointment'},
+  fr:{date:'Date',venue:'Lieu',price:'Prix',free:'Gratuit',more:'Voir plus',less:'Voir moins',about:'À propos',tt:'Horaires',upDates:'Prochaines dates',closed:'Fermé',open:'Ouvert',byAppt:'Aussi sur rendez-vous'},
+  nl:{date:'Datum',venue:'Locatie',price:'Prijs',free:'Gratis',more:'Meer',less:'Minder',about:'Over',tt:'Openingstijden',upDates:'Volgende data',closed:'Gesloten',open:'Open',byAppt:'Ook op afspraak'},
+  de:{date:'Datum',venue:'Ort',price:'Preis',free:'Kostenlos',more:'Mehr',less:'Weniger',about:'Über',tt:'Öffnungszeiten',upDates:'Nächste Termine',closed:'Geschlossen',open:'Geöffnet',byAppt:'Auch nach Vereinbarung'},
+  es:{date:'Fecha',venue:'Lugar',price:'Precio',free:'Gratis',more:'Ver más',less:'Ver menos',about:'Acerca de',tt:'Horarios',upDates:'Próximas fechas',closed:'Cerrado',open:'Abierto',byAppt:'También con cita previa'},
+  it:{date:'Data',venue:'Luogo',price:'Prezzo',free:'Gratis',more:'Mostra altro',less:'Mostra meno',about:'Informazioni',tt:'Orari',upDates:'Prossime date',closed:'Chiuso',open:'Aperto',byAppt:'Anche su appuntamento'},
+  uk:{date:'Дата',venue:'Місце',price:'Ціна',free:'Безкоштовно',more:'Більше',less:'Менше',about:'Про подію',tt:'Години роботи',upDates:'Найближчі дати',closed:'Зачинено',open:'Відкрито',byAppt:'Також за записом'},
+};
+const ml=k=>(ML[curLang]||ML.en)[k];
+const LOCMAP={fr:'fr-BE',nl:'nl-BE',de:'de-DE',es:'es-ES',it:'it-IT',uk:'uk-UA',en:'en-GB'};  // localizes weekday + month names
+function fmtTimeRange(e){
+  const ok=v=>v&&v!=='TBA'&&v!=='null'&&v!=='00:00';
+  const s=ok(e.time)?e.time:'';
+  const en=(e.endTime&&e.endTime!=='TBA'&&e.endTime!=='null'&&e.endTime!=='23:59'&&e.endTime!=='00:00')?e.endTime:'';
+  const sameDay=!e.endDate||e.endDate===e.date;
+  if(s&&en&&en!==s&&sameDay)return s+'–'+en;
+  return s;
 }
-function mvShow(){
-  var e=evById[mvList[mvIdx]]; if(!e)return;
-  var mv=document.getElementById('mv');
-  mv.innerHTML=mvHtml(e); mv.classList.add('on');
-  document.body.style.overflow='hidden';            // the page behind must not scroll
-  mv.querySelector('.mv-x').onclick=mvClose;
-  [].slice.call(mv.querySelectorAll('[data-mv]')).forEach(function(b){
-    b.onclick=function(){ mvIdx=Math.min(mvList.length-1,Math.max(0,mvIdx+ +b.getAttribute('data-mv'))); mvShow(); };});
-}
-function mvClose(){ var mv=document.getElementById('mv');
-  mv.classList.remove('on'); mv.innerHTML=''; document.body.style.overflow=''; }
 
-document.addEventListener('click',function(ev){
-  var mv=document.getElementById('mv');
-  if(mv&&mv.classList.contains('on')&&ev.target===mv){ mvClose(); return; }   // backdrop
-  var card=ev.target.closest&&ev.target.closest('.ev[data-id]'); if(!card)return;
-  var id=card.getAttribute('data-id');
-  if(!id||!evById[id])return;                        // unknown → let the href do its job
-  ev.preventDefault();
-  // Sibling cards become prev/next, so the guest can browse an answer in place.
-  var cont=card.closest('.res')||card.closest('.rail')||card.parentElement;
-  var ids=cont?[].slice.call(cont.querySelectorAll('.ev[data-id]')).map(function(x){return x.getAttribute('data-id');})
-                 .filter(function(x){return x&&evById[x];}):[];
-  mvList=ids.length?ids:[id]; mvIdx=Math.max(0,mvList.indexOf(id));
-  mvShow();
+function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+// earliest date >= today the event occurs — the date to show in the default (no day picked) view
+function nextOccurrence(e){
+  const t=todayISO();
+  const occ=Array.isArray(e.occurrenceDates)&&e.occurrenceDates.length?e.occurrenceDates:null;
+  if(occ){let best='';for(const d of occ){if(d>=t&&(!best||d<best))best=d;}return best||e.date;}
+  if(e.date&&e.date>=t)return e.date;
+  const end=e.recurrenceEndDate||e.endDate||e.date;
+  if(e.date&&e.date<t&&end&&end>=t)return t;           // ongoing run → today
+  return e.date;
+}
+// Shared event card (This week rails + concierge results): thumb, category
+// pill, title, short description, date, venue · distance. Opens the modal.
+function evCard(e,showDate){
+  const dist=distLabel(e), tr=fmtTimeRange(e), time=tr?' · '+tr:'';
+  const d=showDate||e.date;
+  const seg=e.seg||catLabel(e.categorySlug)||'';
+  const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
+  const img=e.img?`<img src="${esc(e.img)}" alt="" loading="lazy" decoding="async">`:'';
+  const desc=(e.desc||'').trim();
+  const venue=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
+  return `<a class="ev ev-res" data-date="${esc(d||'')}" data-id="${esc(e.id||'')}" href="${esc(e.url||'#')}" target="_blank" rel="noopener">
+    <span class="thumb">${img}</span>
+    <span class="meta">
+      ${seg?`<span class="qpill" style="background:${segColor}">${esc(seg)}</span>`:''}
+      <span class="t">${esc(cleanTitle(e.name))}</span>
+      ${desc?`<span class="qdesc">${esc(desc)}</span>`:''}
+      <span class="date">${esc(fmtDate(d))}${esc(time)}</span>
+      <span class="venue">${esc(venue||'TBA')}</span>
+      ${dist?`<span class="evdist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${esc(dist)}</span>`:''}
+    </span></a>`;
+}
+
+// ---- event modal (the app's rich card, opened in-page, with prev/next nav) ----
+const mv=document.getElementById('mv');
+let modalList=[], modalDates=[], modalIdx=0;   // modalDates: occurrence date to show per card (parallel to modalList)
+function catLabel(slug){if(!slug)return '';const k=CAT_L[slug];return k?chr(k):slug.charAt(0).toUpperCase()+slug.slice(1);}
+function calChip(d){if(!d)return '';const dt=new Date(d+'T12:00:00');if(isNaN(dt))return '';const loc=LOCMAP[curLang]||'en-GB';
+  const wd=dt.toLocaleDateString(loc,{weekday:'short'}).toUpperCase();const mo=dt.toLocaleDateString(loc,{month:'short'}).toUpperCase();
+  return `<div class="mv-cal"><span>${wd}</span><b>${dt.getDate()}</b><span>${mo}</span></div>`;}
+function priceHtml(e){
+  if(e.mn!=null){if(e.mn===0&&(e.mx==null||e.mx===0))return esc(ml('free'));
+    return '€'+Math.round(e.mn)+(e.mx&&e.mx!==e.mn?'–€'+Math.round(e.mx):'');}
+  return e.url?`<a class="mv-link" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(chr('tickets'))}</a>`:'—';
+}
+// recurring events with a weekly schedule → run range + per-weekday opening times
+function recurrenceHtml(e){
+  if(!e||e.eventType==='single'||!e.recurrenceSchedule)return '';
+  const sch=e.recurrenceSchedule, days=sch.days;
+  if(!days||typeof days!=='object'||Array.isArray(days))return '';
+  const loc=LOCMAP[curLang]||'en-GB';
+  const order=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const dayName=i=>{try{return new Date(2024,0,1+i).toLocaleDateString(loc,{weekday:'long'});}catch(_){return order[i];}};  // 2024-01-01 = Monday
+  const hhmm=s=>String(s||'').slice(0,5);
+  // hours may be a single {start,end} OR an array of such slots (e.g. 10–12 & 14–16)
+  const slots=h=>{const a=Array.isArray(h)?h:(h?[h]:[]);return a.filter(s=>s&&s.start).map(s=>hhmm(s.start)+' – '+hhmm(s.end)).join(', ');};
+  let any=false;
+  const rows=order.map((d,i)=>{
+    const info=days[d];
+    const open=!!(info&&info.is_open);
+    if(open)any=true;
+    const hrs=open?(slots(info.hours)||ml('open')):ml('closed');
+    return `<div class="tt-row${open?'':' tt-closed'}"><span class="tt-day">${esc(dayName(i))}</span><span class="tt-hrs">${esc(hrs)}</span></div>`;
+  }).join('');
+  if(!any)return '';
+  const runStart=sch.date_start||e.date, runEnd=e.recurrenceEndDate||sch.date_end;
+  const runLine=(runStart&&runEnd&&runStart!==runEnd)?`<div class="mv-run">📅 ${esc(fmtDate(runStart))} – ${esc(fmtDate(runEnd))}</div>`:'';
+  const appt=sch.is_also_by_appointment?`<div class="mv-appt">+ ${esc(ml('byAppt'))}</div>`:'';
+  return `<div class="mv-tt"><h4>${esc(ml('tt'))}</h4>${runLine}<div class="tt-grid">${rows}</div>${appt}</div>`;
+}
+// recurring events without a weekly schedule but with multiple dates → upcoming-date chips
+function occurrenceDatesHtml(e){
+  if(!e||e.eventType==='single')return '';
+  if(e.recurrenceSchedule&&e.recurrenceSchedule.days)return '';   // timetable already covers it
+  const ds=Array.isArray(e.occurrenceDates)?e.occurrenceDates:[];
+  if(ds.length<2)return '';
+  const loc=LOCMAP[curLang]||'en-GB';
+  const tISO=todayISO();
+  const up=ds.filter(d=>d>=tISO); const list=up.length?up:ds;
+  const fmt=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'});}catch(_){return d;}};
+  const MAX=16;
+  const chips=list.slice(0,MAX).map(d=>`<span class="od-chip">${esc(fmt(d))}</span>`).join('');
+  const more=list.length>MAX?`<span class="od-more">+${list.length-MAX}</span>`:'';
+  return `<div class="mv-od"><h4>${esc(ml('upDates'))}</h4><div class="od-grid">${chips}${more}</div></div>`;
+}
+function descHtml(e){const d=(e.desc||'').trim();if(!d)return '';
+  const head=`<h4>${esc(ml('about'))}</h4>`;
+  if(d.length<=240)return `<div class="mv-about">${head}<p>${esc(d)}</p></div>`;
+  return `<div class="mv-about">${head}<p class="mv-clamp">${esc(d)}</p><button class="mv-more" type="button">${esc(ml('more'))}</button></div>`;
+}
+// Build the rich card HTML for a given index into modalList/modalDates.
+function buildCardHTML(idx){
+  const id=modalList[idx], e=evById[id]; if(!e)return '';
+  const time=fmtTimeRange(e);
+  const dist=distLabel(e);
+  const hasCoord=Number.isFinite(e.lat)&&Number.isFinite(e.lng);
+  const dirUrl='https://www.google.com/maps/dir/?api=1&destination='+(hasCoord?e.lat+','+e.lng:encodeURIComponent(((e.venue||'')+' '+(e.city||'')).trim()||'Brussels'));
+  const hero=e.img?`<img src="${esc(e.img)}" alt="">`:'';
+  const seg=e.seg||catLabel(e.categorySlug)||'';
+  const genre=(e.genre&&e.genre.toLowerCase()!==String(e.seg||'').toLowerCase())?' · '+e.genre:'';
+  const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
+  const sub=[e.venue,e.city].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
+  const showDate=modalDates[idx]||e.date;      // occurrence date from the clicked card (recurring runs)
+  const dateV=[fmtDate(showDate),time].filter(Boolean).join(' · ')||'—';
+  const map=hasCoord?`<div class="mv-map"><iframe loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${(e.lng-0.006).toFixed(4)}%2C${(e.lat-0.004).toFixed(4)}%2C${(e.lng+0.006).toFixed(4)}%2C${(e.lat+0.004).toFixed(4)}&layer=mapnik&marker=${e.lat}%2C${e.lng}"></iframe><a class="mv-map-cta" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(chr('dir'))} ↗</a></div>`:'';
+  const cta=e.url?`<a class="mv-cta" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(chr('tickets'))}</a>`:'';
+  return `<div class="mv-card" role="dialog" aria-modal="true">
+    <div class="mv-hero">${hero}<div class="mv-scrim"></div>${calChip(showDate)}<span class="mv-pill" style="background:${segColor}">${esc(seg)}${esc(genre)}</span></div>
+    <div class="mv-b">
+      <div class="mv-title">${esc(cleanTitle(e.name))}</div>
+      ${sub?`<div class="mv-sub">${esc(sub)}</div>`:''}
+      <div class="mv-rows">
+        <div class="mv-row"><span class="ic">📅</span><div class="mv-tx"><div class="k">${esc(ml('date'))}</div><div class="v">${esc(dateV)}</div></div></div>
+        <div class="mv-row"><span class="ic">📍</span><div class="mv-tx"><div class="k">${esc(ml('venue'))}</div><div class="v">${esc(sub||'TBA')}${dist?`<span class="mv-dist">${esc(dist)}</span>`:''}${!hasCoord?`<a class="mv-dir" href="${esc(dirUrl)}" target="_blank" rel="noopener">${esc(chr('dir'))}</a>`:''}</div></div></div>
+        <div class="mv-row"><span class="ic">🎟</span><div class="mv-tx"><div class="k">${esc(ml('price'))}</div><div class="v">${priceHtml(e)}</div></div></div>
+      </div>
+      ${recurrenceHtml(e)}${occurrenceDatesHtml(e)}${descHtml(e)}${map}${cta}
+    </div>
+  </div>`;
+}
+// Render the modal: a 3-pane track [prev][current][next]; neighbours stay empty
+// until a drag starts (so the resting scrim area still closes on tap).
+function showModal(noAnim){
+  if(!evById[modalList[modalIdx]]){closeModal();return;}
+  const showNav=modalList.length>1;
+  mv.innerHTML=`
+  <button class="mv-x" aria-label="Close">✕</button>
+  ${showNav?'<button class="mv-nav mv-prev" aria-label="Previous">‹</button>':''}
+  <div class="mv-clip" id="mvClip"><div class="mv-track" id="mvTrack"><div class="mv-pane" id="mvPrev"></div><div class="mv-pane" id="mvCur">${buildCardHTML(modalIdx)}</div><div class="mv-pane" id="mvNext"></div></div></div>
+  ${showNav?'<button class="mv-nav mv-next" aria-label="Next">›</button>':''}`;
+  const prev=mv.querySelector('.mv-prev'), next=mv.querySelector('.mv-next');
+  if(prev)prev.style.visibility=modalIdx>0?'visible':'hidden';
+  if(next)next.style.visibility=modalIdx<modalList.length-1?'visible':'hidden';
+  mv.classList.add('on'); mv.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+  const mc=mv.querySelector('#mvCur .mv-card'); if(mc){mc.scrollTop=0; if(noAnim)mc.style.animation='none';}
+}
+function openModal(id){modalList=[id];modalDates=[evById[id]?nextOccurrence(evById[id]):''];modalIdx=0;showModal();}
+
+// ---- swipe navigation (mirrors the main app: 1:1 track drag following the
+//      thumb, commit by distance OR velocity flick, rubber-band at the edges,
+//      velocity-scaled settle). Buttons/arrow keys glide via the same track. ----
+let swBusy=false;
+function mvTrackEl(){return document.getElementById('mvTrack');}
+function havePrevEv(){return modalIdx>0;}
+function haveNextEv(){return modalIdx<modalList.length-1;}
+function populateNeighbors(){
+  const p=document.getElementById('mvPrev'), n=document.getElementById('mvNext');
+  if(!p||!n)return;
+  p.innerHTML=havePrevEv()?buildCardHTML(modalIdx-1):'';
+  n.innerHTML=haveNextEv()?buildCardHTML(modalIdx+1):'';
+}
+function clearNeighbors(){
+  const p=document.getElementById('mvPrev'), n=document.getElementById('mvNext');
+  if(p)p.innerHTML=''; if(n)n.innerHTML='';
+}
+function setTrackPx(px){const t=mvTrackEl();if(t)t.style.transform=`translateX(calc(-33.3333% + ${px}px))`;}
+function commitDir(dir,settleMs){        // dir: -1 prev, +1 next
+  const t=mvTrackEl(); if(!t){modalIdx+=dir;showModal();return;}
+  swBusy=true;
+  if(!t.style.transform){                                // button/keyboard: no drag start yet —
+    t.classList.add('mv-track-drag');                    // pin an explicit start (no transition)…
+    t.style.transform='translateX(-33.3333%)';
+    void t.offsetWidth;                                  // …and commit it so the glide actually animates
+  }
+  t.classList.remove('mv-track-drag'); t.classList.add('mv-track-anim');
+  t.style.transitionDuration=(settleMs||280)+'ms';
+  t.style.transform=dir<0?'translateX(0%)':'translateX(-66.6667%)';
+  let done=false;
+  const finish=()=>{ if(done)return; done=true; t.removeEventListener('transitionend',finish);
+    modalIdx+=dir; showModal(true); swBusy=false; };   // rebuild at new index (no re-entrance anim)
+  t.addEventListener('transitionend',finish);
+  setTimeout(finish,(settleMs||280)+80);               // safety net
+}
+function snapBack(settleMs){
+  const t=mvTrackEl(); if(!t)return;
+  t.classList.remove('mv-track-drag'); t.classList.add('mv-track-anim');
+  t.style.transitionDuration=(settleMs||280)+'ms';
+  t.style.transform='';
+  const done=()=>{ t.removeEventListener('transitionend',done); t.classList.remove('mv-track-anim'); t.style.transitionDuration=''; clearNeighbors(); };
+  t.addEventListener('transitionend',done);
+  setTimeout(done,(settleMs||280)+80);
+}
+function navModal(delta){        // buttons + arrow keys
+  if(swBusy)return;
+  const n=modalIdx+delta; if(n<0||n>=modalList.length)return;
+  populateNeighbors();            // fill the target pane; commitDir reflows before gliding
+  commitDir(delta,280);
+}
+(function initSwipe(){
+  let sx=0,sy=0,st=0,lx=0,lt=0,vx=0,dragging=false,decided=false,pv=false,nx=false;
+  mv.addEventListener('touchstart',ev=>{
+    if(swBusy||ev.touches.length!==1)return;
+    sx=lx=ev.touches[0].clientX; sy=ev.touches[0].clientY; st=lt=Date.now(); vx=0; dragging=false; decided=false;
+  },{passive:true});
+  mv.addEventListener('touchmove',ev=>{
+    if(swBusy||!st||ev.touches.length!==1)return;
+    const tc=ev.touches[0], dx=tc.clientX-sx, dy=tc.clientY-sy;
+    if(!decided){
+      const adx=Math.abs(dx),ady=Math.abs(dy);
+      if(adx<10&&ady<10)return;
+      decided=true;
+      dragging=(adx>ady*1.2)&&modalList.length>1;      // horizontal intent + something to navigate to
+      if(dragging){ populateNeighbors(); pv=havePrevEv(); nx=haveNextEv(); const t=mvTrackEl(); if(t){t.classList.remove('mv-track-anim');t.classList.add('mv-track-drag');} }
+    }
+    if(!dragging)return;
+    if(ev.cancelable)ev.preventDefault();              // lock the gesture; let vertical scroll pass otherwise
+    const now=Date.now(),dt=now-lt;
+    if(dt>0){vx=vx*0.7+((tc.clientX-lx)/dt)*0.3;lx=tc.clientX;lt=now;}
+    let d=dx; if((dx>0&&!pv)||(dx<0&&!nx))d=dx*0.32;   // rubber-band toward an empty edge
+    setTrackPx(d);
+  },{passive:false});
+  mv.addEventListener('touchend',ev=>{
+    if(swBusy)return;
+    const wasDragging=dragging; st=0; dragging=false; decided=false;
+    const t=mvTrackEl();
+    if(!wasDragging){ if(t){t.classList.remove('mv-track-drag','mv-track-anim');t.style.transform='';} return; }
+    const tc=ev.changedTouches[0];
+    const dx=tc?tc.clientX-sx:0, adx=Math.abs(dx), width=window.innerWidth||400;
+    const distanceCommit=adx>width*0.28;
+    const velocityCommit=Math.abs(vx)>0.5&&adx>40&&(Math.sign(vx)===Math.sign(dx));
+    const wantsPrev=dx>0, hasNeighbor=wantsPrev?pv:nx;
+    const commit=(distanceCommit||velocityCommit)&&hasNeighbor;
+    const SMIN=170,SMAX=340,speed=Math.abs(vx);
+    const settleMs=Math.round(SMAX-Math.min(speed/2,1)*(SMAX-SMIN));   // fast flick → snappy, slow drag → gentle
+    if(commit)commitDir(wantsPrev?-1:1,settleMs); else snapBack(settleMs);
+  },{passive:true});
+  mv.addEventListener('touchcancel',()=>{ if(dragging){dragging=false;decided=false;st=0;snapBack(280);} },{passive:true});
+})();
+function closeModal(){mv.classList.remove('on');mv.setAttribute('aria-hidden','true');document.body.style.overflow='';mv.innerHTML='';}
+mv.addEventListener('click',e=>{
+  if(e.target.closest('.mv-prev')){e.stopPropagation();navModal(-1);return;}
+  if(e.target.closest('.mv-next')){e.stopPropagation();navModal(1);return;}
+  const more=e.target.closest('.mv-more');
+  if(more){e.stopPropagation();const p=more.previousElementSibling;const c=p.classList.toggle('mv-clamp');more.textContent=c?ml('more'):ml('less');return;}
+  if(e.target.closest('.mv-x')||e.target===mv)closeModal();
 });
-document.addEventListener('keydown',function(ev){
-  var mv=document.getElementById('mv'); if(!mv||!mv.classList.contains('on'))return;
-  if(ev.key==='Escape')mvClose();
-  else if(ev.key==='ArrowLeft'&&mvIdx>0){mvIdx--;mvShow();}
-  else if(ev.key==='ArrowRight'&&mvIdx<mvList.length-1){mvIdx++;mvShow();}
+document.addEventListener('keydown',e=>{
+  if(!mv.classList.contains('on'))return;
+  if(e.key==='Escape')closeModal();
+  else if(e.key==='ArrowLeft')navModal(-1);
+  else if(e.key==='ArrowRight')navModal(1);
+});
+document.addEventListener('click',e=>{
+  const card=e.target.closest('.ev,.qcard'); if(!card)return;
+  const id=card.getAttribute('data-id');
+  if(!id||!evById[id]){ if(card.classList.contains('ev')&&(!card.getAttribute('href')||card.getAttribute('href')==='#'))e.preventDefault(); return; }
+  e.preventDefault();
+  const cont=card.closest('.wk-rail')||card.closest('.res');
+  if(cont){
+    const seen=new Set();modalList=[];modalDates=[];
+    cont.querySelectorAll('[data-id]').forEach(x=>{const xid=x.getAttribute('data-id');if(!xid||!evById[xid]||seen.has(xid))return;
+      seen.add(xid);modalList.push(xid);modalDates.push(x.getAttribute('data-date')||'');});
+    modalIdx=Math.max(0,modalList.indexOf(id));
+  }else{modalList=[id];modalDates=[card.getAttribute('data-date')||''];modalIdx=0;}
+  showModal();
+});
+// Tickets / directions clicks inside the modal (booking intent) — delegated so
+// it works for the dynamically-built modal panes.
+document.addEventListener('click',e=>{
+  const cur=evById[modalList[modalIdx]]; if(!cur)return;
+  if(e.target.closest('.mv-cta'))
+  else if(e.target.closest('.mv-dir,.mv-map-cta'))
 });
 
 /* ---------- rail scrolling ---------- */
 function setupArrows(){
   var L='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
   var R='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
-  [].slice.call(document.querySelectorAll('#week .rail')).forEach(function(el){
+  [].slice.call(document.querySelectorAll('#week .wk-rail')).forEach(function(el){
     var page=function(){return Math.max(el.clientWidth*0.85,240);};
     if(!el.dataset.wheel){ el.dataset.wheel='1';
       el.addEventListener('wheel',function(e){
@@ -554,7 +823,7 @@ function setupArrows(){
     if(el.dataset.arrows)return;
     if(el.scrollWidth<=el.clientWidth+4)return;
     el.dataset.arrows='1';
-    var wrap=document.createElement('div');wrap.className='railwrap';
+    var wrap=document.createElement('div');wrap.className='wk-railwrap';
     el.parentNode.insertBefore(wrap,el);wrap.appendChild(el);
     var l=document.createElement('button');l.className='wk-arrow left';l.setAttribute('aria-label','Scroll left');l.innerHTML=L;
     var r=document.createElement('button');r.className='wk-arrow right';r.setAttribute('aria-label','Scroll right');r.innerHTML=R;
@@ -569,32 +838,22 @@ function setupArrows(){
 
 var SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--orange)',exhibition:'var(--violet)',
   theatre:'var(--violet)',dance:'var(--violet)',comedy:'var(--violet)',family:'var(--cyan)',sports:'var(--cyan)',sport:'var(--cyan)'};
-var CAT_L={music:'music',exhibition:'art',theatre:'theatre',festival:'festival',family:'family'};
-function catLabel(sl){if(!sl)return'';var k=CAT_L[sl];return k?chr(k):sl.charAt(0).toUpperCase()+sl.slice(1);}
-function haversine(a,b,c,d){var R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;
-  var s=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)*Math.sin(y/2);
-  return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
-// Distance from THIS apartment is the whole point of the page — same signal the
-// hotel cards lead with. Silent when we cannot compute it.
-function distLabel(e){
-  if(!(U.lat&&U.lng)||!isFinite(e.lat)||!isFinite(e.lng))return'';
-  var k=haversine(U.lat,U.lng,e.lat,e.lng); if(!isFinite(k)||k>60)return'';
-  return k<1.1?(Math.max(1,Math.round(k*12))+' '+chr('walk')):(k.toFixed(1)+' km');}
-var PIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>';
-function evCard(e){
-  var img=e.img?'<img src="'+esc(e.img)+'" alt="" loading="lazy" decoding="async">':'';
-  var vn=[e.venue,e.city].filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i;}).join(' · ');
-  var seg=e.seg||catLabel(e.categorySlug), desc=(e.desc||'').trim(), ds=distLabel(e);
-  var when=[fmtDate(e.date),(e.time||'')].filter(Boolean).join(' · ');
-  return '<a class="ev" data-id="'+esc(e.id||'')+'" href="'+esc(e.url||'#')+'" target="_blank" rel="noopener">'
-    +'<span class="thumb">'+img+'</span><span class="meta">'
-    +(seg?'<span class="qpill" style="background:'+(SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)')+'">'+esc(seg)+'</span>':'')
-    +'<span class="t">'+esc(cleanTitle(e.name))+'</span>'
-    +(desc?'<span class="qdesc">'+esc(desc)+'</span>':'')
-    +(when?'<span class="d">'+esc(when)+'</span>':'')
-    +'<span class="vn">'+esc(vn||'TBA')+'</span>'
-    +(ds?'<span class="evdist">'+PIN+esc(ds)+'</span>':'')
-    +'</span></a>';}
+const CAT_L={music:'music',exhibition:'art',theatre:'theatre',festival:'festival',family:'family'};
+const evById={};                                                  // id -> event, for the click-through modal
+function indexEvents(list){for(const e of list){if(e&&e.id)evById[e.id]=e;}}
+// clean ticket-tier / day-variant tails ("Rock Werchter 2026 | Saturday" → "Rock Werchter 2026")
+function cleanTitle(x){
+  let s=String(x||'').trim();
+  const p=s.indexOf(' | '); if(p>0)s=s.slice(0,p).trim();
+  s=s.replace(/\s*[-–]\s*(day\s*ticket|\d+\s*-?\s*day\s*pass|weekend\s*(pass|ticket)|combi\s*ticket|pass(es)?|vip|early\s*bird|terras?|parking\w*|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b.*$/i,'').trim();
+  return s||String(x||'').trim();
+}
+function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
+function km(e){return (Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine(U.lat,U.lng,e.lat,e.lng):999;}
+function distLabel(e){const k=km(e);if(k>60)return '';if(k<1.1)return Math.max(1,Math.round(k*12))+' '+chr('walk');return k.toFixed(1)+' km';}
+function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
+
 function loadEvents(){
   if(!(U.lat&&U.lng))return; // render() omits the tab entirely — nothing to fill.
   var cats=['music','exhibition','theatre','family','festival'];
@@ -606,9 +865,9 @@ function loadEvents(){
     for(var i=0;i<mx;i++)parts.forEach(function(a){var e=a[i];if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;merged.push(e);}});
     var wk=document.getElementById('week');if(!wk)return;
     if(!merged.length){wk.innerHTML='<div class="empty">'+esc(chr('noevents'))+'</div>';return;}
-    function rail(title,list){if(!list.length)return'';return '<h2 class="wk-h">'+esc(title)+'<span class="cnt">'+list.length+'</span></h2><div class="rail">'+list.map(evCard).join('')+'</div>';}
+    function rail(title,list){if(!list.length)return'';return '<h2 class="wk-h">'+esc(title)+'<span class="cnt">'+list.length+'</span></h2><div class="wk-rail">'+list.map(function(e){return evCard(e,nextOccurrence(e));}).join('')+'</div>';}
     var byCat=function(c){return merged.filter(function(e){return e.categorySlug===c;}).slice(0,15);};
-    merged=dedupe(merged); rememberEvents(merged);
+    merged=dedupe(merged); indexEvents(merged);
     wk.innerHTML=rail(chr('near'),merged.slice(0,15))+rail('🎶 '+chr('music'),byCat('music'))+rail('🎨 '+chr('art'),byCat('exhibition'))+rail('🎭 '+chr('theatre'),byCat('theatre'));
     setupArrows();
   });
@@ -706,8 +965,8 @@ function ask(q){
   .then(function(r){return r.json();}).then(function(d){
     typing.remove();addMsg('ai',esc(d.reasoning||'')||chr('none'));
     var list=[];var seen={};(d.events||[]).concat(d.suggestedEvents||[]).forEach(function(e){if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;list.push(e);}});
-    list=dedupe(list).slice(0,8); rememberEvents(list);
-    if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(evCard).join('');document.getElementById('msgs').appendChild(g);g.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    list=dedupe(list).slice(0,8); indexEvents(list);
+    if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(function(e){return evCard(e,e.date);}).join('');document.getElementById('msgs').appendChild(g);g.scrollIntoView({behavior:'smooth',block:'nearest'});}
     // Dead end → offer the LLM's follow-up chips instead of leaving the guest
     // stuck. The API only fills suggestionChips when nothing matched at all, and
     // the labels already come back in the guest's language. textContent (not
@@ -728,6 +987,5 @@ function ask(q){
   }).catch(function(){typing.remove();addMsg('ai',chr('none'));asking=false;});
 }
 </script>
-<div class="mv" id="mv"></div>
 </body>
 </html>
