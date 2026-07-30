@@ -94,6 +94,9 @@
   .ed-head h2{margin-right:auto}
   .ed-head .btn{margin-left:0}
   .ed-msg{margin-left:auto;font-size:13px;color:var(--cyan)}
+  .btn-x{background:none;border:none;font-size:26px;line-height:1;color:var(--dim);cursor:pointer;
+    padding:0 4px;font-family:inherit}
+  .btn-x:hover{color:var(--ink)}
 
   .ed-head h2{font-size:22px}
   .ed-head .btn{margin-left:auto}
@@ -244,7 +247,7 @@
       <button class="btn btn-primary btn-sm" id="saveBtn" data-i="save">Save</button>
       <button class="btn btn-ghost btn-sm" id="previewBtn"></button>
       <button class="btn btn-ghost btn-sm" id="pubBtn" style="display:none">Publish</button>
-      <button class="btn btn-ghost btn-sm" id="edClose" data-i="close">Close</button>
+      <button class="btn-x" id="edClose" title="Close" aria-label="Close">&times;</button>
     </div>
     <p class="ed-sub" data-i="edSub">Fill in what your guests always ask. You can edit any of this later, and it goes live the moment you save.</p>
 
@@ -252,18 +255,11 @@
     <div class="grp" data-i="grpBasics">Basics</div>
     <div class="fields">
       <div class="f full"><label data-i="fName">Apartment name</label><input id="f_name" placeholder="e.g. Apartment 32" data-i-ph="phName"></div>
-      <div class="f"><label><span data-i="fBuilding">Building</span> <span class="hint" data-i="optional">(optional)</span></label><input id="f_building" placeholder="e.g. Dansaert Residence · 2nd floor" data-i-ph="phBuilding"></div>
-      <div class="f"><label><span data-i="fHood">Neighbourhood label</span> <span class="hint" data-i="optional">(optional)</span></label><input id="f_hood" placeholder="e.g. Dansaert · Sainte-Catherine"></div>
       <div class="f full addr"><label data-i="fAddress">Address</label>
         <input id="f_address" placeholder="Start typing — street, number, postcode" data-i-ph="phAddress" autocomplete="off">
         <div class="addr-list" id="addrList"></div></div>
       <div class="f full"><div class="geo" id="geoNote"></div><div class="map" id="addrMap"></div></div>
-      <div class="f"><label data-i="fGuestLang">The language you write in</label>
-        <div class="hint" data-i="fLangHint" style="margin:-2px 0 6px"></div>
-        <div class="langwarn" id="langWarn"></div><select id="f_lang">
-        <option value="en">English</option><option value="fr">Français</option><option value="nl">Nederlands</option>
-        <option value="de">Deutsch</option><option value="es">Español</option><option value="it">Italiano</option><option value="uk">Українська</option>
-      </select></div>
+      
     </div>
 
     </div>
@@ -647,21 +643,17 @@ function openEditor(unit){
   var c=(unit&&unit.content)||{}, w=c.welcome||{};
   $('edTitle').textContent=t(unit?'editApt':'newApt');
   $('f_name').value=unit?unit.name||'':'';
-  $('f_building').value=unit?unit.building||'':'';
-  $('f_hood').value=c.hood||'';
   $('f_address').value=unit?unit.address||'':'';
-  $('f_lang').value=(unit&&unit.baseLang)||uiLang;   // a new unit is written in the owner's own language
   WFIELDS.forEach(function(k){ $('w_'+k).value=(w[k]!=null?w[k]:''); });
   renderPicks((c&&c.picks)||{});
   var _b=(unit&&unit.branding)||{};
   $('f_photo').value=_b.photo||'';
   themeSel=_b.theme||''; toneSel=_b.tone||'';
   addrLat=(unit&&unit.lat!=null)?unit.lat:null; addrLng=(unit&&unit.lng!=null)?unit.lng:null;
-  $('f_lang').closest('.f').querySelector('[data-i="fLangHint"]').textContent=t('fLangHint');
   hideAddr(); renderMap();
   $('upBtn').textContent=t('upBtn'); $('upMsg').textContent='';
   $('previewBtn').textContent=t('previewBtn');
-  renderStock(); renderPhoto(); renderGeo(unit); renderTheme(); renderTone(); checkLang();
+  renderStock(); renderPhoto(); renderGeo(unit); renderTheme(); renderTone();
   $('suggestBtn').textContent=t('suggestBtn'); $('suggestMsg').textContent='';
   wirePlaceholders();
   clearMsg($('edMsg'));
@@ -716,18 +708,6 @@ $('upFile').onchange=function(){
   }).catch(function(){ b.disabled=false; $('upFile').value=''; $('upMsg').textContent=t('upFail'); });
 };
 
-/* ---------- writing language vs dashboard language ---------- */
-// These are independent by design, but typing French into a form whose writing
-// language says English silently poisons all six translations.
-function LANG_LABEL(c){return {en:'English',fr:'Français',nl:'Nederlands',de:'Deutsch',es:'Español',it:'Italiano',uk:'Українська'}[c]||c;}
-function checkLang(){
-  var w=$('langWarn'); if(!w)return;
-  var base=$('f_lang').value;
-  if(base===uiLang||!T[uiLang]){ w.style.display='none'; return; }
-  w.style.display='block';
-  w.textContent=t('langWarn').replace('{ui}',LANG_LABEL(uiLang)).replace('{base}',LANG_LABEL(base));
-}
-$('f_lang').addEventListener('change',checkLang);
 
 /* ---------- address autocomplete + map ---------- */
 // Chosen coordinates from the dropdown. Null means "let the server geocode",
@@ -1021,14 +1001,12 @@ function collect(){
   var welcome={}; WFIELDS.forEach(function(k){ var v=$('w_'+k).value.trim(); if(v)welcome[k]=v; });
   return {
     name:$('f_name').value.trim()||'Apartment',
-    building:$('f_building').value.trim(),
     address:$('f_address').value.trim(),
-    baseLang:$('f_lang').value,
     // Only sent when the owner picked from the list; otherwise the server geocodes.
     lat:(addrLat==null?'':addrLat), lng:(addrLng==null?'':addrLng),
     branding:{photo:photoUrl(),theme:themeSel,tone:toneSel},
     // radius removed from the form — the guest page generates the badge now.
-    content:{ hood:$('f_hood').value.trim(), welcome:welcome, picks:collectPicks() }
+    content:{ welcome:welcome, picks:collectPicks() }
   };
 }
 // Returns the unit id, or null when the save failed — Preview needs to know
