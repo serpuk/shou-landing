@@ -174,7 +174,11 @@
 
 <script>
 var API='https://shou-backend.vercel.app/api';
-var slug=new URLSearchParams(location.search).get('u');
+// /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
+// browser URL never does. Reading only the query meant the pretty URL — the
+// one every QR code and View link points at — resolved to no slug at all.
+var _path=location.pathname.match(/\/apartments\/u\/([^\/?#]+)/);
+var slug=new URLSearchParams(location.search).get('u')||(_path?decodeURIComponent(_path[1]):null);
 
 var ICON={wifi:'📶',checkin:'🔑',checkout:'🚪',heating:'🌡',laundry:'🧺',coffee:'☕',trash:'🗑',parking:'🚗',luggage:'🧳',rules:'📜',emergency:'🆘',
   supermarket:'🛒',bakery:'🥐',pharmacy:'💊',transport:'🚋',airport:'✈️',
