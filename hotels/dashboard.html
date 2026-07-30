@@ -492,7 +492,10 @@ function renderQuestions(){
       token=r.j.token;
       try{localStorage.setItem('shou_hotel_sess',token);}catch(e){}
     }else{
-      msg($('authMsg'),'That sign-in link has expired. Please request a new one.','err');
+      // Show the server's reason: 'already been used' and 'expired' need the same
+      // action but not the same explanation — someone who never clicked twice should
+      // not be told their link timed out.
+      msg($('authMsg'),(r.j&&r.j.error)||'That sign-in link is no longer valid. Please request a new one.','err');
     }
     u.searchParams.delete('t');
     history.replaceState({},'',u.pathname+(u.search||''));
