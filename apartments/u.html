@@ -389,7 +389,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-essentials';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-essentials2';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -509,8 +509,10 @@ function bookHtml(){
   // The label says what the guest asked for ("Supermarket"), the card says which
   // one it is — the pick card's own type pill would otherwise repeat Google's.
   var poiPicks=poiReal.map(function(k){
+    var same=String(nb[k].gtype||'').toLowerCase()===String(lbl(k)||'').toLowerCase();
     return '<div class="nb-item"><div class="nb-k">'+esc(lbl(k))+'</div>'
-      +pickCard(Object.assign({},nb[k],{gtype:nb[k].gtype||lbl(k)}),k,U.address||'')+'</div>';}).join('');
+      +pickCard(Object.assign({},nb[k],{gtype:same?'':nb[k].gtype,cuisine:same?'':nb[k].cuisine}),k,U.address||'')
+      +'</div>';}).join('');
   // The owner's own picks — previously reachable only by asking the concierge
   // the right question, which is a poor home for curation they took time over.
   var pk=(U.content&&U.content.picks)||{}, hpAll=[];
@@ -1024,7 +1026,7 @@ function pickCard(p,kind,addr){
   var extra='';
   if(p.grating){
     extra+='<span class="pick-h"><span class="pick-rate"><span class="st">★</span>'
-      +esc(String(p.grating))
+      +esc(Number(p.grating).toFixed(1))
       +(p.gratings?'<span class="ct">('+esc(String(p.gratings))+')</span>':'')+'</span></span>';
   }
   if(p.hours) extra+='<span class="pick-h">'+esc(chr('pkHours'))+': '+esc(p.hours)+'</span>';
