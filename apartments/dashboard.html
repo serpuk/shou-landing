@@ -981,7 +981,9 @@ function renderTheme(){
       +' aria-pressed="'+(o.id===themeSel?'true':'false')+'">'
       +'<span class="badge">'+esc(t(o.badge))+'</span>'
       +'<span class="mini" style="background:'+o.bg+'">'
-        +'<span class="m-hero"><img src="'+esc(hero)+'" alt="" loading="lazy">'
+        // eager, not lazy: the photo IS the card, and seven thumbnails that pop
+        // in a second late make the gallery look broken
+        +'<span class="m-hero"><img src="'+esc(hero)+'" alt="" decoding="async">'
           +'<span class="m-tint" style="background:linear-gradient(to top,rgba(0,0,0,.62),rgba(0,0,0,.05) 62%)"></span>'
           +'<span class="m-name" style="font-family:'+o.font+'">'+esc(mine||t(o.k+'N'))+'</span></span>'
         +'<span class="m-body">'
