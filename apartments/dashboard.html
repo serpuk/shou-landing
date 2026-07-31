@@ -459,7 +459,13 @@ function applyI18n(){
 function reI18n(){
   applyI18n();
   if(token){ if(lastUnits)renderUnits(lastUnits); loadBilling(true); loadQuestions();   // keep = do not re-seed the billing form the owner may be filling in
-    if(document.getElementById('editor').classList.contains('show')){ $('edTitle').textContent=t(editing?'editApt':'newApt'); $('saveBtn').textContent=t('save'); updatePubBtn(); } }
+    if(document.getElementById('editor').classList.contains('show')){ $('edTitle').textContent=t(editing?'editApt':'newApt'); $('saveBtn').textContent=t('save'); updatePubBtn();
+      // These two are built in JS, so the [data-i] sweep above cannot reach them.
+      renderTheme(); renderTone();
+      // The AI suggestion is a fetched sentence in the old language; it cannot be
+      // re-translated without asking again, so retire it rather than leave it stale.
+      var why=$('thWhy'); if(why){ why.className='sug-why'; why.innerHTML=''; }
+    } }
 }
 (function initLang(){
   var saved=null; try{saved=localStorage.getItem('apt_ui_lang');}catch(e){}
@@ -963,12 +969,30 @@ var TONE_OPTS=[{id:'',k:'tnNeutral'},{id:'host',k:'tnHost'},{id:'concierge',k:'t
 
 // Pre-written, not generated: instant, free, and it shows each voice at its best
 // rather than whatever the model produces that second.
-var TONE_SAMPLE={
+// Per language: a sample that demonstrates a voice only demonstrates it in a
+// language the owner reads.
+var TONE_SAMPLE_L={
+ en:{
   '':          {q:'What is on tonight?', a:'Six concerts within a 10-minute walk, from jazz at the Botanique to a DJ set on a rooftop.'},
   'host':      {q:'What is on tonight?', a:'There is jazz at the Botanique tonight — it is where I send everyone — and a rooftop DJ set ten minutes away.'},
   'concierge': {q:'What is on tonight?', a:'Certainly — may I suggest the jazz programme at the Botanique this evening, with a rooftop DJ set also within walking distance.'},
   'brief':     {q:'What is on tonight?', a:'Six events within 10 minutes. Jazz at Botanique, rooftop DJ set.'},
   'playful':   {q:'What is on tonight?', a:'Six things on tonight and all of them walkable — jazz at the Botanique, or a rooftop DJ set if you would rather dance.'}
+ },
+ fr:{
+  '':          {q:'Que faire ce soir ?', a:'Six concerts à moins de 10 minutes à pied, du jazz au Botanique à un DJ set en rooftop.'},
+  'host':      {q:'Que faire ce soir ?', a:'Il y a du jazz au Botanique ce soir — c’est là que j’envoie tout le monde — et un DJ set en rooftop à dix minutes.'},
+  'concierge': {q:'Que faire ce soir ?', a:'Bien sûr — puis-je vous suggérer la programmation jazz du Botanique ce soir, ainsi qu’un DJ set en rooftop, également accessible à pied.'},
+  'brief':     {q:'Que faire ce soir ?', a:'Six événements à moins de 10 minutes. Jazz au Botanique, DJ set en rooftop.'},
+  'playful':   {q:'Que faire ce soir ?', a:'Six choses ce soir, toutes à pied — du jazz au Botanique, ou un DJ set en rooftop si vous préférez danser.'}
+ },
+ nl:{
+  '':          {q:'Wat is er vanavond te doen?', a:'Zes concerten op minder dan 10 minuten lopen, van jazz in de Botanique tot een dakterras-DJ-set.'},
+  'host':      {q:'Wat is er vanavond te doen?', a:'Vanavond is er jazz in de Botanique — daar stuur ik iedereen naartoe — en een DJ-set op een dakterras, tien minuten verderop.'},
+  'concierge': {q:'Wat is er vanavond te doen?', a:'Zeker — mag ik u vanavond het jazzprogramma in de Botanique aanbevelen, met ook een dakterras-DJ-set op loopafstand.'},
+  'brief':     {q:'Wat is er vanavond te doen?', a:'Zes evenementen binnen 10 minuten. Jazz in de Botanique, DJ-set op het dak.'},
+  'playful':   {q:'Wat is er vanavond te doen?', a:'Zes dingen vanavond en allemaal op loopafstand — jazz in de Botanique, of een dakterras-DJ-set als je liever danst.'}
+ }
 };
 var themeSel='', toneSel='';
 function renderTheme(){
@@ -1044,7 +1068,8 @@ function renderTone(){
   $('toneRow').querySelectorAll('.tn').forEach(function(b){
     b.onclick=function(){ toneSel=b.getAttribute('data-id'); renderTone(); };
   });
-  var sm=TONE_SAMPLE[toneSel]||TONE_SAMPLE[''];
+  var TS=TONE_SAMPLE_L[uiLang]||TONE_SAMPLE_L.en;
+  var sm=TS[toneSel]||TS[''];
   var d=$('toneDemo'); d.style.display='block';
   d.innerHTML='<div class="q">'+esc(t('toneEg'))+' “'+esc(sm.q)+'”</div><div class="a">'+esc(sm.a)+'</div>';
 }
