@@ -330,7 +330,12 @@
   .tease .tq{font:inherit;font-size:12.5px;background:var(--card);border:1px solid var(--line);
     border-radius:999px;padding:7px 13px;color:var(--soft);cursor:pointer}
   .tease .tq:hover{color:var(--pink);border-color:rgba(255,61,139,.45)}
-  .picks{display:flex;flex-direction:column;gap:8px;margin:10px 0 4px}
+  .picks{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0 4px;align-items:start}
+  @media(min-width:520px){ .picks{grid-template-columns:repeat(2,1fr)} }
+  @media(min-width:760px){ .picks{grid-template-columns:repeat(3,1fr)} }
+  /* A set of cards is a result, not a remark: it takes the width of the
+     conversation rather than shrinking to fit like a sentence. */
+  .msg.ai.wide{max-width:100%;width:100%}
   .pick{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;padding:12px 13px;
     border:1px solid var(--line);border-radius:14px;background:var(--card);text-decoration:none;color:inherit;
     box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s,transform .15s}
@@ -399,7 +404,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-wheremap2';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-chatgrid';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -1315,10 +1320,11 @@ function ask(q){
       // Category-aware and number-neutral, so it reads right for one pick or five.
       var lead=(REC_LEAD[cls.id]&&(REC_LEAD[cls.id][curLang]||REC_LEAD[cls.id].en))
                ||chr(picks.length===1?'hostpick1':'hostpicks');
-      addMsg('ai',esc(lead)
+      var pickMsg=addMsg('ai',esc(lead)
         +'<div class="picks">'+rows+'</div>'+mapEl
         +'<a class="pick-more" href="'+esc(maps(REC_Q[cls.id]+' near '+addr))+'" target="_blank" rel="noopener">'
         +esc(chr('pkAll'))+' \u2197</a>');
+      if(pickMsg)pickMsg.className='msg ai wide';
       asking=false;return;
     }
   }
