@@ -283,29 +283,29 @@
   <div id="billing"></div>
   <div id="legalCard" class="bill" style="display:none">
     <button type="button" id="lgHead" aria-expanded="true">
-      <span class="bill-t" id="lgT">Billing details</span>
+      <span class="bill-t" id="lgT" data-i="lgT">Billing details</span>
       <span class="muted" style="font-size:12.5px" id="lgState"></span>
       <span class="chev" id="lgChev">▾</span>
     </button>
-    <div class="bill-s" id="lgS" style="margin-bottom:14px"></div>
+    <div class="bill-s" id="lgS" data-i="lgS" style="margin-bottom:14px"></div>
     <div class="fields">
-      <label style="grid-column:1/-1"><span class="lgl" id="lgNameL"></span>
+      <label style="grid-column:1/-1"><span class="lgl" id="lgNameL" data-i="lgName"></span>
         <input id="lg-name" maxlength="200" autocomplete="organization"></label>
-      <label style="grid-column:1/-1"><span class="lgl" id="lgAddrL"></span>
+      <label style="grid-column:1/-1"><span class="lgl" id="lgAddrL" data-i="lgAddr"></span>
         <span class="addr" style="display:block"><textarea id="lg-addr" rows="3" maxlength="300"></textarea>
         <div class="addr-list" id="lgAddrList"></div></span></label>
-      <label><span class="lgl" id="lgCountryL"></span>
+      <label><span class="lgl" id="lgCountryL" data-i="lgCountry"></span>
         <select id="lg-country"></select></label>
-      <label><span class="lgl" id="lgVatL"></span>
+      <label><span class="lgl" id="lgVatL" data-i="lgVat"></span>
         <input id="lg-vat" maxlength="20" placeholder="BE0123456789" spellcheck="false"></label>
-      <label><span class="lgl" id="lgEmailL"></span>
+      <label><span class="lgl" id="lgEmailL" data-i="lgEmail"></span>
         <input id="lg-email" type="email" maxlength="160" placeholder="accounting@..." data-i-ph="phInvEmail"></label>
     </div>
-    <div style="margin-top:13px"><button class="btn btn-primary btn-sm" id="lgSave"></button></div>
+    <div style="margin-top:13px"><button class="btn btn-primary btn-sm" id="lgSave" data-i="lgSave"></button></div>
     <div class="msg" id="lgMsg"></div>
   </div>
   <div id="invCard" class="bill" style="display:none">
-    <div class="bill-t" id="invT">Invoices</div>
+    <div class="bill-t" id="invT" data-i="invT">Invoices</div>
     <div id="invBody" style="margin-top:10px"></div>
   </div>
 
