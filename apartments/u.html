@@ -372,6 +372,8 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
+var SHOU_BUILD='f7fa3c7';window.SHOU_BUILD=SHOU_BUILD;
+try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
 // one every QR code and View link points at — resolved to no slug at all.
