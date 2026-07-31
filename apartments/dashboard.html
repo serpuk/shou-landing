@@ -1175,7 +1175,7 @@ $('picksBody').addEventListener('input',function(e){
       pkHide();
       var list=document.createElement('div'); list.className='pk-list';
       list.innerHTML=rows.map(function(x,i){
-        return '<button type="button" data-i="'+i+'">'+esc(x.n)+' <span class="w">· '+esc(x.note)
+        return '<button type="button" data-i="'+i+'">'+esc(x.n)+' <span class="w">· '+esc(x.dist||'')
              +(x.where?' · '+esc(x.where):'')+'</span></button>';
       }).join('');
       row.appendChild(list); list.style.display='block';
@@ -1185,8 +1185,9 @@ $('picksBody').addEventListener('input',function(e){
           ev.preventDefault();
           var x=rows[+b.getAttribute('data-i')];
           inp.value=x.n;
-          var note=row.querySelector('.pk-note');
-          if(note&&!note.value.trim())note.value=x.note;
+          // The distance is ours to keep; the note stays the owner's to write.
+          if(isFinite(x.lat)&&isFinite(x.lng)){row.setAttribute('data-lat',x.lat);row.setAttribute('data-lng',x.lng);}
+          if(x.dist)row.setAttribute('data-dist',x.dist);
           pkHide();
         });
       });
@@ -1224,7 +1225,12 @@ $('suggestBtn').onclick=function(){
 var PICK_KINDS=['dinner','coffee','bar'];
 function pickRow(k,p){
   p=p||{};
-  return '<div class="pick-row" data-k="'+k+'" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:7px">'
+  // lat/lng/dist ride along on the row: they are what let the guest page map a
+  // pick and give a walking time, and there is nothing for the owner to edit.
+  return '<div class="pick-row" data-k="'+k+'"'
+    +' data-lat="'+esc(p.lat!=null?p.lat:'')+'" data-lng="'+esc(p.lng!=null?p.lng:'')+'"'
+    +' data-dist="'+esc(p.dist||'')+'"'
+    +' style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:7px">'
     +'<input class="pk-n" maxlength="80" data-i-ph="picksName" placeholder="'+esc(t('picksName'))+'" value="'+esc(p.n||'')+'">'
     +'<input class="pk-note" maxlength="120" data-i-ph="picksNote" placeholder="'+esc(t('picksNote'))+'" value="'+esc(p.note||'')+'">'
     +'<button type="button" class="btn btn-ghost btn-sm pk-del" title="'+esc(t('picksDel'))+'">&times;</button></div>';
@@ -1262,7 +1268,11 @@ function collectPicks(){
       var n=r.querySelector('.pk-n').value.trim();
       if(!n)return;                                    // a blank name is not a pick
       var note=r.querySelector('.pk-note').value.trim();
-      rows.push(note?{n:n,note:note}:{n:n});
+      var row={n:n}; if(note)row.note=note;
+      var la=parseFloat(r.getAttribute('data-lat')), ln=parseFloat(r.getAttribute('data-lng'));
+      if(isFinite(la)&&isFinite(ln)){row.lat=la;row.lng=ln;}
+      var dt=r.getAttribute('data-dist'); if(dt)row.dist=dt;
+      rows.push(row);
     });
     if(rows.length)out[k]=rows.slice(0,6);
   });
