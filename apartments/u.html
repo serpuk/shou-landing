@@ -365,8 +365,8 @@
      so the photo goes on top and the card grows downwards instead. */
   .pick-m .d{color:var(--cyan);font-weight:700}
   .pick-m .go{color:var(--soft);font-weight:600}
-  .pick-map{display:block;width:100%;height:170px;border:0;border-radius:14px;margin-top:9px;
-    border:1px solid var(--line)}
+  .pick-map{display:block;width:100%;height:220px;border-radius:14px;margin-top:9px;
+    border:1px solid var(--line);background:var(--panel-soft);overflow:hidden}
   .pick{display:flex;flex-direction:column;gap:2px;padding:10px 13px;border:1px solid var(--line);
     border-radius:12px;background:var(--card);text-decoration:none;color:inherit}
   .pick:hover{border-color:var(--cyan)}
@@ -399,7 +399,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-onecard';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-chatmap';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -1111,15 +1111,18 @@ function mapPoints(){
   return out;
 }
 
-var _wyMap=null;
-function drawWhereMap(){
-  var el=document.getElementById('wyMap');
+var _askMapN=0;
+// One map drawer. Points are {n, lat, lng, kind, p}; the apartment is always
+// pinned, because "how far is that from home" is the question a map answers.
+var _maps = {};
+function drawPlaceMap(elId, pts){
+  var el=document.getElementById(elId);
   if(!el||!(U.lat&&U.lng))return;
   loadLeaflet().then(function(L){
-    if(_wyMap){ _wyMap.remove(); _wyMap=null; }
-    if(!document.getElementById('wyMap'))return;      // tab re-rendered under us
-    var map=L.map('wyMap',{scrollWheelZoom:false,attributionControl:true});
-    _wyMap=map;
+    if(_maps[elId]){ try{ _maps[elId].remove(); }catch(e){} delete _maps[elId]; }
+    if(!document.getElementById(elId))return;         // re-rendered under us
+    var map=L.map(elId,{scrollWheelZoom:false,attributionControl:true});
+    _maps[elId]=map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
       maxZoom:19, attribution:'&copy; OpenStreetMap'
     }).addTo(map);
@@ -1127,12 +1130,11 @@ function drawWhereMap(){
     var pin=function(html,cls){ return L.divIcon({html:'<span class="wy-pin '+(cls||'')+'">'+html+'</span>',
       className:'', iconSize:[26,26], iconAnchor:[13,13], popupAnchor:[0,-12]}); };
 
-    var pts=mapPoints();
     var bounds=[[U.lat,U.lng]];
     L.marker([U.lat,U.lng],{icon:pin('\ud83c\udfe0','home'),zIndexOffset:1000})
       .addTo(map).bindPopup('<div class="wy-pop"><b>'+esc(U.name||'')+'</b><span>'+esc(chr('addrSec'))+'</span></div>');
 
-    pts.forEach(function(x){
+    (pts||[]).forEach(function(x){
       bounds.push([x.lat,x.lng]);
       var d=x.p.dist?('<span>'+esc(x.p.dist)+(x.p.gtype?' \u00b7 '+esc(x.p.gtype):'')+'</span>'):'';
       var link='<a href="'+esc(placeUrl(x.p,U.address||''))+'" target="_blank" rel="noopener">'+esc(chr('pkOpen'))+' \u2197</a>';
@@ -1146,14 +1148,17 @@ function drawWhereMap(){
     // The container is sized by CSS after Leaflet measures it on some layouts.
     setTimeout(function(){ try{ map.invalidateSize(); }catch(e){} },200);
   }).catch(function(){
-    // No Leaflet: fall back to the embed that was there before.
-    var el2=document.getElementById('wyMap'); if(!el2)return;
+    // No Leaflet: the embed that was there before, so the section still says
+    // something rather than leaving a hole.
+    var el2=document.getElementById(elId); if(!el2)return;
     var d=0.004;
     el2.outerHTML='<iframe title="map" loading="lazy" style="display:block;width:100%;height:220px;border:0;'
       +'border-top:1px solid var(--line)" src="https://www.openstreetmap.org/export/embed.html?bbox='
       +(U.lng-d)+','+(U.lat-d)+','+(U.lng+d)+','+(U.lat+d)+'&layer=mapnik&marker='+U.lat+','+U.lng+'"></iframe>';
   });
 }
+
+function drawWhereMap(){ drawPlaceMap('wyMap', mapPoints()); }
 
 /* ---------- rail scrolling ---------- */
 function setupArrows(){
@@ -1300,17 +1305,13 @@ function ask(q){
       var rows=picks.map(function(p){return pickCard(p,cls.id,addr);}).join('');
       // One map with every pick on it — the part that makes this read as places
       // rather than as a list. Only when we actually know where they are.
-      var pts=picks.filter(function(p){return isFinite(p.lat)&&isFinite(p.lng);});
-      var mapEl='';
-      if(pts.length){
-        var las=pts.map(function(p){return p.lat;}).concat(U.lat?[U.lat]:[]);
-        var lns=pts.map(function(p){return p.lng;}).concat(U.lng?[U.lng]:[]);
-        var pad=0.0035;
-        var bb=[Math.min.apply(null,lns)-pad,Math.min.apply(null,las)-pad,
-                Math.max.apply(null,lns)+pad,Math.max.apply(null,las)+pad].join(',');
-        mapEl='<iframe class="pick-map" title="'+esc(chr('pkMap'))+'" loading="lazy" '
-          +'src="https://www.openstreetmap.org/export/embed.html?bbox='+esc(bb)
-          +'&layer=mapnik'+((U.lat&&U.lng)?('&marker='+U.lat+','+U.lng):'')+'"></iframe>';
+      // The same map as "Where you are", holding only what this answer named.
+      var pts=picks.filter(function(p){return isFinite(p.lat)&&isFinite(p.lng);})
+                   .map(function(p){return {n:p.n,lat:p.lat,lng:p.lng,kind:cls.id,p:p};});
+      var mapId='', mapEl='';
+      if(pts.length&&U.lat&&U.lng){
+        mapId='askMap'+(++_askMapN);        // a conversation can hold several
+        mapEl='<div class="pick-map" id="'+mapId+'"></div>';
       }
       // Category-aware and number-neutral, so it reads right for one pick or five.
       var lead=(REC_LEAD[cls.id]&&(REC_LEAD[cls.id][curLang]||REC_LEAD[cls.id].en))
@@ -1320,6 +1321,7 @@ function ask(q){
         +'<a class="pick-more" href="'+esc(maps(REC_Q[cls.id]+' near '+addr))+'" target="_blank" rel="noopener">'
         +esc(chr('pkAll'))+' \u2197</a>');
       if(pickMsg)pickMsg.className='msg ai wide';
+      if(mapId)drawPlaceMap(mapId,pts);
       asking=false;return;
     }
   }
