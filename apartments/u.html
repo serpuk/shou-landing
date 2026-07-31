@@ -336,18 +336,16 @@
   /* A set of cards is a result, not a remark: it takes the width of the
      conversation rather than shrinking to fit like a sentence. */
   .msg.ai.wide{max-width:100%;width:100%}
-  .pick{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;padding:12px 13px;
+  .pick{display:grid;grid-template-columns:1fr;gap:9px;align-items:start;padding:12px 13px;
     border:1px solid var(--line);border-radius:14px;background:var(--card);text-decoration:none;color:inherit;
     box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s,transform .15s}
   .pick:hover{border-color:var(--cyan);box-shadow:0 8px 20px -10px rgba(20,16,30,.28);transform:translateY(-1px)}
   .pick:hover .pick-n{color:var(--cyan)}
   .pick{cursor:pointer}
-  .pick-ic{width:92px;height:92px;border-radius:12px;display:grid;place-items:center;font-size:30px;
+  .pick-ic{width:100%;height:72px;border-radius:10px;display:grid;place-items:center;font-size:28px;
     background:var(--panel-soft);border:1px solid var(--line)}
-  @media(max-width:420px){ .pick-ic{width:76px;height:76px;font-size:26px} }
-  .pick-ph{width:92px;height:92px;border-radius:12px;flex:none;object-fit:cover;display:block;
+  .pick-ph{width:100%;height:96px;border-radius:10px;flex:none;object-fit:cover;display:block;
     background:var(--panel-soft);border:1px solid var(--line)}
-  @media(max-width:420px){ .pick-ph{width:76px;height:76px} }
   .pick-cu{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;
     color:var(--cyan);background:rgba(14,154,141,.10);border-radius:999px;padding:2px 8px;margin-bottom:3px}
   .pick-h{display:block;font-size:12px;color:var(--dim);margin-top:4px;line-height:1.4}
@@ -365,9 +363,6 @@
   .pick-m{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12.5px}
   /* Below ~300px of card the photo-beside-text split leaves the text a sliver,
      so the photo goes on top and the card grows downwards instead. */
-  .hp .pick,.res .pick{grid-template-columns:1fr}
-  .hp .pick .pick-ph,.res .pick .pick-ph{width:100%;height:96px;border-radius:10px}
-  .hp .pick .pick-ic,.res .pick .pick-ic{width:100%;height:72px}
   .pick-m .d{color:var(--cyan);font-weight:700}
   .pick-m .go{color:var(--soft);font-weight:600}
   .pick-map{display:block;width:100%;height:170px;border:0;border-radius:14px;margin-top:9px;
@@ -404,7 +399,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-chatgrid';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-onecard';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
