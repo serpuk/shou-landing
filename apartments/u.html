@@ -313,6 +313,15 @@
   .addrbox .t{padding:13px 15px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   .addrbox .a{font-size:14.5px;color:var(--ink);flex:1;min-width:180px}
   .addrbox iframe{display:block;width:100%;height:190px;border:0;border-top:1px solid var(--line)}
+  .wy-map{display:block;width:100%;height:300px;border-top:1px solid var(--line);background:var(--panel-soft)}
+  .wy-pin{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;font-size:14px;
+    background:var(--card);border:2px solid var(--cyan);box-shadow:0 2px 6px rgba(20,16,30,.3)}
+  .wy-pin.home{width:32px;height:32px;font-size:17px;border-color:var(--pink);background:var(--pink)}
+  .wy-pop{font-family:'Inter',system-ui,sans-serif;min-width:140px}
+  .wy-pop b{display:block;font-size:13.5px;color:#15101b;line-height:1.25}
+  .wy-pop span{display:block;font-size:12px;color:#5b5566;margin-top:2px}
+  .wy-pop a{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#0e9a8d;text-decoration:none}
+  .leaflet-container{font:inherit}
   .tease{margin:22px 0 4px;background:var(--card);border:1px solid var(--line);border-radius:16px;
     padding:15px 17px;box-shadow:var(--shadow);cursor:pointer}
   .tease .tt{font-family:'Fraunces';font-weight:600;font-size:17px;color:var(--ink)}
@@ -390,7 +399,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-nodirections';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-wheremap';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -540,10 +549,10 @@ function bookHtml(){
     var d=0.004;
     addr='<div class="addrbox"><div class="t"><div class="a">'+esc(U.address)+'</div>'
       +'<a class="wb-go" style="color:var(--cyan);font-weight:600;font-size:13.5px;text-decoration:none" '
-      +'href="'+esc('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(U.address))+'" '
+      +'href="'+esc('https://www.google.com/maps/dir/?api=1&destination='
+        +((U.lat&&U.lng)?(U.lat+','+U.lng):encodeURIComponent(U.address)))+'" '
       +'target="_blank" rel="noopener">'+esc(chr('dirs'))+'</a></div>'
-      +((U.lat&&U.lng)?'<iframe title="map" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox='
-        +(U.lng-d)+','+(U.lat-d)+','+(U.lng+d)+','+(U.lat+d)+'&layer=mapnik&marker='+U.lat+','+U.lng+'"></iframe>':'')
+      +((U.lat&&U.lng)?'<div class="wy-map" id="wyMap"></div>':'')
       +'</div>';
   }
 
@@ -618,6 +627,7 @@ function render(){
   document.getElementById('langSel').onchange=function(e){curLang=e.target.value;try{localStorage.setItem('apt_guest_lang:'+slug,curLang);}catch(e2){}document.documentElement.lang=curLang;render();loadEvents();};
   var chips=(CHR[curLang]&&CHR[curLang].chips)||CHR.en.chips;
   document.getElementById('exs').innerHTML=chips.map(function(q){return '<button class="ex" data-q="'+esc(q)+'">'+esc(q)+'</button>';}).join('');
+  drawWhereMap();
   document.querySelectorAll('#exs .ex').forEach(function(b){b.onclick=function(){setTab('ask');ask(b.getAttribute('data-q'));};});
   // A chip asks its question; the panel itself just opens the concierge.
   document.querySelectorAll('#tease .tq').forEach(function(b){
@@ -1062,6 +1072,87 @@ function pickCard(p,kind,addr){
     +'<span class="pick-n">'+esc(p.n)+'</span>'
     +(note?'<span class="pick-note">'+esc(note)+'</span>':'')
     +'<span class="pick-m">'+meta+'</span>'+extra+'</span></div>';
+}
+
+/* ---------- "Where you are": the apartment and everything around it ---------- */
+// Leaflet is fetched only when a map is actually drawn, and only once. A guest
+// page on apartment wi-fi should degrade to the old embed, not break.
+var LEAFLET_CSS='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+var LEAFLET_JS='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+var _leafletP=null;
+function loadLeaflet(){
+  if(window.L) return Promise.resolve(window.L);
+  if(_leafletP) return _leafletP;
+  _leafletP=new Promise(function(res,rej){
+    var css=document.createElement('link');
+    css.rel='stylesheet'; css.href=LEAFLET_CSS; document.head.appendChild(css);
+    var js=document.createElement('script');
+    js.src=LEAFLET_JS; js.async=true;
+    js.onload=function(){ res(window.L); };
+    js.onerror=function(){ rej(new Error('leaflet')); };
+    document.head.appendChild(js);
+    setTimeout(function(){ if(!window.L) rej(new Error('leaflet timeout')); },8000);
+  });
+  return _leafletP;
+}
+
+// Every pick that knows where it is, whichever section it belongs to.
+function mapPoints(){
+  var out=[], seen={};
+  var all=(U.content&&U.content.picks)||{};
+  Object.keys(all).forEach(function(kind){
+    (all[kind]||[]).forEach(function(p){
+      if(!p||!p.n||!isFinite(p.lat)||!isFinite(p.lng))return;
+      var key=p.gpid||(p.n+'|'+p.lat.toFixed(4));
+      if(seen[key])return; seen[key]=1;
+      out.push({n:p.n,lat:p.lat,lng:p.lng,kind:kind,p:p});
+    });
+  });
+  return out;
+}
+
+var _wyMap=null;
+function drawWhereMap(){
+  var el=document.getElementById('wyMap');
+  if(!el||!(U.lat&&U.lng))return;
+  loadLeaflet().then(function(L){
+    if(_wyMap){ _wyMap.remove(); _wyMap=null; }
+    if(!document.getElementById('wyMap'))return;      // tab re-rendered under us
+    var map=L.map('wyMap',{scrollWheelZoom:false,attributionControl:true});
+    _wyMap=map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:19, attribution:'&copy; OpenStreetMap'
+    }).addTo(map);
+
+    var pin=function(html,cls){ return L.divIcon({html:'<span class="wy-pin '+(cls||'')+'">'+html+'</span>',
+      className:'', iconSize:[26,26], iconAnchor:[13,13], popupAnchor:[0,-12]}); };
+
+    var pts=mapPoints();
+    var bounds=[[U.lat,U.lng]];
+    L.marker([U.lat,U.lng],{icon:pin('\ud83c\udfe0','home'),zIndexOffset:1000})
+      .addTo(map).bindPopup('<div class="wy-pop"><b>'+esc(U.name||'')+'</b><span>'+esc(chr('addrSec'))+'</span></div>');
+
+    pts.forEach(function(x){
+      bounds.push([x.lat,x.lng]);
+      var d=x.p.dist?('<span>'+esc(x.p.dist)+(x.p.gtype?' \u00b7 '+esc(x.p.gtype):'')+'</span>'):'';
+      var link='<a href="'+esc(placeUrl(x.p,U.address||''))+'" target="_blank" rel="noopener">'+esc(chr('pkAll').split(' ')[0])+' \u2197</a>';
+      L.marker([x.lat,x.lng],{icon:pin(ICON[x.kind]||'\ud83d\udccd')})
+        .addTo(map)
+        .bindPopup('<div class="wy-pop"><b>'+esc(x.n)+'</b>'+d+link+'</div>');
+    });
+
+    if(bounds.length>1) map.fitBounds(bounds,{padding:[28,28],maxZoom:16});
+    else map.setView([U.lat,U.lng],15);
+    // The container is sized by CSS after Leaflet measures it on some layouts.
+    setTimeout(function(){ try{ map.invalidateSize(); }catch(e){} },200);
+  }).catch(function(){
+    // No Leaflet: fall back to the embed that was there before.
+    var el2=document.getElementById('wyMap'); if(!el2)return;
+    var d=0.004;
+    el2.outerHTML='<iframe title="map" loading="lazy" style="display:block;width:100%;height:220px;border:0;'
+      +'border-top:1px solid var(--line)" src="https://www.openstreetmap.org/export/embed.html?bbox='
+      +(U.lng-d)+','+(U.lat-d)+','+(U.lng+d)+','+(U.lat+d)+'&layer=mapnik&marker='+U.lat+','+U.lng+'"></iframe>';
+  });
 }
 
 /* ---------- rail scrolling ---------- */
