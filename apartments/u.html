@@ -298,7 +298,7 @@
   .msg{max-width:88%;font-size:14.5px;line-height:1.5;padding:12px 16px;border-radius:16px}
   .msg.me{align-self:flex-end;background:var(--grad);color:#fff;font-weight:500;border-bottom-right-radius:5px}
   .msg.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);color:var(--text);border-bottom-left-radius:5px}
-  .hp{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+  .hp{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:10px;align-items:start}
   .hp a{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);
     border-radius:14px;padding:12px 14px;text-decoration:none;color:inherit;box-shadow:var(--shadow)}
   .hp a:hover{border-color:var(--pink)}
@@ -379,7 +379,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-mapclarity';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-sharedpick';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -496,12 +496,10 @@ function bookHtml(){
   // the right question, which is a poor home for curation they took time over.
   var pk=(U.content&&U.content.picks)||{}, hpAll=[];
   ['dinner','coffee','bar'].forEach(function(k){
-    (pk[k]||[]).forEach(function(p){ if(p&&p.n) hpAll.push({k:k,n:p.n,note:p.note||''}); });
+    // the whole pick: the card needs its photo, rating, hours and coordinates
+    (pk[k]||[]).forEach(function(p){ if(p&&p.n) hpAll.push(Object.assign({},p,{k:k})); });
   });
-  var hp=hpAll.map(function(p){
-    return '<a href="'+esc(maps(p.n+' '+(U.address||'')))+'" target="_blank" rel="noopener">'
-      +'<span class="wb-ic">'+({dinner:'🍽',coffee:'☕',bar:'🍸'}[p.k]||'📍')+'</span><div><div class="n">'+esc(p.n)+'</div>'
-      +(p.note?'<div class="d">'+esc(p.note)+'</div>':'')+'</div></a>';}).join('');
+  var hp=hpAll.map(function(p){return pickCard(p,p.k,U.address||'');}).join('');
 
   // The address itself was never shown — a guest could not read it out to a taxi.
   var addr='';
@@ -965,6 +963,58 @@ function renderWeek(){
   setupArrows(); bindTimeline();
 }
 
+// The one pick card. Used by the concierge's answer and by the welcome book,
+// so an improvement to one is an improvement to both.
+function pickCard(p,kind,addr){
+  // Older picks stored the distance in the note field; treat a note that is
+  // only a distance as one, so they upgrade without a migration.
+  var note=p.note||'', d=p.dist||'';
+  if(!d&&/^\s*[\d.,]+\s*(m|km)\s*$/i.test(note)){ d=note.trim(); note=''; }
+  var meta='';
+  if(d){
+    meta+='<span class="d">'+esc(d)+'</span>';
+    var km=/km/i.test(d)?parseFloat(d.replace(',','.')):parseFloat(d)/1000;
+    if(isFinite(km)&&km<=2.5)
+      meta+='<span class="go">'+esc(chr('pkWalk').replace('{n}',Math.max(1,Math.round(km*12))))+'</span>';
+  }
+  var href=(isFinite(p.lat)&&isFinite(p.lng))
+    ? 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng
+    : maps(p.n+' '+addr);
+  // Real links, so a guest can actually phone the place or open its site.
+  if(p.phone) meta+='<a href="tel:'+esc(String(p.phone).replace(/[^+\d]/g,''))+'">'+esc(chr('pkCall'))+'</a>';
+  if(p.site)  meta+='<a href="'+esc(p.site)+'" target="_blank" rel="noopener">'+esc(chr('pkSite'))+'</a>';
+  meta+='<a href="'+esc(href)+'" target="_blank" rel="noopener">'+esc(chr('pkDir'))+' \u2197</a>';
+  // Google's photo first, then whatever the venue publishes itself, then
+  // the category mark. The proxy keeps the API key server-side.
+  var photo=p.gphoto ? (API+'/apt?ph='+encodeURIComponent(p.gphoto)+'&w=280') : (p.img||'');
+  var lead=photo
+    ? '<img class="pick-ph" src="'+esc(photo)+'" alt="" decoding="async">'
+    : '<span class="pick-ic">'+(ICON[kind]||'\ud83d\udccd')+'</span>';
+  // Straight from OpenStreetMap, shown as recorded. No "open now": the tag
+  // can be years old, and a confident wrong answer sends a guest to a
+  // locked door.
+  var extra='';
+  if(p.grating){
+    extra+='<span class="pick-h"><span class="pick-rate"><span class="st">★</span>'
+      +esc(String(p.grating))
+      +(p.gratings?'<span class="ct">('+esc(String(p.gratings))+')</span>':'')+'</span></span>';
+  }
+  if(p.hours) extra+='<span class="pick-h">'+esc(chr('pkHours'))+': '+esc(p.hours)+'</span>';
+  if(p.addr)  extra+='<span class="pick-h">'+esc(p.addr)+'</span>';
+  // Required attribution wherever the content came from Google.
+  if(p.gphoto||p.grating)
+    extra+='<span class="pick-src">'+esc(chr('pkVia'))
+      +(p.gattr?' · '+esc(p.gattr):'')+'</span>';
+  // A div, not an anchor: it contains links of its own now.
+  return '<div class="pick" data-go="'+esc(href)+'">'
+    +lead
+    +'<span class="pick-b">'
+    +(p.cuisine?'<span class="pick-cu">'+esc(p.cuisine)+'</span>':'')
+    +'<span class="pick-n">'+esc(p.n)+'</span>'
+    +(note?'<span class="pick-note">'+esc(note)+'</span>':'')
+    +'<span class="pick-m">'+meta+'</span>'+extra+'</span></div>';
+}
+
 /* ---------- rail scrolling ---------- */
 function setupArrows(){
   var L='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
@@ -1107,55 +1157,7 @@ function ask(q){
     var picks=((U.content&&U.content.picks)||{})[cls.id]||[];
     if(picks.length){
       var addr=U.address||'Brussels';
-      var rows=picks.map(function(p){
-        // Older picks stored the distance in the note field; treat a note that is
-        // only a distance as one, so they upgrade without a migration.
-        var note=p.note||'', d=p.dist||'';
-        if(!d&&/^\s*[\d.,]+\s*(m|km)\s*$/i.test(note)){ d=note.trim(); note=''; }
-        var meta='';
-        if(d){
-          meta+='<span class="d">'+esc(d)+'</span>';
-          var km=/km/i.test(d)?parseFloat(d.replace(',','.')):parseFloat(d)/1000;
-          if(isFinite(km)&&km<=2.5)
-            meta+='<span class="go">'+esc(chr('pkWalk').replace('{n}',Math.max(1,Math.round(km*12))))+'</span>';
-        }
-        var href=(isFinite(p.lat)&&isFinite(p.lng))
-          ? 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng
-          : maps(p.n+' '+addr);
-        // Real links, so a guest can actually phone the place or open its site.
-        if(p.phone) meta+='<a href="tel:'+esc(String(p.phone).replace(/[^+\d]/g,''))+'">'+esc(chr('pkCall'))+'</a>';
-        if(p.site)  meta+='<a href="'+esc(p.site)+'" target="_blank" rel="noopener">'+esc(chr('pkSite'))+'</a>';
-        meta+='<a href="'+esc(href)+'" target="_blank" rel="noopener">'+esc(chr('pkDir'))+' \u2197</a>';
-        // Google's photo first, then whatever the venue publishes itself, then
-        // the category mark. The proxy keeps the API key server-side.
-        var photo=p.gphoto ? (API+'/apt?ph='+encodeURIComponent(p.gphoto)+'&w=280') : (p.img||'');
-        var lead=photo
-          ? '<img class="pick-ph" src="'+esc(photo)+'" alt="" decoding="async">'
-          : '<span class="pick-ic">'+(ICON[cls.id]||'\ud83d\udccd')+'</span>';
-        // Straight from OpenStreetMap, shown as recorded. No "open now": the tag
-        // can be years old, and a confident wrong answer sends a guest to a
-        // locked door.
-        var extra='';
-        if(p.grating){
-          extra+='<span class="pick-h"><span class="pick-rate"><span class="st">★</span>'
-            +esc(String(p.grating))
-            +(p.gratings?'<span class="ct">('+esc(String(p.gratings))+')</span>':'')+'</span></span>';
-        }
-        if(p.hours) extra+='<span class="pick-h">'+esc(chr('pkHours'))+': '+esc(p.hours)+'</span>';
-        if(p.addr)  extra+='<span class="pick-h">'+esc(p.addr)+'</span>';
-        // Required attribution wherever the content came from Google.
-        if(p.gphoto||p.grating)
-          extra+='<span class="pick-src">'+esc(chr('pkVia'))
-            +(p.gattr?' · '+esc(p.gattr):'')+'</span>';
-        // A div, not an anchor: it contains links of its own now.
-        return '<div class="pick" data-go="'+esc(href)+'">'
-          +lead
-          +'<span class="pick-b">'
-          +(p.cuisine?'<span class="pick-cu">'+esc(p.cuisine)+'</span>':'')
-          +'<span class="pick-n">'+esc(p.n)+'</span>'
-          +(note?'<span class="pick-note">'+esc(note)+'</span>':'')
-          +'<span class="pick-m">'+meta+'</span>'+extra+'</span></div>';
-      }).join('');
+      var rows=picks.map(function(p){return pickCard(p,cls.id,addr);}).join('');
       // One map with every pick on it — the part that makes this read as places
       // rather than as a list. Only when we actually know where they are.
       var pts=picks.filter(function(p){return isFinite(p.lat)&&isFinite(p.lng);});
