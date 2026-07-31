@@ -87,6 +87,20 @@
     --shadow:0 1px 3px rgba(0,0,0,.5);
   }
   body[data-theme="boutique"] h1,body[data-theme="boutique"] h2,body[data-theme="boutique"] .hname{font-family:'Lora',Georgia,serif;letter-spacing:.005em}
+
+  /* Mediterranean: sand and olive with a sea-blue accent — the holiday-let
+     palette, and the one owners near the coast ask for. */
+  body[data-theme="mediterranean"]{
+    --ink:#2e2418; --text:#3a2f21; --soft:#6f6250; --dim:#948871;
+    --bg:#fdf8f0; --card:#fffdf8; --panel-soft:#f4ecdd; --line:rgba(70,55,30,.14);
+    --pink:#c1683f; --orange:#dda15e; --cyan:#2b7a91; --violet:#7a8b52;
+    --grad:linear-gradient(105deg,#c1683f,#dda15e);
+    --warm-bg:#f7e6d2; --warm-bd:#e6c9a4; --warm-ink:#8c4a22;
+    --cool-bg:#e3eef1; --cool-bd:#c2dce3; --cool-ink:#215f72;
+    --mint-bg:#eaeedd; --mint-bd:#d2dab8; --mint-ink:#4f6027;
+    --chrome:rgba(253,248,240,.9); --fade:#fdf8f0;
+  }
+  body[data-theme="mediterranean"] h1,body[data-theme="mediterranean"] h2,body[data-theme="mediterranean"] .hname{font-family:'Lora',Georgia,serif}
   body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
   h1,h2{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.015em;line-height:1.1;color:var(--ink)}
   a{color:inherit}
@@ -476,9 +490,12 @@ function bookHtml(){
 
 // Theme is a fixed id from the owner's picker; anything unknown falls back to
 // the default look rather than leaving an unstyled page.
-var THEMES=['warm','nordic','bold','botanical','boutique'];
+var THEMES=['warm','nordic','bold','botanical','boutique','mediterranean'];
 function applyTheme(){
-  var th=(U.branding&&U.branding.theme)||'';
+  // ?th= is a preview override from the dashboard: it can only select a theme
+  // that already exists, and it changes nothing but the look.
+  var q=new URLSearchParams(location.search).get('th');
+  var th=(THEMES.indexOf(q)>=0?q:null)||(U.branding&&U.branding.theme)||'';
   if(THEMES.indexOf(th)>=0)document.body.setAttribute('data-theme',th);
   else document.body.removeAttribute('data-theme');
 }
