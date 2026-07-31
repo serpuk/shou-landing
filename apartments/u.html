@@ -377,7 +377,7 @@
   .ans .k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
   .ans .v{font-size:14px;color:var(--ink);font-weight:500}
   .ans a{color:var(--cyan);font-weight:700;text-decoration:none;font-size:13px}
-  .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,232px));gap:12px;margin:2px 0 4px;width:100%;justify-content:start}
+  .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:2px 0 4px;width:100%}
   .chatform{display:flex;gap:10px;position:sticky;bottom:0;background:linear-gradient(to top,var(--fade) 75%,transparent);padding:10px 0 14px}
   .chatform input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;font-family:inherit;font-size:15px;outline:none;box-shadow:var(--shadow)}
   .chatform input:focus{border-color:rgba(255,61,139,.5)}
@@ -399,7 +399,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-chatmap';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-eventcards';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
