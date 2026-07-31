@@ -299,6 +299,9 @@
   .msg.me{align-self:flex-end;background:var(--grad);color:#fff;font-weight:500;border-bottom-right-radius:5px}
   .msg.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);color:var(--text);border-bottom-left-radius:5px}
   .hp{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-items:start}
+  .nb-item{display:flex;flex-direction:column;gap:5px}
+  .nb-k{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+  .nb-grid{margin-bottom:10px}
   @media(min-width:620px){ .hp{grid-template-columns:repeat(3,1fr)} }
   @media(min-width:880px){ .hp{grid-template-columns:repeat(4,1fr)} }
   .hp a{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);
@@ -386,7 +389,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-fourup';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-essentials';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -497,8 +500,17 @@ function bookHtml(){
     return '<div class="wb-card"><span class="wb-ic">'+ICON[k]+'</span><div><div class="wb-k">'+esc(lbl(k))+'</div><div class="wb-v">'+esc(wval(k))+'</div></div></div>';}).join('');
   var safeCards=SAFE_ORDER.filter(function(k){return w[k];}).map(function(k){
     return '<div class="wb-card"><span class="wb-ic">'+ICON[k]+'</span><div><div class="wb-k">'+esc(lbl(k))+'</div><div class="wb-v">'+esc(wval(k))+'</div></div></div>';}).join('');
-  var poiCards=POI_ORDER.map(function(k){
+  // Where we resolved an actual nearest one, show it as the card the picks use.
+  // Anything unresolved keeps the map link: a link beats a blank.
+  var nb=(U.content&&U.content.nearby)||{};
+  var poiReal=POI_ORDER.filter(function(k){return nb[k]&&nb[k].n;});
+  var poiCards=POI_ORDER.filter(function(k){return !(nb[k]&&nb[k].n);}).map(function(k){
     return '<a class="wb-card" href="'+esc(poiValue(k))+'" target="_blank" rel="noopener"><span class="wb-ic">'+ICON[k]+'</span><div><div class="wb-k">'+esc(lbl(k))+'</div><div class="wb-v">'+esc(chr('seemap'))+' ↗</div></div><span class="wb-go">↗</span></a>';}).join('');
+  // The label says what the guest asked for ("Supermarket"), the card says which
+  // one it is — the pick card's own type pill would otherwise repeat Google's.
+  var poiPicks=poiReal.map(function(k){
+    return '<div class="nb-item"><div class="nb-k">'+esc(lbl(k))+'</div>'
+      +pickCard(Object.assign({},nb[k],{gtype:nb[k].gtype||lbl(k)}),k,U.address||'')+'</div>';}).join('');
   // The owner's own picks — previously reachable only by asking the concierge
   // the right question, which is a poor home for curation they took time over.
   var pk=(U.content&&U.content.picks)||{}, hpAll=[];
@@ -523,7 +535,9 @@ function bookHtml(){
 
   return (aptCards?'<h2 class="wb-sec">'+esc(sec('apt'))+'</h2><div class="wb-grid">'+aptCards+'</div>':'')+
     (hp?'<h2 class="wb-sec">'+esc(chr('pickSec'))+'</h2><div class="hp">'+hp+'</div>':'')+
-    '<h2 class="wb-sec">'+esc(sec('building'))+'</h2><div class="wb-grid">'+poiCards+'</div>'+
+    '<h2 class="wb-sec">'+esc(sec('building'))+'</h2>'+
+    (poiPicks?'<div class="hp nb-grid">'+poiPicks+'</div>':'')+
+    (poiCards?'<div class="wb-grid">'+poiCards+'</div>':'')+
     (addr?'<h2 class="wb-sec">'+esc(chr('addrSec'))+'</h2>'+addr:'')+
     (safeCards?'<h2 class="wb-sec">'+esc(sec('safety'))+'</h2><div class="wb-grid">'+safeCards+'</div>':'');
 }
