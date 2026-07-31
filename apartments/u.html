@@ -79,7 +79,8 @@
   .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
   header{position:sticky;top:0;z-index:20;background:var(--chrome);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
   .bar{display:flex;align-items:center;gap:13px;padding:12px 20px;max-width:1040px;margin:0 auto}
-  .hlogo{width:44px;height:44px;border-radius:12px;background:var(--grad-cool);display:grid;place-items:center;font-size:22px;flex:none}
+  .hlogo{width:44px;height:44px;border-radius:12px;background:var(--grad);display:grid;place-items:center;
+    font-family:'Fraunces';font-weight:700;font-size:21px;color:#fff;flex:none;letter-spacing:.01em}
   .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
   .hpow{font-size:11px;color:var(--dim)}
   /* Inline SVG flag beside the picker. It can't go INSIDE the <option> —
@@ -284,8 +285,6 @@
   .tease .tq{font:inherit;font-size:12.5px;background:var(--card);border:1px solid var(--line);
     border-radius:999px;padding:7px 13px;color:var(--soft);cursor:pointer}
   .tease .tq:hover{color:var(--pink);border-color:rgba(255,61,139,.45)}
-  .mono{width:44px;height:44px;border-radius:12px;background:var(--grad);display:grid;place-items:center;
-    font-family:'Fraunces';font-weight:700;font-size:20px;color:#fff;flex:none}
   .picks{display:flex;flex-direction:column;gap:7px;margin:9px 0 4px}
   .pick{display:flex;flex-direction:column;gap:2px;padding:10px 13px;border:1px solid var(--line);
     border-radius:12px;background:var(--card);text-decoration:none;color:inherit}
@@ -307,7 +306,10 @@
   footer{text-align:center;padding:34px 20px;color:var(--dim);font-size:13px;border-top:1px solid var(--line);margin-top:22px}
   footer b{font-family:'Fraunces';font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .loading{text-align:center;padding:80px 20px;color:var(--dim)}
-  @media(max-width:760px){.welcome{grid-template-columns:1fr;gap:22px}.wk-rail .ev{flex:0 0 82vw}}
+  @media(max-width:760px){.welcome{grid-template-columns:1fr;gap:22px} .wk-rail .ev{flex:0 0 300px}}
+  /* Only a real phone gets the full-width swipe card; a narrow desktop
+     window keeps a card that reads as a card. */
+  @media(max-width:560px){ .wk-rail .ev{flex:0 0 82vw} }
 </style>
 </head>
 <body>
@@ -467,6 +469,13 @@ function applyTheme(){
   else document.body.removeAttribute('data-theme');
 }
 
+// Every apartment showed the same key emoji. The initial, set in the owner's
+// own theme gradient, makes the header belong to this apartment.
+function monogram(n){
+  var s=String(n||'').trim().replace(/^(the|le|la|les|het|een|de)\s+/i,'');
+  var m=s.match(/[A-Za-z0-9\u00C0-\u024F\u0400-\u04FF]/);
+  return m?m[0].toUpperCase():'\u2302';        // ⌂ when the name is only punctuation
+}
 function render(){
   applyTheme();
   var photo=(U.branding&&U.branding.photo)?('background-image:url(\''+U.branding.photo+'\')'):'';
@@ -478,7 +487,7 @@ function render(){
   // SVG, because an <option> can't contain markup and emoji flags break on Windows.
   var langOpts=LANGS.map(function(l){return '<option value="'+l.c+'"'+(l.c===curLang?' selected':'')+'>'+l.n+'</option>';}).join('');
   document.getElementById('root').innerHTML=
-    '<header><div class="bar"><div class="hlogo">🔑</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow'))+'</div></div>'+
+    '<header><div class="bar"><div class="hlogo">'+esc(monogram(U.name))+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow'))+'</div></div>'+
       '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div></div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(greeting())+'</p></div>'+

@@ -253,7 +253,10 @@
   footer b{font-family:'Fraunces';font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
 
-  @media(max-width:760px){ .welcome{grid-template-columns:1fr;gap:22px} .wk-rail .ev{flex:0 0 82vw} }
+  @media(max-width:760px){ .welcome{grid-template-columns:1fr;gap:22px} .wk-rail .ev{flex:0 0 300px} }
+  /* Only a real phone gets the full-width swipe card; a narrow desktop
+     window keeps a card that reads as a card. */
+  @media(max-width:560px){ .wk-rail .ev{flex:0 0 82vw} }
 </style>
 </head>
 <body>
