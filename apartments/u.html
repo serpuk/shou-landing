@@ -443,7 +443,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-invite3';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-evmap';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -1170,7 +1170,7 @@ function mapPoints(){
       if(!p||!p.n||!isFinite(p.lat)||!isFinite(p.lng))return;
       var key=p.gpid||(p.n+'|'+p.lat.toFixed(4));
       if(seen[key])return; seen[key]=1;
-      out.push({n:p.n,lat:p.lat,lng:p.lng,kind:kind,p:p});
+      out.push(pickPoint(p,kind));
     });
   });
   return out;
@@ -1201,11 +1201,9 @@ function drawPlaceMap(elId, pts){
 
     (pts||[]).forEach(function(x){
       bounds.push([x.lat,x.lng]);
-      var d=x.p.dist?('<span>'+esc(x.p.dist)+(x.p.gtype?' \u00b7 '+esc(x.p.gtype):'')+'</span>'):'';
-      var link='<a href="'+esc(placeUrl(x.p,U.address||''))+'" target="_blank" rel="noopener">'+esc(chr('pkOpen'))+' \u2197</a>';
-      L.marker([x.lat,x.lng],{icon:pin(ICON[x.kind]||'\ud83d\udccd')})
+      L.marker([x.lat,x.lng],{icon:pin(x.icon||'\ud83d\udccd')})
         .addTo(map)
-        .bindPopup('<div class="wy-pop"><b>'+esc(x.n)+'</b>'+d+link+'</div>');
+        .bindPopup('<div class="wy-pop">'+(x.pop||('<b>'+esc(x.n)+'</b>'))+'</div>');
     });
 
     if(bounds.length>1) map.fitBounds(bounds,{padding:[28,28],maxZoom:16});
@@ -1221,6 +1219,37 @@ function drawPlaceMap(elId, pts){
       +'border-top:1px solid var(--line)" src="https://www.openstreetmap.org/export/embed.html?bbox='
       +(U.lng-d)+','+(U.lat-d)+','+(U.lng+d)+','+(U.lat+d)+'&layer=mapnik&marker='+U.lat+','+U.lng+'"></iframe>';
   });
+}
+
+// What a pin says when it is opened. Lives beside the card builder rather than
+// inside the map, so one kind of point can be added without teaching the map.
+function pickPoint(p,kind){
+  var d=p.dist?('<span>'+esc(p.dist)+(p.gtype?' \u00b7 '+esc(p.gtype):'')+'</span>'):'';
+  return {n:p.n,lat:p.lat,lng:p.lng,icon:(ICON[kind]||'\ud83d\udccd'),
+    pop:'<b>'+esc(p.n)+'</b>'+d
+      +'<a href="'+esc(placeUrl(p,U.address||''))+'" target="_blank" rel="noopener">'+esc(chr('pkOpen'))+' \u2197</a>'};
+}
+// An event pin carries the two things the card shows and the map cannot: when
+// it is on, and where that actually is.
+function eventPoint(e){
+  var when=[fmtDate(e.date),fmtTimeRange(e)].filter(Boolean).join(' \u00b7 ');
+  var where=[e.venue,e.city].filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i;}).join(' \u00b7 ');
+  var dl=distLabel(e);
+  return {n:e.name,lat:e.lat,lng:e.lng,icon:'\ud83c\udfab',
+    pop:'<b>'+esc(cleanTitle(e.name))+'</b>'
+      +(when?'<span>'+esc(when)+'</span>':'')
+      +(where?'<span>'+esc(where)+(dl?' \u00b7 '+esc(dl):'')+'</span>':'')
+      +(e.url?'<a href="'+esc(e.url)+'" target="_blank" rel="noopener">'+esc(chr('pkOpen'))+' \u2197</a>':'')};
+}
+// Worth its space only as a picture of a neighbourhood. Two located events at
+// minimum, none of them further than this, and every located one plotted —
+// a map showing three of eight claims more than it knows.
+var EV_MAP_MAX_KM=25;
+function eventPoints(list){
+  var pts=(list||[]).filter(function(e){return isFinite(e.lat)&&isFinite(e.lng);});
+  if(pts.length<2)return [];
+  for(var i=0;i<pts.length;i++){ if(km(pts[i])>EV_MAP_MAX_KM)return []; }
+  return pts.map(eventPoint);
 }
 
 function drawWhereMap(){ drawPlaceMap('wyMap', mapPoints()); }
@@ -1424,7 +1453,7 @@ function ask(q){
       // rather than as a list. Only when we actually know where they are.
       // The same map as "Where you are", holding only what this answer named.
       var pts=picks.filter(function(p){return isFinite(p.lat)&&isFinite(p.lng);})
-                   .map(function(p){return {n:p.n,lat:p.lat,lng:p.lng,kind:cls.id,p:p};});
+                   .map(function(p){return pickPoint(p,cls.id);});
       var mapId='', mapEl='';
       if(pts.length&&U.lat&&U.lng){
         mapId='askMap'+(++_askMapN);        // a conversation can hold several
@@ -1457,7 +1486,17 @@ function ask(q){
     typing.remove();addMsg('ai',esc(d.reasoning||'')||chr('none'));
     var list=[];var seen={};(d.events||[]).concat(d.suggestedEvents||[]).forEach(function(e){if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;list.push(e);}});
     list=dedupe(list).slice(0,8); indexEvents(list);
-    if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(function(e){return evCard(e,e.date);}).join('');document.getElementById('msgs').appendChild(g);g.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(function(e){return evCard(e,e.date);}).join('');document.getElementById('msgs').appendChild(g);
+      // Eight distances read one at a time is arithmetic; the same eight on a
+      // map is a glance. Only when it can show all of them close enough to walk.
+      var epts=eventPoints(list);
+      if(epts.length){
+        var emId='askMap'+(++_askMapN);
+        var em=document.createElement('div'); em.className='pick-map'; em.id=emId;
+        document.getElementById('msgs').appendChild(em);
+        drawPlaceMap(emId,epts);
+      }
+      g.scrollIntoView({behavior:'smooth',block:'nearest'});}
     // Dead end → offer the LLM's follow-up chips instead of leaving the guest
     // stuck. The API only fills suggestionChips when nothing matched at all, and
     // the labels already come back in the guest's language. textContent (not
