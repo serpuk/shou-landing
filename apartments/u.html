@@ -298,7 +298,9 @@
   .msg{max-width:88%;font-size:14.5px;line-height:1.5;padding:12px 16px;border-radius:16px}
   .msg.me{align-self:flex-end;background:var(--grad);color:#fff;font-weight:500;border-bottom-right-radius:5px}
   .msg.ai{align-self:flex-start;background:var(--card);border:1px solid var(--line);color:var(--text);border-bottom-left-radius:5px}
-  .hp{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,232px));gap:10px;align-items:start;justify-content:start}
+  .hp{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-items:start}
+  @media(min-width:620px){ .hp{grid-template-columns:repeat(3,1fr)} }
+  @media(min-width:880px){ .hp{grid-template-columns:repeat(4,1fr)} }
   .hp a{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);
     border-radius:14px;padding:12px 14px;text-decoration:none;color:inherit;box-shadow:var(--shadow)}
   .hp a:hover{border-color:var(--pink)}
@@ -384,7 +386,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-namecheck';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-fourup';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
