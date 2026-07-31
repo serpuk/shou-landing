@@ -326,6 +326,7 @@
     border:1px solid var(--line);border-radius:14px;background:var(--card);text-decoration:none;color:inherit;
     box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s,transform .15s}
   .pick:hover{border-color:var(--cyan);box-shadow:0 8px 20px -10px rgba(20,16,30,.28);transform:translateY(-1px)}
+  .pick:hover .pick-n{color:var(--cyan)}
   .pick{cursor:pointer}
   .pick-ic{width:92px;height:92px;border-radius:12px;display:grid;place-items:center;font-size:30px;
     background:var(--panel-soft);border:1px solid var(--line)}
@@ -389,7 +390,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-curated';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-nodirections';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -1006,15 +1007,6 @@ function placeUrl(p,addr){
   if(isFinite(p.lat)&&isFinite(p.lng)) return 'https://www.google.com/maps/search/?api=1&query='+p.lat+','+p.lng;
   return maps((p.n||'')+' '+(addr||''));
 }
-// Routing is a separate intent, so it keeps its own link.
-function dirUrl(p,addr){
-  if(isFinite(p.lat)&&isFinite(p.lng)){
-    var u='https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng;
-    if(p.gpid) u+='&destination_place_id='+encodeURIComponent(p.gpid);
-    return u;
-  }
-  return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent((p.n||'')+' '+(addr||''));
-}
 
 // What kind of place this is. Google's label is the most specific ("Lebanese
 // restaurant"), OSM's cuisine next, and the category the owner filed it under
@@ -1041,7 +1033,6 @@ function pickCard(p,kind,addr){
   // Real links, so a guest can actually phone the place or open its site.
   if(p.phone) meta+='<a href="tel:'+esc(String(p.phone).replace(/[^+\d]/g,''))+'">'+esc(chr('pkCall'))+'</a>';
   if(p.site)  meta+='<a href="'+esc(p.site)+'" target="_blank" rel="noopener">'+esc(chr('pkSite'))+'</a>';
-  meta+='<a href="'+esc(dirUrl(p,addr))+'" target="_blank" rel="noopener">'+esc(chr('pkDir'))+' \u2197</a>';
   // Google's photo first, then whatever the venue publishes itself, then
   // the category mark. The proxy keeps the API key server-side.
   var photo=p.gphoto ? (API+'/apt?ph='+encodeURIComponent(p.gphoto)+'&w=280') : (p.img||'');
