@@ -1210,7 +1210,7 @@ $('picksBody').addEventListener('input',function(e){
           if(isFinite(x.lat)&&isFinite(x.lng)){row.setAttribute('data-lat',x.lat);row.setAttribute('data-lng',x.lng);}
           if(x.dist)row.setAttribute('data-dist',x.dist);
           // What OSM knows about the place — the owner never types any of this.
-          ['cuisine','hours','phone','site','addr'].forEach(function(f){ if(x[f])row.setAttribute('data-'+f,x[f]); });
+          PICK_PASSTHROUGH.forEach(function(f){ if(x[f])row.setAttribute('data-'+f,x[f]); });
           pkHide();
         });
       });
@@ -1246,11 +1246,15 @@ $('suggestBtn').onclick=function(){
 
 /* ---------- host picks ---------- */
 var PICK_KINDS=['dinner','coffee','bar'];
+// Fields the editor does not show but must not lose. The Google ones cost money
+// to refetch, and dropping them blanks the guest cards until enrichment catches up.
+var PICK_PASSTHROUGH=['cuisine','hours','phone','site','addr',
+                      'gpid','gphoto','grating','gratings','gattr','gts'];
 function pickRow(k,p){
   p=p||{};
   // lat/lng/dist ride along on the row: they are what let the guest page map a
   // pick and give a walking time, and there is nothing for the owner to edit.
-  var facts=['cuisine','hours','phone','site','addr'].map(function(f){
+  var facts=PICK_PASSTHROUGH.map(function(f){
     return ' data-'+f+'="'+esc(p[f]||'')+'"';}).join('');
   // A note that is only a distance came from the old shape, where the two
   // shared one field. Promote it, so the owner gets their note box back.
@@ -1317,8 +1321,9 @@ function collectPicks(){
       if(isFinite(la)&&isFinite(ln)){row.lat=la;row.lng=ln;}
       var dt=r.getAttribute('data-dist'); if(dt)row.dist=dt;
       var im=r.getAttribute('data-img'); if(im)row.img=im;
-      ['cuisine','hours','phone','site','addr'].forEach(function(f){
-        var v=r.getAttribute('data-'+f); if(v)row[f]=v;});
+      PICK_PASSTHROUGH.forEach(function(f){
+        var v=r.getAttribute('data-'+f);
+        if(v)row[f]=(f==='grating'||f==='gratings'||f==='gts')?Number(v):v;});
       rows.push(row);
     });
     if(rows.length)out[k]=rows.slice(0,6);
