@@ -1189,15 +1189,20 @@ $('picksBody').addEventListener('input',function(e){
   var c=pkCoords(); var q=inp.value.trim();
   if(!c||q.length<3)return;                       // no location yet → nothing to search around
   pkTimer=setTimeout(function(){
-    api('POST',{action:'place_search',q:q,lat:c.lat,lng:c.lng},true).then(function(r){
+    var row0=inp.closest('.pick-row');
+    var kind0=row0?row0.getAttribute('data-k'):'';
+    api('POST',{action:'place_search',q:q,lat:c.lat,lng:c.lng,kind:kind0},true).then(function(r){
       var rows=(r.ok&&r.j&&r.j.results)||[];
       if(!rows.length||document.activeElement!==inp)return;
       var row=inp.closest('.pick-row'); if(!row)return;
       pkHide();
       var list=document.createElement('div'); list.className='pk-list';
       list.innerHTML=rows.map(function(x,i){
-        return '<button type="button" data-i="'+i+'">'+esc(x.n)+' <span class="w">· '+esc(x.dist||'')
-             +(x.where?' · '+esc(x.where):'')+'</span></button>';
+        // type and rating are what tell two same-named businesses apart
+        var bits=[x.gtype||'',x.grating?('\u2605 '+x.grating+(x.gratings?' ('+x.gratings+')':'')):'',
+                  x.dist||'',x.where||''].filter(Boolean);
+        return '<button type="button" data-i="'+i+'">'+esc(x.n)
+             +' <span class="w">· '+esc(bits.join(' · '))+'</span></button>';
       }).join('');
       row.appendChild(list); list.style.display='block';
       list.querySelectorAll('button').forEach(function(b){
@@ -1209,8 +1214,9 @@ $('picksBody').addEventListener('input',function(e){
           // The distance is ours to keep; the note stays the owner's to write.
           if(isFinite(x.lat)&&isFinite(x.lng)){row.setAttribute('data-lat',x.lat);row.setAttribute('data-lng',x.lng);}
           if(x.dist)row.setAttribute('data-dist',x.dist);
-          // What OSM knows about the place — the owner never types any of this.
-          PICK_PASSTHROUGH.forEach(function(f){ if(x[f])row.setAttribute('data-'+f,x[f]); });
+          // Everything the result carries — OSM's facts and Google's photo,
+          // rating and type — so the card is right from the moment it is chosen.
+          PICK_PASSTHROUGH.forEach(function(f){ if(x[f]!=null&&x[f]!=='')row.setAttribute('data-'+f,x[f]); });
           pkHide();
         });
       });
