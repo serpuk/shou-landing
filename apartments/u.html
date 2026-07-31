@@ -322,10 +322,12 @@
     box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s,transform .15s}
   .pick:hover{border-color:var(--cyan);box-shadow:0 8px 20px -10px rgba(20,16,30,.28);transform:translateY(-1px)}
   .pick{cursor:pointer}
-  .pick-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;
+  .pick-ic{width:92px;height:92px;border-radius:12px;display:grid;place-items:center;font-size:30px;
     background:var(--panel-soft);border:1px solid var(--line)}
-  .pick-ph{width:64px;height:64px;border-radius:11px;flex:none;object-fit:cover;display:block;
+  @media(max-width:420px){ .pick-ic{width:76px;height:76px;font-size:26px} }
+  .pick-ph{width:92px;height:92px;border-radius:12px;flex:none;object-fit:cover;display:block;
     background:var(--panel-soft);border:1px solid var(--line)}
+  @media(max-width:420px){ .pick-ph{width:76px;height:76px} }
   .pick-cu{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;
     color:var(--cyan);background:rgba(14,154,141,.10);border-radius:999px;padding:2px 8px;margin-bottom:3px}
   .pick-h{display:block;font-size:12px;color:var(--dim);margin-top:4px;line-height:1.4}
@@ -337,7 +339,9 @@
   .pick-m a:hover{color:var(--cyan);text-decoration:underline}
   .pick-b{min-width:0}
   .pick-n{display:block;font-weight:700;font-size:15px;color:var(--ink);line-height:1.25}
-  .pick-note{display:block;font-size:13px;color:var(--soft);line-height:1.45;margin-top:2px}
+  .pick-note{display:block;font-size:13.5px;color:var(--ink);line-height:1.45;margin-top:5px;
+    padding:6px 10px;border-left:3px solid var(--cyan);background:var(--panel-soft);
+    border-radius:0 8px 8px 0;font-style:italic}
   .pick-m{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12.5px}
   .pick-m .d{color:var(--cyan);font-weight:700}
   .pick-m .go{color:var(--soft);font-weight:600}
@@ -375,7 +379,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-pickphoto';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-pickcard2';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -1124,7 +1128,7 @@ function ask(q){
         meta+='<a href="'+esc(href)+'" target="_blank" rel="noopener">'+esc(chr('pkDir'))+' \u2197</a>';
         // Google's photo first, then whatever the venue publishes itself, then
         // the category mark. The proxy keeps the API key server-side.
-        var photo=p.gphoto ? (API+'/apt?ph='+encodeURIComponent(p.gphoto)+'&w=200') : (p.img||'');
+        var photo=p.gphoto ? (API+'/apt?ph='+encodeURIComponent(p.gphoto)+'&w=280') : (p.img||'');
         var lead=photo
           ? '<img class="pick-ph" src="'+esc(photo)+'" alt="" decoding="async">'
           : '<span class="pick-ic">'+(ICON[cls.id]||'\ud83d\udccd')+'</span>';
