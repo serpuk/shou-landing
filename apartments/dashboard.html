@@ -165,13 +165,15 @@
   .th:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
 
   /* a miniature of the real guest page */
-  .th .mini{display:block;position:relative;overflow:hidden;height:190px}
-  .th .m-hero{position:relative;height:74px;overflow:hidden}
+  /* These are spans, so every box in here needs an explicit display — an inline
+     span silently ignores height and padding, which collapses the miniature. */
+  .th .mini{display:flex;flex-direction:column;position:relative;overflow:hidden;height:196px}
+  .th .m-hero{display:block;position:relative;height:78px;flex:none;overflow:hidden}
   .th .m-hero img{width:100%;height:100%;object-fit:cover;display:block}
   .th .m-tint{position:absolute;inset:0}
   .th .m-name{position:absolute;left:9px;bottom:7px;right:9px;color:#fff;font-size:12px;font-weight:700;
     line-height:1.15;text-shadow:0 1px 6px rgba(0,0,0,.5);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .th .m-body{padding:8px 9px}
+  .th .m-body{display:block;padding:8px 9px;flex:1;min-height:0}
   .th .m-chips{display:flex;gap:3px;margin-bottom:7px}
   .th .m-chips i{display:block;height:11px;border-radius:999px;flex:1}
   .th .m-ev{display:flex;gap:5px;align-items:center;border-radius:6px;padding:4px 5px;margin-bottom:4px}
