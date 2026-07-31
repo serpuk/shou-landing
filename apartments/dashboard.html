@@ -1238,11 +1238,18 @@ $('suggestBtn').onclick=function(){
     // they already listed is not duplicated.
     var cur=collectPicks();
     PICK_KINDS.forEach(function(k){
-      var have=(cur[k]||[]).map(function(p){return p.n.toLowerCase();});
+      // Match the server's rule, or the row appears and then vanishes on save.
+      var nrm=function(x){return String(x||'').toLowerCase().normalize('NFD')
+        .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'');};
+      var haveIds=(cur[k]||[]).map(function(p){return p.gpid||'';}).filter(Boolean);
+      var haveNames=(cur[k]||[]).map(function(p){return nrm(p.n);});
       (s[k]||[]).forEach(function(p){
-        if(have.indexOf(p.n.toLowerCase())<0&&(cur[k]||[]).length<6){
-          cur[k]=(cur[k]||[]).concat([p]);
-        }
+        if((cur[k]||[]).length>=6)return;
+        if(p.gpid&&haveIds.indexOf(p.gpid)>=0)return;
+        if(haveNames.indexOf(nrm(p.n))>=0)return;
+        cur[k]=(cur[k]||[]).concat([p]);
+        if(p.gpid)haveIds.push(p.gpid);
+        haveNames.push(nrm(p.n));
       });
     });
     renderPicks(cur);
