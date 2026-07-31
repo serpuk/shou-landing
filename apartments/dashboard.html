@@ -323,7 +323,7 @@
     <div class="ed-head" id="edHead">
       <h2 id="edTitle">New apartment</h2>
       <button class="btn btn-primary btn-sm" id="saveBtn" data-i="save">Save</button>
-      <button class="btn btn-ghost btn-sm" id="previewBtn"></button>
+      <button class="btn btn-ghost btn-sm" id="previewBtn" data-i="previewBtn"></button>
       <button class="btn btn-ghost btn-sm" id="pubBtn" style="display:none">Publish</button>
       <button class="btn-x" id="edClose" title="Close" aria-label="Close">&times;</button>
     </div>
@@ -348,7 +348,7 @@
     <div class="fields">
       <div class="f full">
         <div class="row" style="margin-bottom:8px">
-          <button type="button" class="btn btn-ghost btn-sm" id="upBtn"></button>
+          <button type="button" class="btn btn-ghost btn-sm" id="upBtn" data-i="upBtn"></button>
           <input type="file" id="upFile" accept="image/jpeg,image/png,image/webp" style="display:none">
           <span class="hint" id="upMsg"></span>
         </div>
@@ -402,7 +402,7 @@
     <div class="grp" id="picksT" data-i="picksT">Your recommendations</div>
     <p class="ed-sub" id="picksS" data-i="picksS" style="margin-bottom:10px"></p>
     <div class="row" style="margin-bottom:14px">
-      <button type="button" class="btn btn-ghost btn-sm" id="suggestBtn"></button>
+      <button type="button" class="btn btn-ghost btn-sm" id="suggestBtn" data-i="suggestBtn"></button>
       <span class="hint" id="suggestMsg"></span>
     </div>
     <div id="picksBody"></div>
@@ -459,6 +459,7 @@ function applyI18n(){
   document.documentElement.lang=uiLang;
   document.querySelectorAll('[data-i]').forEach(function(el){var v=t(el.getAttribute('data-i'));if(v!=null)el.textContent=v;});
   document.querySelectorAll('[data-i-ph]').forEach(function(el){var v=t(el.getAttribute('data-i-ph'));if(v!=null)el.placeholder=v;});
+  document.querySelectorAll('[data-i-title]').forEach(function(el){var v=t(el.getAttribute('data-i-title'));if(v!=null)el.title=v;});
 }
 function reI18n(){
   applyI18n();
@@ -1239,11 +1240,11 @@ function pickRow(k,p){
     +' data-lat="'+esc(p.lat!=null?p.lat:'')+'" data-lng="'+esc(p.lng!=null?p.lng:'')+'"'
     +' data-dist="'+esc(p.dist||'')+'" data-img="'+esc(p.img||'')+'"'+facts
     +' style="display:grid;grid-template-columns:auto 1fr 1fr auto;gap:8px;margin-bottom:7px;align-items:center">'
-    +'<button type="button" class="pk-img'+(p.img?' has':'')+'" title="'+esc(t('pkPhoto'))+'"'
+    +'<button type="button" class="pk-img'+(p.img?' has':'')+'" data-i-title="pkPhoto" title="'+esc(t('pkPhoto'))+'"'
       +(p.img?' style="background-image:url(\''+esc(p.img)+'\')"':'')+'>'+(p.img?'':'\uff0b')+'</button>'
     +'<input class="pk-n" maxlength="80" data-i-ph="picksName" placeholder="'+esc(t('picksName'))+'" value="'+esc(p.n||'')+'">'
     +'<input class="pk-note" maxlength="120" data-i-ph="picksNote" placeholder="'+esc(t('picksNote'))+'" value="'+esc(p.note||'')+'">'
-    +'<button type="button" class="btn btn-ghost btn-sm pk-del" title="'+esc(t('picksDel'))+'">&times;</button></div>';
+    +'<button type="button" class="btn btn-ghost btn-sm pk-del" data-i-title="picksDel" title="'+esc(t('picksDel'))+'">&times;</button></div>';
 }
 function renderPicks(picks){
   picks=picks||{};
