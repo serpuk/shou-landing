@@ -375,7 +375,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-geoprecision';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-pickphoto';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -1126,7 +1126,7 @@ function ask(q){
         // the category mark. The proxy keeps the API key server-side.
         var photo=p.gphoto ? (API+'/apt?ph='+encodeURIComponent(p.gphoto)+'&w=200') : (p.img||'');
         var lead=photo
-          ? '<img class="pick-ph" src="'+esc(photo)+'" alt="" loading="lazy">'
+          ? '<img class="pick-ph" src="'+esc(photo)+'" alt="" decoding="async">'
           : '<span class="pick-ic">'+(ICON[cls.id]||'\ud83d\udccd')+'</span>';
         // Straight from OpenStreetMap, shown as recorded. No "open now": the tag
         // can be years old, and a confident wrong answer sends a guest to a
