@@ -452,7 +452,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-totop';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-rollfwd';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -770,14 +770,31 @@ function fmtTimeRange(e){
 
 function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
-// earliest date >= today the event occurs — the date to show in the default (no day picked) view
+function tomorrowISO(t){const d=new Date(t+'T12:00:00');d.setDate(d.getDate()+1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const PLACEHOLDER_END=23*60+59;        // 23:59 in the data means "end unknown"
+// Has TODAY's session finished? The same three rules the server applies in
+// hasEndedToday, so a card and the pool that produced it can never disagree.
+function endedToday(e){
+  const now=new Date(), nowMin=now.getHours()*60+now.getMinutes();
+  const mins=v=>{const m=/^(\d{1,2}):(\d{2})/.exec(String(v||''));return m?(+m[1]*60+ +m[2]):null;};
+  const s=mins(e.time), en=mins(e.endTime);
+  if(s!=null&&en!=null&&en<=s&&s>=18*60&&en<=6*60)return false;   // overnight → still on
+  if(en!=null&&en!==PLACEHOLDER_END&&(s==null||en>s))return en<=nowMin;
+  if(s!=null)return s<(nowMin-240);                              // unknown end → 4h old
+  return false;                                                  // no times → cannot tell
+}
+// Earliest date the event is still worth showing: today while today is still
+// on, otherwise the next date of its run. A show that ends at 16:00 should not
+// be wearing today's date at 23:00 — it is on again tomorrow, so say tomorrow.
 function nextOccurrence(e){
   const t=todayISO();
+  const min=endedToday(e)?tomorrowISO(t):t;
   const occ=Array.isArray(e.occurrenceDates)&&e.occurrenceDates.length?e.occurrenceDates:null;
-  if(occ){let best='';for(const d of occ){if(d>=t&&(!best||d<best))best=d;}return best||e.date;}
-  if(e.date&&e.date>=t)return e.date;
+  if(occ){let best='';for(const d of occ){if(d>=min&&(!best||d<best))best=d;}return best||e.date;}
+  if(e.date&&e.date>=min)return e.date;
   const end=e.recurrenceEndDate||e.endDate||e.date;
-  if(e.date&&e.date<t&&end&&end>=t)return t;           // ongoing run → today
+  if(end&&end>=min)return min;                        // ongoing run → its next open day
   return e.date;
 }
 // Shared event card (This week rails + concierge results): thumb, category
@@ -1265,7 +1282,7 @@ function pickPoint(p,kind){
 // An event pin carries the two things the card shows and the map cannot: when
 // it is on, and where that actually is.
 function eventPoint(e){
-  var when=[fmtDate(e.date),fmtTimeRange(e)].filter(Boolean).join(' \u00b7 ');
+  var when=[fmtDate(nextOccurrence(e)),fmtTimeRange(e)].filter(Boolean).join(' \u00b7 ');
   var where=[e.venue,e.city].filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i;}).join(' \u00b7 ');
   var dl=distLabel(e);
   return {n:e.name,lat:e.lat,lng:e.lng,icon:'\ud83c\udfab',
@@ -1519,7 +1536,7 @@ function ask(q){
     typing.remove();addMsg('ai',esc(d.reasoning||'')||chr('none'));
     var list=[];var seen={};(d.events||[]).concat(d.suggestedEvents||[]).forEach(function(e){if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;list.push(e);}});
     list=dedupe(list).slice(0,8); indexEvents(list);
-    if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(function(e){return evCard(e,e.date);}).join('');document.getElementById('msgs').appendChild(g);
+    if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(function(e){return evCard(e,nextOccurrence(e));}).join('');document.getElementById('msgs').appendChild(g);
       // Eight distances read one at a time is arithmetic; the same eight on a
       // map is a glance. Only when it can show all of them close enough to walk.
       var epts=eventPoints(list);
