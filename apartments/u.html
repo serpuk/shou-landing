@@ -363,7 +363,7 @@
   @media(max-width:760px){.welcome{grid-template-columns:1fr;gap:22px} .wk-rail .ev{flex:0 0 300px}}
   /* Only a real phone gets the full-width swipe card; a narrow desktop
      window keeps a card that reads as a card. */
-  @media(max-width:560px){ .wk-rail .ev{flex:0 0 82vw} }
+  @media(max-width:560px){ .wk-rail .ev{flex:0 0 min(82vw,300px)} }
 </style>
 </head>
 <body>
@@ -372,7 +372,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='f7fa3c7';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='1d110d4';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
