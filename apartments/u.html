@@ -443,7 +443,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-invite2';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-invite3';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -1370,8 +1370,8 @@ var INTENTS=[
   {t:'poi',id:'attractions',kw:['attractions','sightseeing','tourist','what to see','a voir','visiter','bezienswaardigheden','sehenswurdigkeiten','que ver','cosa vedere','visitare','визначні пам']},
   {t:'poi',id:'taxi',kw:['taxi','cab','uber','bolt','такси','таксі']},
   {t:'rec',id:'dinner',kw:['dinner','dine','restaurant','where to eat','good food','lunch','diner','manger','eten','essen','abendessen','restaurante','ristorante','comer','mangiare','cena','cenar','ресторан','поїсти','вечеря','повечеряти']},
-  {t:'rec',id:'breakfast',kw:['breakfast','brunch','petit dejeuner','ontbijt','fruhstuck','desayun','colazione','сніданок']},
-  {t:'rec',id:'coffee',kw:['coffee shop','good coffee','best coffee','cafe','cappuccino','koffie','kaffee','caffe','кава']},
+  {t:'rec',id:'breakfast',kw:['breakfast','brunch','petit dejeuner','ontbijt','fruhstuck','desayun','colazione','сніда']},
+  {t:'rec',id:'coffee',kw:['coffee shop','good coffee','best coffee','cafe','cappuccino','koffie','kaffee','caffe','кава','кави','каву']},
   {t:'rec',id:'bar',kw:['bar','drink','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','copa','aperitivo','verre','boire','getrank','a bere','випити','пиво','бар']},
 ];
 function classify(q){var s=toks(q);for(var i=0;i<INTENTS.length;i++){var it=INTENTS[i];for(var j=0;j<it.kw.length;j++){var k=fold(it.kw[j]);var hit=(k.indexOf(' ')>=0||k.length>=5)?s.indexOf(k)>=0:s.indexOf(' '+k+' ')>=0;if(hit)return it;}}return null;}
