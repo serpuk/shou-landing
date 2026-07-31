@@ -502,7 +502,15 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
 function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
 function km(e){return (Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine(HOTEL.lat,HOTEL.lng,e.lat,e.lng):999;}
-function distLabel(e){const k=km(e);if(k>60)return '';if(k<1.1)return Math.max(1,Math.round(k*12))+' '+t('walk');return k.toFixed(1)+' km';}
+// A street or town centroid is the right area and the wrong point — it put
+// a club 4 km away 90 m from the door. Those coordinates still drive
+// 'roughly near here'; they may not be quoted to the metre.
+function distLabel(e){
+  if(e.geoPrecision&&e.geoPrecision!=='exact')return '';
+  const k=km(e);if(k>60)return '';
+  if(k<1.1)return Math.max(1,Math.round(k*12))+' '+t('walk');
+  return k.toFixed(1)+' km';
+}
 function fmtDate(d){if(!d)return '';const dt=/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+'T12:00:00'):new Date(d);if(isNaN(dt))return d;
   try{return dt.toLocaleDateString(LOCMAP[lang]||'en-GB',{weekday:'short',day:'numeric',month:'short'});}catch(e){return d;}}
 // start–end time, hiding placeholders (00:00 open / 23:59 close) and collapsing multi-day to the start time

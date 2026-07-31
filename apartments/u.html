@@ -375,7 +375,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-minwidth';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-geoprecision';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -1011,7 +1011,15 @@ function cleanTitle(x){
 }
 function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
 function km(e){return (Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine(U.lat,U.lng,e.lat,e.lng):999;}
-function distLabel(e){const k=km(e);if(k>60)return '';if(k<1.1)return Math.max(1,Math.round(k*12))+' '+chr('walk');return k.toFixed(1)+' km';}
+// A street or town centroid is the right area and the wrong point — it put
+// a club 4 km away 90 m from the door. Those coordinates still drive
+// 'roughly near here'; they may not be quoted to the metre.
+function distLabel(e){
+  if(e.geoPrecision&&e.geoPrecision!=='exact')return '';
+  const k=km(e);if(k>60)return '';
+  if(k<1.1)return Math.max(1,Math.round(k*12))+' '+chr('walk');
+  return k.toFixed(1)+' km';
+}
 function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
 
