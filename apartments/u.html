@@ -389,7 +389,7 @@
 <div class="mv" id="mv" aria-hidden="true"></div>
 <script>
 var API='https://shou-backend.vercel.app/api';
-var SHOU_BUILD='2026-07-31-placelink';window.SHOU_BUILD=SHOU_BUILD;
+var SHOU_BUILD='2026-07-31-curated';window.SHOU_BUILD=SHOU_BUILD;
 try{console.log('shou guest page build '+SHOU_BUILD);}catch(e){}
 // /apartments/u/<slug> is a Vercel REWRITE: the server sees ?u=<slug>, the
 // browser URL never does. Reading only the query meant the pretty URL — the
@@ -502,21 +502,32 @@ function bookHtml(){
     return '<div class="wb-card"><span class="wb-ic">'+ICON[k]+'</span><div><div class="wb-k">'+esc(lbl(k))+'</div><div class="wb-v">'+esc(wval(k))+'</div></div></div>';}).join('');
   // Where we resolved an actual nearest one, show it as the card the picks use.
   // Anything unresolved keeps the map link: a link beats a blank.
-  var nb=(U.content&&U.content.nearby)||{};
-  var poiReal=POI_ORDER.filter(function(k){return nb[k]&&nb[k].n;});
-  var poiCards=POI_ORDER.filter(function(k){return !(nb[k]&&nb[k].n);}).map(function(k){
+  // Curated like any other pick; content.nearby is only read for apartments
+  // whose enrichment has not yet migrated them across.
+  var nb={}, allPicks=(U.content&&U.content.picks)||{};
+  POI_ORDER.forEach(function(k){
+    var list=(allPicks[k]||[]).filter(function(p){return p&&p.n;});
+    if(list.length) nb[k]=list;
+    else if(U.content&&U.content.nearby&&U.content.nearby[k]) nb[k]=[U.content.nearby[k]];
+  });
+  var poiReal=POI_ORDER.filter(function(k){return nb[k]&&nb[k].length;});
+  var poiCards=POI_ORDER.filter(function(k){return !(nb[k]&&nb[k].length);}).map(function(k){
     return '<a class="wb-card" href="'+esc(poiValue(k))+'" target="_blank" rel="noopener"><span class="wb-ic">'+ICON[k]+'</span><div><div class="wb-k">'+esc(lbl(k))+'</div><div class="wb-v">'+esc(chr('seemap'))+' ↗</div></div><span class="wb-go">↗</span></a>';}).join('');
   // The label says what the guest asked for ("Supermarket"), the card says which
   // one it is — the pick card's own type pill would otherwise repeat Google's.
   var poiPicks=poiReal.map(function(k){
-    var same=String(nb[k].gtype||'').toLowerCase()===String(lbl(k)||'').toLowerCase();
-    return '<div class="nb-item"><div class="nb-k">'+esc(lbl(k))+'</div>'
-      +pickCard(Object.assign({},nb[k],{gtype:same?'':nb[k].gtype,cuisine:same?'':nb[k].cuisine}),k,U.address||'')
-      +'</div>';}).join('');
+    return nb[k].map(function(p){
+      // The label above already names the errand, so the pill only earns its
+      // place when Google says something more specific.
+      var same=String(p.gtype||'').toLowerCase()===String(lbl(k)||'').toLowerCase();
+      return '<div class="nb-item"><div class="nb-k">'+esc(lbl(k))+'</div>'
+        +pickCard(Object.assign({},p,{gtype:same?'':p.gtype,cuisine:same?'':p.cuisine}),k,U.address||'')
+        +'</div>';}).join('');
+  }).join('');
   // The owner's own picks — previously reachable only by asking the concierge
   // the right question, which is a poor home for curation they took time over.
   var pk=(U.content&&U.content.picks)||{}, hpAll=[];
-  ['dinner','coffee','bar'].forEach(function(k){
+  ['dinner','coffee','bar'].forEach(function(k){   // errands render under Around the corner
     // the whole pick: the card needs its photo, rating, hours and coordinates
     (pk[k]||[]).forEach(function(p){ if(p&&p.n) hpAll.push(Object.assign({},p,{k:k})); });
   });
