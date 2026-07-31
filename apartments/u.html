@@ -73,6 +73,20 @@
     background-size:22px 22px;
   }
   body[data-theme="botanical"] h1,body[data-theme="botanical"] h2,body[data-theme="botanical"] .hname{font-family:'Lora',Georgia,serif}
+
+  /* Boutique: charcoal and champagne — the one theme that reads as luxury
+     rather than as a colour scheme. */
+  body[data-theme="boutique"]{
+    --ink:#f4efe6; --text:#e6ded0; --soft:#a89d8c; --dim:#8d8375;
+    --bg:#191713; --card:#221f1a; --panel-soft:#1e1b17; --line:rgba(232,214,178,.16);
+    --pink:#c9a227; --orange:#e6c66b; --grad:linear-gradient(105deg,#c9a227,#e6c66b);
+    --warm-bg:#332c1e; --warm-bd:#4f452e; --warm-ink:#e8cf8a;
+    --cool-bg:#26241f; --cool-bd:#3d3930; --cool-ink:#d8cfbb;
+    --mint-bg:#1e2a24; --mint-bd:#2f4237; --mint-ink:#9fc9b1;
+    --chrome:rgba(25,23,19,.9); --fade:#191713;
+    --shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+  body[data-theme="boutique"] h1,body[data-theme="boutique"] h2,body[data-theme="boutique"] .hname{font-family:'Lora',Georgia,serif;letter-spacing:.005em}
   body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
   h1,h2{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.015em;line-height:1.1;color:var(--ink)}
   a{color:inherit}
@@ -462,7 +476,7 @@ function bookHtml(){
 
 // Theme is a fixed id from the owner's picker; anything unknown falls back to
 // the default look rather than leaving an unstyled page.
-var THEMES=['warm','nordic','bold','botanical'];
+var THEMES=['warm','nordic','bold','botanical','boutique'];
 function applyTheme(){
   var th=(U.branding&&U.branding.theme)||'';
   if(THEMES.indexOf(th)>=0)document.body.setAttribute('data-theme',th);
