@@ -113,6 +113,10 @@
       "destination": "https://shou-backend.vercel.app/api/this-week?format=place&topic=belgium-events"
     },
     {
+      "source": "/tonight",
+      "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=belgium&window=tonight"
+    },
+    {
       "source": "/brussels-tonight",
       "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=brussels&window=tonight"
     },
