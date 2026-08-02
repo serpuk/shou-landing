@@ -170,7 +170,7 @@
       <p class="muted" style="font-size:13px;margin:-4px 0 14px">Your concierge answers guests with these instead of a generic map search. Set your hotel location, then add the spots you love nearby.</p>
       <div class="row" id="picksTopActions" style="gap:8px;margin:0 0 18px">
         <button class="btn btn-primary btn-sm" id="picksSaveTop">Save recommendations</button>
-        <a class="btn btn-sm" id="picksPreview" target="_blank" rel="noopener" style="text-decoration:none;display:none">Preview guest page ↗</a>
+        <button class="btn btn-sm" id="picksPreview">Preview guest page ↗</button>
       </div>
 
       <label class="lfield full"><span>Hotel location</span>
@@ -753,6 +753,11 @@ function savePicks(b){
 }
 $('picksSave').onclick=function(){savePicks($('picksSave'));};
 $('picksSaveTop').onclick=function(){savePicks($('picksSaveTop'));};
+$('picksPreview').onclick=function(){
+  var slug=(DATA.hotel||{}).portal_slug;
+  if(!slug){ msg($('picksMsg'),'No guest-page link (slug) set for this hotel yet — ask us to enable it, then Preview will open your live page.','err'); return; }
+  window.open('/hotels/sample?slug='+encodeURIComponent(slug),'_blank','noopener');
+};
 
 /* ---------- entry: load existing location + picks ---------- */
 function renderPicksCard(){
@@ -766,11 +771,6 @@ function renderPicksCard(){
     $('geoNote').style.display='none';
   }
   renderPicks(((h.content)||{}).picks||{});
-  // Preview opens the data-driven guest page for this hotel's slug (shows the
-  // SAVED picks — save first to see edits).
-  var prev=$('picksPreview');
-  if(h.portal_slug){ prev.href='/hotels/sample?slug='+encodeURIComponent(h.portal_slug); prev.style.display=''; }
-  else prev.style.display='none';
   if(DATA.admin){                                  // admin view is read-only everywhere else too
     $('p_address').disabled=true; $('suggestBtn').disabled=true; $('picksSave').disabled=true; $('picksSaveTop').disabled=true;
     $('picksBody').querySelectorAll('input,button').forEach(function(el){el.disabled=true;});
