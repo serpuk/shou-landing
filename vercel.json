@@ -151,6 +151,14 @@
     {
       "source": "/sitemap.xml",
       "destination": "https://shou-backend.vercel.app/api/this-week?format=sitemap"
+    },
+    {
+      "source": "/sitemap-events.xml",
+      "destination": "https://shou-backend.vercel.app/api/this-week?format=sitemap-events"
+    },
+    {
+      "source": "/sitemap-events-:page(\\d+).xml",
+      "destination": "https://shou-backend.vercel.app/api/this-week?format=sitemap-events&page=:page"
     }
   ],
   "redirects": [

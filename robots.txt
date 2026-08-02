@@ -3,3 +3,4 @@ Allow: /
 Disallow: /hotels/crm
 
 Sitemap: https://shou.be/sitemap.xml
+Sitemap: https://shou.be/sitemap-events.xml
