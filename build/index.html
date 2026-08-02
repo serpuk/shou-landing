@@ -852,12 +852,13 @@ function spanOf(it){
 }
 function renderTimeline(){
   const el=$('timeline');
+  recomputeVis();
   const rows=[];
-  const walk=(id,depth)=>{childrenOf(id).forEach(c=>{rows.push({it:c,depth});if(c.kind!=='task'&&!isCollapsed(c.id))walk(c.id,depth+1);});};
-  roadmapItems().forEach(r=>{rows.push({it:r,depth:0});if(!isCollapsed(r.id))walk(r.id,1);});
+  const walk=(id,depth)=>{childrenOf(id).forEach(c=>{if(!isVis(c.id))return;rows.push({it:c,depth});if(c.kind!=='task'&&!isCollapsed(c.id))walk(c.id,depth+1);});};
+  roadmapItems().forEach(r=>{if(!isVis(r.id))return;rows.push({it:r,depth:0});if(!isCollapsed(r.id))walk(r.id,1);});
   rows.forEach(row=>row.span=spanOf(row.it));
   const dated=rows.filter(r=>r.span);
-  if(!dated.length){el.innerHTML='<div class="dim" style="padding:14px 18px;font-size:13.5px">No dates yet — add a start or due date (✎) to see items on the timeline.</div>';return;}
+  if(!dated.length){el.innerHTML=`<div class="dim" style="padding:14px 18px;font-size:13.5px">${filterActive()?'No matching items with dates.':'No dates yet — add a start or due date (✎) to see items on the timeline.'}</div>`;return;}
   let minD=new Date(Math.min(...dated.map(r=>+r.span.start)));
   let maxD=new Date(Math.max(...dated.map(r=>+r.span.end)));
   const today=new Date();today.setHours(0,0,0,0);
