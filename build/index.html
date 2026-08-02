@@ -248,7 +248,10 @@
       </div>
     </div>
     <div class="row" style="margin-top:14px;justify-content:space-between">
-      <button id="edit-save" class="btn">Save</button>
+      <div class="row" style="gap:8px">
+        <button id="edit-save" class="btn">Save</button>
+        <button id="edit-act" class="btn ghost sm" title="Copy a ready-to-paste Claude prompt (this item + context + build#)" style="display:none">⚡ Act on it</button>
+      </div>
       <button id="edit-del" class="btn ghost sm" style="color:#c81e5b;border-color:rgba(200,30,91,.35)">Delete</button>
     </div>
   </div>
@@ -563,6 +566,33 @@ async function draftUpdate(id,btn){
   finally{btn.disabled=false;btn.textContent=o;}
 }
 function copyRef(id){navigator.clipboard&&navigator.clipboard.writeText('build#'+id).then(()=>toast('Copied build#'+id),()=>{});}
+// "Act on it" — build a ready-to-paste Claude prompt: the item, its full
+// roadmap→project→epic context, description, dependencies, child tasks (for a
+// container), and the build#<id> so commits sync progress back onto the board.
+function actAncestors(it){const p=[];let c=byId(it.parent_id);while(c){p.unshift(c);c=byId(c.parent_id);}return p;}
+function actText(id){
+  const it=byId(id);if(!it)return '';
+  const path=actAncestors(it),L=[];
+  L.push(`Please work on this ${it.kind} from the shou build roadmap (our execution layer).`);
+  L.push('');
+  L.push(`${it.kind.toUpperCase()} — ${it.title}  [build#${it.id}]`);
+  const meta=[`status: ${statusLabel(it.status)}`];
+  if(it.priority&&it.priority!=='normal')meta.push(`priority: ${it.priority}`);
+  if(it.assignee)meta.push(`assignee: ${it.assignee}`);
+  if(it.start_date)meta.push(`start: ${it.start_date}`);
+  if(it.due_date)meta.push(`due: ${it.due_date}`);
+  L.push(meta.join(' · '));
+  if(path.length)L.push(`Where it sits: ${path.map(p=>`${p.kind} "${p.title}" [build#${p.id}]`).join(' › ')}`);
+  path.filter(p=>p.description).forEach(p=>L.push(`  · ${p.kind} "${p.title}": ${p.description}`));
+  if(it.description){L.push('');L.push('What it is:');L.push(it.description);}
+  const deps=(it.depends_on||[]).map(d=>{const x=byId(d);return x?`"${x.title}" [build#${d}]`:`build#${d}`;});
+  if(deps.length){L.push('');L.push(`Depends on (assume done, or do first): ${deps.join('; ')}`);}
+  if(it.kind!=='task'){const kids=descendantTasks(it.id);if(kids.length){L.push('');L.push('Tasks under it:');kids.forEach(t=>L.push(`  [${t.status==='done'?'x':' '}] ${t.title} [build#${t.id}]`));}}
+  L.push('');
+  L.push(`When you make progress, put build#${it.id} in your commit messages so it syncs onto the board (every ~10 min). Add "closes build#${it.id}" — or merge a PR that does — to mark it done.`);
+  return L.join('\n');
+}
+function actOnItem(id){const t=actText(id);if(!t)return;if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Copied — paste into Claude'),()=>toast('Copy failed'));else toast('Copy failed');}
 $('req-ignored-toggle').onclick=()=>{reqIgnoredOpen=!reqIgnoredOpen;const b=$('req-ignored-list');b.style.display=reqIgnoredOpen?'':'none';$('req-ignored-toggle').firstChild.textContent=reqIgnoredOpen?'▾ ':'▸ ';};
 
 /* ---------- add / edit / delete any item ---------- */
@@ -675,7 +705,7 @@ function populateParents(kind){
 $('edit-kind-sel').onchange=()=>{editKind=$('edit-kind-sel').value;$('edit-kind').textContent=editKind;applyKindVisibility(editKind);populateParents(editKind);};
 function openEdit(id){
   const it=byId(id);if(!it)return;editId=id;createCtx=null;editKind=it.kind;
-  $('edit-verb').textContent='Edit';$('edit-del').style.display='';
+  $('edit-verb').textContent='Edit';$('edit-del').style.display='';$('edit-act').style.display='';
   const idref=$('edit-idref');idref.style.display='';idref.textContent='build#'+id;idref.onclick=()=>copyRef(id);
   fillModal(it.kind,it);
   $('edit-move-wrap').style.display='';$('edit-kind-sel').value=it.kind;populateParents(it.kind);
@@ -683,13 +713,14 @@ function openEdit(id){
 }
 function openCreate(kind,parentId){
   editId=null;createCtx={kind,parent_id:parentId||null};editKind=kind;
-  $('edit-verb').textContent='Add';$('edit-del').style.display='none';
+  $('edit-verb').textContent='Add';$('edit-del').style.display='none';$('edit-act').style.display='none';
   $('edit-idref').style.display='none';
   fillModal(kind,{});
   $('edit-move-wrap').style.display='none';
   $('edit-comments-wrap').style.display='none';
 }
 $('edit-close').onclick=closeEdit;
+$('edit-act').onclick=()=>{if(editId)actOnItem(editId);};
 $('edit-modal').onclick=e=>{if(e.target===$('edit-modal'))closeEdit();};
 $('edit-save').onclick=async()=>{
   const title=$('edit-title').value.trim();
@@ -1118,6 +1149,7 @@ function renderRoadmap(){
         </div>
         <div class="row" style="gap:6px">
           ${r.customer_label?`<button class="btn ghost sm rd-draft" title="Draft a 'shipped' update to the customer">✉ Update</button>`:''}
+          <button class="btn ghost sm it-act" data-act="${r.id}" title="Copy a ready-to-paste Claude prompt for this roadmap item">⚡</button>
           <button class="btn ghost sm it-edit" data-id="${r.id}" title="Edit">✎</button>
           <button class="btn ghost sm rd-del" title="Delete">✕</button>
         </div>
@@ -1146,6 +1178,7 @@ function projectHtml(p){
       ${p.description?`<span class="dim" style="font-size:12.5px">— ${esc(p.description)}</span>`:''}
       <span class="chip">${done}/${tasks.length}</span>
       <span class="chip idref" data-ref="${p.id}" title="Copy build#${p.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${p.id}</span>
+      <button class="btn ghost sm it-act" data-act="${p.id}" title="Copy a ready-to-paste Claude prompt for this project" style="padding:2px 9px">⚡</button>
       <button class="btn ghost sm it-edit" data-id="${p.id}" title="Edit project" style="padding:2px 9px">✎</button>
     </div>
     <div class="prog-track" style="margin:8px 0 0"><div class="prog-fill" style="width:${pct}%"></div></div>
@@ -1164,6 +1197,7 @@ function epicHtml(e){
         ${dueChip(t)}
         ${(t.depends_on&&t.depends_on.length)?`<span class="chip" title="Depends on ${t.depends_on.map(d=>{const x=byId(d);return x?x.title:'build#'+d;}).join(', ')}">⛓ ${t.depends_on.length}</span>`:''}
         <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR" style="cursor:pointer;font-family:ui-monospace,monospace">build#${t.id}</span>
+        <button class="btn ghost sm it-act" data-act="${t.id}" title="Copy a ready-to-paste Claude prompt for this task (context + build#)" style="padding:2px 8px">⚡</button>
         <button class="btn ghost sm it-edit" data-id="${t.id}" title="Edit task" style="padding:2px 8px">✎</button>
       </div>`;
   // Completed tasks fold under a "▸ N done" toggle so the active work isn't
@@ -1187,6 +1221,7 @@ function epicHtml(e){
       ${e.description?`<span class="dim" style="font-size:12.5px">— ${esc(e.description)}</span>`:''}
       ${(isCollapsed(e.id)&&tasks.length)?`<span class="chip">${tasks.filter(t=>t.status==='done').length}/${tasks.length}</span>`:''}
       <span class="chip idref" data-ref="${e.id}" title="Copy build#${e.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${e.id}</span>
+      <button class="btn ghost sm it-act" data-act="${e.id}" title="Copy a ready-to-paste Claude prompt for this epic (context + tasks + build#)" style="padding:2px 9px">⚡</button>
       <button class="btn ghost sm it-edit" data-id="${e.id}" title="Edit epic" style="padding:2px 9px">✎</button>
     </div>
     ${isCollapsed(e.id)?'':`<div style="margin:2px 0 0 4px">${taskHtml}</div>
@@ -1216,6 +1251,7 @@ function bindRoadmap(){
   });
   document.querySelectorAll('.idref').forEach(c=>{c.onclick=()=>copyRef(+c.getAttribute('data-ref'));});
   document.querySelectorAll('.it-edit').forEach(b=>{b.onclick=e=>{e.stopPropagation();openEdit(+b.getAttribute('data-id'));};});
+  document.querySelectorAll('.it-act').forEach(b=>{b.onclick=e=>{e.stopPropagation();actOnItem(+b.getAttribute('data-act'));};});
   document.querySelectorAll('.open-item').forEach(el=>{el.onclick=e=>{e.stopPropagation();openEdit(+el.getAttribute('data-id'));};});
   bindCarets();bindDnD();bindNudges();
   document.querySelectorAll('.rd-addproject').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('project',id);};});
