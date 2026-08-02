@@ -167,7 +167,11 @@
     <!-- YOUR RECOMMENDATIONS / HOST PICKS -->
     <div class="card" id="picksCard">
       <div class="sec-head"><h2>Your recommendations</h2><span class="sub">The places you would actually send a guest to</span></div>
-      <p class="muted" style="font-size:13px;margin:-4px 0 16px">Your concierge answers guests with these instead of a generic map search. Set your hotel location, then add the spots you love nearby.</p>
+      <p class="muted" style="font-size:13px;margin:-4px 0 14px">Your concierge answers guests with these instead of a generic map search. Set your hotel location, then add the spots you love nearby.</p>
+      <div class="row" id="picksTopActions" style="gap:8px;margin:0 0 18px">
+        <button class="btn btn-primary btn-sm" id="picksSaveTop">Save recommendations</button>
+        <a class="btn btn-sm" id="picksPreview" target="_blank" rel="noopener" style="text-decoration:none;display:none">Preview guest page ↗</a>
+      </div>
 
       <label class="lfield full"><span>Hotel location</span>
         <input id="p_address" placeholder="Start typing — street, number, postcode" autocomplete="off"></label>
@@ -733,9 +737,9 @@ $('suggestBtn').onclick=function(){
 };
 
 /* ---------- save picks ---------- */
-$('picksSave').onclick=function(){
+function savePicks(b){
   clearMsg($('picksMsg'));
-  var b=$('picksSave'); var old=b.textContent; b.disabled=true; b.textContent='Saving…';
+  var old=b.textContent; b.disabled=true; b.textContent='Saving…';
   var c=pkCoords();
   api('save_picks',{picks:collectPicks(),lat:(c?c.lat:''),lng:(c?c.lng:'')},true).then(function(r){
     b.disabled=false; b.textContent=old;
@@ -746,7 +750,9 @@ $('picksSave').onclick=function(){
     if(r.j.lng!=null)DATA.hotel.lng=r.j.lng;
     msg($('picksMsg'),'Saved your recommendations.','ok');
   });
-};
+}
+$('picksSave').onclick=function(){savePicks($('picksSave'));};
+$('picksSaveTop').onclick=function(){savePicks($('picksSaveTop'));};
 
 /* ---------- entry: load existing location + picks ---------- */
 function renderPicksCard(){
@@ -760,8 +766,13 @@ function renderPicksCard(){
     $('geoNote').style.display='none';
   }
   renderPicks(((h.content)||{}).picks||{});
+  // Preview opens the data-driven guest page for this hotel's slug (shows the
+  // SAVED picks — save first to see edits).
+  var prev=$('picksPreview');
+  if(h.portal_slug){ prev.href='/hotels/sample?slug='+encodeURIComponent(h.portal_slug); prev.style.display=''; }
+  else prev.style.display='none';
   if(DATA.admin){                                  // admin view is read-only everywhere else too
-    $('p_address').disabled=true; $('suggestBtn').disabled=true; $('picksSave').disabled=true;
+    $('p_address').disabled=true; $('suggestBtn').disabled=true; $('picksSave').disabled=true; $('picksSaveTop').disabled=true;
     $('picksBody').querySelectorAll('input,button').forEach(function(el){el.disabled=true;});
   }
 }
