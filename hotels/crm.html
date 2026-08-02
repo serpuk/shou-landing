@@ -332,10 +332,10 @@
     <!-- Matched replies never reach the queue above; without this a prospect can
          write back and nothing on screen says so. -->
     <div id="matched-wrap" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(20,16,30,.10)">
-      <div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#0e6b60;margin-bottom:7px">
-        ↩︎ Replied — already on the hotel
-      </div>
-      <div id="matched-list"></div>
+      <button id="matched-toggle" class="linkbtn" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#0e6b60">
+        <span id="matched-chev">▸</span> ↩︎ Replied — already on the hotel <span id="matched-count" class="dim" style="font-weight:700"></span>
+      </button>
+      <div id="matched-list" style="display:none;margin-top:7px"></div>
     </div>
     <div id="ignored-wrap" style="display:none;margin-top:6px">
       <button id="ignored-toggle" class="linkbtn" style="background:none;border:none;color:#888;font-size:12.5px;cursor:pointer;padding:4px 0">▸ <span id="ignored-count"></span></button>
@@ -499,6 +499,7 @@ $('gate-token').addEventListener('keydown', e => { if (e.key === 'Enter') unlock
 $('btn-logout').onclick = lock;
 $('btn-reminder').onclick = toggleReminder;
 $('ignored-toggle').onclick = () => { ignoredOpen = !ignoredOpen; const b = $('ignored-list'); b.style.display = ignoredOpen ? '' : 'none'; $('ignored-toggle').firstChild.textContent = ignoredOpen ? '▾ ' : '▸ '; };
+$('matched-toggle').onclick = () => { matchedOpen = !matchedOpen; $('matched-list').style.display = matchedOpen ? '' : 'none'; $('matched-chev').textContent = matchedOpen ? '▾' : '▸'; };
 
 /* ---------- list ---------- */
 async function refresh() {
@@ -532,6 +533,7 @@ async function toggleReminder() {
 
 /* ---------- unmatched inbound replies ---------- */
 let ignoredOpen = false;
+let matchedOpen = false;
 async function loadUnmatched() {
   try { const d = await api('inbound_unmatched'); renderUnmatched(d.inbound || [], d.ignored || [], d.matched || [], d.last_checked); }
   catch (e) { /* silent */ }
@@ -592,6 +594,9 @@ function renderUnmatched(list, ignoredList, matched, lastChecked) {
   if (mw) {
     if (matched.length) {
       mw.style.display = '';
+      $('matched-count').textContent = '· ' + matched.length;
+      $('matched-list').style.display = matchedOpen ? '' : 'none';
+      $('matched-chev').textContent = matchedOpen ? '▾' : '▸';
       $('matched-list').innerHTML = matched.map(r => {
         const who = esc(r.from_name || r.from_email || 'someone');
         const when = new Date(r.received_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
