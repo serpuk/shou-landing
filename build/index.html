@@ -31,6 +31,7 @@
   .pill.in_progress{background:rgba(224,138,43,.14);color:var(--prog)}
   .pill.done{background:rgba(14,154,141,.15);color:var(--done)}
   .chip{font-size:11.5px;font-weight:600;color:var(--dim);background:rgba(20,16,30,.05);border-radius:20px;padding:2px 9px}
+  .chip.on{background:rgba(242,83,141,.14);color:var(--pink);font-weight:700}
   .prog-track{height:7px;background:rgba(20,16,30,.08);border-radius:6px;overflow:hidden}
   .prog-fill{height:100%;background:var(--grad)}
   .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
@@ -69,6 +70,17 @@
   .chip.soon{background:rgba(224,138,43,.16);color:var(--prog);font-weight:700}
   .done-toggle{background:none;border:none;color:#8a8791;font-size:12px;font-weight:600;cursor:pointer;padding:5px 0 5px 12px}
   .done-toggle:hover{color:var(--ink)}
+  /* Board / Kanban view */
+  .board{display:flex;gap:14px;align-items:flex-start;overflow-x:auto;padding:2px 2px 10px}
+  .bcol{flex:1 1 0;min-width:250px;background:rgba(20,16,30,.03);border:1px solid var(--line);border-radius:14px;padding:10px 10px 4px}
+  .bcol.drag{background:rgba(242,83,141,.07);border-color:rgba(242,83,141,.45)}
+  .bcol h4{margin:0 0 9px;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px}
+  .bcard{background:#fff;border:1px solid var(--line);border-left:3px solid transparent;border-radius:11px;padding:9px 11px;margin-bottom:8px;cursor:grab;box-shadow:0 4px 12px -9px rgba(20,16,30,.3)}
+  .bcard:active{cursor:grabbing}
+  .bcard.dragging{opacity:.4}
+  .bcard.st-todo{border-left-color:rgba(154,160,170,.5)}
+  .bcard.st-in_progress{border-left-color:var(--prog)}
+  .bcard.st-done{border-left-color:rgba(14,154,141,.42)}
   .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#15101b;color:#fff;padding:11px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
   .toast.show{opacity:1}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -160,12 +172,18 @@
       <div class="row" style="gap:10px"><h2>Roadmap</h2><span id="road-empty" class="dim" style="font-size:13px;display:none">Nothing yet — describe something above.</span></div>
       <div class="row" style="gap:8px">
         <button id="btn-collapse" class="btn ghost sm" title="Collapse or expand every level">Collapse all</button>
-        <div class="seg"><button id="seg-list" class="seg-btn on">List</button><button id="seg-time" class="seg-btn">Timeline</button></div>
+        <div class="seg"><button id="seg-list" class="seg-btn on">List</button><button id="seg-board" class="seg-btn">Board</button><button id="seg-time" class="seg-btn">Timeline</button></div>
         <button id="btn-add-road" class="btn ghost sm">+ New item</button>
       </div>
     </div>
+    <div class="row" id="road-filters" style="gap:8px;margin:0 0 12px">
+      <input class="f" id="filt-text" placeholder="Filter tasks…" autocomplete="off" style="max-width:220px;padding:7px 10px">
+      <span class="chip" id="filt-overdue" style="cursor:pointer">⚑ Overdue</span>
+      <span class="dim" id="filt-clear" style="font-size:12px;cursor:pointer;display:none">clear</span>
+    </div>
     <div id="road-list"></div>
     <div id="timeline" class="card" style="display:none;overflow-x:auto;padding:14px 0"></div>
+    <div id="board" style="display:none"></div>
     <p class="dim" style="font-size:12.5px;margin-top:10px">Tip: reference <code>build#&lt;id&gt;</code> in a commit or PR — the task moves itself (synced from GitHub every ~10 min). Add <code>closes build#&lt;id&gt;</code> or merge a PR to mark it done.</p>
   </div>
 </div>
@@ -683,17 +701,83 @@ $('btn-collapse').onclick=()=>{
 
 /* ---------- timeline / gantt (Phase 4b) ---------- */
 let roadView=localStorage.getItem('build_roadview')||'list';
+// Quick filters shared by the board and the list (task-level). No filter = all.
+let filter={text:'',overdue:false};
+function passFilters(t){
+  if(filter.overdue){const today=new Date().toISOString().slice(0,10);if(!(t.status!=='done'&&t.due_date&&t.due_date<today))return false;}
+  if(filter.text){const q=filter.text.toLowerCase();if(!((t.title||'').toLowerCase().includes(q)||('build#'+t.id).includes(q)||(t.assignee||'').toLowerCase().includes(q)))return false;}
+  return true;
+}
+function filterActive(){return !!(filter.text||filter.overdue);}
+function reRenderView(){ if(roadView==='board')renderBoard(); else renderRoadmap(); }
 let lblW=Math.min(560,Math.max(120,+localStorage.getItem('build_gantt_lbl')||240));
 function applyRoadView(){
-  const t=roadView==='timeline';
-  $('road-list').style.display=t?'none':'';
-  $('timeline').style.display=t?'':'none';
-  $('seg-list').classList.toggle('on',!t);
-  $('seg-time').classList.toggle('on',t);
-  if(t)renderTimeline();
+  const v=roadView;
+  $('road-list').style.display=v==='list'?'':'none';
+  $('timeline').style.display=v==='timeline'?'':'none';
+  $('board').style.display=v==='board'?'':'none';
+  $('seg-list').classList.toggle('on',v==='list');
+  $('seg-board').classList.toggle('on',v==='board');
+  $('seg-time').classList.toggle('on',v==='timeline');
+  if(v==='timeline')renderTimeline();
+  if(v==='board')renderBoard();
 }
-$('seg-list').onclick=()=>{roadView='list';localStorage.setItem('build_roadview','list');applyRoadView();};
-$('seg-time').onclick=()=>{roadView='timeline';localStorage.setItem('build_roadview','timeline');applyRoadView();};
+function setView(v){roadView=v;localStorage.setItem('build_roadview',v);applyRoadView();}
+$('seg-list').onclick=()=>setView('list');
+$('seg-board').onclick=()=>setView('board');
+$('seg-time').onclick=()=>setView('timeline');
+function syncFilterUI(){$('filt-overdue').classList.toggle('on',filter.overdue);$('filt-clear').style.display=filterActive()?'':'none';}
+$('filt-text').oninput=e=>{filter.text=e.target.value.trim();syncFilterUI();reRenderView();};
+$('filt-overdue').onclick=()=>{filter.overdue=!filter.overdue;syncFilterUI();reRenderView();};
+$('filt-clear').onclick=()=>{filter={text:'',overdue:false};$('filt-text').value='';syncFilterUI();reRenderView();};
+
+// Board / Kanban — every task as a card in a status column; drag a card to
+// another column to change its status (same update path as the list pill).
+const BOARD_COLS=[['todo','To do','var(--todo)'],['in_progress','In progress','var(--prog)'],['done','Done','var(--done)']];
+function renderBoard(){
+  const box=$('board');
+  const tasks=items.filter(x=>x.kind==='task'&&passFilters(x));
+  const card=t=>{const p=byId(t.parent_id);return `<div class="bcard st-${t.status}" draggable="true" data-bcard="${t.id}">
+      <div class="open-item" data-id="${t.id}" style="font-weight:600;font-size:13.5px;cursor:pointer;${t.status==='done'?'text-decoration:line-through;color:#999':''}">${esc(t.title)}</div>
+      ${p?`<div class="dim" style="font-size:11px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${kindIcon(p.kind)} ${esc(p.title)}</div>`:''}
+      <div class="row" style="gap:5px;margin-top:7px">
+        ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
+        ${dueChip(t)}
+        <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id}" style="cursor:pointer;font-family:ui-monospace,monospace;margin-left:auto">build#${t.id}</span>
+      </div>
+    </div>`;};
+  box.className='board';
+  box.innerHTML=BOARD_COLS.map(([st,label,dot])=>{
+    const col=tasks.filter(t=>t.status===st);
+    return `<div class="bcol" data-col="${st}">
+      <h4><span style="color:${dot}">●</span> ${label} <span class="dim" style="font-weight:500;margin-left:auto">${col.length}</span></h4>
+      ${col.map(card).join('')||'<div class="dim" style="font-size:12px;padding:6px 2px 10px">—</div>'}
+    </div>`;
+  }).join('');
+  bindBoard();
+}
+let boardDragId=null;
+function bindBoard(){
+  const box=$('board');
+  box.querySelectorAll('.open-item').forEach(el=>el.onclick=e=>{e.stopPropagation();openEdit(+el.getAttribute('data-id'));});
+  box.querySelectorAll('.idref').forEach(c=>c.onclick=e=>{e.stopPropagation();copyRef(+c.getAttribute('data-ref'));});
+  box.querySelectorAll('.bcard').forEach(c=>{
+    c.ondragstart=e=>{boardDragId=+c.getAttribute('data-bcard');c.classList.add('dragging');e.dataTransfer.effectAllowed='move';};
+    c.ondragend=()=>{boardDragId=null;c.classList.remove('dragging');box.querySelectorAll('.bcol').forEach(x=>x.classList.remove('drag'));};
+  });
+  box.querySelectorAll('.bcol').forEach(col=>{
+    col.ondragover=e=>{e.preventDefault();col.classList.add('drag');};
+    col.ondragleave=e=>{if(!col.contains(e.relatedTarget))col.classList.remove('drag');};
+    col.ondrop=async e=>{
+      e.preventDefault();col.classList.remove('drag');
+      const st=col.getAttribute('data-col'),id=boardDragId;boardDragId=null;
+      const it=byId(id);if(!it||it.status===st)return;
+      it.status=st;renderBoard();renderOverview();
+      try{await api('update',{method:'POST',body:{id,patch:{status:st}}});}
+      catch(err){toast(err.message||'Failed');await reload();}
+    };
+  });
+}
 function pd(s){if(!s)return null;const d=new Date(String(s).slice(0,10)+'T00:00:00');return isNaN(d)?null:d;}
 function addD(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
 function fmtD(d){return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});}
@@ -1021,9 +1105,12 @@ function epicHtml(e){
       </div>`;
   // Completed tasks fold under a "▸ N done" toggle so the active work isn't
   // buried under struck-through history (default folded; choice persists).
-  const active=tasks.filter(t=>t.status!=='done');
-  const doneTasks=tasks.filter(t=>t.status==='done');
-  let taskHtml=tasks.length?active.map(taskRow).join(''):'<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>';
+  const active=tasks.filter(t=>t.status!=='done'&&passFilters(t));
+  const doneTasks=tasks.filter(t=>t.status==='done'&&passFilters(t));
+  let taskHtml;
+  if(!tasks.length) taskHtml='<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>';
+  else if(!active.length&&!doneTasks.length) taskHtml='<div class="dim" style="font-size:12.5px;margin:2px 0">no matching tasks</div>';
+  else taskHtml=active.map(taskRow).join('');
   if(doneTasks.length){
     const open=doneShown.has(e.id);
     taskHtml+=`<button class="done-toggle" data-donetoggle="${e.id}">${open?'▾':'▸'} ${doneTasks.length} done</button>`;
