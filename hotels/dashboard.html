@@ -90,6 +90,32 @@
   .gap{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(255,155,61,.10);border:1px solid rgba(255,155,61,.35);font-size:13.5px}
   .muted{color:var(--soft)}
   .empty{color:var(--dim);font-size:14px;padding:8px 0}
+  /* ---- host picks editor (ported from apartments/dashboard.html) ---- */
+  .geo{font-size:13px;color:var(--soft);background:var(--bg);border:1px solid var(--line);
+    border-radius:10px;padding:9px 12px;margin-top:10px}
+  .map{margin-top:10px;border-radius:12px;overflow:hidden;border:1px solid var(--line);display:none}
+  .map iframe{display:block;width:100%;height:190px;border:0}
+  .map .maplink{display:block;padding:7px 11px;font-size:12.5px;font-weight:600;color:var(--cyan);
+    text-decoration:none;border-top:1px solid var(--line);background:#fff}
+  .pick-row{position:relative}
+  .pk-n,.pk-note{font:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);
+    border-radius:9px;padding:8px 11px;width:100%}
+  .pk-n:focus,.pk-note:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,61,139,.12)}
+  .pk-list{position:absolute;left:0;right:33%;top:100%;z-index:25;background:#fff;border:1px solid var(--line);
+    border-radius:11px;box-shadow:var(--shadow-lift);margin-top:3px;overflow:hidden;display:none}
+  .pk-list button{display:block;width:100%;text-align:left;font:inherit;font-size:13px;background:none;border:none;
+    border-bottom:1px solid var(--line);padding:8px 11px;cursor:pointer;color:var(--ink)}
+  .pk-list button:last-child{border-bottom:none}
+  .pk-list button:hover{background:var(--bg);color:var(--pink)}
+  .pk-list .w{color:var(--soft);font-size:11.5px}
+  .pk-dist{font-size:12.5px;font-weight:700;color:var(--soft);white-space:nowrap;
+    min-width:54px;text-align:right}
+  .pk-thumb{width:38px;height:38px;flex:none;border-radius:9px;border:1px solid var(--line);
+    background-size:cover;background-position:center;cursor:pointer;padding:0;position:relative}
+  .pk-thumb::after{content:'×';position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(20,16,30,.55);color:#fff;font-size:17px;border-radius:8px}
+  .pk-thumb:hover::after{display:flex}
+  .pk-nothumb{width:38px;height:38px;flex:none;border-radius:9px;border:1px dashed var(--line);opacity:.5}
 </style>
 </head>
 <body>
@@ -136,6 +162,29 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- YOUR RECOMMENDATIONS / HOST PICKS -->
+    <div class="card" id="picksCard">
+      <div class="sec-head"><h2>Your recommendations</h2><span class="sub">The places you would actually send a guest to</span></div>
+      <p class="muted" style="font-size:13px;margin:-4px 0 16px">Your concierge answers guests with these instead of a generic map search. Set your hotel location, then add the spots you love nearby.</p>
+
+      <label class="lfield full"><span>Hotel location</span>
+        <input id="p_address" placeholder="Start typing — street, number, postcode" autocomplete="off"></label>
+      <div class="geo" id="geoNote" style="display:none"></div>
+      <div class="map" id="addrMap"></div>
+
+      <div class="row" style="margin:18px 0 14px">
+        <button type="button" class="btn btn-ghost btn-sm" id="suggestBtn">✨ Suggest nearby places</button>
+        <span class="muted" id="suggestMsg" style="font-size:13px"></span>
+      </div>
+
+      <div id="picksBody"></div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-primary btn-sm" id="picksSave">Save recommendations</button>
+      </div>
+      <div class="msg" id="picksMsg"></div>
     </div>
 
     <!-- SUBSCRIPTION -->
@@ -237,7 +286,7 @@ async function enterApp(){
   $('authWrap').style.display='none';$('app').style.display='block';
   $('signout').style.display='';
   $('who').textContent=(DATA.hotel&&DATA.hotel.name)||'';
-  renderHotel();renderQr();renderLegal();renderBilling();renderInvoices();renderQuestions();
+  renderHotel();renderQr();renderPicksCard();renderLegal();renderBilling();renderInvoices();renderQuestions();
   // Admin view: make it unmistakable whose account this is, and remove the
   // controls that would act on the customer's behalf (the API refuses them too).
   if(DATA.admin){
@@ -471,6 +520,250 @@ function renderQuestions(){
     +(gaps.length?'<div class="gap"><b>⚠️ Guests asked about things your page could not answer</b><div style="margin-top:3px">'
       +gaps.map(function(g){return esc(Q_LABEL[g.intent]||g.intent)+' <span class="muted">('+g.count+'×)</span>';}).join(' · ')
       +'</div><div class="muted" style="font-size:12.5px;margin-top:5px">Send us the details and we will add them to your page.</div></div>':'');
+}
+
+/* ================= HOST PICKS + MAP (ported from apartments/dashboard.html) ================= */
+/* Chosen coordinates for the hotel. Null means "not located yet". */
+var addrLat=null, addrLng=null, addrTimer=null, addrPlace='';
+
+// openstreetmap.org's own keyless embed — draws the marker itself. (apt dashboard L902-907)
+function mapSrc(lat,lng){
+  var d=0.004;                                   // ~450 m box: street-level, still shows the neighbourhood
+  return 'https://www.openstreetmap.org/export/embed.html?bbox='
+       + (lng-d)+','+(lat-d)+','+(lng+d)+','+(lat+d)
+       + '&layer=mapnik&marker='+lat+','+lng;
+}
+function renderMap(){                             // apt dashboard L908-915
+  var m=$('addrMap');
+  if(addrLat==null||addrLng==null){ m.style.display='none'; m.innerHTML=''; return; }
+  m.style.display='block';
+  m.innerHTML='<iframe title="map" loading="lazy" src="'+mapSrc(addrLat,addrLng)+'"></iframe>'
+    +'<a class="maplink" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat='
+    +addrLat+'&mlon='+addrLng+'#map=17/'+addrLat+'/'+addrLng+'">Open in OpenStreetMap ↗</a>';
+}
+// The hotel backend exposes a single-result `geocode` op (not the apartments
+// multi-result `address_search`), so this debounced field resolves straight to a
+// pin + echoed label rather than showing a dropdown to pick from.
+$('p_address').addEventListener('input',function(){
+  addrLat=addrLng=null; addrPlace=''; renderMap();   // typing invalidates the pick
+  $('geoNote').style.display='none';
+  clearTimeout(addrTimer);
+  var q=$('p_address').value.trim();
+  if(q.length<4)return;
+  addrTimer=setTimeout(function(){
+    api('geocode',{address:q},true).then(function(r){
+      if(!(r.ok&&r.j&&r.j.ok&&r.j.lat!=null&&r.j.lng!=null)){
+        $('geoNote').style.display='block';
+        $('geoNote').textContent='📍 We could not place that address yet. Try adding the city or postcode.';
+        return;
+      }
+      addrLat=r.j.lat; addrLng=r.j.lng; addrPlace=r.j.label||'';
+      renderMap();
+      $('geoNote').style.display='block';
+      $('geoNote').textContent='📍 Located on the map'+(addrPlace?' — '+addrPlace:'')+'.';
+    });
+  },400);                                          // debounce: Nominatim asks for ≤1 req/s
+});
+
+/* ---------- host picks ---------- */  // apt dashboard L1260-1347
+var PICK_KINDS=['dinner','coffee','bar','supermarket','bakery','pharmacy','transport','other'];
+// Fields the editor does not show but must not lose (Google facts + photo).
+var PICK_PASSTHROUGH=['cuisine','hours','phone','site','addr',
+                      'gpid','gphoto','grating','gratings','gattr','gtype','gts'];
+var PK_LABEL={dinner:'Restaurants',coffee:'Coffee & breakfast',bar:'Bars',supermarket:'Supermarket',
+              bakery:'Bakery',pharmacy:'Pharmacy',transport:'Public transport',other:'Anything else'};
+var PK_OTHER_HINT='A park, a landmark, the taxi rank guests actually use';
+
+function pickRow(k,p){                            // apt dashboard L1267-1287
+  p=p||{};
+  var facts=PICK_PASSTHROUGH.map(function(f){
+    return ' data-'+f+'="'+esc(p[f]||'')+'"';}).join('');
+  var note=p.note||'', d=p.dist||'';
+  if(!d&&/^\s*[\d.,]+\s*(m|km)\s*$/i.test(note)){ d=note.trim(); note=''; }
+  return '<div class="pick-row" data-k="'+k+'"'
+    +' data-lat="'+esc(p.lat!=null?p.lat:'')+'" data-lng="'+esc(p.lng!=null?p.lng:'')+'"'
+    +' data-dist="'+esc(d)+'" data-img="'+esc(p.img||'')+'"'+facts
+    +' style="display:grid;grid-template-columns:auto 1fr 1fr auto auto;gap:8px;margin-bottom:7px;align-items:center">'
+    +(p.img?'<button type="button" class="pk-thumb" title="Remove this photo"'
+      +' style="background-image:url(\''+esc(p.img)+'\')"></button>':'<span class="pk-nothumb"></span>')
+    +'<input class="pk-n" maxlength="80" placeholder="Place name" value="'+esc(p.n||'')+'">'
+    +'<input class="pk-note" maxlength="120" placeholder="Short note (optional)" value="'+esc(note)+'">'
+    +'<span class="pk-dist" title="Distance from the hotel — measured for you">'+esc(d)+'</span>'
+    +'<button type="button" class="btn btn-ghost btn-sm pk-del" title="Remove">&times;</button></div>';
+}
+function renderPicks(picks){                      // apt dashboard L1288-1308
+  picks=picks||{};
+  $('picksBody').innerHTML=PICK_KINDS.map(function(k){
+    var rows=(picks[k]||[]).map(function(p){return pickRow(k,p);}).join('')||pickRow(k,null);
+    return '<div class="pick-grp" data-k="'+k+'" style="margin-bottom:16px">'
+      +'<div style="font-size:13px;font-weight:700;margin-bottom:6px">'+esc(PK_LABEL[k]||k)+'</div>'
+      +(k==='other'?'<div style="font-size:12px;color:var(--soft);margin:-4px 0 8px">'+esc(PK_OTHER_HINT)+'</div>':'')
+      +'<div class="pk-rows">'+rows+'</div>'
+      +'<button type="button" class="btn btn-ghost btn-sm pk-add" data-k="'+k+'">+ Add</button></div>';
+  }).join('');
+  $('picksBody').querySelectorAll('.pk-add').forEach(function(b){
+    b.onclick=function(){
+      var g=b.closest('.pick-grp');
+      g.querySelector('.pk-rows').insertAdjacentHTML('beforeend',pickRow(b.getAttribute('data-k'),null));
+      wirePickDel(); wirePickThumb();
+    };
+  });
+  wirePickDel(); wirePickThumb();
+}
+function wirePickThumb(){                          // apt dashboard L1311-1320
+  $('picksBody').querySelectorAll('.pk-thumb').forEach(function(b){
+    b.onclick=function(){
+      var r=b.closest('.pick-row'); if(!r)return;
+      r.setAttribute('data-img','');
+      var sp=document.createElement('span'); sp.className='pk-nothumb';
+      b.parentNode.replaceChild(sp,b);
+    };
+  });
+}
+function wirePickDel(){                            // apt dashboard L1321-1325
+  $('picksBody').querySelectorAll('.pk-del').forEach(function(b){
+    b.onclick=function(){ var r=b.closest('.pick-row'); if(r)r.remove(); };
+  });
+}
+function collectPicks(){                           // apt dashboard L1326-1347
+  var out={};
+  PICK_KINDS.forEach(function(k){
+    var rows=[];
+    $('picksBody').querySelectorAll('.pick-grp[data-k="'+k+'"] .pick-row').forEach(function(r){
+      var n=r.querySelector('.pk-n').value.trim();
+      if(!n)return;                                    // a blank name is not a pick
+      var note=r.querySelector('.pk-note').value.trim();
+      var row={n:n}; if(note)row.note=note;
+      var la=parseFloat(r.getAttribute('data-lat')), ln=parseFloat(r.getAttribute('data-lng'));
+      if(isFinite(la)&&isFinite(ln)){row.lat=la;row.lng=ln;}
+      var dt=r.getAttribute('data-dist'); if(dt)row.dist=dt;
+      var im=r.getAttribute('data-img'); if(im)row.img=im;
+      PICK_PASSTHROUGH.forEach(function(f){
+        var v=r.getAttribute('data-'+f);
+        if(v)row[f]=(f==='grating'||f==='gratings'||f==='gts')?Number(v):v;});
+      rows.push(row);
+    });
+    if(rows.length)out[k]=rows.slice(0,6);
+  });
+  return out;
+}
+
+/* ---------- autocomplete on pick names ---------- */  // apt dashboard L1174-1226
+// Delegated: renderPicks() rewrites #picksBody wholesale.
+var pkTimer=null;
+function pkCoords(){
+  // Prefer the address just resolved; fall back to the saved hotel location.
+  if(addrLat!=null&&addrLng!=null)return {lat:addrLat,lng:addrLng};
+  var h=DATA&&DATA.hotel;
+  if(h&&h.lat!=null&&h.lng!=null)return {lat:h.lat,lng:h.lng};
+  return null;
+}
+function pkHide(){ var l=$('picksBody').querySelector('.pk-list'); if(l)l.remove(); }
+$('picksBody').addEventListener('input',function(e){
+  var inp=e.target;
+  if(!inp.classList||!inp.classList.contains('pk-n'))return;
+  clearTimeout(pkTimer); pkHide();
+  var c=pkCoords(); var q=inp.value.trim();
+  if(!c||q.length<3)return;                       // no location yet → nothing to search around
+  pkTimer=setTimeout(function(){
+    var row0=inp.closest('.pick-row');
+    var kind0=row0?row0.getAttribute('data-k'):'';
+    api('place_search',{q:q,lat:c.lat,lng:c.lng,kind:kind0},true).then(function(r){
+      var rows=(r.ok&&r.j&&r.j.results)||[];
+      if(!rows.length||document.activeElement!==inp)return;
+      var row=inp.closest('.pick-row'); if(!row)return;
+      pkHide();
+      var list=document.createElement('div'); list.className='pk-list';
+      list.innerHTML=rows.map(function(x,i){
+        var bits=[x.gtype||'',x.grating?('★ '+x.grating+(x.gratings?' ('+x.gratings+')':'')):'',
+                  x.dist||'',x.where||''].filter(Boolean);
+        return '<button type="button" data-i="'+i+'">'+esc(x.n)
+             +' <span class="w">· '+esc(bits.join(' · '))+'</span></button>';
+      }).join('');
+      row.appendChild(list); list.style.display='block';
+      list.querySelectorAll('button').forEach(function(b){
+        // mousedown, not click: blur would tear the list down first
+        b.addEventListener('mousedown',function(ev){
+          ev.preventDefault();
+          var x=rows[+b.getAttribute('data-i')];
+          inp.value=x.n;
+          if(isFinite(x.lat)&&isFinite(x.lng)){row.setAttribute('data-lat',x.lat);row.setAttribute('data-lng',x.lng);}
+          if(x.dist)row.setAttribute('data-dist',x.dist);
+          PICK_PASSTHROUGH.forEach(function(f){ if(x[f]!=null&&x[f]!=='')row.setAttribute('data-'+f,x[f]); });
+          pkHide();
+        });
+      });
+    });
+  },400);                                          // debounce: Nominatim asks for ≤1 req/s
+});
+$('picksBody').addEventListener('focusout',function(){ setTimeout(pkHide,150); });
+
+/* ---------- nearby suggestions ---------- */    // apt dashboard L1228-1258
+$('suggestBtn').onclick=function(){
+  var c=pkCoords();
+  if(!c){ $('suggestMsg').textContent='Set your hotel location first.'; return; }
+  var b=$('suggestBtn'); b.disabled=true; $('suggestMsg').textContent='Looking around your hotel…';
+  api('suggest_nearby',{lat:c.lat,lng:c.lng,address:$('p_address').value.trim()},true).then(function(r){
+    b.disabled=false;
+    var s=(r.ok&&r.j&&r.j.suggestions)||null;
+    if(!s){ $('suggestMsg').textContent='Nothing found nearby. Add your own below.'; return; }
+    // If the server resolved coords we did not yet have, keep them + show the pin.
+    if(r.j.lat!=null&&r.j.lng!=null&&(addrLat==null||addrLng==null)){
+      addrLat=r.j.lat; addrLng=r.j.lng; renderMap();
+    }
+    // Merge, never replace: what the manager already typed stays, no duplicates.
+    var cur=collectPicks();
+    PICK_KINDS.forEach(function(k){
+      var nrm=function(x){return String(x||'').toLowerCase().normalize('NFD')
+        .replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');};
+      var haveIds=(cur[k]||[]).map(function(p){return p.gpid||'';}).filter(Boolean);
+      var haveNames=(cur[k]||[]).map(function(p){return nrm(p.n);});
+      (s[k]||[]).forEach(function(p){
+        if((cur[k]||[]).length>=6)return;
+        if(p.gpid&&haveIds.indexOf(p.gpid)>=0)return;
+        if(haveNames.indexOf(nrm(p.n))>=0)return;
+        cur[k]=(cur[k]||[]).concat([p]);
+        if(p.gpid)haveIds.push(p.gpid);
+        haveNames.push(nrm(p.n));
+      });
+    });
+    renderPicks(cur);
+    $('suggestMsg').textContent='Added as suggestions — edit or delete any you would not recommend.';
+  });
+};
+
+/* ---------- save picks ---------- */
+$('picksSave').onclick=function(){
+  clearMsg($('picksMsg'));
+  var b=$('picksSave'); var old=b.textContent; b.disabled=true; b.textContent='Saving…';
+  var c=pkCoords();
+  api('save_picks',{picks:collectPicks(),lat:(c?c.lat:''),lng:(c?c.lng:'')},true).then(function(r){
+    b.disabled=false; b.textContent=old;
+    if(!r.ok||!r.j||!r.j.ok) return msg($('picksMsg'),(r.j&&r.j.error)||'Could not save.','err');
+    DATA.hotel=DATA.hotel||{};
+    DATA.hotel.content=r.j.content||DATA.hotel.content;
+    if(r.j.lat!=null)DATA.hotel.lat=r.j.lat;
+    if(r.j.lng!=null)DATA.hotel.lng=r.j.lng;
+    msg($('picksMsg'),'Saved your recommendations.','ok');
+  });
+};
+
+/* ---------- entry: load existing location + picks ---------- */
+function renderPicksCard(){
+  var h=DATA.hotel||{};
+  addrLat=(h.lat!=null)?h.lat:null; addrLng=(h.lng!=null)?h.lng:null; addrPlace='';
+  renderMap();
+  if(addrLat!=null&&addrLng!=null){
+    $('geoNote').style.display='block';
+    $('geoNote').textContent='📍 Located on the map from the address on file.';
+  }else{
+    $('geoNote').style.display='none';
+  }
+  renderPicks(((h.content)||{}).picks||{});
+  if(DATA.admin){                                  // admin view is read-only everywhere else too
+    $('p_address').disabled=true; $('suggestBtn').disabled=true; $('picksSave').disabled=true;
+    $('picksBody').querySelectorAll('input,button').forEach(function(el){el.disabled=true;});
+  }
 }
 
 /* ---------- boot: ?t= magic-link exchange ---------- */
