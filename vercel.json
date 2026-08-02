@@ -129,6 +129,10 @@
       "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=ghent&window=tonight"
     },
     {
+      "source": "/belgium-this-weekend",
+      "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=belgium&window=weekend"
+    },
+    {
       "source": "/brussels-this-weekend",
       "destination": "https://shou-backend.vercel.app/api/this-week?format=place&city=brussels&window=this-weekend"
     },
