@@ -32,6 +32,12 @@
   .pill.done{background:rgba(14,154,141,.15);color:var(--done)}
   .chip{font-size:11.5px;font-weight:600;color:var(--dim);background:rgba(20,16,30,.05);border-radius:20px;padding:2px 9px}
   .chip.on{background:rgba(242,83,141,.14);color:var(--pink);font-weight:700}
+  .chip.pri-high{background:rgba(224,138,43,.16);color:var(--prog);font-weight:700}
+  .chip.pri-urgent{background:rgba(200,30,91,.14);color:#c81e5b;font-weight:700}
+  .pill.pri-low{background:rgba(154,160,170,.14);color:#8a8791}
+  .pill.pri-normal{background:rgba(20,16,30,.06);color:var(--dim)}
+  .pill.pri-high{background:rgba(224,138,43,.14);color:var(--prog)}
+  .pill.pri-urgent{background:rgba(200,30,91,.13);color:#c81e5b}
   .prog-track{height:7px;background:rgba(20,16,30,.08);border-radius:6px;overflow:hidden}
   .prog-fill{height:100%;background:var(--grad)}
   .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
@@ -179,6 +185,7 @@
     <div class="row" id="road-filters" style="gap:8px;margin:0 0 12px">
       <input class="f" id="filt-text" placeholder="Filter tasks…" autocomplete="off" style="max-width:220px;padding:7px 10px">
       <span class="chip" id="filt-overdue" style="cursor:pointer">⚑ Overdue</span>
+      <span class="chip" id="filt-pri" style="cursor:pointer">⚑ High+</span>
       <span class="dim" id="filt-clear" style="font-size:12px;cursor:pointer;display:none">clear</span>
     </div>
     <div id="road-list"></div>
@@ -204,9 +211,15 @@
         <div style="flex:2" id="edit-parent-box"><label class="dim" style="font-size:12px">Under</label>
           <select class="f" id="edit-parent-sel" style="margin-top:3px"></select></div>
       </div>
-      <div id="edit-status-wrap" style="margin:0 0 10px">
-        <label class="dim" style="font-size:12px">Status</label>
-        <div id="edit-status-seg" class="row" style="gap:6px;margin-top:4px"></div>
+      <div class="row" style="gap:18px;margin:0 0 10px;align-items:flex-start">
+        <div id="edit-status-wrap">
+          <label class="dim" style="font-size:12px">Status</label>
+          <div id="edit-status-seg" class="row" style="gap:6px;margin-top:4px"></div>
+        </div>
+        <div id="edit-pri-wrap">
+          <label class="dim" style="font-size:12px">Priority</label>
+          <div id="edit-pri-seg" class="row" style="gap:6px;margin-top:4px"></div>
+        </div>
       </div>
       <div id="edit-desc-wrap">
         <label class="dim" style="font-size:12px">Description</label>
@@ -564,6 +577,20 @@ function renderStatusSeg(){
   box.innerHTML=EDIT_STATUSES.map(s=>`<span class="pill ${s}" data-setstatus="${s}" style="cursor:pointer;${s===editStatus?'':'opacity:.38'}">${statusLabel(s)}</span>`).join('');
   box.querySelectorAll('[data-setstatus]').forEach(p=>p.onclick=()=>{editStatus=p.getAttribute('data-setstatus');renderStatusSeg();});
 }
+// Priority picker — low / normal / high / urgent (null = normal). Only high &
+// urgent get a flag chip on cards, so the board/list stay quiet by default.
+const EDIT_PRIORITIES=[['low','Low'],['normal','Normal'],['high','High'],['urgent','Urgent']];
+let editPriority='normal';
+function renderPriSeg(){
+  const box=$('edit-pri-seg');if(!box)return;
+  box.innerHTML=EDIT_PRIORITIES.map(([p,label])=>`<span class="pill pri-${p}" data-setpri="${p}" style="cursor:pointer;${p===editPriority?'':'opacity:.38'}">${p==='urgent'||p==='high'?'⚑ ':''}${label}</span>`).join('');
+  box.querySelectorAll('[data-setpri]').forEach(el=>el.onclick=()=>{editPriority=el.getAttribute('data-setpri');renderPriSeg();});
+}
+function priChip(it){
+  if(it.priority==='urgent') return `<span class="chip pri-urgent" title="Urgent">⚑ Urgent</span>`;
+  if(it.priority==='high')   return `<span class="chip pri-high" title="High priority">⚑ High</span>`;
+  return '';
+}
 function closeEdit(){$('edit-modal').style.display='none';editId=null;createCtx=null;}
 function fillModal(kind,v){
   $('edit-kind').textContent=kind;
@@ -574,6 +601,7 @@ function fillModal(kind,v){
   $('edit-due').value=v.due_date||'';
   $('edit-quarter').value=v.quarter||'';
   editStatus=v.status||'todo';renderStatusSeg();
+  editPriority=v.priority||'normal';renderPriSeg();
   $('edit-desc-wrap').style.display='';
   applyKindVisibility(kind);
   editDeps=Array.isArray(v.depends_on)?v.depends_on.slice():[];
@@ -666,7 +694,7 @@ $('edit-modal').onclick=e=>{if(e.target===$('edit-modal'))closeEdit();};
 $('edit-save').onclick=async()=>{
   const title=$('edit-title').value.trim();
   if(!title){toast('Title can’t be empty');return;}
-  const fields={title,status:editStatus,description:$('edit-desc').value.trim(),assignee:$('edit-assignee').value.trim(),start_date:$('edit-start').value,due_date:$('edit-due').value,quarter:$('edit-quarter').value.trim(),depends_on:editDeps};
+  const fields={title,status:editStatus,priority:editPriority,description:$('edit-desc').value.trim(),assignee:$('edit-assignee').value.trim(),start_date:$('edit-start').value,due_date:$('edit-due').value,quarter:$('edit-quarter').value.trim(),depends_on:editDeps};
   if(!createCtx){
     fields.kind=editKind;
     fields.parent_id=editKind==='roadmap'?null:(+$('edit-parent-sel').value||null);
@@ -702,13 +730,14 @@ $('btn-collapse').onclick=()=>{
 /* ---------- timeline / gantt (Phase 4b) ---------- */
 let roadView=localStorage.getItem('build_roadview')||'list';
 // Quick filters shared by the board and the list (task-level). No filter = all.
-let filter={text:'',overdue:false};
+let filter={text:'',overdue:false,pri:false};
 function passFilters(t){
   if(filter.overdue){const today=new Date().toISOString().slice(0,10);if(!(t.status!=='done'&&t.due_date&&t.due_date<today))return false;}
+  if(filter.pri&&!(t.priority==='high'||t.priority==='urgent'))return false;
   if(filter.text){const q=filter.text.toLowerCase();if(!((t.title||'').toLowerCase().includes(q)||('build#'+t.id).includes(q)||(t.assignee||'').toLowerCase().includes(q)))return false;}
   return true;
 }
-function filterActive(){return !!(filter.text||filter.overdue);}
+function filterActive(){return !!(filter.text||filter.overdue||filter.pri);}
 function reRenderView(){ if(roadView==='board')renderBoard(); else renderRoadmap(); }
 let lblW=Math.min(560,Math.max(120,+localStorage.getItem('build_gantt_lbl')||240));
 function applyRoadView(){
@@ -726,10 +755,11 @@ function setView(v){roadView=v;localStorage.setItem('build_roadview',v);applyRoa
 $('seg-list').onclick=()=>setView('list');
 $('seg-board').onclick=()=>setView('board');
 $('seg-time').onclick=()=>setView('timeline');
-function syncFilterUI(){$('filt-overdue').classList.toggle('on',filter.overdue);$('filt-clear').style.display=filterActive()?'':'none';}
+function syncFilterUI(){$('filt-overdue').classList.toggle('on',filter.overdue);$('filt-pri').classList.toggle('on',filter.pri);$('filt-clear').style.display=filterActive()?'':'none';}
 $('filt-text').oninput=e=>{filter.text=e.target.value.trim();syncFilterUI();reRenderView();};
 $('filt-overdue').onclick=()=>{filter.overdue=!filter.overdue;syncFilterUI();reRenderView();};
-$('filt-clear').onclick=()=>{filter={text:'',overdue:false};$('filt-text').value='';syncFilterUI();reRenderView();};
+$('filt-pri').onclick=()=>{filter.pri=!filter.pri;syncFilterUI();reRenderView();};
+$('filt-clear').onclick=()=>{filter={text:'',overdue:false,pri:false};$('filt-text').value='';syncFilterUI();reRenderView();};
 
 // Board / Kanban — every task as a card in a status column; drag a card to
 // another column to change its status (same update path as the list pill).
@@ -741,6 +771,7 @@ function renderBoard(){
       <div class="open-item" data-id="${t.id}" style="font-weight:600;font-size:13.5px;cursor:pointer;${t.status==='done'?'text-decoration:line-through;color:#999':''}">${esc(t.title)}</div>
       ${p?`<div class="dim" style="font-size:11px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${kindIcon(p.kind)} ${esc(p.title)}</div>`:''}
       <div class="row" style="gap:5px;margin-top:7px">
+        ${priChip(t)}
         ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
         ${dueChip(t)}
         <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id}" style="cursor:pointer;font-family:ui-monospace,monospace;margin-left:auto">build#${t.id}</span>
@@ -1097,6 +1128,7 @@ function epicHtml(e){
         ${handleHtml(t.id)}
         <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
         <span class="t-title open-item ${t.status==='done'?'muted':''}" data-id="${t.id}" title="Open" style="cursor:pointer;${t.status==='done'?'text-decoration:line-through':''}">${kindIcon('task')} ${esc(t.title)}</span>
+        ${priChip(t)}
         ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
         ${dueChip(t)}
         ${(t.depends_on&&t.depends_on.length)?`<span class="chip" title="Depends on ${t.depends_on.map(d=>{const x=byId(d);return x?x.title:'build#'+d;}).join(', ')}">⛓ ${t.depends_on.length}</span>`:''}
