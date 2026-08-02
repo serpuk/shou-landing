@@ -731,6 +731,8 @@ $('btn-collapse').onclick=()=>{
 let roadView=localStorage.getItem('build_roadview')||'list';
 // Quick filters shared by the board and the list (task-level). No filter = all.
 let filter={text:'',overdue:false,pri:false};
+try{const f=JSON.parse(localStorage.getItem('build_filter')||'null');if(f&&typeof f==='object')filter={text:f.text||'',overdue:!!f.overdue,pri:!!f.pri};}catch(e){}
+function saveFilter(){try{localStorage.setItem('build_filter',JSON.stringify(filter));}catch(e){}}
 function passFilters(t){
   if(filter.overdue){const today=new Date().toISOString().slice(0,10);if(!(t.status!=='done'&&t.due_date&&t.due_date<today))return false;}
   if(filter.pri&&!(t.priority==='high'||t.priority==='urgent'))return false;
@@ -774,10 +776,12 @@ $('seg-list').onclick=()=>setView('list');
 $('seg-board').onclick=()=>setView('board');
 $('seg-time').onclick=()=>setView('timeline');
 function syncFilterUI(){$('filt-overdue').classList.toggle('on',filter.overdue);$('filt-pri').classList.toggle('on',filter.pri);$('filt-clear').style.display=filterActive()?'':'none';}
-$('filt-text').oninput=e=>{filter.text=e.target.value.trim();syncFilterUI();reRenderView();};
-$('filt-overdue').onclick=()=>{filter.overdue=!filter.overdue;syncFilterUI();reRenderView();};
-$('filt-pri').onclick=()=>{filter.pri=!filter.pri;syncFilterUI();reRenderView();};
-$('filt-clear').onclick=()=>{filter={text:'',overdue:false,pri:false};$('filt-text').value='';syncFilterUI();reRenderView();};
+$('filt-text').oninput=e=>{filter.text=e.target.value.trim();saveFilter();syncFilterUI();reRenderView();};
+$('filt-overdue').onclick=()=>{filter.overdue=!filter.overdue;saveFilter();syncFilterUI();reRenderView();};
+$('filt-pri').onclick=()=>{filter.pri=!filter.pri;saveFilter();syncFilterUI();reRenderView();};
+$('filt-clear').onclick=()=>{filter={text:'',overdue:false,pri:false};saveFilter();$('filt-text').value='';syncFilterUI();reRenderView();};
+// Restore a persisted filter into the UI on load (the first render applies it).
+$('filt-text').value=filter.text;syncFilterUI();
 
 // Board / Kanban — every task as a card in a status column; drag a card to
 // another column to change its status (same update path as the list pill).
