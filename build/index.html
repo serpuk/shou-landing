@@ -908,7 +908,7 @@ function renderTimeline(){
       <div style="position:relative">${grid}${todayLine}${bars}${svg}</div>
     </div>
   </div>
-  <div class="row" style="position:sticky;left:0;width:fit-content;gap:16px;padding:10px 0 0 14px;font-size:12px"><span style="color:var(--done)">● done</span><span style="color:var(--prog)">● in progress</span><span style="color:rgba(20,16,30,.4)">● to do</span><span style="color:var(--pink)">▏ today</span><span style="color:rgba(20,16,30,.5)">→ depends on</span></div>`;
+  <div class="row" style="position:sticky;left:0;width:fit-content;gap:16px;padding:10px 0 0 14px;font-size:12px"><span style="color:var(--done)">● done</span><span style="color:var(--prog)">● in progress</span><span style="color:rgba(20,16,30,.4)">● to do</span><span style="color:var(--pink)">▏ today</span><span style="color:rgba(20,16,30,.5)">→ depends on</span><span style="color:#c81e5b" title="A dependent task starts before its prerequisite finishes">→ conflict</span></div>`;
   el.querySelectorAll('.gantt-bar').forEach(b=>{
     b.onclick=()=>{if(b.dataset.dragged==='1'){b.dataset.dragged='';return;}openEdit(+b.getAttribute('data-id'));};
     if(b.classList.contains('drag'))attachBarDrag(b,minD,range,W);
