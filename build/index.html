@@ -738,6 +738,24 @@ function passFilters(t){
   return true;
 }
 function filterActive(){return !!(filter.text||filter.overdue||filter.pri);}
+// With a filter on, prune the tree to matching branches: a task shows if it
+// passes the filters; a container (roadmap/project/epic) shows if its own title
+// matches the text OR it has a matching descendant task — and a title match
+// also reveals that container's whole subtree. visSet=null → no filter, show all.
+let visSet=null;
+function txtMatch(it){if(!filter.text)return false;const q=filter.text.toLowerCase();return (it.title||'').toLowerCase().includes(q)||('build#'+it.id).includes(q)||(it.assignee||'').toLowerCase().includes(q);}
+function recomputeVis(){
+  if(!filterActive()){visSet=null;return;}
+  const vis=new Set();
+  const up=it=>{let c=it;while(c){vis.add(c.id);c=byId(c.parent_id);}};
+  const down=id=>childrenOf(id).forEach(k=>{vis.add(k.id);down(k.id);});
+  items.forEach(it=>{
+    if(it.kind==='task'){if(passFilters(it))up(it);}
+    else if(txtMatch(it)){up(it);down(it.id);}
+  });
+  visSet=vis;
+}
+function isVis(id){return !visSet||visSet.has(id);}
 function reRenderView(){ if(roadView==='board')renderBoard(); else renderRoadmap(); }
 let lblW=Math.min(560,Math.max(120,+localStorage.getItem('build_gantt_lbl')||240));
 function applyRoadView(){
@@ -766,7 +784,8 @@ $('filt-clear').onclick=()=>{filter={text:'',overdue:false,pri:false};$('filt-te
 const BOARD_COLS=[['todo','To do','var(--todo)'],['in_progress','In progress','var(--prog)'],['done','Done','var(--done)']];
 function renderBoard(){
   const box=$('board');
-  const tasks=items.filter(x=>x.kind==='task'&&passFilters(x));
+  recomputeVis();
+  const tasks=items.filter(x=>x.kind==='task'&&isVis(x.id));
   const card=t=>{const p=byId(t.parent_id);return `<div class="bcard st-${t.status}" draggable="true" data-bcard="${t.id}">
       <div class="open-item" data-id="${t.id}" style="font-weight:600;font-size:13.5px;cursor:pointer;${t.status==='done'?'text-decoration:line-through;color:#999':''}">${esc(t.title)}</div>
       ${p?`<div class="dim" style="font-size:11px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${kindIcon(p.kind)} ${esc(p.title)}</div>`:''}
@@ -1052,6 +1071,7 @@ function bindDnD(){
 
 function renderRoadmap(){
   renderOverview();
+  recomputeVis();
   const roads=roadmapItems();
   $('count').textContent=roads.length?(roads.length+' roadmap item'+(roads.length>1?'s':'')):'';
   const parents=items.filter(x=>hasKids(x.id)).map(x=>x.id);
@@ -1061,10 +1081,10 @@ function renderRoadmap(){
   }
   $('road-empty').style.display=roads.length?'none':'';
   const list=$('road-list');
-  list.innerHTML=roads.map(r=>{
+  list.innerHTML=roads.filter(r=>isVis(r.id)).map(r=>{
     const kids=childrenOf(r.id);
-    const projects=kids.filter(k=>k.kind==='project');
-    const directEpics=kids.filter(k=>k.kind==='epic');
+    const projects=kids.filter(k=>k.kind==='project'&&isVis(k.id));
+    const directEpics=kids.filter(k=>k.kind==='epic'&&isVis(k.id));
     const tasks=descendantTasks(r.id);
     const done=tasks.filter(t=>t.status==='done').length;
     const pct=tasks.length?Math.round(done/tasks.length*100):(r.status==='done'?100:0);
@@ -1103,7 +1123,7 @@ function renderRoadmap(){
   applyRoadView();
 }
 function projectHtml(p){
-  const epics=childrenOf(p.id).filter(k=>k.kind==='epic');
+  const epics=childrenOf(p.id).filter(k=>k.kind==='epic'&&isVis(k.id));
   const tasks=descendantTasks(p.id);
   const done=tasks.filter(t=>t.status==='done').length;
   const pct=tasks.length?Math.round(done/tasks.length*100):(p.status==='done'?100:0);
@@ -1137,8 +1157,8 @@ function epicHtml(e){
       </div>`;
   // Completed tasks fold under a "▸ N done" toggle so the active work isn't
   // buried under struck-through history (default folded; choice persists).
-  const active=tasks.filter(t=>t.status!=='done'&&passFilters(t));
-  const doneTasks=tasks.filter(t=>t.status==='done'&&passFilters(t));
+  const active=tasks.filter(t=>t.status!=='done'&&isVis(t.id));
+  const doneTasks=tasks.filter(t=>t.status==='done'&&isVis(t.id));
   let taskHtml;
   if(!tasks.length) taskHtml='<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>';
   else if(!active.length&&!doneTasks.length) taskHtml='<div class="dim" style="font-size:12.5px;margin:2px 0">no matching tasks</div>';
