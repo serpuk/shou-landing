@@ -256,6 +256,51 @@
   footer b{font-family:'Fraunces';font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--line)}
 
+  /* ---- curated picks (ported verbatim from apartments/u.html) ---------------
+     Only rendered on the ?slug= DB path; the default marketing page never
+     emits a .pick / .picks-map node, so these rules stay dormant there. */
+  .picks{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0 14px;align-items:start}
+  @media(min-width:520px){ .picks{grid-template-columns:repeat(2,1fr)} }
+  @media(min-width:760px){ .picks{grid-template-columns:repeat(3,1fr)} }
+  .pick{display:grid;grid-template-columns:1fr;gap:9px;align-items:start;padding:12px 13px;
+    border:1px solid var(--line);border-radius:14px;background:var(--card);text-decoration:none;color:inherit;
+    box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s,transform .15s}
+  .pick:hover{border-color:var(--cyan);box-shadow:0 8px 20px -10px rgba(20,16,30,.28);transform:translateY(-1px)}
+  .pick:hover .pick-n{color:var(--cyan)}
+  .pick{cursor:pointer}
+  .pick-ic{width:100%;height:72px;border-radius:10px;display:grid;place-items:center;font-size:28px;
+    background:var(--panel-soft);border:1px solid var(--line)}
+  .pick-ph{width:100%;height:96px;border-radius:10px;flex:none;object-fit:cover;display:block;
+    background:var(--panel-soft);border:1px solid var(--line)}
+  .pick-cu{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;
+    color:var(--cyan);background:rgba(14,154,141,.10);border-radius:999px;padding:2px 8px;margin-bottom:3px}
+  .pick-h{display:block;font-size:12px;color:var(--dim);margin-top:4px;line-height:1.4}
+  .pick-rate{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink)}
+  .pick-rate .st{color:#f0a500}
+  .pick-rate .ct{font-weight:500;color:var(--soft)}
+  .pick-src{display:block;font-size:10.5px;color:var(--dim);margin-top:5px}
+  .pick-m a{color:var(--soft);font-weight:600;text-decoration:none}
+  .pick-m a:hover{color:var(--cyan);text-decoration:underline}
+  .pick-b{min-width:0}
+  .pick-n{display:block;font-weight:700;font-size:15px;color:var(--ink);line-height:1.25}
+  .pick-note{display:block;font-size:13.5px;color:var(--ink);line-height:1.45;margin-top:5px;
+    padding:6px 10px;border-left:3px solid var(--cyan);background:var(--panel-soft);
+    border-radius:0 8px 8px 0;font-style:italic}
+  .pick-m{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12.5px}
+  .pick-m .d{color:var(--cyan);font-weight:700}
+  .pick-m .go{color:var(--soft);font-weight:600}
+  /* the picks map (Leaflet) — rounded card, self-contained */
+  .picks-map{display:block;width:100%;height:340px;border-radius:16px;border:1px solid var(--line);
+    background:var(--panel-soft);overflow:hidden;margin:4px 0 8px}
+  .wy-pin{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;font-size:14px;
+    background:var(--card);border:2px solid var(--cyan);box-shadow:0 2px 6px rgba(20,16,30,.3)}
+  .wy-pin.home{width:32px;height:32px;font-size:17px;border-color:var(--pink);background:var(--pink)}
+  .wy-pop{font-family:'Inter',system-ui,sans-serif;min-width:140px}
+  .wy-pop b{display:block;font-size:13.5px;color:#15101b;line-height:1.25}
+  .wy-pop span{display:block;font-size:12px;color:#5b5566;margin-top:2px}
+  .wy-pop a{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#0e9a8d;text-decoration:none}
+  .leaflet-container{font:inherit}
+
   @media(max-width:760px){ .welcome{grid-template-columns:1fr;gap:22px} .wk-rail .ev{flex:0 0 300px} }
   /* Only a real phone gets the full-width swipe card; a narrow desktop
      window keeps a card that reads as a card. */
@@ -414,6 +459,18 @@ function answerCard(icon,label,name,url,extra){
 }
 function conciergePick(q){
   const intent=qIntent(q);
+  // DB picks (?slug=) win over everything: answer straight from the hotel's own
+  // curated list before the demo cards or the Maps fallback.
+  if(PICKS){
+    const cats=PICK_INTENT[intent]||(Array.isArray(PICKS[intent])?[intent]:[]);
+    for(const c of cats){
+      const arr=(PICKS[c]||[]).filter(p=>p&&p.n);
+      if(arr.length){ const p=arr[0];
+        return '<div style="margin-bottom:2px">'+esc(PICK_L[lang]||PICK_L.en)+'</div>'
+          +answerCard(ICON[c]||'📍',catL(c),p.n,placeUrl(p,''),p.note||p.addr||'');
+      }
+    }
+  }
   // A curated card always beats the generic answer: if the hotel has picked a
   // laundry or a restaurant, show THAT rather than sending them to reception.
   const cards=(typeof HOTEL_CARDS==='function')?HOTEL_CARDS():[];
@@ -495,6 +552,191 @@ const HOTEL_CARDS=()=>[
   {i:'🍸',k:'bar',n:'The Green Man',url:'https://maps.app.goo.gl/P1nYcUV8UPZ516Tg9'},
   {i:'💆',k:'spa',n:'Bath & Barley',url:'https://maps.app.goo.gl/FbfE5w3PaY2WcA9r8'}
 ];
+
+/* ===================================================================
+   DB-driven curated PICKS + Leaflet map (Stage 3b, build#57).
+   Ported faithfully from apartments/u.html — blocks rebound from that
+   page's `U`/`chr()` to this page's `HOTEL`/`PICKS`/`pk()`. Everything
+   below is inert until a valid ?slug= loads picks (PICKS stays null),
+   so the default marketing page renders byte-for-byte as before.
+   =================================================================== */
+let PICKS=null;                        // category-keyed DB picks, or null for the demo
+// category → emoji (ported from u.html ICON{})
+const ICON={wifi:'📶',checkin:'🔑',checkout:'🚪',heating:'🌡',laundry:'🧺',coffee:'☕',trash:'🗑',parking:'🚗',luggage:'🧳',rules:'📜',emergency:'🆘',
+  supermarket:'🛒',bakery:'🥐',pharmacy:'💊',transport:'🚋',airport:'✈️',
+  atm:'🏧',attractions:'📸',taxi:'🚕',dinner:'🍽',breakfast:'🍳',bar:'🍸',other:'📍'};
+const PICK_ORDER=['dinner','coffee','bar','bakery','supermarket','pharmacy','transport','other'];
+// question-intent → which pick categories can answer it (concierge)
+const PICK_INTENT={dinner:['dinner'],breakfast:['bakery','coffee','dinner'],coffee:['coffee'],bar:['bar'],
+  supermarket:['supermarket'],pharmacy:['pharmacy'],bakery:['bakery'],transport:['transport']};
+// pick-card + map labels (pk* strings ported from u.html CHR; section/cat labels added)
+const PK_L={
+  en:{open:'Open',dinner:'Restaurant',coffee:'Coffee',bar:'Bar',via:'Photo & rating via Google',call:'Call',site:'Website',hours:'Hours',walk:'{n} min walk',here:'Your hotel',picks:'Your picks',
+    cat:{dinner:'Dining',coffee:'Coffee & breakfast',bar:'Bars & nightlife',bakery:'Bakery',supermarket:'Supermarket',pharmacy:'Pharmacy',transport:'Getting around',other:'More picks'}},
+  fr:{open:'Ouvrir',dinner:'Restaurant',coffee:'Café',bar:'Bar',via:'Photo et note via Google',call:'Appeler',site:'Site web',hours:'Horaires',walk:'{n} min à pied',here:'Votre hôtel',picks:'Nos adresses',
+    cat:{dinner:'Restaurants',coffee:'Café & petit-déj',bar:'Bars & sorties',bakery:'Boulangerie',supermarket:'Supermarché',pharmacy:'Pharmacie',transport:'Se déplacer',other:'Autres adresses'}},
+  nl:{open:'Openen',dinner:'Restaurant',coffee:'Koffie',bar:'Bar',via:'Foto en beoordeling via Google',call:'Bellen',site:'Website',hours:'Openingsuren',walk:'{n} min lopen',here:'Je hotel',picks:'Onze tips',
+    cat:{dinner:'Eten',coffee:'Koffie & ontbijt',bar:'Bars & uitgaan',bakery:'Bakkerij',supermarket:'Supermarkt',pharmacy:'Apotheek',transport:'Onderweg',other:'Meer tips'}},
+  de:{open:'Öffnen',dinner:'Restaurant',coffee:'Café',bar:'Bar',via:'Foto und Bewertung via Google',call:'Anrufen',site:'Website',hours:'Öffnungszeiten',walk:'{n} Min zu Fuß',here:'Ihr Hotel',picks:'Unsere Tipps',
+    cat:{dinner:'Essen',coffee:'Café & Frühstück',bar:'Bars & Ausgehen',bakery:'Bäckerei',supermarket:'Supermarkt',pharmacy:'Apotheke',transport:'Unterwegs',other:'Mehr Tipps'}},
+  es:{open:'Abrir',dinner:'Restaurante',coffee:'Café',bar:'Bar',via:'Foto y valoración vía Google',call:'Llamar',site:'Sitio web',hours:'Horario',walk:'{n} min a pie',here:'Tu hotel',picks:'Nuestras recomendaciones',
+    cat:{dinner:'Comer',coffee:'Café & desayuno',bar:'Bares & noche',bakery:'Panadería',supermarket:'Supermercado',pharmacy:'Farmacia',transport:'Moverse',other:'Más recomendaciones'}},
+  it:{open:'Apri',dinner:'Ristorante',coffee:'Caffè',bar:'Bar',via:'Foto e voto via Google',call:'Chiama',site:'Sito web',hours:'Orari',walk:'{n} min a piedi',here:'Il tuo hotel',picks:'I nostri consigli',
+    cat:{dinner:'Mangiare',coffee:'Caffè & colazione',bar:'Bar & vita notturna',bakery:'Panetteria',supermarket:'Supermercato',pharmacy:'Farmacia',transport:'Spostarsi',other:'Altri consigli'}},
+  uk:{open:'Відкрити',dinner:'Ресторан',coffee:'Кава',bar:'Бар',via:'Фото та оцінка через Google',call:'Подзвонити',site:'Сайт',hours:'Години',walk:'{n} хв пішки',here:'Ваш готель',picks:'Наші рекомендації',
+    cat:{dinner:'Поїсти',coffee:'Кава та сніданок',bar:'Бари та розваги',bakery:'Пекарня',supermarket:'Супермаркет',pharmacy:'Аптека',transport:'Пересування',other:'Ще рекомендації'}},
+};
+const pk=k=>{const d=PK_L[lang]||PK_L.en;return d[k]!=null?d[k]:PK_L.en[k];};
+const catL=kind=>((PK_L[lang]||PK_L.en).cat||{})[kind]||PK_L.en.cat[kind]||kind;
+function maps(q){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);}
+
+// The place itself: place_id → exact; else coordinates; else a name search. (u.html)
+function placeUrl(p,addr){
+  var q=encodeURIComponent(p.n||'');
+  if(p.gpid) return 'https://www.google.com/maps/search/?api=1&query='+q+'&query_place_id='+encodeURIComponent(p.gpid);
+  var la=Number(p.lat),ln=Number(p.lng);
+  if(isFinite(la)&&isFinite(ln)) return 'https://www.google.com/maps/search/?api=1&query='+la+','+ln;
+  return maps((p.n||'')+' '+(addr||''));
+}
+// What kind of place this is: Google label → cuisine → the category word. (u.html)
+function pickKindLabel(p,kind){
+  return p.gtype || p.cuisine || pk({dinner:'dinner',coffee:'coffee',bar:'bar'}[kind]) || '';
+}
+// The one pick card — ported verbatim from u.html, chr()→pk(), API proxy kept.
+function pickCard(p,kind,addr){
+  var note=p.note||'', d=p.dist||'';
+  if(!d&&/^\s*[\d.,]+\s*(m|km)\s*$/i.test(note)){ d=note.trim(); note=''; }
+  var meta='';
+  if(d){
+    meta+='<span class="d">'+esc(d)+'</span>';
+    var km=/km/i.test(d)?parseFloat(d.replace(',','.')):parseFloat(d)/1000;
+    if(isFinite(km)&&km<=2.5)
+      meta+='<span class="go">'+esc(pk('walk').replace('{n}',Math.max(1,Math.round(km*12))))+'</span>';
+  }
+  var href=placeUrl(p,addr);
+  if(p.phone) meta+='<a href="tel:'+esc(String(p.phone).replace(/[^+\d]/g,''))+'">'+esc(pk('call'))+'</a>';
+  if(p.site)  meta+='<a href="'+esc(p.site)+'" target="_blank" rel="noopener">'+esc(pk('site'))+'</a>';
+  var photo=p.gphoto ? (API+'/apt?ph='+encodeURIComponent(p.gphoto)+'&w=280') : (p.img||'');
+  var lead=photo
+    ? '<img class="pick-ph" src="'+esc(photo)+'" alt="" decoding="async">'
+    : '<span class="pick-ic">'+(ICON[kind]||'📍')+'</span>';
+  var extra='';
+  if(p.grating){
+    extra+='<span class="pick-h"><span class="pick-rate"><span class="st">★</span>'
+      +esc(Number(p.grating).toFixed(1))
+      +(p.gratings?'<span class="ct">('+esc(String(p.gratings))+')</span>':'')+'</span></span>';
+  }
+  if(p.hours) extra+='<span class="pick-h">'+esc(pk('hours'))+': '+esc(p.hours)+'</span>';
+  if(p.addr)  extra+='<span class="pick-h">'+esc(p.addr)+'</span>';
+  if(p.gphoto||p.grating)
+    extra+='<span class="pick-src">'+esc(pk('via'))
+      +(p.gattr?' · '+esc(p.gattr):'')+'</span>';
+  return '<div class="pick" data-go="'+esc(href)+'">'
+    +lead
+    +'<span class="pick-b">'
+    +(pickKindLabel(p,kind)?'<span class="pick-cu">'+esc(pickKindLabel(p,kind))+'</span>':'')
+    +'<span class="pick-n">'+esc(p.n)+'</span>'
+    +(note?'<span class="pick-note">'+esc(note)+'</span>':'')
+    +'<span class="pick-m">'+meta+'</span>'+extra+'</span></div>';
+}
+
+// Leaflet, fetched only when a map is actually drawn, and only once. (u.html)
+var LEAFLET_CSS='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+var LEAFLET_JS='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+var _leafletP=null;
+function loadLeaflet(){
+  if(window.L) return Promise.resolve(window.L);
+  if(_leafletP) return _leafletP;
+  _leafletP=new Promise(function(res,rej){
+    var css=document.createElement('link');
+    css.rel='stylesheet'; css.href=LEAFLET_CSS; document.head.appendChild(css);
+    var js=document.createElement('script');
+    js.src=LEAFLET_JS; js.async=true;
+    js.onload=function(){ res(window.L); };
+    js.onerror=function(){ rej(new Error('leaflet')); };
+    document.head.appendChild(js);
+    setTimeout(function(){ if(!window.L) rej(new Error('leaflet timeout')); },8000);
+  });
+  return _leafletP;
+}
+// Every pick that knows where it is, whichever category it belongs to. (u.html)
+function mapPoints(){
+  var out=[], seen={};
+  var all=PICKS||{};
+  Object.keys(all).forEach(function(kind){
+    (all[kind]||[]).forEach(function(p){
+      var la=Number(p.lat),ln=Number(p.lng);
+      if(!p||!p.n||!isFinite(la)||!isFinite(ln))return;
+      var key=p.gpid||(p.n+'|'+la.toFixed(4));
+      if(seen[key])return; seen[key]=1;
+      out.push(pickPoint(p,kind));
+    });
+  });
+  return out;
+}
+var _maps={};
+// One map drawer — the hotel is always pinned. Ported from u.html (U→HOTEL).
+function drawPlaceMap(elId, pts){
+  var el=document.getElementById(elId);
+  if(!el||!(HOTEL.lat&&HOTEL.lng))return;
+  loadLeaflet().then(function(L){
+    if(_maps[elId]){ try{ _maps[elId].remove(); }catch(e){} delete _maps[elId]; }
+    if(!document.getElementById(elId))return;         // re-rendered under us
+    var map=L.map(elId,{scrollWheelZoom:false,attributionControl:true});
+    _maps[elId]=map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:19, attribution:'&copy; OpenStreetMap'
+    }).addTo(map);
+    var pin=function(html,cls){ return L.divIcon({html:'<span class="wy-pin '+(cls||'')+'">'+html+'</span>',
+      className:'', iconSize:[26,26], iconAnchor:[13,13], popupAnchor:[0,-12]}); };
+    var bounds=[[HOTEL.lat,HOTEL.lng]];
+    L.marker([HOTEL.lat,HOTEL.lng],{icon:pin('🏠','home'),zIndexOffset:1000})
+      .addTo(map).bindPopup('<div class="wy-pop"><b>'+esc(HOTEL.name||'')+'</b><span>'+esc(pk('here'))+'</span></div>');
+    (pts||[]).forEach(function(x){
+      bounds.push([x.lat,x.lng]);
+      L.marker([x.lat,x.lng],{icon:pin(x.icon||'📍')})
+        .addTo(map)
+        .bindPopup('<div class="wy-pop">'+(x.pop||('<b>'+esc(x.n)+'</b>'))+'</div>');
+    });
+    if(bounds.length>1) map.fitBounds(bounds,{padding:[28,28],maxZoom:16});
+    else map.setView([HOTEL.lat,HOTEL.lng],15);
+    setTimeout(function(){ try{ map.invalidateSize(); }catch(e){} },200);
+  }).catch(function(){
+    // No Leaflet: the OSM embed, so the section still says something. (u.html)
+    var el2=document.getElementById(elId); if(!el2)return;
+    var dd=0.004;
+    el2.outerHTML='<iframe title="map" loading="lazy" style="display:block;width:100%;height:340px;border:0;'
+      +'border-radius:16px;border:1px solid var(--line)" src="https://www.openstreetmap.org/export/embed.html?bbox='
+      +(HOTEL.lng-dd)+','+(HOTEL.lat-dd)+','+(HOTEL.lng+dd)+','+(HOTEL.lat+dd)+'&layer=mapnik&marker='+HOTEL.lat+','+HOTEL.lng+'"></iframe>';
+  });
+}
+// What a pin says when opened. Lives beside the card builder. (u.html)
+function pickPoint(p,kind){
+  var d=p.dist?('<span>'+esc(p.dist)+(p.gtype?' · '+esc(p.gtype):'')+'</span>'):'';
+  return {n:p.n,lat:Number(p.lat),lng:Number(p.lng),icon:(ICON[kind]||'📍'),
+    pop:'<b>'+esc(p.n)+'</b>'+d
+      +'<a href="'+esc(placeUrl(p,''))+'" target="_blank" rel="noopener">'+esc(pk('open'))+' ↗</a>'};
+}
+// "Your picks": the map (drawn after innerHTML) + cards grouped by category.
+function picksSectionHTML(){
+  if(!PICKS)return '';
+  var out='<h2 class="wk-h"><span class="wk-emoji">📍</span>'+esc(pk('picks'))+'</h2>'
+    +((HOTEL.lat&&HOTEL.lng)?'<div class="picks-map" id="picksMap"></div>':'');
+  PICK_ORDER.forEach(function(kind){
+    var arr=(PICKS[kind]||[]).filter(function(p){return p&&p.n;});
+    if(!arr.length)return;
+    var cards=arr.map(function(p){return pickCard(p,kind,'');}).join('');
+    out+='<h2 class="wk-h"><span class="wk-emoji">'+(ICON[kind]||'📍')+'</span>'+esc(catL(kind))
+      +'<span class="cnt">'+arr.length+'</span></h2><div class="picks">'+cards+'</div>';
+  });
+  return out;
+}
+// A pick card is a div (it has links of its own), so click-anywhere opens it. (u.html)
+document.addEventListener('click',function(ev){
+  var card=ev.target.closest&&ev.target.closest('.pick[data-go]');
+  if(!card||ev.target.closest('a'))return;
+  window.open(card.getAttribute('data-go'),'_blank','noopener');
+});
 
 const _WD={en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],fr:['dim','lun','mar','mer','jeu','ven','sam'],nl:['zo','ma','di','wo','do','vr','za'],de:['So','Mo','Di','Mi','Do','Fr','Sa'],es:['dom','lun','mar','mié','jue','vie','sáb'],it:['dom','lun','mar','mer','gio','ven','sab'],uk:['нд','пн','вт','ср','чт','пт','сб']};
 const LOCMAP={fr:'fr-BE',nl:'nl-BE',de:'de-DE',es:'es-ES',it:'it-IT',uk:'uk-UA',en:'en-GB'};  // localizes weekday + month names
@@ -619,12 +861,15 @@ function renderWeek(){
   const byCat=c=>catalog.filter(e=>e.categorySlug===c&&inWindow(e)).sort(byShown).slice(0,20).map(e=>evCard(e,showDateFor(e)));
   let html=timelineHTML();
   html+=section('📍',t('near'),near);
-  html+=section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
+  // With DB picks (?slug=): the curated "Your picks" section + a Leaflet map
+  // sits where "From your hotel" does. Without picks: the demo cards, unchanged.
+  html+=PICKS?picksSectionHTML():section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
   html+=section('🎶',t('music'),byCat('music'));
   html+=section('🎨',t('art'),byCat('exhibition'));
   html+=section('🎭',t('theatre'),byCat('theatre'));
   document.getElementById('week').innerHTML=html||`<p class="empty">—</p>`;
   setupArrows(); bindTimeline();
+  if(PICKS)drawPlaceMap('picksMap', mapPoints());   // map drawn after innerHTML
 }
 
 // scroll arrows (this-week behaviour)
@@ -1021,7 +1266,35 @@ document.getElementById('langSel').onchange=async e=>{
   if(mv.classList.contains('on'))showModal();  // re-render an open card detail too
 };
 
-applyChrome(); loadCatalog();
+// ---- ?slug= : load a hotel's DB picks + coordinates ------------------------
+// No slug, unknown slug (404), or a hotel with no picks all leave PICKS null,
+// HOTEL untouched, and the page renders exactly as the marketing demo.
+async function loadPortal(){
+  const slug=new URLSearchParams(location.search).get('slug');
+  if(!slug)return;
+  try{
+    const r=await fetch(`${API}/hotel-portal`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'public_content',slug})});
+    if(!r.ok)return;                                   // 404 unknown slug → demo
+    const d=await r.json();
+    const h=d&&d.hotel;
+    if(!h||!h.picks)return;
+    const hasPick=Object.keys(h.picks).some(k=>Array.isArray(h.picks[k])&&h.picks[k].length);
+    if(!hasPick)return;                                // hotel exists but curated nothing → demo
+    PICKS=h.picks;
+    const la=Number(h.lat),ln=Number(h.lng);
+    if(isFinite(la)&&isFinite(ln)){ HOTEL.lat=la; HOTEL.lng=ln; }   // events + map centre on the real hotel
+    if(h.name){
+      HOTEL.name=h.name;
+      const hn=document.querySelector('.hname'); if(hn)hn.textContent=h.name;
+      const hc=document.querySelector('.hc-name'); if(hc)hc.textContent=h.name;
+      const lg=document.querySelector('.hlogo'); if(lg)lg.textContent=(h.name.trim()[0]||'H').toUpperCase();
+      document.title=h.name+' — Local Concierge · powered by shou';
+    }
+  }catch(e){ /* network error → leave the demo as-is */ }
+}
+async function boot(){ await loadPortal(); applyChrome(); loadCatalog(); }
+boot();
 </script>
 </body>
 </html>
