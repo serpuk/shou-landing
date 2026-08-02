@@ -57,9 +57,18 @@
   #btn-mic.rec{background:#c81e5b;color:#fff;border-color:#c81e5b;animation:micpulse 1.3s ease-in-out infinite}
   @keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,30,91,.45)}50%{box-shadow:0 0 0 7px rgba(200,30,91,0)}}
   .epic{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line)}
-  .task{display:flex;align-items:center;gap:10px;padding:6px 0}
+  .task{display:flex;align-items:center;gap:10px;padding:6px 0 6px 10px;border-left:2px solid transparent}
   .task .t-title{flex:1}
   .muted{color:#aaa}
+  /* status rail — read state at a glance (Monday-style) */
+  .task.st-todo{border-left-color:rgba(154,160,170,.4)}
+  .task.st-in_progress{border-left-color:var(--prog)}
+  .task.st-done{border-left-color:rgba(14,154,141,.32)}
+  /* overdue / due-soon dates shout */
+  .chip.od{background:rgba(200,30,91,.12);color:#c81e5b;font-weight:700}
+  .chip.soon{background:rgba(224,138,43,.16);color:var(--prog);font-weight:700}
+  .done-toggle{background:none;border:none;color:#8a8791;font-size:12px;font-weight:600;cursor:pointer;padding:5px 0 5px 12px}
+  .done-toggle:hover{color:var(--ink)}
   .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#15101b;color:#fff;padding:11px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
   .toast.show{opacity:1}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -277,6 +286,19 @@ $('btn-notify').onclick=toggleNotify;
 
 /* ---------- overview / analytics (Phase 4) ---------- */
 function addDays(iso,n){const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+// Due-date chip that colours itself: red if overdue, amber if within 7 days,
+// neutral otherwise (and never coloured once the item is done). Same thresholds
+// the overview tiles use, so the whole page reads slippage consistently.
+function dueChip(it,prefix){
+  if(!it.due_date) return '';
+  const today=new Date().toISOString().slice(0,10);
+  let cls='chip', tip='';
+  if(it.status!=='done'){
+    if(it.due_date<today){cls='chip od';tip='Overdue';}
+    else if(it.due_date<=addDays(today,7)){cls='chip soon';tip='Due soon';}
+  }
+  return `<span class="${cls}"${tip?` title="${tip}"`:''}>${prefix||''}${esc(it.due_date)}</span>`;
+}
 function renderOverview(){
   const ov=$('overview');
   const tasks=items.filter(x=>x.kind==='task');
@@ -816,6 +838,9 @@ const kindIcon=k=>KIND_ICON[k]||'';
 /* ---------- collapse / expand (shared by List + Timeline) ---------- */
 let collapsed=new Set();
 try{collapsed=new Set(JSON.parse(localStorage.getItem('build_collapsed')||'[]'));}catch(e){}
+let doneShown=new Set();  // epic ids whose completed tasks are expanded (default: folded)
+try{doneShown=new Set(JSON.parse(localStorage.getItem('build_doneshown')||'[]'));}catch(e){}
+function saveDoneShown(){try{localStorage.setItem('build_doneshown',JSON.stringify([...doneShown]));}catch(e){}}
 const hasKids=id=>items.some(x=>x.parent_id===id);
 const isCollapsed=id=>collapsed.has(id);
 function saveCollapsed(){try{localStorage.setItem('build_collapsed',JSON.stringify([...collapsed]));}catch(e){}}
@@ -924,7 +949,7 @@ function renderRoadmap(){
           ${r.description?`<div class="dim" style="font-size:13.5px;margin-top:3px">${esc(r.description)}</div>`:''}
           <div class="row" style="gap:6px;margin-top:6px">
             ${r.quarter?`<span class="chip">${esc(r.quarter)}</span>`:''}
-            ${r.due_date?`<span class="chip">due ${esc(r.due_date)}</span>`:''}
+            ${dueChip(r,'due ')}
             ${r.customer_label?`<span class="chip">👤 ${esc(r.customer_label)}</span>`:''}
             <span class="chip">${done}/${tasks.length} tasks</span>
             <span class="chip idref" data-ref="${r.id}" title="Copy build#${r.id}" style="cursor:pointer;font-family:ui-monospace,monospace">build#${r.id}</span>
@@ -969,6 +994,26 @@ function projectHtml(p){
 }
 function epicHtml(e){
   const tasks=childrenOf(e.id);
+  const taskRow=t=>`<div class="task st-${t.status}" data-task="${t.id}">
+        ${handleHtml(t.id)}
+        <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
+        <span class="t-title open-item ${t.status==='done'?'muted':''}" data-id="${t.id}" title="Open" style="cursor:pointer;${t.status==='done'?'text-decoration:line-through':''}">${kindIcon('task')} ${esc(t.title)}</span>
+        ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
+        ${dueChip(t)}
+        ${(t.depends_on&&t.depends_on.length)?`<span class="chip" title="Depends on ${t.depends_on.map(d=>{const x=byId(d);return x?x.title:'build#'+d;}).join(', ')}">⛓ ${t.depends_on.length}</span>`:''}
+        <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR" style="cursor:pointer;font-family:ui-monospace,monospace">build#${t.id}</span>
+        <button class="btn ghost sm it-edit" data-id="${t.id}" title="Edit task" style="padding:2px 8px">✎</button>
+      </div>`;
+  // Completed tasks fold under a "▸ N done" toggle so the active work isn't
+  // buried under struck-through history (default folded; choice persists).
+  const active=tasks.filter(t=>t.status!=='done');
+  const doneTasks=tasks.filter(t=>t.status==='done');
+  let taskHtml=tasks.length?active.map(taskRow).join(''):'<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>';
+  if(doneTasks.length){
+    const open=doneShown.has(e.id);
+    taskHtml+=`<button class="done-toggle" data-donetoggle="${e.id}">${open?'▾':'▸'} ${doneTasks.length} done</button>`;
+    if(open) taskHtml+=doneTasks.map(taskRow).join('');
+  }
   return `<div class="epic" data-epic="${e.id}">
     <div class="row" style="gap:8px">
       ${handleHtml(e.id)}${caret(e.id)}
@@ -979,17 +1024,7 @@ function epicHtml(e){
       <span class="chip idref" data-ref="${e.id}" title="Copy build#${e.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${e.id}</span>
       <button class="btn ghost sm it-edit" data-id="${e.id}" title="Edit epic" style="padding:2px 9px">✎</button>
     </div>
-    ${isCollapsed(e.id)?'':`<div style="margin:2px 0 0 4px">${tasks.map(t=>`
-      <div class="task" data-task="${t.id}">
-        ${handleHtml(t.id)}
-        <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
-        <span class="t-title open-item ${t.status==='done'?'muted':''}" data-id="${t.id}" title="Open" style="cursor:pointer;${t.status==='done'?'text-decoration:line-through':''}">${kindIcon('task')} ${esc(t.title)}</span>
-        ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
-        ${t.due_date?`<span class="chip">${esc(t.due_date)}</span>`:''}
-        ${(t.depends_on&&t.depends_on.length)?`<span class="chip" title="Depends on ${t.depends_on.map(d=>{const x=byId(d);return x?x.title:'build#'+d;}).join(', ')}">⛓ ${t.depends_on.length}</span>`:''}
-        <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR" style="cursor:pointer;font-family:ui-monospace,monospace">build#${t.id}</span>
-        <button class="btn ghost sm it-edit" data-id="${t.id}" title="Edit task" style="padding:2px 8px">✎</button>
-      </div>`).join('')||'<div class="dim" style="font-size:12.5px;margin:2px 0">no tasks</div>'}</div>
+    ${isCollapsed(e.id)?'':`<div style="margin:2px 0 0 4px">${taskHtml}</div>
     <button class="btn ghost sm ep-addtask" data-epic-add="${e.id}" style="margin:4px 0 0 4px">+ task</button>`}
   </div>`;
 }
@@ -1022,6 +1057,7 @@ function bindRoadmap(){
   document.querySelectorAll('.rd-addepic').forEach(b=>{b.onclick=()=>{const id=+b.closest('[data-road]').getAttribute('data-road');openCreate('epic',id);};});
   document.querySelectorAll('.pr-addepic').forEach(b=>{b.onclick=()=>openCreate('epic',+b.getAttribute('data-project-add'));});
   document.querySelectorAll('.ep-addtask').forEach(b=>{b.onclick=()=>openCreate('task',+b.getAttribute('data-epic-add'));});
+  document.querySelectorAll('.done-toggle').forEach(b=>{b.onclick=()=>{const id=+b.getAttribute('data-donetoggle');doneShown.has(id)?doneShown.delete(id):doneShown.add(id);saveDoneShown();renderRoadmap();};});
 }
 
 if(token) unlock(token); else {$('gate').style.display='';}
