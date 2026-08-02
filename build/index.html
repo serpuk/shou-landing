@@ -894,7 +894,13 @@ function renderTimeline(){
       const p=idxMap[depId];if(!p||!p.span)return;
       const fromX=x(p.span.end),fromY=p.i*ROWH+ROWH/2;
       const conflict=toX<fromX-1;const col=conflict?'#c81e5b':'rgba(20,16,30,.4)';
-      lines+=`<path d="M${fromX},${fromY} H${fromX+8} V${toY} H${toX-6}" fill="none" stroke="${col}" stroke-width="1.5"/><path d="M${toX-6},${toY-4} L${toX},${toY} L${toX-6},${toY+4} Z" fill="${col}"/>`;
+      const dep=byId(depId);const pn=dep?dep.title:('build#'+depId);
+      const ttl=conflict?`Conflict — "${it.title}" is set to start before "${pn}" finishes`:`"${it.title}" depends on "${pn}"`;
+      const pth=`M${fromX},${fromY} H${fromX+8} V${toY} H${toX-6}`,head=`M${toX-6},${toY-4} L${toX},${toY} L${toX-6},${toY+4} Z`;
+      // <title> = native hover tooltip. A fat transparent hit-path (pointer-events
+      // stroke) makes the 1.5px line easy to hover; the visible line stays inert
+      // and the svg root is pointer-events:none, so bars underneath stay draggable.
+      lines+=`<g style="cursor:help"><title>${esc(ttl)}</title><path d="${pth}" fill="none" stroke="transparent" stroke-width="12" pointer-events="stroke"/><path d="${pth}" fill="none" stroke="${col}" stroke-width="1.5" pointer-events="none"/><path d="${head}" fill="${col}" pointer-events="auto"/></g>`;
     });
   });
   const svg=lines?`<svg width="${W}" height="${H}" style="position:absolute;left:0;top:0;pointer-events:none;z-index:2;overflow:visible">${lines}</svg>`:'';
@@ -908,7 +914,7 @@ function renderTimeline(){
       <div style="position:relative">${grid}${todayLine}${bars}${svg}</div>
     </div>
   </div>
-  <div class="row" style="position:sticky;left:0;width:fit-content;gap:16px;padding:10px 0 0 14px;font-size:12px"><span style="color:var(--done)">● done</span><span style="color:var(--prog)">● in progress</span><span style="color:rgba(20,16,30,.4)">● to do</span><span style="color:var(--pink)">▏ today</span><span style="color:rgba(20,16,30,.5)">→ depends on</span><span style="color:#c81e5b" title="A dependent task starts before its prerequisite finishes">→ conflict</span></div>`;
+  <div class="row" style="position:sticky;left:0;width:fit-content;gap:16px;padding:10px 0 0 14px;font-size:12px"><span style="color:var(--done)">● done</span><span style="color:var(--prog)">● in progress</span><span style="color:rgba(20,16,30,.4)">● to do</span><span style="color:var(--pink)">▏ today</span><span style="color:rgba(20,16,30,.5)">→ depends on</span></div>`;
   el.querySelectorAll('.gantt-bar').forEach(b=>{
     b.onclick=()=>{if(b.dataset.dragged==='1'){b.dataset.dragged='';return;}openEdit(+b.getAttribute('data-id'));};
     if(b.classList.contains('drag'))attachBarDrag(b,minD,range,W);
