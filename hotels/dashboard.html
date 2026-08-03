@@ -116,6 +116,67 @@
     background:rgba(20,16,30,.55);color:#fff;font-size:17px;border-radius:8px}
   .pk-thumb:hover::after{display:flex}
   .pk-nothumb{width:38px;height:38px;flex:none;border-radius:9px;border:1px dashed var(--line);opacity:.5}
+
+  /* ---- branding editor: photo + theme + tone (ported from apartments/dashboard.html) ---- */
+  .grp{margin:24px 0 8px;font-family:'Fraunces',serif;font-weight:600;font-size:16px;color:var(--ink);padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .ed-sub{color:var(--soft);font-size:14px;margin-bottom:16px}
+  .stock{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .stock img{width:84px;height:56px;object-fit:cover;border-radius:9px;border:2px solid transparent;cursor:pointer}
+  .stock img:hover{border-color:var(--line)}
+  .stock img.on{border-color:var(--pink)}
+  .photo-prev{margin-top:10px;height:110px;border-radius:12px;background-size:cover;background-position:center;display:none}
+  #f_photo{font:inherit;font-size:14.5px;color:var(--ink);background:#fff;border:1px solid var(--line);
+    border-radius:11px;padding:10px 13px;width:100%}
+  #f_photo:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,61,139,.12)}
+  .tones{display:flex;gap:9px;flex-wrap:wrap}
+  .themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px}
+  .th{border:2px solid var(--line);border-radius:18px;padding:0;cursor:pointer;background:#fff;
+    overflow:hidden;font:inherit;text-align:left;display:block;position:relative;
+    transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease,border-color .15s ease}
+  .th:hover{transform:translateY(-4px);box-shadow:0 16px 34px -14px rgba(20,16,30,.34)}
+  .th.on{border-color:var(--pink);border-width:3px;transform:translateY(-8px);
+    box-shadow:0 22px 46px -16px rgba(255,61,139,.55),0 0 0 6px rgba(255,61,139,.10)}
+  .th:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+  .th[disabled]{cursor:default}
+  .th[disabled]:hover{transform:none;box-shadow:none}
+  /* a miniature of the real guest page — every box needs an explicit display
+     because the card lives inside a <button> and is built from spans. */
+  .th .mini{display:flex;flex-direction:column;position:relative;overflow:hidden;height:196px}
+  .th .m-hero{display:block;position:relative;height:78px;flex:none;overflow:hidden}
+  .th .m-hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .th .m-tint{position:absolute;inset:0}
+  .th .m-name{position:absolute;left:9px;bottom:7px;right:9px;color:#fff;font-size:12px;font-weight:700;
+    line-height:1.15;text-shadow:0 1px 6px rgba(0,0,0,.5);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .th .m-body{display:block;padding:8px 9px;flex:1;min-height:0}
+  .th .m-chips{display:flex;gap:3px;margin-bottom:7px}
+  .th .m-chips i{display:block;height:11px;border-radius:999px;flex:1}
+  .th .m-ev{display:flex;gap:5px;align-items:center;border-radius:6px;padding:4px 5px;margin-bottom:4px}
+  .th .m-ev u{display:block;width:20px;height:20px;border-radius:4px;flex:none;text-decoration:none;
+    background-size:cover;background-position:center}
+  .th .m-ev span{flex:1;display:flex;flex-direction:column;gap:2.5px}
+  .th .m-ev b{display:block;height:4px;border-radius:2px;width:82%}
+  .th .m-ev s{display:block;height:3px;border-radius:2px;width:46%;text-decoration:none;opacity:.6}
+  .th .m-chat{display:flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;margin-top:6px}
+  .th .m-chat u{width:12px;height:12px;border-radius:50%;flex:none;text-decoration:none}
+  .th .m-chat b{display:block;height:4px;border-radius:2px;width:58%}
+  .th .body{display:block;padding:11px 12px 12px;border-top:1px solid rgba(20,16,30,.10);background:#fff}
+  .th .nm{display:flex;align-items:center;gap:6px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
+  .th .out{display:block;font-size:11.5px;color:var(--soft);line-height:1.4;margin-top:4px}
+  .th .chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+  .th .chips i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--soft);
+    background:rgba(20,16,30,.05);border-radius:999px;padding:3px 8px}
+  .th .acts{display:flex;align-items:center;gap:8px;margin-top:10px}
+  .th .acts .state{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.03em;color:var(--dim)}
+  .th.on .acts .state{color:var(--pink)}
+  .th .badge{position:absolute;top:8px;left:8px;z-index:2;font-size:9.5px;font-weight:800;letter-spacing:.02em;
+    padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.94);color:#15101b;box-shadow:0 2px 8px rgba(20,16,30,.22)}
+  @media(max-width:520px){ .themes{grid-template-columns:1fr} }
+  .tn{border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 14px;font:inherit;font-size:13.5px;font-weight:600;color:var(--soft);cursor:pointer}
+  .tn.on{border-color:var(--pink);color:var(--pink);background:rgba(255,61,139,.06)}
+  .tn[disabled]{cursor:default;opacity:.6}
+  .tone-demo{margin-top:12px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:13.5px;display:none}
+  .tone-demo .q{color:var(--soft)}
+  .tone-demo .a{color:var(--ink);margin:4px 0 0}
 </style>
 </head>
 <body>
@@ -189,6 +250,41 @@
         <button class="btn btn-primary btn-sm" id="picksSave">Save recommendations</button>
       </div>
       <div class="msg" id="picksMsg"></div>
+    </div>
+
+    <!-- YOUR PAGE LOOK / BRANDING -->
+    <div class="card" id="brandCard">
+      <div class="sec-head"><h2>Your page look</h2><span class="sub">Photo, theme &amp; concierge voice</span></div>
+      <p class="muted" style="font-size:13px;margin:-4px 0 14px">The cover photo, colour theme and the voice your concierge answers guests in. Changes go live the moment you save.</p>
+      <div class="row" id="brandTopActions" style="gap:8px;margin:0 0 18px">
+        <button class="btn btn-primary btn-sm" id="brandSaveTop">Save page look</button>
+      </div>
+
+      <div class="grp" style="margin-top:0">Cover photo</div>
+      <p class="ed-sub">Shown at the top of your guest page. Upload your own, paste a link, or pick one below.</p>
+      <div class="row" style="margin-bottom:8px">
+        <button type="button" class="btn btn-ghost btn-sm" id="upBtn">⬆ Upload a photo</button>
+        <input type="file" id="upFile" accept="image/jpeg,image/png,image/webp" style="display:none">
+        <span class="muted" id="upMsg" style="font-size:13px"></span>
+      </div>
+      <label class="lfield full"><span>…or paste a link</span>
+        <input id="f_photo" placeholder="https://…"></label>
+      <div class="stock" id="stockRow"></div>
+      <div class="photo-prev" id="photoPrev"></div>
+
+      <div class="grp" style="margin-top:26px">Brand theme</div>
+      <p class="ed-sub">The personality of your guest page. Colours, typography, cards and background all change together — pick the one that feels like your hotel.</p>
+      <div class="themes" id="themeRow"></div>
+
+      <div class="grp" style="margin-top:26px">Concierge voice</div>
+      <p class="ed-sub">How the concierge phrases its suggestions. The facts never change — only the wording.</p>
+      <div class="tones" id="toneRow"></div>
+      <div class="tone-demo" id="toneDemo"></div>
+
+      <div class="row" style="margin-top:18px">
+        <button class="btn btn-primary btn-sm" id="brandSave">Save page look</button>
+      </div>
+      <div class="msg" id="brandMsg"></div>
     </div>
 
     <!-- SUBSCRIPTION -->
@@ -290,7 +386,7 @@ async function enterApp(){
   $('authWrap').style.display='none';$('app').style.display='block';
   $('signout').style.display='';
   $('who').textContent=(DATA.hotel&&DATA.hotel.name)||'';
-  renderHotel();renderQr();renderPicksCard();renderLegal();renderBilling();renderInvoices();renderQuestions();
+  renderHotel();renderQr();renderPicksCard();renderBrandingCard();renderLegal();renderBilling();renderInvoices();renderQuestions();
   // Admin view: make it unmistakable whose account this is, and remove the
   // controls that would act on the customer's behalf (the API refuses them too).
   if(DATA.admin){
@@ -774,6 +870,199 @@ function renderPicksCard(){
   if(DATA.admin){                                  // admin view is read-only everywhere else too
     $('p_address').disabled=true; $('suggestBtn').disabled=true; $('picksSave').disabled=true; $('picksSaveTop').disabled=true;
     $('picksBody').querySelectorAll('input,button').forEach(function(el){el.disabled=true;});
+  }
+}
+
+/* ================= BRANDING: photo + theme + tone (ported from apartments/dashboard.html) ================= */
+// Guest-page themes and voices. Ids match the server whitelist exactly
+// (theme ∈ warm|nordic|bold|botanical|boutique|mediterranean; tone ∈
+// host|concierge|brief|playful) — anything else is dropped on save. Each theme
+// carries the real palette + display font of its guest page, so a tile is a
+// miniature of the page rather than a drawing of one. (apt dashboard L952-977)
+var THEME_MOOD='https://shou.be/apartments/img/';
+var THEME_OPTS=[
+  {id:'warm',         nm:'Cosy',          e:'☀️', badge:'🌿 Warm & homely',           font:"'Lora',Georgia,serif", mood:'apt1.jpg',
+   sample:'Welcome to Maison Claire',  out:'Feels like a home, not a lobby. Warm and personal.',                     chips:['Terracotta','Homely','Inviting'],
+   bg:'#fdf6ef', card:'#fffaf5', ink:'#2b1b13', soft:'#9a8577', line:'rgba(60,35,20,.13)',
+   grad:'linear-gradient(105deg,#c2622f,#e0913f)', panel:'#f6ebe0'},
+  {id:'nordic',       nm:'Nordic',        e:'🌊', badge:'💼 Best for business guests', font:"'Inter',system-ui,sans-serif", mood:'apt5.jpg',
+   sample:'Welcome to Nordic Nest',    out:'Calm and uncluttered. Ideal for business hotels and long stays.',        chips:['Airy','Crisp','Scandi'],
+   bg:'#f4f7f9', card:'#ffffff', ink:'#1b2430', soft:'#64717f', line:'rgba(27,36,48,.12)',
+   grad:'linear-gradient(105deg,#3d7ea6,#6aa3c0)', panel:'#e9eff4'},
+  {id:'botanical',    nm:'Botanical',     e:'🌿', badge:'🌳 Near parks & nature',      font:"'Lora',Georgia,serif", mood:'apt7.jpg',
+   sample:'Welcome to Garden House',   out:'A calm, premium atmosphere. Perfect near parks or greenery.',            chips:['Green','Natural','Restful'],
+   bg:'#f2f7f3', card:'#ffffff', ink:'#152a20', soft:'#5c7166', line:'rgba(21,42,32,.13)',
+   grad:'linear-gradient(105deg,#2f7d5b,#6fae74)', panel:'#e6efe8'},
+  {id:'mediterranean',nm:'Mediterranean', e:'🌍', badge:'🌞 Sunny & coastal',          font:"'Lora',Georgia,serif", mood:'apt11.jpg',
+   sample:'Welcome to Casa Oliva',     out:'Feels like a holiday the moment guests arrive. Perfect for sunny, coastal hotels.', chips:['Sand','Olive','Sunlit'],
+   bg:'#fdf8f0', card:'#fffdf8', ink:'#2e2418', soft:'#948871', line:'rgba(70,55,30,.14)',
+   grad:'linear-gradient(105deg,#c1683f,#dda15e)', panel:'#f4ecdd'}
+  // NB: 'bold' and 'boutique' are valid server-side but omitted here — they are
+  // dark themes and the guest page (sample.html) still hardcodes light chrome
+  // (header/pills/tabs), so a dark theme renders a light header on a dark body.
+  // Re-add them once the guest page themes its chrome.
+];
+var TONE_OPTS=[{id:'host',label:'Host'},{id:'concierge',label:'Concierge'},{id:'brief',label:'Brief'},{id:'playful',label:'Playful'}];
+// Pre-written, not generated: instant, free, and it shows each voice at its
+// best. English only — the manager UI is English. (apt dashboard L983-1005)
+var TONE_SAMPLE={
+  host:     {q:'What is on tonight?', a:'There is jazz at the Botanique tonight — it is where I send everyone — and a rooftop DJ set ten minutes away.'},
+  concierge:{q:'What is on tonight?', a:'Certainly — may I suggest the jazz programme at the Botanique this evening, with a rooftop DJ set also within walking distance.'},
+  brief:    {q:'What is on tonight?', a:'Six events within 10 minutes. Jazz at Botanique, rooftop DJ set.'},
+  playful:  {q:'What is on tonight?', a:'Six things on tonight and all of them walkable — jazz at the Botanique, or a rooftop DJ set if you would rather dance.'}
+};
+var themeSel='', toneSel='';
+
+// Stock photos: same generic interior shots as apartments. Absolute https only —
+// the API stores http(s) URLs (branding.photo is interpolated into a CSS url()
+// on the guest page), so a relative path is silently dropped. (apt L1089)
+var STOCK=['apt1','apt2','apt5','apt7','apt11','apt12'].map(function(f){return 'https://shou.be/apartments/img/'+f+'.jpg';});
+function photoUrl(){ return $('f_photo').value.trim(); }
+
+function renderTheme(){                                // apt dashboard L1007-1050
+  // The hotel's own cover photo when they have one — then the preview is their
+  // page, not a sample. Otherwise a stock shot, tinted to the theme.
+  var own=photoUrl();
+  var mine=(DATA&&DATA.hotel&&DATA.hotel.name)||'';
+  $('themeRow').innerHTML=THEME_OPTS.map(function(o){
+    var hero=own||(THEME_MOOD+o.mood);
+    var ev='background:'+o.card+';border:1px solid '+o.line;
+    var evRow='<span class="m-ev" style="'+ev+'"><u style="background-image:url(\''+hero+'\')"></u>'
+      +'<span><b style="background:'+o.ink+'"></b><s style="background:'+o.soft+'"></s></span></span>';
+    return '<button type="button" class="th'+(o.id===themeSel?' on':'')+'" data-id="'+o.id+'"'
+      +' aria-pressed="'+(o.id===themeSel?'true':'false')+'">'
+      +'<span class="badge">'+esc(o.badge)+'</span>'
+      +'<span class="mini" style="background:'+o.bg+'">'
+        +'<span class="m-hero"><img src="'+esc(hero)+'" alt="" decoding="async">'
+          +'<span class="m-tint" style="background:linear-gradient(to top,rgba(0,0,0,.62),rgba(0,0,0,.05) 62%)"></span>'
+          +'<span class="m-name" style="font-family:'+o.font+'">'+esc(mine||o.sample)+'</span></span>'
+        +'<span class="m-body">'
+          +'<span class="m-chips"><i style="background:'+o.grad+'"></i>'
+            +'<i style="background:'+o.panel+'"></i><i style="background:'+o.panel+'"></i></span>'
+          +evRow+evRow
+          +'<span class="m-chat" style="background:'+o.panel+'"><u style="background:'+o.grad+'"></u>'
+            +'<b style="background:'+o.soft+'"></b></span>'
+        +'</span>'
+      +'</span>'
+      +'<span class="body"><span class="nm">'+o.e+' '+esc(o.nm)+'</span>'
+        +'<span class="out">'+esc(o.out)+'</span>'
+        +'<span class="chips"><i>'+esc(o.chips[0])+'</i><i>'+esc(o.chips[1])+'</i><i>'+esc(o.chips[2])+'</i></span>'
+        +'<span class="acts"><span class="state">'+(o.id===themeSel?'ACTIVE':'Select')+'</span></span>'
+      +'</span></button>';
+  }).join('');
+  var admin=!!(DATA&&DATA.admin);
+  $('themeRow').querySelectorAll('.th').forEach(function(b){
+    if(admin){ b.disabled=true; return; }
+    b.onclick=function(){ themeSel=b.getAttribute('data-id'); renderTheme(); };
+  });
+}
+function renderTone(){                                 // apt dashboard L1073-1084
+  var admin=!!(DATA&&DATA.admin);
+  $('toneRow').innerHTML=TONE_OPTS.map(function(o){
+    return '<button type="button" class="tn'+(o.id===toneSel?' on':'')+'" data-id="'+o.id+'">'+esc(o.label)+'</button>';
+  }).join('');
+  $('toneRow').querySelectorAll('.tn').forEach(function(b){
+    if(admin){ b.disabled=true; return; }
+    b.onclick=function(){ toneSel=b.getAttribute('data-id'); renderTone(); };
+  });
+  var sm=TONE_SAMPLE[toneSel];
+  var d=$('toneDemo');
+  if(!sm){ d.style.display='none'; d.innerHTML=''; return; }
+  d.style.display='block';
+  d.innerHTML='<div class="q">For example: “'+esc(sm.q)+'”</div><div class="a">'+esc(sm.a)+'</div>';
+}
+function renderPhoto(){                                 // apt dashboard L1091-1099
+  var v=photoUrl(), pv=$('photoPrev');
+  pv.style.display=v?'block':'none';
+  // background-image only — never innerHTML — so a pasted URL cannot inject markup
+  pv.style.backgroundImage=v?('url("'+v.replace(/"/g,'%22')+'")'):'';
+  $('stockRow').querySelectorAll('img').forEach(function(im){
+    im.classList.toggle('on', im.getAttribute('data-src')===v);
+  });
+}
+function renderStock(){                                 // apt dashboard L1100-1111
+  var admin=!!(DATA&&DATA.admin);
+  $('stockRow').innerHTML=STOCK.map(function(u){
+    return '<img data-src="'+u+'" src="'+u+'" alt="" loading="lazy">';
+  }).join('');
+  $('stockRow').querySelectorAll('img').forEach(function(im){
+    if(admin){ im.style.pointerEvents='none'; im.style.opacity='.6'; return; }
+    im.onclick=function(){
+      var u=im.getAttribute('data-src');
+      $('f_photo').value=(photoUrl()===u?'':u);   // click the selected one again to clear
+      renderPhoto();
+    };
+  });
+}
+$('f_photo').addEventListener('input',function(){ renderPhoto(); renderTheme(); });
+
+/* ---------- photo upload ---------- */               // apt dashboard L853-888
+// Resize in the browser before sending: a manager's phone photo is several MB,
+// the function body limit is not, and the guest page only uses it as a
+// background — 1600px wide is already more than it can show.
+function shrink(file,maxW,quality){
+  return new Promise(function(res,rej){
+    var fr=new FileReader();
+    fr.onerror=function(){rej(new Error('read'));};
+    fr.onload=function(){
+      var img=new Image();
+      img.onerror=function(){rej(new Error('decode'));};
+      img.onload=function(){
+        var w=img.width,h=img.height;
+        if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+        var c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        res(c.toDataURL('image/jpeg',quality));
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+$('upBtn').onclick=function(){ $('upFile').click(); };
+$('upFile').onchange=function(){
+  var f=$('upFile').files&&$('upFile').files[0];
+  if(!f)return;
+  var b=$('upBtn'); b.disabled=true; $('upMsg').textContent='Uploading…';
+  shrink(f,1600,0.82).then(function(dataUrl){
+    // Second pass if the first is still heavy — better than failing at the API.
+    if(dataUrl.length>2600000) return shrink(f,1100,0.7);
+    return dataUrl;
+  }).then(function(dataUrl){
+    return api('upload_photo',{data:dataUrl},true);
+  }).then(function(r){
+    b.disabled=false; $('upFile').value='';
+    if(r.ok&&r.j&&r.j.url){ $('f_photo').value=r.j.url; renderPhoto(); renderTheme(); $('upMsg').textContent=''; }
+    else $('upMsg').textContent=(r.j&&r.j.error)||'Could not upload that image.';
+  }).catch(function(){ b.disabled=false; $('upFile').value=''; $('upMsg').textContent='Could not upload that image.'; });
+};
+
+/* ---------- save branding ---------- */
+function saveBranding(b){
+  clearMsg($('brandMsg'));
+  var old=b.textContent; b.disabled=true; b.textContent='Saving…';
+  // Only the three fields the whitelist keeps for a manual pick; the server
+  // drops anything not on its list, so a stray id can never take.
+  api('save_branding',{branding:{photo:photoUrl(),theme:themeSel,tone:toneSel}},true).then(function(r){
+    b.disabled=false; b.textContent=old;
+    if(!r.ok||!r.j||!r.j.ok) return msg($('brandMsg'),(r.j&&r.j.error)||'Could not save.','err');
+    DATA.hotel=DATA.hotel||{};
+    DATA.hotel.branding=r.j.branding||{photo:photoUrl(),theme:themeSel,tone:toneSel};
+    msg($('brandMsg'),'Saved your page look.','ok');
+  });
+}
+$('brandSave').onclick=function(){ saveBranding($('brandSave')); };
+$('brandSaveTop').onclick=function(){ saveBranding($('brandSaveTop')); };
+
+/* ---------- entry: load current branding ---------- */
+function renderBrandingCard(){
+  var b=(DATA.hotel&&DATA.hotel.branding)||{};
+  $('f_photo').value=b.photo||'';
+  themeSel=b.theme||''; toneSel=b.tone||'';
+  renderStock(); renderPhoto(); renderTheme(); renderTone();
+  if(DATA.admin){                                  // admin view is read-only everywhere else too
+    $('upBtn').disabled=true; $('f_photo').disabled=true;
+    $('brandSave').disabled=true; $('brandSaveTop').disabled=true;
   }
 }
 
