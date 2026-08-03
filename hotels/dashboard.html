@@ -965,26 +965,33 @@ function renderPicksCard(){
 // miniature of the page rather than a drawing of one. (apt dashboard L952-977)
 var THEME_MOOD='https://shou.be/img/';
 var THEME_OPTS=[
-  {id:'warm',         nm:'Cosy',          e:'☀️', badge:'🌿 Warm & homely',           font:"'Lora',Georgia,serif", mood:'brussels-tonight.jpg',
-   sample:'Welcome to Maison Claire',  out:'Feels like a home, not a lobby. Warm and personal.',                     chips:['Terracotta','Homely','Inviting'],
+  {id:'warm',         nm:'Warm',          e:'☀️', badge:'🛎️ Cosy city hotel',          font:"'Lora',Georgia,serif", mood:'brussels-tonight.jpg',
+   sample:'Welcome to Maison Claire',  out:'Feels like a home, not a lobby — warm and personal for a cosy city hotel.', chips:['Terracotta','Homely','Inviting'],
    bg:'#fdf6ef', card:'#fffaf5', ink:'#2b1b13', soft:'#9a8577', line:'rgba(60,35,20,.13)',
    grad:'linear-gradient(105deg,#c2622f,#e0913f)', panel:'#f6ebe0'},
-  {id:'nordic',       nm:'Nordic',        e:'🌊', badge:'💼 Best for business guests', font:"'Inter',system-ui,sans-serif", mood:'antwerp-tonight.jpg',
-   sample:'Welcome to Nordic Nest',    out:'Calm and uncluttered. Ideal for business hotels and long stays.',        chips:['Airy','Crisp','Scandi'],
+  {id:'nordic',       nm:'Modern',        e:'🌊', badge:'💼 Business & city hotels',    font:"'Inter',system-ui,sans-serif", mood:'antwerp-tonight.jpg',
+   sample:'Welcome to Nordic Nest',    out:'Calm and uncluttered — ideal for business and city hotels.',             chips:['Airy','Crisp','Scandi'],
    bg:'#f4f7f9', card:'#ffffff', ink:'#1b2430', soft:'#64717f', line:'rgba(27,36,48,.12)',
    grad:'linear-gradient(105deg,#3d7ea6,#6aa3c0)', panel:'#e9eff4'},
-  {id:'botanical',    nm:'Botanical',     e:'🌿', badge:'🌳 Near parks & nature',      font:"'Lora',Georgia,serif", mood:'ghent-tonight.jpg',
-   sample:'Welcome to Garden House',   out:'A calm, premium atmosphere. Perfect near parks or greenery.',            chips:['Green','Natural','Restful'],
+  {id:'botanical',    nm:'Garden',        e:'🌿', badge:'🌳 Garden & spa hotels',       font:"'Lora',Georgia,serif", mood:'ghent-tonight.jpg',
+   sample:'Welcome to Garden House',   out:'A calm, premium feel — perfect for garden or spa hotels.',               chips:['Green','Natural','Restful'],
    bg:'#f2f7f3', card:'#ffffff', ink:'#152a20', soft:'#5c7166', line:'rgba(21,42,32,.13)',
    grad:'linear-gradient(105deg,#2f7d5b,#6fae74)', panel:'#e6efe8'},
-  {id:'mediterranean',nm:'Mediterranean', e:'🌍', badge:'🌞 Sunny & coastal',          font:"'Lora',Georgia,serif", mood:'brussels-weekend.jpg',
-   sample:'Welcome to Casa Oliva',     out:'Feels like a holiday the moment guests arrive. Perfect for sunny, coastal hotels.', chips:['Sand','Olive','Sunlit'],
+  {id:'mediterranean',nm:'Riviera',       e:'🌍', badge:'🌞 Seaside & resort hotels',   font:"'Lora',Georgia,serif", mood:'brussels-weekend.jpg',
+   sample:'Welcome to Casa Oliva',     out:'Feels like a holiday the moment guests arrive — made for seaside and resort hotels.', chips:['Sand','Olive','Sunlit'],
    bg:'#fdf8f0', card:'#fffdf8', ink:'#2e2418', soft:'#948871', line:'rgba(70,55,30,.14)',
-   grad:'linear-gradient(105deg,#c1683f,#dda15e)', panel:'#f4ecdd'}
-  // NB: 'bold' and 'boutique' are valid server-side but omitted here — they are
-  // dark themes and the guest page (sample.html) still hardcodes light chrome
-  // (header/pills/tabs), so a dark theme renders a light header on a dark body.
-  // Re-add them once the guest page themes its chrome.
+   grad:'linear-gradient(105deg,#c1683f,#dda15e)', panel:'#f4ecdd'},
+  // Dark themes (build#57 stage 3b): re-enabled now that the guest page themes
+  // its chrome (header/inputs/tabs/dock are var-driven). Palette mirrors the
+  // body[data-theme="bold"|"boutique"] blocks in sample.html.
+  {id:'bold',         nm:'Bold',          e:'🌃', badge:'🎇 Dark & dramatic',           font:"'Space Grotesk',system-ui,sans-serif", mood:'festivals.jpg',
+   sample:'Welcome to The Muse',       out:'A dark, high-contrast page with electric accents — for design and lifestyle hotels.', chips:['Dark','Vivid','Nightlife'],
+   bg:'#17141d', card:'#211d2a', ink:'#f5f3f7', soft:'#a9a2b6', line:'rgba(255,255,255,.14)',
+   grad:'linear-gradient(105deg,#ff4d8d,#ffb03d)', panel:'#1c1825'},
+  {id:'boutique',     nm:'Boutique',      e:'🥂', badge:'✨ Dark & upscale',            font:"'Lora',Georgia,serif", mood:'brussels-tonight.jpg',
+   sample:'Welcome to Hôtel Lumière',  out:'Charcoal and champagne — quiet luxury for boutique and five-star hotels.', chips:['Charcoal','Champagne','Luxe'],
+   bg:'#191713', card:'#221f1a', ink:'#f4efe6', soft:'#a89d8c', line:'rgba(232,214,178,.16)',
+   grad:'linear-gradient(105deg,#c9a227,#e6c66b)', panel:'#1e1b17'}
 ];
 var TONE_OPTS=[{id:'host',label:'Host'},{id:'concierge',label:'Concierge'},{id:'brief',label:'Brief'},{id:'playful',label:'Playful'}];
 // Pre-written, not generated: instant, free, and it shows each voice at its
@@ -1001,6 +1008,10 @@ var themeSel='', toneSel='';
 // the API stores http(s) URLs (branding.photo is interpolated into a CSS url()
 // on the guest page), so a relative path is silently dropped. (apt L1089)
 var STOCK=['brussels-tonight','antwerp-tonight','ghent-tonight','brussels-weekend','festivals','hero'].map(function(f){return 'https://shou.be/img/'+f+'.jpg';});
+// Uploaded/pasted covers that aren't stock. Kept module-level so they PERSIST as
+// thumbnails after the manager selects a different photo (they used to vanish the
+// moment they were no longer the current selection).
+var customPhotos=[];
 function photoUrl(){ return $('f_photo').value.trim(); }
 
 function renderTheme(){                                // apt dashboard L1007-1050
@@ -1065,8 +1076,11 @@ function renderPhoto(){                                 // apt dashboard L1091-1
 function renderStock(){                                 // apt dashboard L1100-1111
   var admin=!!(DATA&&DATA.admin);
   var cur=photoUrl();
-  var list=STOCK.slice();
-  if(cur&&list.indexOf(cur)<0)list.unshift(cur);   // the manager's own upload/paste shows in the row too
+  // Remember any custom cover so it stays in the row after a different photo is
+  // picked. On load the saved branding.photo (if custom) is re-added here because
+  // renderStock runs with it as cur.
+  if(cur&&STOCK.indexOf(cur)<0&&customPhotos.indexOf(cur)<0)customPhotos.push(cur);
+  var list=customPhotos.concat(STOCK);   // custom covers first, then the stock shots
   $('stockRow').innerHTML=list.map(function(u){
     return '<img class="'+(u===cur?'on':'')+'" data-src="'+u+'" src="'+u+'" alt="" loading="lazy">';
   }).join('');
