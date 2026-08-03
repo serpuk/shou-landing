@@ -125,6 +125,11 @@
   .stock img:hover{border-color:var(--line)}
   .stock img.on{border-color:var(--pink)}
   .photo-prev{margin-top:10px;aspect-ratio:16/7;max-height:360px;border-radius:12px;background-size:cover;background-position:center;display:none}
+  .logo-prev{margin-top:12px;width:60px;height:60px;border-radius:15px;background:linear-gradient(135deg,#ff3d8b,#8b5cf6);display:grid;place-items:center;overflow:hidden}
+  .logo-prev img{width:100%;height:100%;object-fit:cover;display:block}
+  .logo-prev span{font-family:'Fraunces',Georgia,serif;font-weight:700;color:#fff;font-size:26px}
+  .logo-none{font:inherit;font-size:13px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 12px;cursor:pointer}
+  .logo-none.on{border-color:var(--pink);color:var(--pink)}
   #f_photo{font:inherit;font-size:14.5px;color:var(--ink);background:#fff;border:1px solid var(--line);
     border-radius:11px;padding:10px 13px;width:100%}
   #f_photo:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,61,139,.12)}
@@ -291,6 +296,17 @@
         <input id="f_photo" placeholder="https://…"></label>
       <div class="stock" id="stockRow"></div>
       <div class="photo-prev" id="photoPrev"></div>
+
+      <div class="grp" style="margin-top:26px">Logo</div>
+      <p class="ed-sub">The little badge beside your hotel name. Pull it from your website, or upload one — leave it empty to use your hotel's initial.</p>
+      <div class="row" style="margin-bottom:8px">
+        <button type="button" class="btn btn-ghost btn-sm" id="logoFetch">✨ Fetch from our website</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="logoUpBtn">⬆ Upload</button>
+        <input type="file" id="logoFile" accept="image/jpeg,image/png,image/webp" style="display:none">
+        <span class="muted" id="logoMsg" style="font-size:13px"></span>
+      </div>
+      <div class="stock" id="logoRow"></div>
+      <div class="logo-prev" id="logoPrev"></div>
 
       <div class="grp" style="margin-top:26px">Brand theme</div>
       <p class="ed-sub">The personality of your guest page. Colours, typography, cards and background all change together — pick the one that feels like your hotel.</p>
@@ -1095,6 +1111,46 @@ function renderStock(){                                 // apt dashboard L1100-1
 }
 $('f_photo').addEventListener('input',function(){ renderPhoto(); renderTheme(); });
 
+/* ---------- logo (badge next to the hotel name) ---------- */
+var logoSel='', logoCands=[];
+function renderLogo(){
+  var admin=!!(DATA&&DATA.admin);
+  var pv=$('logoPrev');
+  if(logoSel){ pv.innerHTML=''; var pim=document.createElement('img'); pim.src=logoSel; pim.alt=''; pv.appendChild(pim); }
+  else { var nm=((DATA.hotel&&DATA.hotel.name)||'H').trim(); pv.innerHTML='<span>'+((nm[0]||'H').toUpperCase())+'</span>'; }
+  var list=logoCands.slice(); if(logoSel&&list.indexOf(logoSel)<0)list.unshift(logoSel);
+  var row=$('logoRow');
+  row.innerHTML=list.map(function(u){
+    return '<img class="'+(u===logoSel?'on':'')+'" data-src="'+u+'" src="'+u+'" alt="" loading="lazy">';
+  }).join('') + (list.length?'<button type="button" class="logo-none'+(logoSel?'':' on')+'" data-none="1">Use initial</button>':'');
+  row.querySelectorAll('img').forEach(function(im){
+    im.onerror=function(){ im.remove(); };   // drop candidates that fail to load — show only real images
+    if(admin){ im.style.pointerEvents='none'; im.style.opacity='.6'; return; }
+    im.onclick=function(){ var u=im.getAttribute('data-src'); logoSel=(logoSel===u?'':u); renderLogo(); };
+  });
+  var nb=row.querySelector('[data-none]'); if(nb&&!admin)nb.onclick=function(){ logoSel=''; renderLogo(); };
+}
+$('logoFetch').onclick=function(){
+  if(DATA&&DATA.admin)return;
+  var b=$('logoFetch'); b.disabled=true; $('logoMsg').textContent='Looking on your website…';
+  api('logo_suggest',{},true).then(function(r){
+    b.disabled=false;
+    var logos=(r.ok&&r.j&&r.j.logos)||[];
+    if(!logos.length){ $('logoMsg').textContent=(r.j&&r.j.website)?'Nothing usable found — upload one instead.':'Add your website in the CRM first, or upload a logo.'; return; }
+    logoCands=logos; $('logoMsg').textContent='Pick the one that looks right.'; renderLogo();
+  }).catch(function(){ b.disabled=false; $('logoMsg').textContent='Could not reach your website.'; });
+};
+$('logoUpBtn').onclick=function(){ $('logoFile').click(); };
+$('logoFile').onchange=function(){
+  var f=$('logoFile').files&&$('logoFile').files[0]; if(!f)return;
+  var b=$('logoUpBtn'); b.disabled=true; $('logoMsg').textContent='Uploading…';
+  shrink(f,512,0.9).then(function(dataUrl){ return api('upload_photo',{data:dataUrl},true); }).then(function(r){
+    b.disabled=false; $('logoFile').value='';
+    if(r.ok&&r.j&&r.j.url){ logoSel=r.j.url; if(logoCands.indexOf(logoSel)<0)logoCands.unshift(logoSel); $('logoMsg').textContent=''; renderLogo(); }
+    else $('logoMsg').textContent=(r.j&&r.j.error)||'Could not upload that image.';
+  }).catch(function(){ b.disabled=false; $('logoFile').value=''; $('logoMsg').textContent='Could not upload that image.'; });
+};
+
 /* ---------- photo upload ---------- */               // apt dashboard L853-888
 // Resize in the browser before sending: a manager's phone photo is several MB,
 // the function body limit is not, and the guest page only uses it as a
@@ -1144,14 +1200,14 @@ function saveBranding(b){
   var old; if(b){old=b.textContent; b.disabled=true; b.textContent='Saving…';}
   // Only the three fields the whitelist keeps for a manual pick; the server
   // drops anything not on its list, so a stray id can never take.
-  return api('save_branding',{branding:{photo:photoUrl(),theme:themeSel,tone:toneSel}},true).then(function(r){
+  return api('save_branding',{branding:{photo:photoUrl(),logo:logoSel,theme:themeSel,tone:toneSel}},true).then(function(r){
     if(b){b.disabled=false; b.textContent=old;}
     if(!r.ok||!r.j||!r.j.ok){
       if(b)msg($('brandMsg'),(r.j&&r.j.error)||'Could not save.','err');
       throw new Error((r.j&&r.j.error)||'Could not save your page look.');
     }
     DATA.hotel=DATA.hotel||{};
-    DATA.hotel.branding=r.j.branding||{photo:photoUrl(),theme:themeSel,tone:toneSel};
+    DATA.hotel.branding=r.j.branding||{photo:photoUrl(),logo:logoSel,theme:themeSel,tone:toneSel};
     if(b)msg($('brandMsg'),'Saved your page look.','ok');
     return r;
   });
@@ -1161,10 +1217,11 @@ function saveBranding(b){
 function renderBrandingCard(){
   var b=(DATA.hotel&&DATA.hotel.branding)||{};
   $('f_photo').value=b.photo||'';
-  themeSel=b.theme||''; toneSel=b.tone||'';
-  renderStock(); renderPhoto(); renderTheme(); renderTone();
+  themeSel=b.theme||''; toneSel=b.tone||''; logoSel=b.logo||''; logoCands=[];
+  renderStock(); renderPhoto(); renderTheme(); renderTone(); renderLogo();
   if(DATA.admin){                                  // admin view is read-only everywhere else too
     $('upBtn').disabled=true; $('f_photo').disabled=true;
+    $('logoFetch').disabled=true; $('logoUpBtn').disabled=true;
   }
 }
 

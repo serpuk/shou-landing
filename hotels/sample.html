@@ -122,7 +122,8 @@
 
   header{position:sticky;top:0;z-index:20;background:var(--chrome);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
   .bar{display:flex;align-items:center;gap:13px;padding:12px 20px;max-width:1040px;margin:0 auto}
-  .hlogo{width:44px;height:44px;border-radius:12px;background:var(--grad-cool);display:grid;place-items:center;font-family:'Fraunces';font-weight:700;color:#fff;font-size:20px;flex:none}
+  .hlogo{width:44px;height:44px;border-radius:12px;background:var(--grad-cool);display:grid;place-items:center;font-family:'Fraunces';font-weight:700;color:#fff;font-size:20px;flex:none;overflow:hidden}
+  .hlogo-img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}
   .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
   .hpow{font-size:11px;color:var(--dim)}
   .lang{margin-left:auto}
@@ -858,6 +859,10 @@ function cleanTitle(x){
   return s||String(x||'').trim();
 }
 function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=norm(cleanTitle(e.name))+'|'+norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
+// The near rail is a "what's on around you" overview — keep one card per venue so
+// a multi-night residency or a busy venue can't fill it with near-identical cards.
+// Everything still appears in full in the per-category rails below and on the map.
+function oneVenue(list){const seen=new Set(),out=[];for(const e of list){const k=norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
 
 // --- occurrence awareness: a recurring event (exhibition run, daily camp) is
 // "on" every day it covers, not just its start_date — mirrors the search API. ---
@@ -939,8 +944,9 @@ function renderWeek(){
   const showDateFor=e=>activeDay||nextOccurrence(e);      // picked day, else next upcoming occurrence
   const byShown=(a,b)=>String(showDateFor(a)||'').localeCompare(String(showDateFor(b)||''))||(km(a)-km(b));
   // "This week near your hotel": events on in the window, nearest first
-  let nearPool=catalog.filter(inWindow).sort((a,b)=>km(a)-km(b));
+  let nearPool=catalog.filter(inWindow).sort((a,b)=>km(a)-km(b)||String(showDateFor(a)||'').localeCompare(String(showDateFor(b)||'')));
   if(!activeDay&&nearPool.length<6)nearPool=[...catalog].sort((a,b)=>km(a)-km(b));
+  nearPool=oneVenue(nearPool);   // soonest per venue (list is nearest-first, date-tiebroken)
   const near=nearPool.slice(0,20).map(e=>evCard(e,showDateFor(e)));
   // themed: up to 20 of that category occurring in the window — soonest first
   const byCat=c=>catalog.filter(e=>e.categorySlug===c&&inWindow(e)).sort(byShown).slice(0,20).map(e=>evCard(e,showDateFor(e)));
@@ -1384,6 +1390,10 @@ async function loadPortal(){
     // hotel supplied its own photo (u.html applies the same url() to .hcard).
     if(b.photo){const hcard=document.querySelector('.hotelcard');
       if(hcard)hcard.style.backgroundImage="url('"+b.photo+"')";}
+    // Logo badge: swap the initial tile for the hotel's own mark when supplied.
+    // b.logo is server-whitelisted to a bare https URL, so setting img.src is safe.
+    if(b.logo){const lg=document.querySelector('.hlogo');
+      if(lg){lg.textContent='';const li=document.createElement('img');li.src=b.logo;li.alt=HOTEL.name||'';li.className='hlogo-img';lg.appendChild(li);}}
     // Theme: the u.html mechanism — a data-theme attribute on <body> that the 6
     // theme blocks key off. Unknown/absent theme → no attribute → the demo look.
     const THEMES=['warm','nordic','bold','botanical','boutique','mediterranean'];
