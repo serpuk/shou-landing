@@ -177,6 +177,9 @@
   .tone-demo{margin-top:12px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:13.5px;display:none}
   .tone-demo .q{color:var(--soft)}
   .tone-demo .a{color:var(--ink);margin:4px 0 0}
+  .tone-sec{margin-top:24px;padding:16px 18px;border-radius:14px;border:1px solid var(--line);
+    background:linear-gradient(135deg,rgba(155,92,255,.06),rgba(242,83,141,.05))}
+  .tone-sec .grp{border:none;padding:0}
 
   /* collapsible cards */
   .sec-head{cursor:pointer}
@@ -293,10 +296,12 @@
       <p class="ed-sub">The personality of your guest page. Colours, typography, cards and background all change together — pick the one that feels like your hotel.</p>
       <div class="themes" id="themeRow"></div>
 
-      <div class="grp" style="margin-top:26px">Concierge voice</div>
-      <p class="ed-sub">How the concierge phrases its suggestions. The facts never change — only the wording.</p>
-      <div class="tones" id="toneRow"></div>
-      <div class="tone-demo" id="toneDemo"></div>
+      <div class="tone-sec">
+        <div class="grp" style="margin-top:0">Concierge voice</div>
+        <p class="ed-sub">How the concierge phrases its suggestions. The facts never change — only the wording.</p>
+        <div class="tones" id="toneRow"></div>
+        <div class="tone-demo" id="toneDemo"></div>
+      </div>
       <div class="msg" id="brandMsg"></div>
     </div>
 
@@ -958,21 +963,21 @@ function renderPicksCard(){
 // host|concierge|brief|playful) — anything else is dropped on save. Each theme
 // carries the real palette + display font of its guest page, so a tile is a
 // miniature of the page rather than a drawing of one. (apt dashboard L952-977)
-var THEME_MOOD='https://shou.be/apartments/img/';
+var THEME_MOOD='https://shou.be/img/';
 var THEME_OPTS=[
-  {id:'warm',         nm:'Cosy',          e:'☀️', badge:'🌿 Warm & homely',           font:"'Lora',Georgia,serif", mood:'apt1.jpg',
+  {id:'warm',         nm:'Cosy',          e:'☀️', badge:'🌿 Warm & homely',           font:"'Lora',Georgia,serif", mood:'brussels-tonight.jpg',
    sample:'Welcome to Maison Claire',  out:'Feels like a home, not a lobby. Warm and personal.',                     chips:['Terracotta','Homely','Inviting'],
    bg:'#fdf6ef', card:'#fffaf5', ink:'#2b1b13', soft:'#9a8577', line:'rgba(60,35,20,.13)',
    grad:'linear-gradient(105deg,#c2622f,#e0913f)', panel:'#f6ebe0'},
-  {id:'nordic',       nm:'Nordic',        e:'🌊', badge:'💼 Best for business guests', font:"'Inter',system-ui,sans-serif", mood:'apt5.jpg',
+  {id:'nordic',       nm:'Nordic',        e:'🌊', badge:'💼 Best for business guests', font:"'Inter',system-ui,sans-serif", mood:'antwerp-tonight.jpg',
    sample:'Welcome to Nordic Nest',    out:'Calm and uncluttered. Ideal for business hotels and long stays.',        chips:['Airy','Crisp','Scandi'],
    bg:'#f4f7f9', card:'#ffffff', ink:'#1b2430', soft:'#64717f', line:'rgba(27,36,48,.12)',
    grad:'linear-gradient(105deg,#3d7ea6,#6aa3c0)', panel:'#e9eff4'},
-  {id:'botanical',    nm:'Botanical',     e:'🌿', badge:'🌳 Near parks & nature',      font:"'Lora',Georgia,serif", mood:'apt7.jpg',
+  {id:'botanical',    nm:'Botanical',     e:'🌿', badge:'🌳 Near parks & nature',      font:"'Lora',Georgia,serif", mood:'ghent-tonight.jpg',
    sample:'Welcome to Garden House',   out:'A calm, premium atmosphere. Perfect near parks or greenery.',            chips:['Green','Natural','Restful'],
    bg:'#f2f7f3', card:'#ffffff', ink:'#152a20', soft:'#5c7166', line:'rgba(21,42,32,.13)',
    grad:'linear-gradient(105deg,#2f7d5b,#6fae74)', panel:'#e6efe8'},
-  {id:'mediterranean',nm:'Mediterranean', e:'🌍', badge:'🌞 Sunny & coastal',          font:"'Lora',Georgia,serif", mood:'apt11.jpg',
+  {id:'mediterranean',nm:'Mediterranean', e:'🌍', badge:'🌞 Sunny & coastal',          font:"'Lora',Georgia,serif", mood:'brussels-weekend.jpg',
    sample:'Welcome to Casa Oliva',     out:'Feels like a holiday the moment guests arrive. Perfect for sunny, coastal hotels.', chips:['Sand','Olive','Sunlit'],
    bg:'#fdf8f0', card:'#fffdf8', ink:'#2e2418', soft:'#948871', line:'rgba(70,55,30,.14)',
    grad:'linear-gradient(105deg,#c1683f,#dda15e)', panel:'#f4ecdd'}
@@ -995,7 +1000,7 @@ var themeSel='', toneSel='';
 // Stock photos: same generic interior shots as apartments. Absolute https only —
 // the API stores http(s) URLs (branding.photo is interpolated into a CSS url()
 // on the guest page), so a relative path is silently dropped. (apt L1089)
-var STOCK=['apt1','apt2','apt5','apt7','apt11','apt12'].map(function(f){return 'https://shou.be/apartments/img/'+f+'.jpg';});
+var STOCK=['brussels-tonight','antwerp-tonight','ghent-tonight','brussels-weekend','festivals','hero'].map(function(f){return 'https://shou.be/img/'+f+'.jpg';});
 function photoUrl(){ return $('f_photo').value.trim(); }
 
 function renderTheme(){                                // apt dashboard L1007-1050
@@ -1055,14 +1060,15 @@ function renderPhoto(){                                 // apt dashboard L1091-1
   pv.style.display=v?'block':'none';
   // background-image only — never innerHTML — so a pasted URL cannot inject markup
   pv.style.backgroundImage=v?('url("'+v.replace(/"/g,'%22')+'")'):'';
-  $('stockRow').querySelectorAll('img').forEach(function(im){
-    im.classList.toggle('on', im.getAttribute('data-src')===v);
-  });
+  renderStock();   // rebuild thumbnails so an uploaded/pasted photo also appears + is highlighted
 }
 function renderStock(){                                 // apt dashboard L1100-1111
   var admin=!!(DATA&&DATA.admin);
-  $('stockRow').innerHTML=STOCK.map(function(u){
-    return '<img data-src="'+u+'" src="'+u+'" alt="" loading="lazy">';
+  var cur=photoUrl();
+  var list=STOCK.slice();
+  if(cur&&list.indexOf(cur)<0)list.unshift(cur);   // the manager's own upload/paste shows in the row too
+  $('stockRow').innerHTML=list.map(function(u){
+    return '<img class="'+(u===cur?'on':'')+'" data-src="'+u+'" src="'+u+'" alt="" loading="lazy">';
   }).join('');
   $('stockRow').querySelectorAll('img').forEach(function(im){
     if(admin){ im.style.pointerEvents='none'; im.style.opacity='.6'; return; }
