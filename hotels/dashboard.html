@@ -124,7 +124,7 @@
   .stock img{width:84px;height:56px;object-fit:cover;border-radius:9px;border:2px solid transparent;cursor:pointer}
   .stock img:hover{border-color:var(--line)}
   .stock img.on{border-color:var(--pink)}
-  .photo-prev{margin-top:10px;height:110px;border-radius:12px;background-size:cover;background-position:center;display:none}
+  .photo-prev{margin-top:10px;aspect-ratio:16/7;max-height:360px;border-radius:12px;background-size:cover;background-position:center;display:none}
   #f_photo{font:inherit;font-size:14.5px;color:var(--ink);background:#fff;border:1px solid var(--line);
     border-radius:11px;padding:10px 13px;width:100%}
   #f_photo:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,61,139,.12)}
@@ -177,12 +177,40 @@
   .tone-demo{margin-top:12px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:13.5px;display:none}
   .tone-demo .q{color:var(--soft)}
   .tone-demo .a{color:var(--ink);margin:4px 0 0}
+
+  /* collapsible cards */
+  .sec-head{cursor:pointer}
+  .sec-head .chev{font-size:13px;line-height:1;color:var(--dim);flex:none;align-self:center;
+    user-select:none;transition:color .15s}
+  .sec-head:hover .chev{color:var(--pink)}
+  .card.collapsed>*:not(.sec-head){display:none!important}
+  .card.collapsed .sec-head{margin-bottom:0}
+
+  /* global save/error toast */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);z-index:60;
+    max-width:calc(100vw - 32px);font-size:14px;font-weight:700;padding:12px 18px;border-radius:12px;
+    color:#fff;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.ok{background:linear-gradient(105deg,var(--cyan),#12b3a3)}
+  .toast.err{background:linear-gradient(105deg,#c81e5b,var(--pink))}
+
+  /* back-to-top */
+  .totop{position:fixed;right:22px;bottom:22px;z-index:55;width:46px;height:46px;border-radius:50%;
+    border:1px solid var(--line);background:#fff;color:var(--ink);font-size:20px;line-height:1;cursor:pointer;
+    box-shadow:var(--shadow-lift);display:flex;align-items:center;justify-content:center;
+    opacity:0;visibility:hidden;transform:translateY(10px);
+    transition:opacity .2s ease,transform .2s ease,visibility .2s}
+  .totop.show{opacity:1;visibility:visible;transform:translateY(0)}
+  .totop:hover{color:var(--pink);border-color:rgba(255,61,139,.5)}
 </style>
 </head>
 <body>
 <header><div class="bar">
   <a class="brand" href="/hotels/offer">shou<small>Hotels</small></a>
   <span class="who" id="who"></span>
+  <button class="btn btn-primary btn-sm" id="hdrSave" style="display:none">Save</button>
+  <button class="btn btn-ghost btn-sm" id="hdrPreview" style="display:none">Preview ↗</button>
   <button class="signout" id="signout" style="display:none">Sign out</button>
 </div></header>
 
@@ -229,10 +257,6 @@
     <div class="card" id="picksCard">
       <div class="sec-head"><h2>Your recommendations</h2><span class="sub">The places you would actually send a guest to</span></div>
       <p class="muted" style="font-size:13px;margin:-4px 0 14px">Your concierge answers guests with these instead of a generic map search. Set your hotel location, then add the spots you love nearby.</p>
-      <div class="row" id="picksTopActions" style="gap:8px;margin:0 0 18px">
-        <button class="btn btn-primary btn-sm" id="picksSaveTop">Save recommendations</button>
-        <button class="btn btn-sm" id="picksPreview">Preview guest page ↗</button>
-      </div>
 
       <label class="lfield full"><span>Hotel location</span>
         <input id="p_address" placeholder="Start typing — street, number, postcode" autocomplete="off"></label>
@@ -245,10 +269,6 @@
       </div>
 
       <div id="picksBody"></div>
-
-      <div class="row" style="margin-top:10px">
-        <button class="btn btn-primary btn-sm" id="picksSave">Save recommendations</button>
-      </div>
       <div class="msg" id="picksMsg"></div>
     </div>
 
@@ -256,9 +276,6 @@
     <div class="card" id="brandCard">
       <div class="sec-head"><h2>Your page look</h2><span class="sub">Photo, theme &amp; concierge voice</span></div>
       <p class="muted" style="font-size:13px;margin:-4px 0 14px">The cover photo, colour theme and the voice your concierge answers guests in. Changes go live the moment you save.</p>
-      <div class="row" id="brandTopActions" style="gap:8px;margin:0 0 18px">
-        <button class="btn btn-primary btn-sm" id="brandSaveTop">Save page look</button>
-      </div>
 
       <div class="grp" style="margin-top:0">Cover photo</div>
       <p class="ed-sub">Shown at the top of your guest page. Upload your own, paste a link, or pick one below.</p>
@@ -280,10 +297,6 @@
       <p class="ed-sub">How the concierge phrases its suggestions. The facts never change — only the wording.</p>
       <div class="tones" id="toneRow"></div>
       <div class="tone-demo" id="toneDemo"></div>
-
-      <div class="row" style="margin-top:18px">
-        <button class="btn btn-primary btn-sm" id="brandSave">Save page look</button>
-      </div>
       <div class="msg" id="brandMsg"></div>
     </div>
 
@@ -336,6 +349,9 @@
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+<button class="totop" id="toTop" aria-label="Back to top" title="Back to top">↑</button>
+
 <script>
 const API='https://shou-backend.vercel.app/api/hotel-portal';
 const $=id=>document.getElementById(id);
@@ -346,6 +362,14 @@ let DATA=null;
 
 function msg(el,txt,cls){el.textContent=txt;el.className='msg show '+(cls||'');}
 function clearMsg(el){el.className='msg';el.textContent='';}
+// Floating global toast — used by the header Save/Preview (msg() writes into a
+// card's own message box; the header controls are not tied to a card).
+function toast(txt,cls){
+  var t=$('toast'); if(!t)return;
+  t.textContent=txt; t.className='toast show '+(cls==='err'?'err':'ok');
+  clearTimeout(toast._t);
+  toast._t=setTimeout(function(){ t.className='toast'; },3400);
+}
 
 async function api(action,body,auth){
   const h={'Content-Type':'application/json'};
@@ -374,6 +398,58 @@ $('loginBtn').onclick=async function(){
 $('email').addEventListener('keydown',function(e){if(e.key==='Enter')$('loginBtn').click();});
 $('signout').onclick=function(){try{localStorage.removeItem('shou_hotel_sess');}catch(e){}location.href='/hotels/dashboard';};
 
+/* ---------- global header actions (one Save + Preview for the whole page) ---------- */
+// Global Save persists BOTH the recommendations and the page look in one click,
+// reusing the same collect/coords/photo/theme/tone logic the cards used to save.
+function saveAll(){
+  if(!DATA||DATA.admin)return;                       // read-only in admin view
+  var btn=$('hdrSave'); var old=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  // savePicks()/saveBranding() with no button return a promise and throw on failure.
+  Promise.all([savePicks(),saveBranding()]).then(function(){
+    if(btn){btn.disabled=false;btn.textContent=old;}
+    toast('Saved — live now','ok');
+  }).catch(function(err){
+    if(btn){btn.disabled=false;btn.textContent=old;}
+    toast((err&&err.message)||'Could not save. Please try again.','err');
+  });
+}
+function hdrPreview(){
+  var slug=(DATA&&DATA.hotel&&DATA.hotel.portal_slug)||'';
+  if(!slug){ toast('No guest-page link yet — ask us to enable it.','err'); return; }
+  window.open('/hotels/sample?slug='+encodeURIComponent(slug),'_blank','noopener');
+}
+$('hdrSave').onclick=saveAll;
+$('hdrPreview').onclick=hdrPreview;
+
+/* ---------- collapsible cards ---------- */
+// Generic: wire every dashboard card so clicking its header toggles the body.
+function wireCollapse(){
+  document.querySelectorAll('#app > .card').forEach(function(card){
+    var head=card.querySelector('.sec-head');
+    if(!head||head.getAttribute('data-collapse'))return;
+    head.setAttribute('data-collapse','1');
+    var chev=document.createElement('span');
+    chev.className='chev'; chev.textContent='▾';
+    head.insertBefore(chev,head.firstChild);
+    head.addEventListener('click',function(e){
+      // don't collapse when interacting with a control inside the header
+      if(e.target.closest('button,a,input,select,textarea,label'))return;
+      var collapsed=card.classList.toggle('collapsed');
+      chev.textContent=collapsed?'▸':'▾';
+    });
+  });
+}
+
+/* ---------- back-to-top ---------- */
+(function(){
+  var b=$('toTop'); if(!b)return;
+  b.onclick=function(){ window.scrollTo({top:0,behavior:'smooth'}); };
+  window.addEventListener('scroll',function(){
+    if(window.pageYOffset>400)b.classList.add('show'); else b.classList.remove('show');
+  },{passive:true});
+})();
+
 async function enterApp(){
   const r=await api('me',{},true);
   if(!r.ok){
@@ -385,8 +461,11 @@ async function enterApp(){
   DATA=r.j;
   $('authWrap').style.display='none';$('app').style.display='block';
   $('signout').style.display='';
+  // Global Save + Preview: only when signed in, and never in admin read-only view.
+  if(!DATA.admin){ $('hdrSave').style.display=''; $('hdrPreview').style.display=''; }
   $('who').textContent=(DATA.hotel&&DATA.hotel.name)||'';
   renderHotel();renderQr();renderPicksCard();renderBrandingCard();renderLegal();renderBilling();renderInvoices();renderQuestions();
+  wireCollapse();
   // Admin view: make it unmistakable whose account this is, and remove the
   // controls that would act on the customer's behalf (the API refuses them too).
   if(DATA.admin){
@@ -833,27 +912,27 @@ $('suggestBtn').onclick=function(){
 };
 
 /* ---------- save picks ---------- */
+// Returns a promise; rejects (throws) on failure so the global saveAll can
+// Promise.all() it. Passing a button is optional (kept for reuse); the global
+// header Save calls it with none.
 function savePicks(b){
   clearMsg($('picksMsg'));
-  var old=b.textContent; b.disabled=true; b.textContent='Saving…';
+  var old; if(b){old=b.textContent; b.disabled=true; b.textContent='Saving…';}
   var c=pkCoords();
-  api('save_picks',{picks:collectPicks(),lat:(c?c.lat:''),lng:(c?c.lng:'')},true).then(function(r){
-    b.disabled=false; b.textContent=old;
-    if(!r.ok||!r.j||!r.j.ok) return msg($('picksMsg'),(r.j&&r.j.error)||'Could not save.','err');
+  return api('save_picks',{picks:collectPicks(),lat:(c?c.lat:''),lng:(c?c.lng:'')},true).then(function(r){
+    if(b){b.disabled=false; b.textContent=old;}
+    if(!r.ok||!r.j||!r.j.ok){
+      if(b)msg($('picksMsg'),(r.j&&r.j.error)||'Could not save.','err');
+      throw new Error((r.j&&r.j.error)||'Could not save your recommendations.');
+    }
     DATA.hotel=DATA.hotel||{};
     DATA.hotel.content=r.j.content||DATA.hotel.content;
     if(r.j.lat!=null)DATA.hotel.lat=r.j.lat;
     if(r.j.lng!=null)DATA.hotel.lng=r.j.lng;
-    msg($('picksMsg'),'Saved your recommendations.','ok');
+    if(b)msg($('picksMsg'),'Saved your recommendations.','ok');
+    return r;
   });
 }
-$('picksSave').onclick=function(){savePicks($('picksSave'));};
-$('picksSaveTop').onclick=function(){savePicks($('picksSaveTop'));};
-$('picksPreview').onclick=function(){
-  var slug=(DATA.hotel||{}).portal_slug;
-  if(!slug){ msg($('picksMsg'),'No guest-page link (slug) set for this hotel yet — ask us to enable it, then Preview will open your live page.','err'); return; }
-  window.open('/hotels/sample?slug='+encodeURIComponent(slug),'_blank','noopener');
-};
 
 /* ---------- entry: load existing location + picks ---------- */
 function renderPicksCard(){
@@ -868,7 +947,7 @@ function renderPicksCard(){
   }
   renderPicks(((h.content)||{}).picks||{});
   if(DATA.admin){                                  // admin view is read-only everywhere else too
-    $('p_address').disabled=true; $('suggestBtn').disabled=true; $('picksSave').disabled=true; $('picksSaveTop').disabled=true;
+    $('p_address').disabled=true; $('suggestBtn').disabled=true;
     $('picksBody').querySelectorAll('input,button').forEach(function(el){el.disabled=true;});
   }
 }
@@ -1038,21 +1117,25 @@ $('upFile').onchange=function(){
 };
 
 /* ---------- save branding ---------- */
+// Returns a promise; rejects (throws) on failure so the global saveAll can
+// Promise.all() it. Button is optional — the global header Save passes none.
 function saveBranding(b){
   clearMsg($('brandMsg'));
-  var old=b.textContent; b.disabled=true; b.textContent='Saving…';
+  var old; if(b){old=b.textContent; b.disabled=true; b.textContent='Saving…';}
   // Only the three fields the whitelist keeps for a manual pick; the server
   // drops anything not on its list, so a stray id can never take.
-  api('save_branding',{branding:{photo:photoUrl(),theme:themeSel,tone:toneSel}},true).then(function(r){
-    b.disabled=false; b.textContent=old;
-    if(!r.ok||!r.j||!r.j.ok) return msg($('brandMsg'),(r.j&&r.j.error)||'Could not save.','err');
+  return api('save_branding',{branding:{photo:photoUrl(),theme:themeSel,tone:toneSel}},true).then(function(r){
+    if(b){b.disabled=false; b.textContent=old;}
+    if(!r.ok||!r.j||!r.j.ok){
+      if(b)msg($('brandMsg'),(r.j&&r.j.error)||'Could not save.','err');
+      throw new Error((r.j&&r.j.error)||'Could not save your page look.');
+    }
     DATA.hotel=DATA.hotel||{};
     DATA.hotel.branding=r.j.branding||{photo:photoUrl(),theme:themeSel,tone:toneSel};
-    msg($('brandMsg'),'Saved your page look.','ok');
+    if(b)msg($('brandMsg'),'Saved your page look.','ok');
+    return r;
   });
 }
-$('brandSave').onclick=function(){ saveBranding($('brandSave')); };
-$('brandSaveTop').onclick=function(){ saveBranding($('brandSaveTop')); };
 
 /* ---------- entry: load current branding ---------- */
 function renderBrandingCard(){
@@ -1062,7 +1145,6 @@ function renderBrandingCard(){
   renderStock(); renderPhoto(); renderTheme(); renderTone();
   if(DATA.admin){                                  // admin view is read-only everywhere else too
     $('upBtn').disabled=true; $('f_photo').disabled=true;
-    $('brandSave').disabled=true; $('brandSaveTop').disabled=true;
   }
 }
 
