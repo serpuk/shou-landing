@@ -248,6 +248,15 @@
   .pill.no{background:rgba(255,61,139,.10);color:var(--pink)}
   .dash-note{margin-top:16px;font-size:13.5px;color:var(--text-soft);line-height:1.55}
   .dash-note b{color:var(--ink)}
+  /* Category bars (matches the real dashboard — topics, never verbatim questions) */
+  .qsub{font-size:12.5px;color:var(--text-dim);margin:-6px 0 14px}
+  .qcat{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+  .qcat .lbl{flex:none;width:98px;font-size:14px;color:var(--text);font-weight:500}
+  .qcat .qbar{flex:1;height:9px;background:rgba(20,16,30,.06);border-radius:6px;overflow:hidden}
+  .qcat .qbar i{display:block;height:100%;background:var(--grad);border-radius:6px}
+  .qcat .qn{flex:none;font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums;min-width:20px;text-align:right}
+  .qgaps{margin-top:14px;font-size:13px;color:var(--text-soft);border-top:1px solid var(--line);padding-top:14px}
+  .qgaps b{color:var(--pink);font-weight:700}
   .plan-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
   .plan-row b{font-size:15.5px;color:var(--ink)}
   .plan-sub{font-size:13px;color:var(--text-dim)}
@@ -728,11 +737,13 @@
   <div class="dash">
     <div class="dash-card">
       <div class="dash-h"><h3>What your guests asked</h3><span class="dash-tag">Example view</span></div>
-      <div class="qrow"><span class="qq">Where should we eat tonight?</span><span class="pill ok">answered</span><span class="qc">14</span></div>
-      <div class="qrow"><span class="qq">What's on this weekend?</span><span class="pill ok">answered</span><span class="qc">11</span></div>
-      <div class="qrow"><span class="qq">Is there a pharmacy nearby?</span><span class="pill ok">answered</span><span class="qc">6</span></div>
-      <div class="qrow"><span class="qq">What time is breakfast?</span><span class="pill no">not answered</span><span class="qc">9</span></div>
-      <div class="qrow"><span class="qq">Can we park at the hotel?</span><span class="pill no">not answered</span><span class="qc">5</span></div>
+      <p class="qsub">Last 30 days · counts by topic only — never the questions themselves.</p>
+      <div class="qcat"><span class="lbl">Dinner</span><div class="qbar"><i style="width:100%"></i></div><span class="qn">24</span></div>
+      <div class="qcat"><span class="lbl">What's on</span><div class="qbar"><i style="width:75%"></i></div><span class="qn">18</span></div>
+      <div class="qcat"><span class="lbl">Things to do</span><div class="qbar"><i style="width:50%"></i></div><span class="qn">12</span></div>
+      <div class="qcat"><span class="lbl">Bars</span><div class="qbar"><i style="width:38%"></i></div><span class="qn">9</span></div>
+      <div class="qcat"><span class="lbl">Pharmacy</span><div class="qbar"><i style="width:29%"></i></div><span class="qn">7</span></div>
+      <div class="qgaps"><b>Couldn't answer:</b> Breakfast (9×) · Parking (5×)</div>
       <div class="langblock">
         <div class="lh">Languages your guests ask in</div>
         <div class="langmix">
@@ -746,7 +757,7 @@
           </div>
         </div>
       </div>
-      <p class="dash-note">No hotel has ever had this list. Questions your page <b>couldn't</b> answer are flagged, and you even see <b>which languages</b> guests ask in — so you know, in their own words, what they keep coming to your desk for.</p>
+      <p class="dash-note">No hotel has ever had this list. The <b>topics</b> your page couldn't answer are flagged, and you see <b>which languages</b> guests ask in — so you know what they keep coming to your desk for. Counts by topic only; the questions themselves are never stored.</p>
     </div>
     <div class="dash-col">
       <div class="dash-card">
@@ -782,8 +793,8 @@
 <section><div class="wrap">
   <div class="sec-head"><h2>See it live</h2><p>Try the engine that powers every concierge. Your hotel gets its own branded version.</p></div>
   <div class="liveframe">
-    <div class="lbar"><i></i><i></i><i></i><span class="u">shou.be/hotels/made-in-louise</span></div>
-    <iframe src="/hotels/made-in-louise" title="A live shou hotel concierge page" loading="lazy"></iframe>
+    <div class="lbar"><i></i><i></i><i></i><span class="u">shou.be/hotels/sample</span></div>
+    <iframe src="/hotels/sample" title="A live shou hotel concierge page" loading="lazy"></iframe>
   </div>
   <p class="live-note">A real, live hotel page — scroll and tap around inside it. This is exactly what your guests would get.</p>
   <div class="demos">
