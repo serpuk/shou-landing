@@ -482,7 +482,7 @@
 
 <script>
 const API='https://shou-backend.vercel.app/api';
-const HOTEL={name:'Your Hotel',lat:50.8466,lng:4.3517};
+const HOTEL={name:'Your Hotel',lat:50.8466,lng:4.3517,website:''};
 // Usage analytics: tag searches from this demo with a source + a persistent
 // anonymous visitor id (localStorage) so the backend can report queries/day,
 // unique visitors, and top queries per hotel. No PII — just a random id.
@@ -704,7 +704,14 @@ const t=k=>(T[lang]||T.en)[k];
 
 // Hero quick links: only the hotel-service actions not already shown as POI
 // cards in "From your hotel" below (dine/bar/spa live there, with real map links).
-const HOTEL_LINKS=()=>[{i:'🛏',k:'book'},{i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination='+HOTEL.lat+','+HOTEL.lng}];
+const HOTEL_LINKS=()=>{
+  const l=[];
+  // "Book a room" → the hotel's own site. Shown on the demo (no real site yet),
+  // and hidden for a real hotel that hasn't given a website (no dead '#' button).
+  if(HOTEL.website||!PORTAL)l.push({i:'🛏',k:'book',url:HOTEL.website||''});
+  l.push({i:'📍',k:'dir',url:'https://www.google.com/maps/dir/?api=1&destination='+HOTEL.lat+','+HOTEL.lng});
+  return l;
+};
 // "From your hotel" concierge picks — real POIs near the hotel (Google Maps).
 const HOTEL_CARDS=()=>[
   {i:'🍽',k:'dine',n:'La Pierre Bleue',url:'https://maps.app.goo.gl/9MrBdX7RLtp9mTKf7'},
@@ -1573,6 +1580,7 @@ async function loadPortal(){
     if(hasPick)PICKS=h.picks;
     const la=Number(h.lat),ln=Number(h.lng);
     if(isFinite(la)&&isFinite(ln)){ HOTEL.lat=la; HOTEL.lng=ln; }   // events + map centre on the real hotel
+    if(h.website)HOTEL.website=/^https?:\/\//i.test(h.website)?h.website:'https://'+h.website;   // "Book a room" → the hotel's own site (protocol-safe)
     if(h.name){
       HOTEL.name=h.name;
       const hn=document.querySelector('.hname'); if(hn)hn.textContent=h.name;
