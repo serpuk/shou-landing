@@ -622,21 +622,28 @@ function conciergePick(q,forcedIntent){
   // DB picks (?slug=) win over everything: answer straight from the hotel's own
   // curated list before the demo cards or the Maps fallback.
   if(PICKS){
-    const cats=PICK_INTENT[intent]||(Array.isArray(PICKS[intent])?[intent]:[]);
-    for(const c of cats){
-      const arr=(PICKS[c]||[]).filter(p=>p&&p.n);
-      if(arr.length){
-        const addr=(HOTEL&&HOTEL.name)||'Brussels';
-        const rows=arr.map(p=>pickCard(p,c,addr)).join('');
-        const pts=arr.filter(p=>isFinite(Number(p.lat))&&isFinite(Number(p.lng))).map(p=>pickPoint(p,c));
-        let mapId='',mapEl='';
-        if(pts.length&&HOTEL.lat&&HOTEL.lng){ mapId='askMap'+(++_askMapN); mapEl='<div class="pick-map" id="'+mapId+'"></div>'; }
-        const lead = pickLead(arr.length===1?'one':'many');
-        const more='<a class="pick-more" href="'+esc(maps((REC_Q[c]||c)+' near '+addr))+'" target="_blank" rel="noopener">'+esc(PKALL_L[lang]||PKALL_L.en)+' ↗</a>';
-        const html='<div class="picks">'+rows+'</div>'+mapEl+more;   // lead is prepended by ask() (may be AI-written)
-        const leadPayload={kind:arr.length===1?'one':'many',tone:window.CONCIERGE_TONE||null,lang:lang,query:q,hotel:(HOTEL&&HOTEL.name)||'',picks:arr.slice(0,6).map(function(p){return {name:p.n,cat:catL(c),dist:p.dist,rating:p.grating};})};
-        return { html:html, map: mapId?{id:mapId,pts:pts}:null, lead:{payload:leadPayload, fallback:lead} };
-      }
+    // Assemble the picks to show. A MIX intent (breakfast) blends its categories
+    // (bakery + coffee) into one "morning spots" answer; every other intent uses
+    // the first pick-category that has entries.
+    let pairs=[]; const mix=MIX_INTENT[intent];
+    if(mix)mix.forEach(function(c){ (PICKS[c]||[]).forEach(function(p){ if(p&&p.n)pairs.push({p:p,c:c}); }); });
+    if(!pairs.length){
+      const cats=PICK_INTENT[intent]||(Array.isArray(PICKS[intent])?[intent]:[]);
+      for(const c of cats){ const a=(PICKS[c]||[]).filter(function(p){return p&&p.n;}); if(a.length){ a.forEach(function(p){pairs.push({p:p,c:c});}); break; } }
+    }
+    if(pairs.length){
+      const seen={}; pairs=pairs.filter(function(x){ const k=String(x.p.n||'').toLowerCase(); if(seen[k])return false; seen[k]=1; return true; }).sort(function(a,b){ return pickMeters(a.p)-pickMeters(b.p); });
+      const addr=(HOTEL&&HOTEL.name)||'Brussels';
+      const rows=pairs.map(function(x){return pickCard(x.p,x.c,addr);}).join('');
+      const pts=pairs.filter(function(x){return isFinite(Number(x.p.lat))&&isFinite(Number(x.p.lng));}).map(function(x){return pickPoint(x.p,x.c);});
+      let mapId='',mapEl='';
+      if(pts.length&&HOTEL.lat&&HOTEL.lng){ mapId='askMap'+(++_askMapN); mapEl='<div class="pick-map" id="'+mapId+'"></div>'; }
+      const lead=pickLead(pairs.length===1?'one':'many');
+      const mq=mix?(REC_Q[intent]||intent):(REC_Q[pairs[0].c]||pairs[0].c);
+      const more='<a class="pick-more" href="'+esc(maps(mq+' near '+addr))+'" target="_blank" rel="noopener">'+esc(PKALL_L[lang]||PKALL_L.en)+' ↗</a>';
+      const html='<div class="picks">'+rows+'</div>'+mapEl+more;   // lead is prepended by ask() (may be AI-written)
+      const leadPayload={kind:pairs.length===1?'one':'many',tone:window.CONCIERGE_TONE||null,lang:lang,query:q,hotel:(HOTEL&&HOTEL.name)||'',picks:pairs.slice(0,6).map(function(x){return {name:x.p.n,cat:catL(x.c),dist:x.p.dist,rating:x.p.grating};})};
+      return { html:html, map: mapId?{id:mapId,pts:pts}:null, lead:{payload:leadPayload, fallback:lead} };
     }
   }
   // A curated card always beats the generic answer: if the hotel has picked a
@@ -746,6 +753,11 @@ const PICK_ORDER=['dinner','coffee','bar','bakery','supermarket','pharmacy','tra
 // question-intent → which pick categories can answer it (concierge)
 const PICK_INTENT={dinner:['dinner'],breakfast:['bakery','coffee','dinner'],coffee:['coffee'],bar:['bar'],
   supermarket:['supermarket'],pharmacy:['pharmacy'],bakery:['bakery'],transport:['transport']};
+// Intents that BLEND categories into one answer (breakfast = "morning spots":
+// the hotel's bakery + coffee picks together). Others use the first category.
+const MIX_INTENT={breakfast:['bakery','coffee']};
+// Distance of a pick in metres, for sorting a blended list nearest-first.
+function pickMeters(p){var m=/([\d.,]+)\s*(km|m)\b/i.exec(String(p&&p.dist||''));if(!m)return Infinity;var v=parseFloat(m[1].replace(',','.'));return /km/i.test(m[2])?v*1000:v;}
 // pick-card + map labels (pk* strings ported from u.html CHR; section/cat labels added)
 const PK_L={
   en:{open:'Open',dinner:'Restaurant',coffee:'Coffee',bar:'Bar',via:'Photo & rating via Google',call:'Call',site:'Website',hours:'Hours',walk:'{n} min walk',here:'Your hotel',picks:'Your picks',
