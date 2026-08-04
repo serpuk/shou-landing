@@ -637,6 +637,7 @@ const ml=k=>(ML[lang]||ML.en)[k];
 const CAT_L={music:'music',exhibition:'art',theatre:'theatre'};   // slug -> T key (falls back to slug)
 const SEG_COL={music:'var(--pink)',festival:'var(--orange)',carnival:'var(--orange)',exhibition:'var(--violet)',theatre:'var(--violet)',dance:'var(--violet)',comedy:'var(--violet)',family:'var(--cyan)',sports:'var(--cyan)',sport:'var(--cyan)'};
 const SURPRISE_L={en:'Surprise me tonight',fr:'Surprends-moi ce soir',nl:'Verras me vanavond',de:'Überrasch mich heute Abend',es:'Sorpréndeme esta noche',it:'Sorprendimi stasera',uk:'Здивуй мене сьогодні ввечері'};
+const MORE_L={en:'A few more near the hotel this week:',fr:'Quelques autres près de l\'hôtel cette semaine :',nl:'Nog een paar bij het hotel deze week:',de:'Noch ein paar in Hotelnähe diese Woche:',es:'Algunas más cerca del hotel esta semana:',it:'Qualche altra vicino all\'hotel questa settimana:',uk:'Ще кілька біля готелю цього тижня:'};
 const ASK_L={en:'Ask anything',fr:'Demandez ce que vous voulez',nl:'Vraag wat je wil',de:'Frag einfach',es:'Pregunta lo que quieras',it:'Chiedi qualsiasi cosa',uk:'Запитайте будь-що'};
 const IDEAS_L={en:'Ideas',fr:'Idées',nl:'Ideeën',de:'Ideen',es:'Ideas',it:'Idee',uk:'Ідеї'};
 
@@ -1325,6 +1326,13 @@ async function ask(q,forcedIntent){
   try{
     const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng,source:SAMPLE_SOURCE,sessionId:VISITOR_ID,tone:(window.CONCIERGE_TONE||null)})});
     const d=await r.json(); typing.remove();
+    // The backend understood a place/amenity intent the client keyword router
+    // missed (typos, free text like "un bon monge") — answer from the hotel's
+    // picks / a Maps search rather than dumping events.
+    if(d.pickIntent){
+      const p2=conciergePick(q,d.pickIntent);
+      if(p2){ addMsg('ai',p2.html); if(p2.map)drawPlaceMap(p2.map.id,p2.map.pts); return; }
+    }
     addMsg('ai',esc(d.reasoning||'')||t('none'));
     // Use the events the search returns directly (matching first, then suggested) —
     // same data/ordering as the main site. Crucially, search already resolves each
@@ -1337,6 +1345,22 @@ async function ask(q,forcedIntent){
       indexEvents(list); list.forEach(e=>{chatEv[e.id]=e;});
       const grid=document.createElement('div');grid.className='res';grid.innerHTML=list.map(chatCard).join('');
       msgs.appendChild(grid);grid.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+    // Thin near-hotel result (a quiet night) → offer a few more from the week's
+    // catalogue (already loaded), same category when known, nearest first — so a
+    // "1 event" answer becomes useful instead of a dead end.
+    if(list.length<=1 && catalog.length){
+      const shown=new Set(list.map(e=>e.id));
+      const cat=list[0]&&list[0].categorySlug;
+      let more=catalog.filter(e=>e&&e.id&&!shown.has(e.id));
+      if(cat){const same=more.filter(e=>e.categorySlug===cat); if(same.length)more=same;}
+      more=oneVenue(more.slice().sort((a,b)=>km(a)-km(b))).slice(0,4);
+      if(more.length){
+        indexEvents(more); more.forEach(e=>{chatEv[e.id]=e;});
+        addMsg('ai',esc(MORE_L[lang]||MORE_L.en));
+        const g2=document.createElement('div');g2.className='res';g2.innerHTML=more.map(e=>evCard(e,nextOccurrence(e))).join('');
+        msgs.appendChild(g2);g2.scrollIntoView({behavior:'smooth',block:'nearest'});
+      }
     }
   }catch(e){typing.remove();addMsg('ai',t('none'));}
   finally{asking=false;if(btn)btn.disabled=false;}
