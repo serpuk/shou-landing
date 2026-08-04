@@ -446,18 +446,24 @@ $('hdrPreview').onclick=hdrPreview;
 /* ---------- collapsible cards ---------- */
 // Generic: wire every dashboard card so clicking its header toggles the body.
 function wireCollapse(){
+  // Remember which sections are collapsed across reloads (keyed by section title).
+  var KEY='shou_hotel_collapse', saved={};
+  try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){}
   document.querySelectorAll('#app > .card').forEach(function(card){
     var head=card.querySelector('.sec-head');
     if(!head||head.getAttribute('data-collapse'))return;
     head.setAttribute('data-collapse','1');
+    var h2=head.querySelector('h2'), key=h2?h2.textContent.trim():'';
     var chev=document.createElement('span');
     chev.className='chev'; chev.textContent='▾';
     head.insertBefore(chev,head.firstChild);
+    if(key&&(key in saved)){ card.classList.toggle('collapsed',!!saved[key]); chev.textContent=saved[key]?'▸':'▾'; }
     head.addEventListener('click',function(e){
       // don't collapse when interacting with a control inside the header
       if(e.target.closest('button,a,input,select,textarea,label'))return;
       var collapsed=card.classList.toggle('collapsed');
       chev.textContent=collapsed?'▸':'▾';
+      if(key){ saved[key]=collapsed; try{ localStorage.setItem(KEY,JSON.stringify(saved)); }catch(e2){} }
     });
   });
 }
