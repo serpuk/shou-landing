@@ -757,9 +757,12 @@ function wireQReset(){ var rb=$('qReset'); if(rb)rb.onclick=function(){ resetQue
 async function resetQuestions(btn){
   if(!confirm('Reset this hotel\'s guest-question stats? This clears the counts (including your test data) and cannot be undone.'))return;
   btn.disabled=true; var old=btn.textContent; btn.textContent='Resetting…';
-  const r=await api('reset_questions',{},true);
-  if(r.ok&&r.j&&r.j.ok){ DATA.questions={since:(DATA.questions||{}).since,total:0,intents:[],langs:[]}; renderQuestions(); }
-  else { btn.disabled=false; btn.textContent=old; alert((r.j&&r.j.error)||'Could not reset.'); }
+  try{
+    const r=await api('reset_questions',{},true);
+    if(r.ok&&r.j&&r.j.ok){ DATA.questions={since:(DATA.questions||{}).since,total:0,intents:[],langs:[]}; renderQuestions(); return; }
+    alert((r.j&&r.j.error)||'Could not reset.');
+  }catch(e){ alert('Could not reset — please try again.'); }
+  btn.disabled=false; btn.textContent=old;   // always recover the button
 }
 
 /* ================= HOST PICKS + MAP (ported from apartments/dashboard.html) ================= */
