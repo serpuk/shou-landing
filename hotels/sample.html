@@ -1426,8 +1426,13 @@ async function loadPortal(){
   const _p=location.pathname.match(/\/hotels\/([^\/?#]+)/);
   let pseg=_p?decodeURIComponent(_p[1]):null;
   if(pseg==='sample'||pseg==='sample.html')pseg=null;
-  const slug=new URLSearchParams(location.search).get('slug')||pseg;
-  if(!slug)return;
+  const qslug=new URLSearchParams(location.search).get('slug');
+  // Bare /hotels/sample (no path/query slug) defaults to the editable demo hotel
+  // 'sample-hotel' — configured from the dashboard by whoever holds hotels@shou.be.
+  // Until that hotel is actually set up, the guard below keeps the hardcoded
+  // marketing demo, so the public sample never regresses to an empty page.
+  const explicit=!!(qslug||pseg);
+  const slug=qslug||pseg||'sample-hotel';
   try{
     const r=await fetch(`${API}/hotel-portal`,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'public_content',slug})});
@@ -1439,6 +1444,10 @@ async function loadPortal(){
     // its name, location, branding and concierge — the picks map just doesn't
     // render and the demo "From your hotel" card stands in until they curate.
     const hasPick=h.picks&&Object.keys(h.picks).some(k=>Array.isArray(h.picks[k])&&h.picks[k].length);
+    const hasBrand=h.branding&&typeof h.branding==='object'&&Object.keys(h.branding).length>0;
+    // The bare-/hotels/sample demo default only takes over once its hotel is
+    // actually set up; an unconfigured demo hotel leaves the marketing demo intact.
+    if(!explicit&&!hasPick&&!hasBrand)return;
     if(hasPick)PICKS=h.picks;
     const la=Number(h.lat),ln=Number(h.lng);
     if(isFinite(la)&&isFinite(ln)){ HOTEL.lat=la; HOTEL.lng=ln; }   // events + map centre on the real hotel
