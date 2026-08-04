@@ -24,10 +24,11 @@
   .card{width:420px;max-width:100%;margin:0 auto;background:#fff;border-radius:22px;
         box-shadow:0 18px 44px -18px rgba(20,16,30,.35);overflow:hidden;
         border:1px solid var(--line)}
-  .top{background:linear-gradient(140deg,var(--violet),var(--pink));padding:26px 28px 22px;color:#fff}
-  .top .hotel{font-family:'Fraunces';font-weight:700;font-size:25px;line-height:1.15}
-  .top .kicker{font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;opacity:.85;margin-bottom:7px}
-  .top .logo{height:42px;max-width:190px;object-fit:contain;background:#fff;border-radius:10px;padding:6px 11px;margin-bottom:12px;display:none}
+  .top{background:linear-gradient(140deg,var(--violet),var(--pink));padding:22px 28px;color:#fff}
+  .top .brandrow{display:flex;align-items:center;gap:15px}
+  .top .logo{height:52px;max-width:112px;object-fit:contain;background:#fff;border-radius:12px;padding:7px 9px;flex:none;display:none}
+  .top .hotel{font-family:'Fraunces';font-weight:700;font-size:24px;line-height:1.12}
+  .top .kicker{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;opacity:.85;margin-bottom:4px}
   .body{padding:24px 28px 26px;text-align:center}
   .body h2{font-family:'Fraunces';font-weight:600;font-size:20px;margin-bottom:6px}
   .body p{color:var(--soft);font-size:14px;margin-bottom:18px}
@@ -54,9 +55,13 @@
 
   <div class="card">
     <div class="top">
-      <img class="logo" id="logo" alt="">
-      <div class="kicker">Your local concierge</div>
-      <div class="hotel" id="hotel">Your hotel</div>
+      <div class="brandrow">
+        <img class="logo" id="logo" alt="">
+        <div>
+          <div class="kicker">Your local concierge</div>
+          <div class="hotel" id="hotel">Your hotel</div>
+        </div>
+      </div>
     </div>
     <div class="body">
       <h2 id="h2">What is on tonight?</h2>
