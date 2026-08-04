@@ -347,6 +347,15 @@
   .jarrow{flex:none;color:var(--pink);font-size:23px;font-weight:700;margin-top:22px;opacity:.6}
   .qr-line{text-align:center;color:var(--text-soft);font-size:16px;max-width:620px;margin:38px auto 0;line-height:1.6}
   .qr-line b{color:var(--ink);font-weight:600}
+  /* In-room guest card (flyer) callout */
+  .flyer-cta{display:flex;align-items:center;gap:18px;max-width:700px;margin:32px auto 0;
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 24px;box-shadow:var(--shadow);flex-wrap:wrap}
+  .flyer-cta .fc-ico{font-size:28px;flex:none}
+  .flyer-cta .fc-txt{flex:1;min-width:210px;display:flex;flex-direction:column;gap:3px}
+  .flyer-cta .fc-txt b{font-size:15.5px;color:var(--ink);font-weight:700}
+  .flyer-cta .fc-txt span{font-size:13.5px;color:var(--text-soft);line-height:1.5}
+  .flyer-cta .btn{flex:none;padding:12px 20px;font-size:14px}
+  @media(max-width:560px){ .flyer-cta{flex-direction:column;text-align:center} .flyer-cta .btn{width:100%;justify-content:center} }
 
   /* === Multilingual questions === */
   .qlang{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;max-width:900px;margin:0 auto}
@@ -528,6 +537,11 @@
     <div class="jstep"><div class="jico">⭐</div><div class="jt">Leaves a happier review</div><div class="jd">A stay they remember</div></div>
   </div>
   <p class="qr-line">Guests scan, ask in their own language, and discover concerts, culture, restaurants, family activities and hidden gems nearby. <b>Everything updates automatically. Your staff does nothing.</b></p>
+  <div class="flyer-cta">
+    <span class="fc-ico">🖨</span>
+    <div class="fc-txt"><b>Every room gets a print-ready guest card</b><span>Your logo, your theme and a QR to your page — ready to print and place. No design needed.</span></div>
+    <a class="btn btn-ghost" href="/hotels/flyer-sample" target="_blank" rel="noopener">Preview the card →</a>
+  </div>
 </div></section>
 
 <!-- BENEFITS -->
@@ -789,12 +803,7 @@
     <iframe src="/hotels/sample" title="A live shou hotel concierge page" loading="lazy"></iframe>
   </div>
   <p class="live-note">A real, live hotel page — scroll and tap around inside it. This is exactly what your guests would get.</p>
-  <div class="demos">
-    <a class="demo" href="/hotels/sample" target="_blank" rel="noopener"><div class="dlogo">B</div><h3>Boutique Hotel</h3><p>Brussels centre</p><span class="go">Open demo →</span></a>
-    <a class="demo" href="/hotels/sample" target="_blank" rel="noopener"><div class="dlogo">C</div><h3>City Hotel</h3><p>business guests</p><span class="go">Open demo →</span></a>
-    <a class="demo" href="/hotels/sample" target="_blank" rel="noopener"><div class="dlogo">H</div><h3>Hybrid Hotel</h3><p>young travellers</p><span class="go">Open demo →</span></a>
-  </div>
-  <p style="text-align:center;margin-top:28px;color:var(--text-soft)">Or preview the in-room <a href="/hotels/flyer-sample" style="color:var(--cyan);text-decoration:none;font-weight:600">print flyer →</a></p>
+  <div style="text-align:center;margin-top:22px"><a class="btn btn-ghost" href="/hotels/sample" target="_blank" rel="noopener">Open the full page ↗</a></div>
 </div></section>
 
 <!-- BUILT IN BELGIUM -->
