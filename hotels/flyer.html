@@ -81,15 +81,17 @@
 <script>
 (function(){
   var API='https://shou-backend.vercel.app/api';
-  // Per-theme header gradient — mirrors the guest page's theme accents so the
-  // printed card matches the hotel's chosen look. Absent/unknown → the default.
-  var THEME_GRAD={
-    warm:'linear-gradient(140deg,#c2622f,#e0913f)',
-    nordic:'linear-gradient(140deg,#3d7ea6,#6aa3c0)',
-    bold:'linear-gradient(140deg,#ff4d8d,#ffb03d)',
-    botanical:'linear-gradient(140deg,#2f7d5b,#6fae74)',
-    boutique:'linear-gradient(140deg,#c9a227,#e6c66b)',
-    mediterranean:'linear-gradient(140deg,#c1683f,#dda15e)'
+  // Per-theme header, mirroring the guest page. LIGHT themes get their accent
+  // gradient. DARK themes (bold/boutique) get a DARK header with a neon-accent
+  // kicker — otherwise bold's pink→orange accent is indistinguishable from the
+  // default shou band and the card looks unbranded.
+  var THEME={
+    warm:         {grad:'linear-gradient(140deg,#c2622f,#e0913f)'},
+    nordic:       {grad:'linear-gradient(140deg,#3d7ea6,#6aa3c0)'},
+    botanical:    {grad:'linear-gradient(140deg,#2f7d5b,#6fae74)'},
+    mediterranean:{grad:'linear-gradient(140deg,#c1683f,#dda15e)'},
+    bold:         {bg:'#17141d',accent:'#ff4d8d'},
+    boutique:     {bg:'#191713',accent:'#c9a227'}
   };
   var p=new URLSearchParams(location.search);
   var slug=(p.get('slug')||'').replace(/[^a-z0-9-]/gi,'');
@@ -109,7 +111,12 @@
       .then(function(d){
         var h=d&&d.hotel, b=(h&&h.branding)||{};
         if(h&&h.name){document.getElementById('hotel').textContent=h.name;document.title=h.name+' — guest card';}
-        if(b.theme&&THEME_GRAD[b.theme])document.querySelector('.top').style.background=THEME_GRAD[b.theme];
+        var th=THEME[b.theme];
+        if(th){
+          var top=document.querySelector('.top');
+          if(th.grad){ top.style.background=th.grad; }
+          else{ top.style.background=th.bg; var k=top.querySelector('.kicker'); if(k){k.style.color=th.accent;k.style.opacity='1';} }
+        }
         if(b.logo){var lg=document.getElementById('logo');lg.src=b.logo;lg.style.display='inline-block';}
       }).catch(function(){});
   }
