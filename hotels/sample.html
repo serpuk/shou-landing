@@ -137,8 +137,8 @@
   .hlink{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:9px 15px;text-decoration:none;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
   .hlink:hover{transform:translateY(-1px);border-color:rgba(255,61,139,.4)}
   /* premium hotel card (replaces the map). Per hotel: set a photo background and
-     swap .hc-name for the hotel's white logo <img class="hc-logo">. See the
-     nhow-brussels-bloom page for a fully customised example. */
+     swap .hc-name for the hotel's white logo <img class="hc-logo">. Branding is
+     applied at runtime from the hotel's saved photo/logo/theme (see loadPortal). */
   .hotelcard{position:relative;border-radius:20px;overflow:hidden;min-height:430px;display:flex;background-size:cover;background-position:center;box-shadow:0 18px 44px rgba(20,16,30,.24)}
   .hc-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,16,27,.12) 0%,rgba(21,16,27,0) 40%,rgba(21,16,27,.55) 74%,rgba(21,16,27,.88) 100%)}
   .hc-body{position:relative;z-index:2;margin-top:auto;width:100%;padding:26px 24px 24px;display:flex;flex-direction:column;gap:13px;color:#fff}
@@ -1420,7 +1420,13 @@ document.getElementById('langSel').onchange=async e=>{
 // No slug, unknown slug (404), or a hotel with no picks all leave PICKS null,
 // HOTEL untouched, and the page renders exactly as the marketing demo.
 async function loadPortal(){
-  const slug=new URLSearchParams(location.search).get('slug');
+  // /hotels/<slug> is a Vercel rewrite to this file — the browser URL stays
+  // clean, so read the slug from the path (mirrors apartments /u/<slug>). The
+  // ?slug= query still works for previews; /hotels/sample itself is the demo.
+  const _p=location.pathname.match(/\/hotels\/([^\/?#]+)/);
+  let pseg=_p?decodeURIComponent(_p[1]):null;
+  if(pseg==='sample'||pseg==='sample.html')pseg=null;
+  const slug=new URLSearchParams(location.search).get('slug')||pseg;
   if(!slug)return;
   try{
     const r=await fetch(`${API}/hotel-portal`,{method:'POST',headers:{'Content-Type':'application/json'},
@@ -1428,10 +1434,12 @@ async function loadPortal(){
     if(!r.ok)return;                                   // 404 unknown slug → demo
     const d=await r.json();
     const h=d&&d.hotel;
-    if(!h||!h.picks)return;
-    const hasPick=Object.keys(h.picks).some(k=>Array.isArray(h.picks[k])&&h.picks[k].length);
-    if(!hasPick)return;                                // hotel exists but curated nothing → demo
-    PICKS=h.picks;
+    if(!h)return;                                      // unknown slug (404) → demo, unchanged
+    // Picks are optional. A hotel that has only branded (no picks yet) still gets
+    // its name, location, branding and concierge — the picks map just doesn't
+    // render and the demo "From your hotel" card stands in until they curate.
+    const hasPick=h.picks&&Object.keys(h.picks).some(k=>Array.isArray(h.picks[k])&&h.picks[k].length);
+    if(hasPick)PICKS=h.picks;
     const la=Number(h.lat),ln=Number(h.lng);
     if(isFinite(la)&&isFinite(ln)){ HOTEL.lat=la; HOTEL.lng=ln; }   // events + map centre on the real hotel
     if(h.name){

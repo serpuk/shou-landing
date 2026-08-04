@@ -33,22 +33,6 @@
       "destination": "/hotels/thanks.html"
     },
     {
-      "source": "/hotels/nhow-brussels-bloom",
-      "destination": "/hotels/nhow-brussels-bloom.html"
-    },
-    {
-      "source": "/hotels/the-dominican",
-      "destination": "/hotels/the-dominican.html"
-    },
-    {
-      "source": "/hotels/getaway-studios-leuven",
-      "destination": "/hotels/getaway-studios-leuven.html"
-    },
-    {
-      "source": "/hotels/made-in-louise",
-      "destination": "/hotels/made-in-louise.html"
-    },
-    {
       "source": "/hotels/apply",
       "destination": "/hotels/apply.html"
     },
@@ -67,6 +51,10 @@
     {
       "source": "/hotels/invoice",
       "destination": "/hotels/invoice.html"
+    },
+    {
+      "source": "/hotels/:slug",
+      "destination": "/hotels/sample.html?slug=:slug"
     },
     {
       "source": "/apartments/sample",
