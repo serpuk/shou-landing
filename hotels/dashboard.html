@@ -423,7 +423,7 @@ $('signout').onclick=function(){try{localStorage.removeItem('shou_hotel_sess');}
 // Global Save persists BOTH the recommendations and the page look in one click,
 // reusing the same collect/coords/photo/theme/tone logic the cards used to save.
 function saveAll(){
-  if(!DATA||DATA.admin)return;                       // read-only in admin view
+  if(!DATA||DATA.ro)return;                          // content read-only (admin viewing a real customer)
   var btn=$('hdrSave'); var old=btn?btn.textContent:'';
   if(btn){btn.disabled=true;btn.textContent='Saving…';}
   // savePicks()/saveBranding() with no button return a promise and throw on failure.
@@ -480,10 +480,15 @@ async function enterApp(){
     return;
   }
   DATA=r.j;
+  // An admin session on a DEMO hotel gets full CONTENT edit access (picks,
+  // branding, photo, legal) — the backend allows those writes for is_demo hotels.
+  // Billing stays admin-blocked (real money), so those controls remain hidden.
+  // `ro` = content read-only: true only for an admin viewing a REAL customer.
+  DATA.ro=!!(DATA.admin&&!DATA.is_demo);
   $('authWrap').style.display='none';$('app').style.display='block';
   $('signout').style.display='';
-  // Global Save + Preview: only when signed in, and never in admin read-only view.
-  if(!DATA.admin){ $('hdrSave').style.display=''; $('hdrPreview').style.display=''; }
+  // Global Save + Preview: shown whenever content is editable (incl. demo hotels).
+  if(!DATA.ro){ $('hdrSave').style.display=''; $('hdrPreview').style.display=''; }
   $('who').textContent=(DATA.hotel&&DATA.hotel.name)||'';
   renderHotel();renderQr();renderPicksCard();renderBrandingCard();renderLegal();renderBilling();renderInvoices();renderQuestions();
   wireCollapse();
@@ -493,8 +498,11 @@ async function enterApp(){
     const b=document.createElement('div');
     b.style.cssText='background:#15101b;color:#fff;border-radius:14px;padding:12px 18px;margin-bottom:16px;'
       +'font-size:13.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap';
-    b.innerHTML='<b>👁 Admin view — read-only</b><span style="opacity:.75">You are seeing '
-      +esc((DATA.hotel&&DATA.hotel.name)||'this hotel')+' exactly as they see it. Changes are disabled.</span>';
+    b.innerHTML=DATA.is_demo
+      ? '<b>🎬 Admin · demo hotel</b><span style="opacity:.75">You are editing '
+        +esc((DATA.hotel&&DATA.hotel.name)||'this hotel')+' — a demo. Picks &amp; branding save live; billing is disabled.</span>'
+      : '<b>👁 Admin view — read-only</b><span style="opacity:.75">You are seeing '
+        +esc((DATA.hotel&&DATA.hotel.name)||'this hotel')+' exactly as they see it. Changes are disabled.</span>';
     $('app').insertBefore(b,$('app').firstChild);
     ['reqDown','reqCancel'].forEach(function(id){const el=$(id);if(el)el.style.display='none';});
     document.querySelectorAll('.up').forEach(function(el){el.style.display='none';});
@@ -550,7 +558,7 @@ function renderLegal(){
     card.querySelector('.sec-head').after(w);
   }
   $('legalSub').textContent=L.complete?'On file':'Incomplete';
-  if(DATA.admin){   // admin view is read-only everywhere else too
+  if(DATA.ro){   // content read-only for an admin viewing a real customer
     ['lg-name','lg-addr','lg-vat','lg-email'].forEach(id=>$(id).disabled=true);
     $('lgSave').disabled=true;
   }
@@ -967,7 +975,7 @@ function renderPicksCard(){
     $('geoNote').style.display='none';
   }
   renderPicks(((h.content)||{}).picks||{});
-  if(DATA.admin){                                  // admin view is read-only everywhere else too
+  if(DATA.ro){                                     // content read-only for an admin viewing a real customer
     $('p_address').disabled=true; $('suggestBtn').disabled=true;
     $('picksBody').querySelectorAll('input,button').forEach(function(el){el.disabled=true;});
   }
@@ -1061,14 +1069,14 @@ function renderTheme(){                                // apt dashboard L1007-10
         +'<span class="acts"><span class="state">'+(o.id===themeSel?'ACTIVE':'Select')+'</span></span>'
       +'</span></button>';
   }).join('');
-  var admin=!!(DATA&&DATA.admin);
+  var admin=!!(DATA&&DATA.ro);
   $('themeRow').querySelectorAll('.th').forEach(function(b){
     if(admin){ b.disabled=true; return; }
     b.onclick=function(){ themeSel=b.getAttribute('data-id'); renderTheme(); };
   });
 }
 function renderTone(){                                 // apt dashboard L1073-1084
-  var admin=!!(DATA&&DATA.admin);
+  var admin=!!(DATA&&DATA.ro);
   $('toneRow').innerHTML=TONE_OPTS.map(function(o){
     return '<button type="button" class="tn'+(o.id===toneSel?' on':'')+'" data-id="'+o.id+'">'+esc(o.label)+'</button>';
   }).join('');
@@ -1090,7 +1098,7 @@ function renderPhoto(){                                 // apt dashboard L1091-1
   renderStock();   // rebuild thumbnails so an uploaded/pasted photo also appears + is highlighted
 }
 function renderStock(){                                 // apt dashboard L1100-1111
-  var admin=!!(DATA&&DATA.admin);
+  var admin=!!(DATA&&DATA.ro);
   var cur=photoUrl();
   // Remember any custom cover so it stays in the row after a different photo is
   // picked. On load the saved branding.photo (if custom) is re-added here because
@@ -1114,7 +1122,7 @@ $('f_photo').addEventListener('input',function(){ renderPhoto(); renderTheme(); 
 /* ---------- logo (badge next to the hotel name) ---------- */
 var logoSel='', logoCands=[];
 function renderLogo(){
-  var admin=!!(DATA&&DATA.admin);
+  var admin=!!(DATA&&DATA.ro);
   var pv=$('logoPrev');
   if(logoSel){ pv.innerHTML=''; var pim=document.createElement('img'); pim.src=logoSel; pim.alt=''; pv.appendChild(pim); }
   else { var nm=((DATA.hotel&&DATA.hotel.name)||'H').trim(); pv.innerHTML='<span>'+((nm[0]||'H').toUpperCase())+'</span>'; }
@@ -1131,7 +1139,7 @@ function renderLogo(){
   var nb=row.querySelector('[data-none]'); if(nb&&!admin)nb.onclick=function(){ logoSel=''; renderLogo(); };
 }
 $('logoFetch').onclick=function(){
-  if(DATA&&DATA.admin)return;
+  if(DATA&&DATA.ro)return;
   var b=$('logoFetch'); b.disabled=true; $('logoMsg').textContent='Looking on your website…';
   api('logo_suggest',{},true).then(function(r){
     b.disabled=false;
@@ -1219,7 +1227,7 @@ function renderBrandingCard(){
   $('f_photo').value=b.photo||'';
   themeSel=b.theme||''; toneSel=b.tone||''; logoSel=b.logo||''; logoCands=[];
   renderStock(); renderPhoto(); renderTheme(); renderTone(); renderLogo();
-  if(DATA.admin){                                  // admin view is read-only everywhere else too
+  if(DATA.ro){                                     // content read-only for an admin viewing a real customer
     $('upBtn').disabled=true; $('f_photo').disabled=true;
     $('logoFetch').disabled=true; $('logoUpBtn').disabled=true;
   }
