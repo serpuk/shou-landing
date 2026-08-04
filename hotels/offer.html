@@ -424,6 +424,13 @@
   .voices{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
   .voices span{font-size:11.5px;font-weight:600;color:var(--text-soft);background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
   .voices span.on{background:var(--grad);color:#fff;border-color:transparent}
+  /* Voice examples — the same pick, spoken four ways */
+  .voxs{margin-top:20px;background:var(--panel-soft);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px}
+  .voxq{font-size:14px;color:var(--text-soft);font-style:italic;margin-bottom:6px}
+  .vox{display:grid;grid-template-columns:112px 1fr;gap:18px;align-items:baseline;padding:13px 0;border-top:1px solid var(--line)}
+  .vox .voxt{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--cyan)}
+  .vox p{font-size:16px;color:var(--ink);line-height:1.5}
+  @media(max-width:520px){ .vox{grid-template-columns:1fr;gap:3px;padding:11px 0} }
 
   /* === Language breakdown (dashboard) === */
   .langblock{border-top:1px solid var(--line);margin-top:16px;padding-top:16px}
@@ -705,6 +712,13 @@
       <span style="display:block;height:40px;border-radius:9px;margin-bottom:13px;background:linear-gradient(135deg,#e8b98f,#c9a6d8)"></span>
       <h3>Cover photo &amp; links</h3><p>Add your own hero photo and your links — restaurant, spa, booking, services. Guests see your brand, not ours.</p>
     </div>
+  </div>
+  <div class="voxs">
+    <p class="voxq">The same recommendation, in each voice — a guest asks <b style="font-style:normal;color:var(--ink)">"Where should we eat tonight?"</b></p>
+    <div class="vox"><span class="voxt">Host</span><p>"We love Bibim just around the corner — we always send our guests there."</p></div>
+    <div class="vox"><span class="voxt">Concierge</span><p>"Certainly — may I suggest Bibim, a short stroll from the hotel."</p></div>
+    <div class="vox"><span class="voxt">Brief</span><p>"Bibim — 340 m, 5 min walk. Rated 4.7★."</p></div>
+    <div class="vox"><span class="voxt">Playful</span><p>"Ooh, you'll love Bibim — five minutes away and always buzzing."</p></div>
   </div>
 </div></section>
 
