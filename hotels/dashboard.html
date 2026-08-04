@@ -713,13 +713,16 @@ const Q_LABEL={wifi:'Wi-Fi',checkin:'Check-in',checkout:'Check-out',heating:'Hea
   coffee:'Coffee',trash:'Trash',luggage:'Luggage',parking:'Parking',rules:'House rules',emergency:'Emergency',
   supermarket:'Groceries',pharmacy:'Pharmacy',bakery:'Bakery',transport:'Transport',atm:'Cash / ATM',
   attractions:'Things to do',taxi:'Taxi',dinner:'Dinner',breakfast:'Breakfast',bar:'Bars',events:'What is on',other:'Other'};
+var LANG_L={en:'English',fr:'Français',nl:'Nederlands',de:'Deutsch',es:'Español',it:'Italiano',uk:'Українська'};
+var LANG_C={en:'#ff3d8b',fr:'#ff9b3d',nl:'#0e9a8d',de:'#9b5cff',es:'#3d7ea6',it:'#2f7d5b',uk:'#c9a227'};
 function renderQuestions(){
   const q=DATA.questions||{};
   const list=(q.intents||[]).slice(0,10);
-  if(!list.length){$('qBody').innerHTML='<div class="empty">No guest questions logged yet. They appear here as guests use your page.</div>';return;}
+  const reset=DATA.admin?'<div style="margin-top:16px"><button type="button" id="qReset" class="btn btn-ghost btn-sm">Reset question stats</button></div>':'';
+  if(!list.length){$('qBody').innerHTML='<div class="empty">No guest questions logged yet. They appear here as guests use your page.</div>'+reset;wireQReset();return;}
   const max=list[0].count||1;
   const gaps=(q.intents||[]).filter(function(e){return e.unanswered>0;}).slice(0,4);
-  $('qBody').innerHTML='<div class="muted" style="font-size:13px;margin-bottom:8px">'+q.total+' question'+(q.total===1?'':'s')+' in the last 30 days</div>'
+  const bars='<div class="muted" style="font-size:13px;margin-bottom:8px">'+q.total+' question'+(q.total===1?'':'s')+' in the last 30 days</div>'
     +list.map(function(e){
       return '<div class="qrow"><span class="lbl">'+esc(Q_LABEL[e.intent]||e.intent)+'</span>'
         +'<div class="qbar"><div class="qfill" style="width:'+Math.round(e.count/max*100)+'%"></div></div>'
@@ -728,6 +731,29 @@ function renderQuestions(){
     +(gaps.length?'<div class="gap"><b>⚠️ Guests asked about things your page could not answer</b><div style="margin-top:3px">'
       +gaps.map(function(g){return esc(Q_LABEL[g.intent]||g.intent)+' <span class="muted">('+g.count+'×)</span>';}).join(' · ')
       +'</div><div class="muted" style="font-size:12.5px;margin-top:5px">Send us the details and we will add them to your page.</div></div>':'');
+  // Language pie (conic-gradient — no chart lib) + legend.
+  const langs=(q.langs||[]).filter(function(l){return l.count;});
+  let pie='';
+  if(langs.length){
+    const tot=langs.reduce(function(s,l){return s+l.count;},0);
+    let acc=0; const stops=[];
+    langs.forEach(function(l){ const pct=l.count/tot*100, c=LANG_C[l.lang]||'#c3bcd0'; stops.push(c+' '+acc.toFixed(2)+'% '+(acc+pct).toFixed(2)+'%'); acc+=pct; });
+    const legend=langs.map(function(l){ const pct=Math.round(l.count/tot*100), c=LANG_C[l.lang]||'#c3bcd0';
+      return '<div style="display:flex;align-items:center;gap:7px;font-size:12.5px;margin-top:5px"><span style="width:11px;height:11px;border-radius:3px;background:'+c+';flex:none"></span>'+esc(LANG_L[l.lang]||l.lang)+' <span class="muted">'+pct+'%</span></div>';
+    }).join('');
+    pie='<div style="flex:none"><div class="muted" style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px">By language</div>'
+      +'<div style="width:104px;height:104px;border-radius:50%;background:conic-gradient('+stops.join(',')+')"></div>'+legend+'</div>';
+  }
+  $('qBody').innerHTML='<div style="display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start"><div style="flex:1;min-width:240px">'+bars+'</div>'+pie+'</div>'+reset;
+  wireQReset();
+}
+function wireQReset(){ var rb=$('qReset'); if(rb)rb.onclick=function(){ resetQuestions(rb); }; }
+async function resetQuestions(btn){
+  if(!confirm('Reset this hotel\'s guest-question stats? This clears the counts (including your test data) and cannot be undone.'))return;
+  btn.disabled=true; var old=btn.textContent; btn.textContent='Resetting…';
+  const r=await api('reset_questions',{},true);
+  if(r.ok&&r.j&&r.j.ok){ DATA.questions={since:(DATA.questions||{}).since,total:0,intents:[],langs:[]}; renderQuestions(); }
+  else { btn.disabled=false; btn.textContent=old; alert((r.j&&r.j.error)||'Could not reset.'); }
 }
 
 /* ================= HOST PICKS + MAP (ported from apartments/dashboard.html) ================= */
