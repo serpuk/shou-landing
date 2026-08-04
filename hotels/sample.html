@@ -487,7 +487,16 @@ const HOTEL={name:'Your Hotel',lat:50.8466,lng:4.3517,website:''};
 // anonymous visitor id (localStorage) so the backend can report queries/day,
 // unique visitors, and top queries per hotel. No PII — just a random id.
 const SAMPLE_SOURCE='hotel-'+((location.pathname.split('/').filter(Boolean).pop()||'sample').replace(/\.html$/,''));
-const PORTAL_SLUG=(location.pathname.split('/').filter(Boolean).pop()||'').replace(/\.html$/,'');
+// The real hotel slug — from ?slug= (the dashboard Preview form) OR the pretty
+// /hotels/<slug> path; /hotels/sample defaults to the demo hotel. Must match the
+// slug loadPortal resolves, or log_q files questions against the wrong hotel.
+const PORTAL_SLUG=(function(){
+  var q=new URLSearchParams(location.search).get('slug');
+  if(q)return q.replace(/\.html$/,'');
+  var m=location.pathname.match(/\/hotels\/([^\/?#]+)/);
+  var seg=m?decodeURIComponent(m[1]).replace(/\.html$/,''):'';
+  return (seg&&seg!=='sample')?seg:'sample-hotel';
+})();
 // ---- guest-question signal (aggregate only) --------------------------------
 // The hotel page answers city questions, not in-room ones. We tag each question
 // with a coarse intent purely so the hotel's dashboard can show WHAT guests ask
@@ -648,9 +657,9 @@ function conciergePick(q,forcedIntent){
   return null;                                   // fall through to the events engine
 }
 
-function logQ(q){
+function logQ(q,forcedIntent){
   try{
-    const intent=qIntent(q);
+    const intent=forcedIntent||qIntent(q);
     fetch(`${API}/hotel-portal`,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'log_q',slug:PORTAL_SLUG,intent:intent,
         kind:Q_IN_ROOM.has(intent)?'wb':'events',lang:lang,
@@ -1375,7 +1384,7 @@ async function ask(q,forcedIntent){
   setChips(false);                            // collapse suggestions once a query is sent — frees the screen
   const btn=document.getElementById('chatBtn'); if(btn)btn.disabled=true;
   addMsg('me',esc(q));
-  logQ(q);
+  logQ(q,forcedIntent);
   // Answer from the hotel's own picks when the question is about them.
   const pick=conciergePick(q,forcedIntent);
   if(pick){
