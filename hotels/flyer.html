@@ -27,6 +27,7 @@
   .top{background:linear-gradient(140deg,var(--violet),var(--pink));padding:26px 28px 22px;color:#fff}
   .top .hotel{font-family:'Fraunces';font-weight:700;font-size:25px;line-height:1.15}
   .top .kicker{font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;opacity:.85;margin-bottom:7px}
+  .top .logo{height:42px;max-width:190px;object-fit:contain;background:#fff;border-radius:10px;padding:6px 11px;margin-bottom:12px;display:none}
   .body{padding:24px 28px 26px;text-align:center}
   .body h2{font-family:'Fraunces';font-weight:600;font-size:20px;margin-bottom:6px}
   .body p{color:var(--soft);font-size:14px;margin-bottom:18px}
@@ -53,6 +54,7 @@
 
   <div class="card">
     <div class="top">
+      <img class="logo" id="logo" alt="">
       <div class="kicker">Your local concierge</div>
       <div class="hotel" id="hotel">Your hotel</div>
     </div>
@@ -73,6 +75,17 @@
 
 <script>
 (function(){
+  var API='https://shou-backend.vercel.app/api';
+  // Per-theme header gradient — mirrors the guest page's theme accents so the
+  // printed card matches the hotel's chosen look. Absent/unknown → the default.
+  var THEME_GRAD={
+    warm:'linear-gradient(140deg,#c2622f,#e0913f)',
+    nordic:'linear-gradient(140deg,#3d7ea6,#6aa3c0)',
+    bold:'linear-gradient(140deg,#ff4d8d,#ffb03d)',
+    botanical:'linear-gradient(140deg,#2f7d5b,#6fae74)',
+    boutique:'linear-gradient(140deg,#c9a227,#e6c66b)',
+    mediterranean:'linear-gradient(140deg,#c1683f,#dda15e)'
+  };
   var p=new URLSearchParams(location.search);
   var slug=(p.get('slug')||'').replace(/[^a-z0-9-]/gi,'');
   var name=p.get('name')||'Your hotel';
@@ -82,6 +95,19 @@
   // High error-correction so the code still scans after printing/creasing.
   document.getElementById('qr').src='https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=0&ecc=H&color=15101b&data='+encodeURIComponent(url);
   document.title=name+' — guest card';
+  // Best-effort: pull the hotel's branding so the card matches its theme + logo.
+  // Renders fine without it (default gradient, ?name=) if the fetch fails.
+  if(slug){
+    fetch(API+'/hotel-portal',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'public_content',slug:slug})})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var h=d&&d.hotel, b=(h&&h.branding)||{};
+        if(h&&h.name){document.getElementById('hotel').textContent=h.name;document.title=h.name+' — guest card';}
+        if(b.theme&&THEME_GRAD[b.theme])document.querySelector('.top').style.background=THEME_GRAD[b.theme];
+        if(b.logo){var lg=document.getElementById('logo');lg.src=b.logo;lg.style.display='inline-block';}
+      }).catch(function(){});
+  }
 })();
 </script>
 </body>
