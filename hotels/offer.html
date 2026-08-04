@@ -392,6 +392,62 @@
   .process li{counter-increment:p;position:relative;padding:16px 20px 16px 62px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);font-size:15px;color:var(--text-soft)}
   .process li::before{content:counter(p);position:absolute;left:15px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;font-family:'Fraunces';font-weight:700;display:grid;place-items:center;font-size:15px}
   .process li b{color:var(--ink);font-weight:600}
+
+  /* === Your picks (host recommendations showcase) === */
+  .picksec{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+  .picksdemo{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-lift)}
+  .pd-q{background:var(--grad);color:#fff;font-weight:600;font-size:13.5px;padding:9px 14px;border-radius:14px;border-bottom-right-radius:4px;margin:0 0 12px auto;width:max-content;max-width:92%}
+  .pd-lead{font-size:13.5px;color:var(--text-soft);font-style:italic;margin-bottom:12px}
+  .pd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .pdc{border:1px solid var(--line);border-radius:13px;background:#fff;padding:10px;box-shadow:var(--shadow)}
+  .pdc .ph{width:100%;height:64px;border-radius:9px;display:block;margin-bottom:8px}
+  .pdc .cat{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--cyan);background:rgba(14,154,141,.10);border-radius:999px;padding:2px 7px;margin-bottom:4px}
+  .pdc .nm{font-weight:700;font-size:12.5px;color:var(--ink);line-height:1.2}
+  .pdc .mt{display:flex;align-items:center;gap:7px;margin-top:5px;font-size:11px}
+  .pdc .mt .d{color:var(--cyan);font-weight:700}
+  .pdc .mt .w{color:var(--text-dim)}
+  .pdc .rt{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--ink);margin-top:4px}
+  .pdc .rt .st{color:#f0a500}
+  .pdc .rt .ct{font-weight:500;color:var(--text-dim)}
+  .pd-map{height:76px;border-radius:11px;margin-top:9px;border:1px solid var(--line);
+    background:linear-gradient(135deg,#e8eef0,#dbe6e9);position:relative;overflow:hidden}
+  .pd-map::after{content:'📍';position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);font-size:19px}
+  .picks-why{list-style:none;display:flex;flex-direction:column;gap:15px}
+  .picks-why li{position:relative;padding-left:32px;font-size:15.5px;color:var(--text-soft);line-height:1.55}
+  .picks-why li b{color:var(--ink);font-weight:600}
+  .picks-why li::before{content:'✓';position:absolute;left:0;top:1px;color:#fff;font-size:11px;font-weight:800;
+    width:20px;height:20px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 3px 8px -3px rgba(255,61,139,.5)}
+  @media(max-width:820px){ .picksec{grid-template-columns:1fr;gap:28px} }
+  @media(max-width:520px){ .pd-grid{grid-template-columns:1fr 1fr} }
+
+  /* === Make it yours (branding controls) === */
+  .mine{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .mcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .mcard h3{font-size:16px;margin-bottom:5px}
+  .mcard p{font-size:13.5px;color:var(--text-soft);line-height:1.5}
+  .swatches{display:flex;gap:7px;margin-bottom:13px}
+  .swatches i{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);display:block}
+  .voices{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
+  .voices span{font-size:11.5px;font-weight:600;color:var(--text-soft);background:var(--panel-soft);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+  .voices span.on{background:var(--grad);color:#fff;border-color:transparent}
+
+  /* === Language breakdown (dashboard) === */
+  .langblock{border-top:1px solid var(--line);margin-top:16px;padding-top:16px}
+  .langblock .lh{font-weight:700;font-size:13px;color:var(--ink);margin-bottom:13px}
+  .langmix{display:flex;align-items:center;gap:20px}
+  .langpie{width:92px;height:92px;border-radius:50%;flex:none;
+    background:conic-gradient(#ff3d8b 0 34%,#ff9b3d 34% 58%,#0e9a8d 58% 76%,#9b5cff 76% 90%,#c9ccd4 90% 100%)}
+  .langleg{display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+  .langleg span{display:flex;align-items:center;gap:8px;color:var(--text-soft)}
+  .langleg i{width:10px;height:10px;border-radius:3px;flex:none}
+
+  /* === Live embedded hotel page (browser frame) === */
+  .liveframe{max-width:920px;margin:0 auto 14px;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lift);background:#fff}
+  .liveframe .lbar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--panel-soft);border-bottom:1px solid var(--line)}
+  .liveframe .lbar i{width:11px;height:11px;border-radius:50%;background:#e0d8e4;display:block}
+  .liveframe .lbar .u{margin-left:12px;font-size:12.5px;color:var(--text-dim);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 14px}
+  .liveframe iframe{width:100%;height:580px;border:0;display:block;background:#fff}
+  .live-note{text-align:center;margin:0 auto 30px;color:var(--text-dim);font-size:13px}
 </style>
 </head>
 <body>
@@ -588,7 +644,7 @@
 
 <!-- WHAT YOU GET -->
 <section><div class="wrap">
-  <div class="sec-head"><h2>What your hotel gets</h2><p>A branded page at <b style="color:var(--cyan)">shou.be/hotel/your-name</b> — two tabs for your guests, and a private dashboard for you.</p></div>
+  <div class="sec-head"><h2>What your hotel gets</h2><p>A branded page at <b style="color:var(--cyan)">shou.be/hotels/your-name</b> — two tabs for your guests, and a private dashboard for you.</p></div>
   <div class="get">
     <div class="get-list">
       <h3>1 · Your branded concierge page</h3>
@@ -615,6 +671,56 @@
   </div>
 </div></section>
 
+<!-- YOUR PICKS (host recommendations) -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>Your picks — <span class="grad-text">not a generic map</span></h2>
+    <p>Curate your own favourites once — dinner, coffee, a bakery, a bar. When a guest asks, the concierge answers with <b>your</b> places, nearest first, in their language.</p></div>
+  <div class="picksec">
+    <div class="picksdemo" aria-hidden="true">
+      <div class="pd-q">Where should we eat tonight?</div>
+      <div class="pd-lead">Ooh, you're in for a treat — a few we always send guests to:</div>
+      <div class="pd-grid">
+        <div class="pdc"><span class="ph" style="background:linear-gradient(135deg,#f7d9c4,#e3ab7d)"></span><span class="cat">Dinner</span><div class="nm">La Quincaillerie</div><div class="mt"><span class="d">280 m</span><span class="w">4 min walk</span></div><div class="rt"><span class="st">★</span>4.6 <span class="ct">(412)</span></div></div>
+        <div class="pdc"><span class="ph" style="background:linear-gradient(135deg,#cfe3d6,#96bfa5)"></span><span class="cat">Dinner</span><div class="nm">Bibim</div><div class="mt"><span class="d">340 m</span><span class="w">5 min walk</span></div><div class="rt"><span class="st">★</span>4.7 <span class="ct">(286)</span></div></div>
+        <div class="pdc"><span class="ph" style="background:linear-gradient(135deg,#dcd6ee,#afa1da)"></span><span class="cat">Dinner</span><div class="nm">Amen</div><div class="mt"><span class="d">500 m</span><span class="w">6 min walk</span></div><div class="rt"><span class="st">★</span>4.5 <span class="ct">(190)</span></div></div>
+      </div>
+      <div class="pd-map"></div>
+    </div>
+    <div>
+      <ul class="picks-why">
+        <li><b>You choose, per category.</b> Dining, coffee, bakeries, bars — add the spots you'd actually recommend, once.</li>
+        <li><b>Answered from your list.</b> "Somewhere for dinner?" returns your picks — photo, rating, distance and walk time — not a cold search.</li>
+        <li><b>Blended when it fits.</b> "Breakfast?" pulls your bakeries and coffee together as morning spots.</li>
+        <li><b>Graceful fallback.</b> No pick for something? The concierge finds the best-rated option nearby — and hotel questions point to reception.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- MAKE IT YOURS (branding) -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>Make it <span class="grad-text">unmistakably yours</span></h2>
+    <p>Your page, your look, your voice — set once in the dashboard, live instantly. No designer, no code.</p></div>
+  <div class="mine">
+    <div class="mcard">
+      <div class="swatches"><i style="background:linear-gradient(135deg,#c2622f,#e0913f)"></i><i style="background:linear-gradient(135deg,#3d7ea6,#6aa3c0)"></i><i style="background:linear-gradient(135deg,#2f7d5b,#6fae74)"></i><i style="background:#17141d"></i><i style="background:#191713"></i></div>
+      <h3>Six themes</h3><p>Warm, Nordic, Botanical, Mediterranean, Bold or Boutique — pick the mood that matches your hotel.</p>
+    </div>
+    <div class="mcard">
+      <div class="voices"><span>Host</span><span class="on">Concierge</span><span>Brief</span><span>Playful</span></div>
+      <h3>Four voices</h3><p>From a warm host to a formal five-star concierge or a playful local — choose how it speaks. It carries across all 7 languages.</p>
+    </div>
+    <div class="mcard">
+      <div class="swatches"><i style="background:var(--grad-cool);display:grid;place-items:center;color:#fff;font-family:'Fraunces';font-weight:700;font-size:15px">m</i></div>
+      <h3>Your logo</h3><p>Pull it straight from your website in one click, or upload your own. It sits as the badge beside your name.</p>
+    </div>
+    <div class="mcard">
+      <span style="display:block;height:40px;border-radius:9px;margin-bottom:13px;background:linear-gradient(135deg,#e8b98f,#c9a6d8)"></span>
+      <h3>Cover photo &amp; links</h3><p>Add your own hero photo and your links — restaurant, spa, booking, services. Guests see your brand, not ours.</p>
+    </div>
+  </div>
+</div></section>
+
 <!-- YOUR DASHBOARD -->
 <section><div class="wrap">
   <div class="sec-head"><h2>And a dashboard <span class="grad-text">only you can see</span></h2>
@@ -627,7 +733,20 @@
       <div class="qrow"><span class="qq">Is there a pharmacy nearby?</span><span class="pill ok">answered</span><span class="qc">6</span></div>
       <div class="qrow"><span class="qq">What time is breakfast?</span><span class="pill no">not answered</span><span class="qc">9</span></div>
       <div class="qrow"><span class="qq">Can we park at the hotel?</span><span class="pill no">not answered</span><span class="qc">5</span></div>
-      <p class="dash-note">No hotel has ever had this list. Questions your page <b>couldn't</b> answer are flagged — so you can see, in your guests' own words, what they keep coming to your desk for.</p>
+      <div class="langblock">
+        <div class="lh">Languages your guests ask in</div>
+        <div class="langmix">
+          <div class="langpie" role="img" aria-label="Share of guest questions by language"></div>
+          <div class="langleg">
+            <span><i style="background:#ff3d8b"></i>English · 34%</span>
+            <span><i style="background:#ff9b3d"></i>French · 24%</span>
+            <span><i style="background:#0e9a8d"></i>Dutch · 18%</span>
+            <span><i style="background:#9b5cff"></i>German · 14%</span>
+            <span><i style="background:#c9ccd4"></i>Other · 10%</span>
+          </div>
+        </div>
+      </div>
+      <p class="dash-note">No hotel has ever had this list. Questions your page <b>couldn't</b> answer are flagged, and you even see <b>which languages</b> guests ask in — so you know, in their own words, what they keep coming to your desk for.</p>
     </div>
     <div class="dash-col">
       <div class="dash-card">
@@ -662,6 +781,11 @@
 <!-- LIVE DEMO -->
 <section><div class="wrap">
   <div class="sec-head"><h2>See it live</h2><p>Try the engine that powers every concierge. Your hotel gets its own branded version.</p></div>
+  <div class="liveframe">
+    <div class="lbar"><i></i><i></i><i></i><span class="u">shou.be/hotels/made-in-louise</span></div>
+    <iframe src="/hotels/made-in-louise" title="A live shou hotel concierge page" loading="lazy"></iframe>
+  </div>
+  <p class="live-note">A real, live hotel page — scroll and tap around inside it. This is exactly what your guests would get.</p>
   <div class="demos">
     <a class="demo" href="/hotels/sample" target="_blank" rel="noopener"><div class="dlogo">B</div><h3>Boutique Hotel</h3><p>Brussels centre</p><span class="go">Open demo →</span></a>
     <a class="demo" href="/hotels/sample" target="_blank" rel="noopener"><div class="dlogo">C</div><h3>City Hotel</h3><p>business guests</p><span class="go">Open demo →</span></a>
