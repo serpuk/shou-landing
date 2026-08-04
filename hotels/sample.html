@@ -884,6 +884,13 @@ function dedupe(list){const seen=new Set(),out=[];for(const e of list){const k=n
 // a multi-night residency or a busy venue can't fill it with near-identical cards.
 // Everything still appears in full in the per-category rails below and on the map.
 function oneVenue(list){const seen=new Set(),out=[];for(const e of list){const k=norm(e.venue||e.city);if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
+// Concierge answers: gentler than oneVenue — collapse only NEAR-identical listings
+// at one venue (an exhibition's many program variants — "Postcolonial? guided
+// tours", "Postcolonial? art & resistance…" — share a long title prefix + venue but
+// differ enough in full title to survive dedupe()). Keeps genuinely different-titled
+// events at the same venue (two distinct exhibitions at one museum). Keep the first
+// (best-ranked). 14-char prefix so short generic prefixes don't over-collapse.
+function collapseVenueStem(list){const seen=new Set(),out=[];for(const e of list){const stem=norm(cleanTitle(e.name)).slice(0,14);const k=stem?stem+'|'+norm(e.venue||e.city):'';if(k&&seen.has(k))continue;if(k)seen.add(k);out.push(e);}return out;}
 
 // --- occurrence awareness: a recurring event (exhibition run, daily camp) is
 // "on" every day it covers, not just its start_date — mirrors the search API. ---
@@ -1316,7 +1323,7 @@ async function ask(q){
     // by-id re-fetch would overwrite with the raw start_date.
     const byId={};
     for(const e of [...(d.events||[]),...(d.suggestedEvents||[])]) if(e&&e.id&&e.name&&!byId[e.id])byId[e.id]=e;
-    const list=dedupe(Object.values(byId)).slice(0,9);
+    const list=collapseVenueStem(dedupe(Object.values(byId))).slice(0,9);
     if(list.length){
       indexEvents(list); list.forEach(e=>{chatEv[e.id]=e;});
       const grid=document.createElement('div');grid.className='res';grid.innerHTML=list.map(chatCard).join('');
