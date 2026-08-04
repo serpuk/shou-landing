@@ -1121,6 +1121,18 @@ $('f_photo').addEventListener('input',function(){ renderPhoto(); renderTheme(); 
 
 /* ---------- logo (badge next to the hotel name) ---------- */
 var logoSel='', logoCands=[], logoUploaded=[];   // logoUploaded = the saved logo + anything the manager uploaded; these persist in the row and are never auto-pruned
+// The logo is a discrete choice — persist it on change so it survives a refresh
+// without needing the global Save (losing an upload on refresh was a trap).
+// Debounced, so browsing candidates only saves the final pick.
+var _logoSaveT;
+function autoSaveLogo(){
+  if(DATA&&DATA.ro)return;                        // admin viewing a real customer = read-only
+  clearTimeout(_logoSaveT);
+  _logoSaveT=setTimeout(function(){
+    saveBranding().then(function(){ $('logoMsg').textContent='Logo saved ✓'; setTimeout(function(){ if($('logoMsg').textContent==='Logo saved ✓')$('logoMsg').textContent=''; },2200); })
+                  .catch(function(){ $('logoMsg').textContent='Could not save the logo.'; });
+  },600);
+}
 function renderLogo(){
   var admin=!!(DATA&&DATA.ro);
   var pv=$('logoPrev');
@@ -1142,9 +1154,9 @@ function renderLogo(){
       im.remove();
     };
     if(admin){ im.style.pointerEvents='none'; im.style.opacity='.6'; return; }
-    im.onclick=function(){ logoSel=(logoSel===u?'':u); renderLogo(); };
+    im.onclick=function(){ logoSel=(logoSel===u?'':u); renderLogo(); autoSaveLogo(); };
   });
-  var nb=row.querySelector('[data-none]'); if(nb&&!admin)nb.onclick=function(){ logoSel=''; renderLogo(); };
+  var nb=row.querySelector('[data-none]'); if(nb&&!admin)nb.onclick=function(){ logoSel=''; renderLogo(); autoSaveLogo(); };
 }
 $('logoFetch').onclick=function(){
   if(DATA&&DATA.ro)return;
@@ -1162,7 +1174,7 @@ $('logoFile').onchange=function(){
   var b=$('logoUpBtn'); b.disabled=true; $('logoMsg').textContent='Uploading…';
   shrink(f,512,0.9).then(function(dataUrl){ return api('upload_photo',{data:dataUrl},true); }).then(function(r){
     b.disabled=false; $('logoFile').value='';
-    if(r.ok&&r.j&&r.j.url){ logoSel=r.j.url; if(logoUploaded.indexOf(logoSel)<0)logoUploaded.unshift(logoSel); $('logoMsg').textContent=''; renderLogo(); }
+    if(r.ok&&r.j&&r.j.url){ logoSel=r.j.url; if(logoUploaded.indexOf(logoSel)<0)logoUploaded.unshift(logoSel); $('logoMsg').textContent=''; renderLogo(); autoSaveLogo(); }
     else $('logoMsg').textContent=(r.j&&r.j.error)||'Could not upload that image.';
   }).catch(function(){ b.disabled=false; $('logoFile').value=''; $('logoMsg').textContent='Could not upload that image.'; });
 };
