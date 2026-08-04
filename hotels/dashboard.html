@@ -1120,21 +1120,29 @@ function renderStock(){                                 // apt dashboard L1100-1
 $('f_photo').addEventListener('input',function(){ renderPhoto(); renderTheme(); });
 
 /* ---------- logo (badge next to the hotel name) ---------- */
-var logoSel='', logoCands=[];
+var logoSel='', logoCands=[], logoUploaded=[];   // logoUploaded = the saved logo + anything the manager uploaded; these persist in the row and are never auto-pruned
 function renderLogo(){
   var admin=!!(DATA&&DATA.ro);
   var pv=$('logoPrev');
   if(logoSel){ pv.innerHTML=''; var pim=document.createElement('img'); pim.src=logoSel; pim.alt=''; pv.appendChild(pim); }
   else { var nm=((DATA.hotel&&DATA.hotel.name)||'H').trim(); pv.innerHTML='<span>'+((nm[0]||'H').toUpperCase())+'</span>'; }
-  var list=logoCands.slice(); if(logoSel&&list.indexOf(logoSel)<0)list.unshift(logoSel);
+  // User-owned logos (saved + uploaded) stay in the row no matter which
+  // candidate is selected; fetched candidates follow, deduped.
+  var list=[]; logoUploaded.concat(logoCands).forEach(function(u){ if(u&&list.indexOf(u)<0)list.push(u); });
+  if(logoSel&&list.indexOf(logoSel)<0)list.unshift(logoSel);
   var row=$('logoRow');
   row.innerHTML=list.map(function(u){
     return '<img class="'+(u===logoSel?'on':'')+'" data-src="'+u+'" src="'+u+'" alt="" loading="lazy">';
   }).join('') + (list.length?'<button type="button" class="logo-none'+(logoSel?'':' on')+'" data-none="1">Use initial</button>':'');
   row.querySelectorAll('img').forEach(function(im){
-    im.onerror=function(){ im.remove(); };   // drop candidates that fail to load — show only real images
+    var u=im.getAttribute('data-src');
+    im.onerror=function(){   // prune a dead FETCHED candidate — but never the user's own upload / current pick
+      if(u===logoSel||logoUploaded.indexOf(u)>=0)return;
+      var i=logoCands.indexOf(u); if(i>=0)logoCands.splice(i,1);
+      im.remove();
+    };
     if(admin){ im.style.pointerEvents='none'; im.style.opacity='.6'; return; }
-    im.onclick=function(){ var u=im.getAttribute('data-src'); logoSel=(logoSel===u?'':u); renderLogo(); };
+    im.onclick=function(){ logoSel=(logoSel===u?'':u); renderLogo(); };
   });
   var nb=row.querySelector('[data-none]'); if(nb&&!admin)nb.onclick=function(){ logoSel=''; renderLogo(); };
 }
@@ -1154,7 +1162,7 @@ $('logoFile').onchange=function(){
   var b=$('logoUpBtn'); b.disabled=true; $('logoMsg').textContent='Uploading…';
   shrink(f,512,0.9).then(function(dataUrl){ return api('upload_photo',{data:dataUrl},true); }).then(function(r){
     b.disabled=false; $('logoFile').value='';
-    if(r.ok&&r.j&&r.j.url){ logoSel=r.j.url; if(logoCands.indexOf(logoSel)<0)logoCands.unshift(logoSel); $('logoMsg').textContent=''; renderLogo(); }
+    if(r.ok&&r.j&&r.j.url){ logoSel=r.j.url; if(logoUploaded.indexOf(logoSel)<0)logoUploaded.unshift(logoSel); $('logoMsg').textContent=''; renderLogo(); }
     else $('logoMsg').textContent=(r.j&&r.j.error)||'Could not upload that image.';
   }).catch(function(){ b.disabled=false; $('logoFile').value=''; $('logoMsg').textContent='Could not upload that image.'; });
 };
@@ -1225,7 +1233,7 @@ function saveBranding(b){
 function renderBrandingCard(){
   var b=(DATA.hotel&&DATA.hotel.branding)||{};
   $('f_photo').value=b.photo||'';
-  themeSel=b.theme||''; toneSel=b.tone||''; logoSel=b.logo||''; logoCands=[];
+  themeSel=b.theme||''; toneSel=b.tone||''; logoSel=b.logo||''; logoCands=[]; logoUploaded=b.logo?[b.logo]:[];
   renderStock(); renderPhoto(); renderTheme(); renderTone(); renderLogo();
   if(DATA.ro){                                     // content read-only for an admin viewing a real customer
     $('upBtn').disabled=true; $('f_photo').disabled=true;
