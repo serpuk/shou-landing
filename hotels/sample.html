@@ -624,8 +624,9 @@ function conciergePick(q,forcedIntent){
         if(pts.length&&HOTEL.lat&&HOTEL.lng){ mapId='askMap'+(++_askMapN); mapEl='<div class="pick-map" id="'+mapId+'"></div>'; }
         const lead = pickLead(arr.length===1?'one':'many');
         const more='<a class="pick-more" href="'+esc(maps((REC_Q[c]||c)+' near '+addr))+'" target="_blank" rel="noopener">'+esc(PKALL_L[lang]||PKALL_L.en)+' ↗</a>';
-        const html='<div style="margin-bottom:2px">'+esc(lead)+'</div><div class="picks">'+rows+'</div>'+mapEl+more;
-        return { html:html, map: mapId?{id:mapId,pts:pts}:null };
+        const html='<div class="picks">'+rows+'</div>'+mapEl+more;   // lead is prepended by ask() (may be AI-written)
+        const leadPayload={kind:arr.length===1?'one':'many',tone:window.CONCIERGE_TONE||null,lang:lang,query:q,hotel:(HOTEL&&HOTEL.name)||'',picks:arr.slice(0,6).map(function(p){return {name:p.n,cat:catL(c),dist:p.dist,rating:p.grating};})};
+        return { html:html, map: mapId?{id:mapId,pts:pts}:null, lead:{payload:leadPayload, fallback:lead} };
       }
     }
   }
@@ -641,8 +642,8 @@ function conciergePick(q,forcedIntent){
   if(mq){
     const near=(HOTEL&&HOTEL.name)?(' near '+HOTEL.name):'';
     const poiLabel=(POI_L[intent]&&(POI_L[intent][lang]||POI_L[intent].en))||catL(intent)||mq;
-    return { html: '<div style="margin-bottom:2px">'+esc(pickLead('maps'))+'</div>'
-           +answerCard('📍',poiLabel,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near)) };
+    return { html: answerCard('📍',poiLabel,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near)),
+             lead:{payload:{kind:'maps',tone:window.CONCIERGE_TONE||null,lang:lang,query:q,hotel:(HOTEL&&HOTEL.name)||'',mapsLabel:poiLabel}, fallback:pickLead('maps')} };
   }
   return null;                                   // fall through to the events engine
 }
@@ -1370,7 +1371,20 @@ async function ask(q,forcedIntent){
   logQ(q);
   // Answer from the hotel's own picks when the question is about them.
   const pick=conciergePick(q,forcedIntent);
-  if(pick){ addMsg('ai',pick.html); if(pick.map)drawPlaceMap(pick.map.id,pick.map.pts); asking=false; if(btn)btn.disabled=false; return; }
+  if(pick){
+    let leadHtml='';
+    if(pick.lead){
+      // AI-written lead — fresh, human, in the guest's language + hotel voice.
+      // Shows a brief "thinking…" then the sentence; on any failure/timeout the
+      // fixed per-language lead is used, so it never blocks or breaks.
+      const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
+      let aiLead=null;
+      try{ const rr=await fetch(`${API}/concierge-lead`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pick.lead.payload)}); const dd=await rr.json(); aiLead=dd&&dd.lead; }catch(e){}
+      typing.remove();
+      leadHtml='<div style="margin-bottom:2px">'+esc(aiLead||pick.lead.fallback)+'</div>';
+    }
+    addMsg('ai',leadHtml+pick.html); if(pick.map)drawPlaceMap(pick.map.id,pick.map.pts); asking=false; if(btn)btn.disabled=false; return;
+  }
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
   try{
     const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng,source:SAMPLE_SOURCE,sessionId:VISITOR_ID,tone:(window.CONCIERGE_TONE||null)})});
