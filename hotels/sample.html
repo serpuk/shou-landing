@@ -165,7 +165,11 @@
   .subpage.cool .chat-form button{background:var(--grad-cool)}
   .subpage.cool .chat-form input:focus{border-color:rgba(155,92,255,.5)}
   .subpage.cool .ex-surprise{background:var(--grad-cool)}
-  .subpage .chat-dock{background:transparent}
+  /* The sticky dock must be OPAQUE where the chips + input sit, or cards scroll
+     up through it (was transparent → the tips overlapped the event cards). Match
+     the panel tint, solid under the controls with a short fade at the very top. */
+  .subpage.warm .chat-dock{background:linear-gradient(to top,var(--warm-bg) 82%,transparent)}
+  .subpage.cool .chat-dock{background:linear-gradient(to top,var(--cool-bg) 82%,transparent)}
 
   /* Day filter timeline (matches this-week) */
   .tl-wrap{display:flex;align-items:center;gap:12px;margin:22px 0 6px}
@@ -498,10 +502,10 @@ const Q_KW=[
   ['luggage',['luggage','suitcase','bagage','koffer','valise','gepack','maleta','bagaglio','багаж']],
   ['parking',['parking','park the car','garage','parkeren','parkplatz','aparcamiento','parcheggio','паркінг']],
   ['laundry',['laundry','washing machine','wasserette','waschsalon','lavanderia','lavanderia','пральня']],
-  ['breakfast',['breakfast','brunch','petit dejeuner','ontbijt','fruhstuck','desayun','colazione','сніданок']],
-  ['dinner',['dinner','restaurant','where to eat','eat','diner','manger','eten','essen','cena','cenar','ristorante','ресторан','поїсти']],
-  ['bar',['bar','bars','drinks','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','пиво']],
-  ['coffee',['coffee','cafe','cappuccino','koffie','kaffee','caffe','кава']],
+  ['breakfast',['breakfast','brunch','petit dejeuner','ontbijt','fruhstuck','desayun','colazione','сніданок','поснід']],
+  ['dinner',['dinner','restaurant','where to eat','eat','diner','manger','eten','essen','cena','cenar','ristorante','ресторан','поїсти','вечеря','повечер']],
+  ['bar',['bar','bars','drinks','cocktail','beer','pub','biere','borrel','bier','cerveza','birra','пиво','випити']],
+  ['coffee',['coffee','cafe','cappuccino','koffie','kaffee','caffe','кава','кави']],
   ['supermarket',['supermarket','grocery','groceries','courses','boodschappen','supermarkt','supermercado','comprar comida','spesa','продукти']],
   ['pharmacy',['pharmacy','pharmacie','apotheek','apotheke','farmacia','аптека']],
   ['transport',['tram','metro','bus','public transport','station','openbaar vervoer','trasporti','метро','транспорт']],
@@ -527,7 +531,11 @@ function qIntent(q){
 const CARD_FOR={dinner:['dine','italian'],breakfast:['dine'],coffee:['dine'],
                 bar:['bar'],supermarket:['market'],laundry:['laundry'],spa:['spa']};
 const MAPS_FOR={pharmacy:'pharmacy',bakery:'bakery',atm:'atm',taxi:'taxi rank',
-                transport:'public transport stop',attractions:'tourist attractions'};
+                transport:'public transport stop',attractions:'tourist attractions',
+                // Food intents fall back to a Maps search ONLY when the hotel has
+                // no such pick — so "where to eat" returns restaurants near the
+                // hotel, never a themed food EVENT.
+                dinner:'restaurants',coffee:'coffee shops',bar:'bars',breakfast:'breakfast',supermarket:'supermarket'};
 // Label shown to the guest. MAPS_FOR stays English because it is the
 // Google Maps QUERY, not display text.
 const POI_L={pharmacy:{en:'Pharmacy',fr:'Pharmacie',nl:'Apotheek',de:'Apotheke',es:'Farmacia',it:'Farmacia',uk:'Аптека'},bakery:{en:'Bakery',fr:'Boulangerie',nl:'Bakkerij',de:'Bäckerei',es:'Panadería',it:'Panetteria',uk:'Пекарня'},atm:{en:'ATM',fr:'Distributeur',nl:'Geldautomaat',de:'Geldautomat',es:'Cajero',it:'Bancomat',uk:'Банкомат'},taxi:{en:'Taxi',fr:'Taxi',nl:'Taxi',de:'Taxi',es:'Taxi',it:'Taxi',uk:'Таксі'},transport:{en:'Public transport',fr:'Transports',nl:'Openbaar vervoer',de:'Nahverkehr',es:'Transporte',it:'Trasporti',uk:'Транспорт'},attractions:{en:'Things to do',fr:'À voir',nl:'Bezienswaardigheden',de:'Sehenswürdigkeiten',es:'Qué ver',it:'Cosa vedere',uk:'Що подивитися'}};
@@ -551,8 +559,8 @@ function answerCard(icon,label,name,url,extra){
     +(extra?'<div style="font-size:12.5px;color:var(--dim);margin-top:2px">'+esc(extra)+'</div>':'')
     +'</div></div>';
 }
-function conciergePick(q){
-  const intent=qIntent(q);
+function conciergePick(q,forcedIntent){
+  const intent=forcedIntent||qIntent(q);
   // DB picks (?slug=) win over everything: answer straight from the hotel's own
   // curated list before the demo cards or the Maps fallback.
   if(PICKS){
@@ -574,7 +582,7 @@ function conciergePick(q){
   }
   // A curated card always beats the generic answer: if the hotel has picked a
   // laundry or a restaurant, show THAT rather than sending them to reception.
-  const cards=(typeof HOTEL_CARDS==='function')?HOTEL_CARDS():[];
+  const cards=(!PORTAL&&typeof HOTEL_CARDS==='function')?HOTEL_CARDS():[];   // hardcoded demo cards are for the demo page only; a real hotel falls to its picks or a Maps search
   const keys=CARD_FOR[intent]||[];
   const hit=cards.filter(c=>c.url).find(c=>keys.indexOf(c.k)>=0);
   if(hit) return { html: '<div style="margin-bottom:2px">'+esc(PICK_L[lang]||PICK_L.en)+'</div>'
@@ -583,7 +591,7 @@ function conciergePick(q){
   const mq=MAPS_FOR[intent];
   if(mq){
     const near=(HOTEL&&HOTEL.name)?(' near '+HOTEL.name):'';
-    const poiLabel=(POI_L[intent]&&(POI_L[intent][lang]||POI_L[intent].en))||mq;
+    const poiLabel=(POI_L[intent]&&(POI_L[intent][lang]||POI_L[intent].en))||catL(intent)||mq;
     return { html: '<div style="margin-bottom:2px">'+esc(MAPS_L[lang]||MAPS_L.en)+'</div>'
            +answerCard('📍',poiLabel,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near)) };
   }
@@ -662,6 +670,7 @@ const HOTEL_CARDS=()=>[
    so the default marketing page renders byte-for-byte as before.
    =================================================================== */
 let PICKS=null;                        // category-keyed DB picks, or null for the demo
+let PORTAL=false;                      // true once a real hotel (?slug=) resolves — gates the hardcoded demo cards off
 // category → emoji (ported from u.html ICON{})
 const ICON={wifi:'📶',checkin:'🔑',checkout:'🚪',heating:'🌡',laundry:'🧺',coffee:'☕',trash:'🗑',parking:'🚗',luggage:'🧳',rules:'📜',emergency:'🆘',
   supermarket:'🛒',bakery:'🥐',pharmacy:'💊',transport:'🚋',airport:'✈️',
@@ -1302,7 +1311,7 @@ document.getElementById('exsToggle').onclick=()=>setChips(!chipsOpen);
 function addMsg(cls,html){const el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;msgs.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el;}
 // concierge result card — identical to the This week card (shared builder)
 function chatCard(e){ return evCard(e,e.date); }
-async function ask(q){
+async function ask(q,forcedIntent){
   if(!q||!q.trim()||asking)return;            // guard: ignore empty + double-sends while a request is in flight
   asking=true;
   setChips(false);                            // collapse suggestions once a query is sent — frees the screen
@@ -1310,7 +1319,7 @@ async function ask(q){
   addMsg('me',esc(q));
   logQ(q);
   // Answer from the hotel's own picks when the question is about them.
-  const pick=conciergePick(q);
+  const pick=conciergePick(q,forcedIntent);
   if(pick){ addMsg('ai',pick.html); if(pick.map)drawPlaceMap(pick.map.id,pick.map.pts); asking=false; if(btn)btn.disabled=false; return; }
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
   try{
@@ -1362,14 +1371,23 @@ var CHIP_SLOT={breakfast:'am',coffee:'am',today:'am',
   surprise:'eve',dinner:'eve',bar:'eve',music:'eve',
   week:'',weekend:'',concert:''};
 function chipSlotNow(){ var h=new Date().getHours(); return h<11?'am':(h<17?'pm':'eve'); }
+// Chip KEYS suited to now (texts looked up via chipBtn). 'surprise' is excluded —
+// it's rendered separately as the dedicated ✨ chip, so listing it here too made
+// it appear twice.
 function chipsForNow(){
-  var pool=(t('chips')||{}), slot=chipSlotNow(), now=[], any=[];
-  Object.keys(pool).forEach(function(k){
+  var slot=chipSlotNow(), now=[], any=[];
+  Object.keys(t('chips')||{}).forEach(function(k){
+    if(k==='surprise')return;
     var when=CHIP_SLOT[k]||'';
-    if(when===slot)now.push(pool[k]); else if(!when)any.push(pool[k]);
+    if(when===slot)now.push(k); else if(!when)any.push(k);
   });
-  return now.concat(any).slice(0,6);          // timely first, then the undated ones
+  return now.concat(any).slice(0,6);          // keys, timely first then undated
 }
+// A clicked chip carries its intent, so the concierge answers from the hotel's
+// PICKS directly rather than re-classifying inflected text (uk "повечеряти",
+// "кави"…). Only pick-relevant chips map to an intent; the rest go to events.
+var CHIP_INTENT={breakfast:'breakfast',coffee:'coffee',dinner:'dinner',bar:'bar'};
+function chipBtn(k){var q=(t('chips')||{})[k]||'';return '<button class="ex" data-q="'+esc(q)+'" data-intent="'+(CHIP_INTENT[k]||'')+'">'+esc(q)+'</button>';}
 // The placeholder cycles through what is NOT on a chip. Stops once the guest
 // touches the field. Ported from u.html: chr→t, id 'ci'→'chatInput', chr('ph')→t('askPh').
 var _phTimers={};
@@ -1377,9 +1395,9 @@ function cyclePlaceholder(id){
   id=id||'chatInput';
   var inp=document.getElementById(id); if(!inp)return;
   clearInterval(_phTimers[id]);
-  var pool=(t('chips')||{}), shown=chipsForNow();
-  var rest=Object.keys(pool).map(function(k){return pool[k];})
-    .filter(function(q){return shown.indexOf(q)<0;});
+  var pool=(t('chips')||{}), shownKeys=chipsForNow();
+  var rest=Object.keys(pool).filter(function(k){return k!=='surprise'&&shownKeys.indexOf(k)<0;})
+    .map(function(k){return pool[k];});
   if(!rest.length)return;
   var stop=function(){ clearInterval(_phTimers[id]); inp.placeholder=t('askPh'); };
   inp.addEventListener('focus',stop,{once:true});
@@ -1398,20 +1416,19 @@ function applyChrome(){
   document.getElementById('hlinks').innerHTML=HOTEL_LINKS().map(l=>`<a class="hlink" href="${l.url||'#'}"${l.url?' target="_blank" rel="noopener"':''}>${l.i} ${esc(t(l.k))}</a>`).join('');
   const sq=SURPRISE_L[lang]||SURPRISE_L.en;
   const chips=[`<button class="ex ex-surprise" data-q="${esc(sq)}">✨ ${esc(sq)}</button>`]
-    .concat(chipsForNow().map(q=>`<button class="ex" data-q="${esc(q)}">${esc(q)}</button>`));
+    .concat(chipsForNow().map(chipBtn));
   document.getElementById('exs').innerHTML=chips.join('');
   document.getElementById('ideasLbl').textContent=IDEAS_L[lang]||IDEAS_L.en;
-  document.getElementById('atChips').innerHTML=chipsForNow().slice(0,5)
-    .map(q=>`<button class="ex" data-q="${esc(q)}">${esc(q)}</button>`).join('');
+  document.getElementById('atChips').innerHTML=chipsForNow().slice(0,5).map(chipBtn).join('');
   document.getElementById('atLbl').textContent=ASK_L[lang]||ASK_L.en;
   document.getElementById('atSub').textContent=t('atSub')||'';
-  document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;ask(q);});
+  document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;ask(q,b.getAttribute('data-intent')||null);});
   // Teaser chips live OUTSIDE the tab panels, so they must open the concierge
   // tab as well — otherwise the answer renders in a hidden panel. Bound after
   // the generic handler above so it wins for these chips only.
   document.querySelectorAll('#atChips .ex').forEach(b=>b.onclick=()=>{
     const q=b.getAttribute('data-q');document.getElementById('chatInput').value=q;
-    setTab(false);ask(q);
+    setTab(false);ask(q,b.getAttribute('data-intent')||null);
     document.getElementById('msgs').scrollIntoView({behavior:'smooth',block:'nearest'});
   });
   try{cyclePlaceholder();}catch(e){}
@@ -1455,6 +1472,7 @@ async function loadPortal(){
     // The bare-/hotels/sample demo default only takes over once its hotel is
     // actually set up; an unconfigured demo hotel leaves the marketing demo intact.
     if(!explicit&&!hasPick&&!hasBrand)return;
+    PORTAL=true;                                       // a real hotel — stop using the hardcoded demo cards
     if(hasPick)PICKS=h.picks;
     const la=Number(h.lat),ln=Number(h.lng);
     if(isFinite(la)&&isFinite(ln)){ HOTEL.lat=la; HOTEL.lng=ln; }   // events + map centre on the real hotel
