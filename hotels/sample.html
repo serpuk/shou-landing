@@ -1388,22 +1388,32 @@ async function ask(q,forcedIntent){
   const typing=document.createElement('div');typing.className='typing';typing.textContent=t('thinking');msgs.appendChild(typing);typing.scrollIntoView({block:'nearest'});
   try{
     const r=await fetch(`${API}/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,lang,lat:HOTEL.lat,lng:HOTEL.lng,source:SAMPLE_SOURCE,sessionId:VISITOR_ID,tone:(window.CONCIERGE_TONE||null)})});
-    const d=await r.json(); typing.remove();
+    const d=await r.json();
     // The backend understood a place/amenity intent the client keyword router
     // missed (typos, free text like "un bon monge") — answer from the hotel's
     // picks / a Maps search rather than dumping events.
     if(d.pickIntent){
       const p2=conciergePick(q,d.pickIntent);
-      if(p2){ addMsg('ai',p2.html); if(p2.map)drawPlaceMap(p2.map.id,p2.map.pts); return; }
+      if(p2){ typing.remove(); addMsg('ai',p2.html); if(p2.map)drawPlaceMap(p2.map.id,p2.map.pts); return; }
     }
-    addMsg('ai',esc(d.reasoning||'')||t('none'));
-    // Use the events the search returns directly (matching first, then suggested) —
-    // same data/ordering as the main site. Crucially, search already resolves each
-    // recurring event's date to the queried occurrence (e.g. tomorrow), which a
-    // by-id re-fetch would overwrite with the raw start_date.
+    // Events first (matching then suggested); search already resolves each
+    // recurring event's date to the queried occurrence.
     const byId={};
     for(const e of [...(d.events||[]),...(d.suggestedEvents||[])]) if(e&&e.id&&e.name&&!byId[e.id])byId[e.id]=e;
     const list=collapseVenueStem(dedupe(Object.values(byId))).slice(0,9);
+    // The ranking model keeps the event COUNT stable (low temperature), which
+    // flattens the voice — so when the hotel has a tone, rewrite the reasoning
+    // with a focused pass that names the actual top events. The search reasoning
+    // is the fallback; the "thinking…" stays up through this.
+    let reasoning=d.reasoning||'';
+    if(window.CONCIERGE_TONE && list.length){
+      try{
+        const rr=await fetch(`${API}/concierge-lead`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'events',tone:window.CONCIERGE_TONE,lang,query:q,hotel:(HOTEL&&HOTEL.name)||'',events:list.slice(0,5).map(function(e){return {name:e.name,cat:e.categorySlug,venue:e.venue,when:e.date};})})});
+        const dd=await rr.json(); if(dd&&dd.lead)reasoning=dd.lead;
+      }catch(e){}
+    }
+    typing.remove();
+    addMsg('ai',esc(reasoning)||t('none'));
     if(list.length){
       indexEvents(list); list.forEach(e=>{chatEv[e.id]=e;});
       const grid=document.createElement('div');grid.className='res';grid.innerHTML=list.map(chatCard).join('');
