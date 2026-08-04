@@ -402,6 +402,17 @@
   /* Only a real phone gets the full-width swipe card; a narrow desktop
      window keeps a card that reads as a card. */
   @media(max-width:560px){ .wk-rail .ev{flex:0 0 min(82vw,300px)} }
+
+  /* Back-to-top — fades in once the guest has scrolled past a screenful. */
+  .totop{position:fixed;right:20px;bottom:20px;z-index:60;width:46px;height:46px;
+    border:none;border-radius:50%;background:var(--grad);color:#fff;cursor:pointer;
+    display:grid;place-items:center;box-shadow:0 8px 22px -8px rgba(20,16,30,.45);
+    opacity:0;visibility:hidden;transform:translateY(10px);
+    transition:opacity .25s ease,transform .25s ease,visibility .25s}
+  .totop.show{opacity:1;visibility:visible;transform:translateY(0)}
+  .totop:hover{filter:brightness(1.05)}
+  .totop svg{width:22px;height:22px;display:block}
+  @media(max-width:560px){ .totop{right:14px;bottom:14px;width:44px;height:44px} }
 </style>
 </head>
 <body>
@@ -477,6 +488,10 @@
     <span data-i="foot">Ask anything, in any language — concerts, dining, hidden gems near you.</span><br><br>
     <b>shou.be</b> · belgium after dark · <a href="/hotels/offer">for hotels</a>
   </footer>
+
+  <button class="totop" id="toTop" type="button" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
 
   <div class="mv" id="mv" aria-hidden="true"></div>
 
@@ -1637,6 +1652,14 @@ async function loadPortal(){
 }
 async function boot(){ await loadPortal(); applyChrome(); loadCatalog(); }
 boot();
+
+// Back-to-top: show after a screenful, smooth-scroll home on click.
+(function(){
+  var bt=document.getElementById('toTop'); if(!bt)return;
+  var onScroll=function(){ bt.classList.toggle('show', (window.pageYOffset||document.documentElement.scrollTop||0) > 500); };
+  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+  bt.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+})();
 </script>
 </body>
 </html>
