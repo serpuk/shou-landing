@@ -1577,6 +1577,7 @@ async function loadPortal(){
     // actually set up; an unconfigured demo hotel leaves the marketing demo intact.
     if(!explicit&&!hasPick&&!hasBrand)return;
     PORTAL=true;                                       // a real hotel — stop using the hardcoded demo cards
+    {const rb=document.querySelector('.ribbon'); if(rb)rb.style.display='none';}   // hide the "Sample concierge page" marketing bar — a real guest shouldn't see it
     if(hasPick)PICKS=h.picks;
     const la=Number(h.lat),ln=Number(h.lng);
     if(isFinite(la)&&isFinite(ln)){ HOTEL.lat=la; HOTEL.lng=ln; }   // events + map centre on the real hotel
