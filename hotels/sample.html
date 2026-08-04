@@ -541,6 +541,55 @@ const MAPS_FOR={pharmacy:'pharmacy',bakery:'bakery',atm:'atm',taxi:'taxi rank',
 const POI_L={pharmacy:{en:'Pharmacy',fr:'Pharmacie',nl:'Apotheek',de:'Apotheke',es:'Farmacia',it:'Farmacia',uk:'Аптека'},bakery:{en:'Bakery',fr:'Boulangerie',nl:'Bakkerij',de:'Bäckerei',es:'Panadería',it:'Panetteria',uk:'Пекарня'},atm:{en:'ATM',fr:'Distributeur',nl:'Geldautomaat',de:'Geldautomat',es:'Cajero',it:'Bancomat',uk:'Банкомат'},taxi:{en:'Taxi',fr:'Taxi',nl:'Taxi',de:'Taxi',es:'Taxi',it:'Taxi',uk:'Таксі'},transport:{en:'Public transport',fr:'Transports',nl:'Openbaar vervoer',de:'Nahverkehr',es:'Transporte',it:'Trasporti',uk:'Транспорт'},attractions:{en:'Things to do',fr:'À voir',nl:'Bezienswaardigheden',de:'Sehenswürdigkeiten',es:'Qué ver',it:'Cosa vedere',uk:'Що подивитися'}};
 const PICK_L={en:'Of course — this is our pick:',fr:'Bien sûr — voici notre adresse :',nl:'Natuurlijk — dit is onze favoriet:',de:'Sehr gern — das ist unsere Empfehlung:',es:'Por supuesto — esta es nuestra recomendación:',it:'Certamente — ecco il nostro consiglio:',uk:'Звісно — ось наша рекомендація:'};
 const MAPS_L={en:"Here's the closest I can find:",fr:'Voici le plus proche :',nl:'Dit is het dichtstbijzijnde:',de:'Das Nächstgelegene:',es:'Esto es lo más cercano:',it:'Ecco il più vicino:',uk:'Ось найближче:'};
+// Tone-aware pick leads. NEUTRAL/default stays in PICK_L/PICKS_L/MAPS_L above.
+// LEAD_TONE overrides those short lead phrases per hotel voice (window.CONCIERGE_TONE).
+// kind: 'one' = single pick card, 'many' = several pick cards, 'maps' = Google-Maps search card.
+const LEAD_TONE={
+  host:{
+    en:{one:'We love this one:',many:'A few places we always send guests:',maps:'Let’s find you a spot:'},
+    fr:{one:'On adore cette adresse :',many:'Quelques endroits qu’on recommande toujours :',maps:'On vous trouve ça :'},
+    nl:{one:'Deze vinden we top:',many:'Een paar plekken waar we gasten altijd heen sturen:',maps:'We zoeken iets voor je:'},
+    de:{one:'Die lieben wir:',many:'Ein paar Orte, die wir immer empfehlen:',maps:'Wir finden dir etwas:'},
+    es:{one:'Esta nos encanta:',many:'Unos sitios que siempre recomendamos:',maps:'Te buscamos un sitio:'},
+    it:{one:'Questo ci piace tantissimo:',many:'Un paio di posti che consigliamo sempre:',maps:'Ti troviamo un posto:'},
+    uk:{one:'Ми обожнюємо це місце:',many:'Кілька місць, куди ми завжди радимо:',maps:'Знайдемо тобі місце:'}
+  },
+  concierge:{
+    en:{one:'Certainly — our recommendation:',many:'With pleasure — a few we suggest:',maps:'Allow me to search nearby:'},
+    fr:{one:'Certainement — notre recommandation :',many:'Avec plaisir — quelques suggestions :',maps:'Permettez-moi de chercher à proximité :'},
+    nl:{one:'Zeker — onze aanbeveling:',many:'Met genoegen — enkele suggesties:',maps:'Sta me toe in de buurt te zoeken:'},
+    de:{one:'Sehr gern — unsere Empfehlung:',many:'Mit Vergnügen — einige Vorschläge:',maps:'Gestatten Sie, in der Nähe zu suchen:'},
+    es:{one:'Por supuesto — nuestra recomendación:',many:'Con mucho gusto — algunas sugerencias:',maps:'Permítame buscar en los alrededores:'},
+    it:{one:'Certamente — la nostra raccomandazione:',many:'Con piacere — alcuni suggerimenti:',maps:'Mi permetta di cercare nelle vicinanze:'},
+    uk:{one:'Безумовно — наша рекомендація:',many:'Із задоволенням — кілька пропозицій:',maps:'Дозвольте пошукати поблизу:'}
+  },
+  brief:{
+    en:{one:'Our pick:',many:'Our picks:',maps:'Search nearby:'},
+    fr:{one:'Notre adresse :',many:'Nos adresses :',maps:'À proximité :'},
+    nl:{one:'Onze tip:',many:'Onze tips:',maps:'In de buurt:'},
+    de:{one:'Unser Tipp:',many:'Unsere Tipps:',maps:'In der Nähe:'},
+    es:{one:'Nuestra elección:',many:'Nuestras elecciones:',maps:'Cerca de aquí:'},
+    it:{one:'Il nostro consiglio:',many:'I nostri consigli:',maps:'Qui vicino:'},
+    uk:{one:'Наш вибір:',many:'Наші поради:',maps:'Поблизу:'}
+  },
+  playful:{
+    en:{one:'Ooh, you’ll love this:',many:'A few local gems:',maps:'Let’s hunt something down:'},
+    fr:{one:'Oh, vous allez adorer :',many:'Quelques pépites du coin :',maps:'On part à la chasse :'},
+    nl:{one:'Oh, hier ga je van houden:',many:'Een paar lokale pareltjes:',maps:'We gaan op jacht:'},
+    de:{one:'Oh, das wirst du lieben:',many:'Ein paar lokale Perlen:',maps:'Auf die Jagd:'},
+    es:{one:'Uy, te va a encantar:',many:'Unas joyas del barrio:',maps:'A la caza de algo:'},
+    it:{one:'Ooh, ti piacerà da matti:',many:'Un paio di gemme locali:',maps:'Andiamo a caccia:'},
+    uk:{one:'О, тобі це сподобається:',many:'Кілька місцевих перлин:',maps:'Гайда на пошуки:'}
+  }
+};
+// Pick the lead for this kind, honouring the hotel voice; unknown/null tone → neutral.
+function pickLead(kind){ // kind = 'one' | 'many' | 'maps'
+  var base = kind==='maps'?MAPS_L : kind==='one'?PICK_L : PICKS_L;
+  var neutral = base[lang]||base.en;
+  var tn = window.CONCIERGE_TONE;
+  var m = LEAD_TONE[tn] && LEAD_TONE[tn][lang] && LEAD_TONE[tn][lang][kind];
+  return m || neutral;
+}
 const OPEN_L={en:'Open in Maps',fr:'Ouvrir dans Maps',nl:'Openen in Maps',de:'In Maps öffnen',es:'Abrir en Maps',it:'Apri in Maps',uk:'Відкрити на карті'};
 const DESK_L={en:'Your front desk can help with that one — just ask at reception.',
   fr:'La réception pourra vous aider — demandez-leur directement.',
@@ -573,7 +622,7 @@ function conciergePick(q,forcedIntent){
         const pts=arr.filter(p=>isFinite(Number(p.lat))&&isFinite(Number(p.lng))).map(p=>pickPoint(p,c));
         let mapId='',mapEl='';
         if(pts.length&&HOTEL.lat&&HOTEL.lng){ mapId='askMap'+(++_askMapN); mapEl='<div class="pick-map" id="'+mapId+'"></div>'; }
-        const lead=arr.length===1?(PICK_L[lang]||PICK_L.en):(PICKS_L[lang]||PICKS_L.en);
+        const lead = pickLead(arr.length===1?'one':'many');
         const more='<a class="pick-more" href="'+esc(maps((REC_Q[c]||c)+' near '+addr))+'" target="_blank" rel="noopener">'+esc(PKALL_L[lang]||PKALL_L.en)+' ↗</a>';
         const html='<div style="margin-bottom:2px">'+esc(lead)+'</div><div class="picks">'+rows+'</div>'+mapEl+more;
         return { html:html, map: mapId?{id:mapId,pts:pts}:null };
@@ -585,14 +634,14 @@ function conciergePick(q,forcedIntent){
   const cards=(!PORTAL&&typeof HOTEL_CARDS==='function')?HOTEL_CARDS():[];   // hardcoded demo cards are for the demo page only; a real hotel falls to its picks or a Maps search
   const keys=CARD_FOR[intent]||[];
   const hit=cards.filter(c=>c.url).find(c=>keys.indexOf(c.k)>=0);
-  if(hit) return { html: '<div style="margin-bottom:2px">'+esc(PICK_L[lang]||PICK_L.en)+'</div>'
+  if(hit) return { html: '<div style="margin-bottom:2px">'+esc(pickLead('one'))+'</div>'
                  +answerCard(hit.i||'📍',t(hit.k)||hit.k,hit.n||'',hit.url) };
   if(Q_IN_ROOM.has(intent)) return { html: '<div>'+esc(DESK_L[lang]||DESK_L.en)+'</div>' };
   const mq=MAPS_FOR[intent];
   if(mq){
     const near=(HOTEL&&HOTEL.name)?(' near '+HOTEL.name):'';
     const poiLabel=(POI_L[intent]&&(POI_L[intent][lang]||POI_L[intent].en))||catL(intent)||mq;
-    return { html: '<div style="margin-bottom:2px">'+esc(MAPS_L[lang]||MAPS_L.en)+'</div>'
+    return { html: '<div style="margin-bottom:2px">'+esc(pickLead('maps'))+'</div>'
            +answerCard('📍',poiLabel,'','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(mq+near)) };
   }
   return null;                                   // fall through to the events engine
