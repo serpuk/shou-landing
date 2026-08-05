@@ -499,6 +499,10 @@
   .cmp.you .cn{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .cmp p{font-size:14.5px;color:var(--text-soft);line-height:1.55}
   .cmp.you p{color:var(--text)}
+  .cmp .cico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;margin-bottom:14px;
+    background:var(--panel-soft);border:1px solid var(--line);color:var(--text-soft)}
+  .cmp .cico svg{width:22px;height:22px;display:block}
+  .cmp.you .cico{background:var(--grad-cool);border-color:transparent;color:#fff}
   .cmp .cline{display:block;margin-top:5px;font-weight:600;color:var(--ink)}
   @media(max-width:720px){ .compare{grid-template-columns:1fr} }
 
@@ -658,9 +662,18 @@
 <section><div class="wrap">
   <div class="sec-head"><h2>Where shou <span class="grad-text">fits</span></h2><p>Your guests already use these. None of them know your hotel.</p></div>
   <div class="compare">
-    <div class="cmp"><div class="cn">Google Maps</div><p>Finds places on a map.</p></div>
-    <div class="cmp"><div class="cn">Tripadvisor</div><p>Shows reviews of places.</p></div>
-    <div class="cmp you"><div class="cn">shou</div><p>Answers your guests' questions.<span class="cline">Knows your hotel.</span><span class="cline">Knows what's on tonight.</span></p></div>
+    <div class="cmp">
+      <span class="cico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+      <div class="cn">Google Maps</div><p>Finds places on a map.</p>
+    </div>
+    <div class="cmp">
+      <span class="cico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l2.95 6.28 6.85.72-5.1 4.66 1.43 6.74L12 17.1 5.87 20.6l1.43-6.74-5.1-4.66 6.85-.72z"/></svg></span>
+      <div class="cn">Tripadvisor</div><p>Shows reviews of places.</p>
+    </div>
+    <div class="cmp you">
+      <span class="cico"><svg viewBox="0 0 36 36" fill="currentColor"><rect x="3" y="22" width="3" height="10" rx="1"/><rect x="8" y="18" width="3" height="14" rx="1"/><rect x="13" y="15" width="3" height="17" rx="1"/><rect x="18" y="17" width="3" height="15" rx="1"/><rect x="23" y="20" width="3" height="12" rx="1"/><rect x="28" y="24" width="3" height="8" rx="1"/></svg></span>
+      <div class="cn">shou</div><p>Answers your guests' questions.<span class="cline">Knows your hotel.</span><span class="cline">Knows what's on tonight.</span></p>
+    </div>
   </div>
 </div></section>
 
