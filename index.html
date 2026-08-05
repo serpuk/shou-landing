@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>shou — what's on in Belgium tonight</title>
-<!-- shou favicon — gradient equalizer mark, matches the this-week pages -->
+<title>shou — Belgium's AI concierge · what's on tonight</title>
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="description" content="shou is Belgium’s AI concierge. Ask what’s on tonight — concerts, festivals, restaurants and hidden gems — and get answers in seconds, in 7 languages. Plus branded concierge pages for hotels and serviced apartments.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
-<meta name="description" content="After-dark events discovery across Brussels and Belgium — concerts, parties, theatre, and everything happening tonight, in any language. Now live.">
-<meta property="og:title" content="shou — belgium after dark">
-<meta property="og:description" content="After-dark events discovery across Brussels and Belgium — every night out, in any language. Now live.">
+<meta name="theme-color" content="#0b0810">
+<meta property="og:title" content="shou — Belgium’s AI concierge">
+<meta property="og:description" content="Ask what’s on tonight across Belgium — concerts, festivals, restaurants, hidden gems — in 7 languages. Concierge pages for hotels &amp; apartments too.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://shou.be/">
 <meta property="og:image" content="https://shou.be/og-this-week.png">
@@ -17,489 +18,604 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"shou","url":"https://shou.be/","logo":"https://shou.be/og-this-week.png","description":"Belgium\u2019s AI concierge for discovering concerts, festivals, restaurants and local events in seven languages, with branded guest concierge pages for hotels and serviced apartments.","areaServed":"BE","sameAs":["https://www.instagram.com/shou.be/"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"shou","url":"https://shou.be/","inLanguage":["en","fr","nl","de","es","it","uk"]}</script>
 <style>
   :root{
-    --ink:#0c0910;
-    --text:#f0ebf4;
-    --text-soft:#b3a9bf;
-    --text-dim:#7d7388;
+    color-scheme: dark;
+    --ink:#0b0810;            /* violet-biased near-black ground */
+    --ink-2:#0e0a14;
+    --panel:#151019;
+    --panel-2:#1b1522;
+    --line:rgba(255,255,255,.09);
+    --line-2:rgba(255,255,255,.14);
+    --text:#f5f1f8;
+    --soft:#c3bcce;
+    --muted:#8f8799;
     --pink:#ff3d8b;
     --orange:#ff9b3d;
-    --cyan:#46e0d2;
+    --violet:#9b5cff;
     --grad:linear-gradient(100deg,var(--pink),var(--orange));
-    --panel-bd:rgba(255,255,255,0.10);
+    --grad-v:linear-gradient(130deg,var(--violet),var(--pink) 70%);
+    --serif:'Fraunces',ui-serif,Georgia,serif;
+    --sans:'Inter',ui-sans-serif,system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    --r:22px;
+    --maxw:1140px;
+    --shadow:0 30px 80px -40px rgba(0,0,0,.8);
+    --glow:0 24px 60px -22px rgba(255,61,139,.45);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
+  html{scroll-behavior:smooth}
   body{
     background:var(--ink);
     color:var(--text);
-    font-family:'Inter',system-ui,sans-serif;
-    font-weight:300;
+    font-family:var(--sans);
+    line-height:1.6;
     -webkit-font-smoothing:antialiased;
-    min-height:100dvh;
-    display:flex;flex-direction:column;
     overflow-x:hidden;
     position:relative;
   }
-
-  /* Atmospheric layered glows — the "after dark" mood */
-  .bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-  .bg::before{
-    content:'';position:absolute;inset:0;
-    background:
-      radial-gradient(820px 620px at 16% -8%, rgba(255,61,139,0.20), transparent 58%),
-      radial-gradient(760px 600px at 96% 4%, rgba(255,155,61,0.15), transparent 55%),
-      radial-gradient(900px 720px at 50% 116%, rgba(70,224,210,0.10), transparent 60%);
-  }
-  /* Slow-drifting accent orb */
-  .orb{
-    position:absolute;width:520px;height:520px;border-radius:50%;
-    background:radial-gradient(circle at 35% 35%, rgba(255,61,139,0.28), rgba(255,155,61,0.10) 55%, transparent 72%);
-    filter:blur(36px);
-    top:-120px;right:-80px;
-    animation:drift 18s ease-in-out infinite alternate;
-  }
-  @keyframes drift{
-    from{transform:translate(0,0) scale(1)}
-    to{transform:translate(-40px,50px) scale(1.08)}
-  }
-  /* Fine grain overlay for texture */
-  .grain{
-    position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.05;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    mix-blend-mode:overlay;
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *{animation:none !important;transition:none !important}
   }
 
-  .shell{
-    position:relative;z-index:2;
-    flex:1;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    text-align:center;
-    padding:48px 24px;
-    width:100%;max-width:680px;margin:0 auto;
+  /* ---- ambient aurora ---- */
+  .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .aurora::before,.aurora::after{content:"";position:absolute;border-radius:50%;filter:blur(90px);opacity:.5}
+  .aurora::before{width:60vw;height:60vw;top:-22vw;right:-14vw;
+    background:radial-gradient(circle at 30% 30%,rgba(255,61,139,.5),transparent 62%);
+    animation:drift1 22s ease-in-out infinite alternate}
+  .aurora::after{width:52vw;height:52vw;bottom:-20vw;left:-12vw;
+    background:radial-gradient(circle at 60% 40%,rgba(155,92,255,.42),transparent 62%);
+    animation:drift2 26s ease-in-out infinite alternate}
+  .aurora i{position:absolute;width:44vw;height:44vw;left:50%;top:34%;transform:translateX(-50%);
+    border-radius:50%;filter:blur(120px);opacity:.28;
+    background:radial-gradient(circle,rgba(255,155,61,.5),transparent 60%);
+    animation:drift3 30s ease-in-out infinite alternate}
+  @keyframes drift1{to{transform:translate(-6vw,5vw) scale(1.15)}}
+  @keyframes drift2{to{transform:translate(5vw,-4vw) scale(1.1)}}
+  @keyframes drift3{to{transform:translate(-50%,-6%) scale(1.2)}}
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+
+  .wrap{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  section{position:relative;z-index:2;padding:clamp(76px,11vw,148px) 0}
+
+  /* ---- type ---- */
+  h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;line-height:1.04;text-wrap:balance}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .serif-it{font-style:italic}
+  .lead{color:var(--soft);font-size:clamp(17px,2vw,20px);max-width:56ch;text-wrap:pretty}
+
+  /* ---- buttons ---- */
+  .btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-weight:600;font-size:15.5px;
+    padding:14px 24px;border-radius:999px;text-decoration:none;cursor:pointer;border:1px solid transparent;
+    transition:transform .18s ease,filter .2s ease,border-color .2s ease,background .2s ease}
+  .btn-primary{background:var(--grad);color:#1a0a12;box-shadow:var(--glow)}
+  .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.06)}
+  .btn-ghost{background:rgba(255,255,255,.03);border-color:var(--line-2);color:var(--text);backdrop-filter:blur(8px)}
+  .btn-ghost:hover{border-color:rgba(255,61,139,.55);transform:translateY(-2px)}
+  a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+
+  /* ---- nav ---- */
+  nav{position:sticky;top:0;z-index:40;backdrop-filter:blur(16px);
+    background:linear-gradient(180deg,rgba(11,8,16,.82),rgba(11,8,16,.4));border-bottom:1px solid var(--line)}
+  .nav-in{max-width:var(--maxw);margin:0 auto;padding:15px 24px;display:flex;align-items:center;gap:20px}
+  .brand{font-family:var(--serif);font-weight:600;font-size:25px;letter-spacing:-.02em;text-decoration:none;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-links{margin-left:auto;display:flex;gap:26px;align-items:center}
+  .nav-links a{color:var(--soft);text-decoration:none;font-size:14.5px;transition:color .15s}
+  .nav-links a:hover{color:var(--text)}
+  .nav-cta{padding:9px 18px;font-size:14px}
+  @media(max-width:720px){.nav-links a.hide-sm{display:none}}
+
+  /* ---- hero ---- */
+  .hero{padding-top:clamp(48px,7vw,84px)}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .hero h1{font-size:clamp(44px,7vw,80px);margin:22px 0 22px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+  .hero-note{margin-top:20px;color:var(--muted);font-size:13.5px;font-family:var(--mono);letter-spacing:.04em}
+  .hero-note b{color:var(--soft);font-weight:500}
+
+  /* ---- concierge chat card (signature moment) ---- */
+  .chat{position:relative;border-radius:28px;padding:20px;
+    background:linear-gradient(180deg,rgba(27,21,34,.9),rgba(17,12,22,.86));
+    border:1px solid var(--line-2);box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+  .chat::before{content:"";position:absolute;inset:0;border-radius:28px;padding:1px;pointer-events:none;
+    background:linear-gradient(140deg,rgba(255,61,139,.55),transparent 40%,transparent 60%,rgba(155,92,255,.5));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+  .chat-top{display:flex;align-items:center;gap:11px;padding:4px 6px 16px;border-bottom:1px solid var(--line)}
+  .orb{width:34px;height:34px;border-radius:11px;background:var(--grad-v);flex:none;display:grid;place-items:center;box-shadow:0 6px 18px -6px rgba(155,92,255,.7)}
+  .orb svg{width:18px;height:18px}
+  .chat-top .who{font-weight:600;font-size:14px}
+  .chat-top .st{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
+  .chat-top .live{margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#8ff0c4;display:flex;align-items:center;gap:6px}
+  .chat-top .live::before{content:"";width:7px;height:7px;border-radius:50%;background:#38e0a0;box-shadow:0 0 0 0 rgba(56,224,160,.6);animation:blip 2s infinite}
+  @keyframes blip{0%{box-shadow:0 0 0 0 rgba(56,224,160,.55)}70%{box-shadow:0 0 0 7px rgba(56,224,160,0)}100%{box-shadow:0 0 0 0 rgba(56,224,160,0)}}
+  .chat-body{padding:16px 6px 6px;min-height:250px}
+  .bubble{max-width:82%;padding:11px 15px;border-radius:16px;font-size:14.5px;line-height:1.45}
+  .bubble.me{margin-left:auto;background:var(--grad);color:#1a0a12;font-weight:600;border-bottom-right-radius:5px}
+  .ai-lead{color:var(--soft);font-size:14px;margin:14px 2px 11px}
+  .picks{display:grid;gap:9px}
+  .pick{display:flex;align-items:center;gap:12px;padding:11px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+  .pick .thumb{width:44px;height:44px;border-radius:11px;flex:none}
+  .pick .pt{font-weight:600;font-size:13.5px}
+  .pick .pm{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.02em}
+  .pick .go{margin-left:auto;color:var(--muted);font-size:18px}
+  .qa{display:none}
+  .qa.on{display:block;animation:fade .5s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .chat-foot{display:flex;gap:9px;align-items:center;padding:14px 4px 4px;margin-top:8px;border-top:1px solid var(--line)}
+  .chat-foot .fake-input{flex:1;font-size:13px;color:var(--muted);padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+  .chat-foot .send{width:40px;height:40px;border-radius:12px;background:var(--grad);flex:none;display:grid;place-items:center}
+  .chat-foot .send svg{width:16px;height:16px}
+
+  /* ---- generic section head ---- */
+  .head{max-width:720px;margin:0 auto clamp(44px,5vw,64px)}
+  .head.center{text-align:center}
+  .head h2{font-size:clamp(30px,4.6vw,50px);margin:14px 0 16px}
+
+  /* ---- benefit cards ---- */
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .card{padding:26px 24px 28px;border-radius:var(--r);background:rgba(255,255,255,.028);border:1px solid var(--line);
+    transition:transform .2s ease,border-color .2s ease,background .2s ease}
+  .card:hover{transform:translateY(-3px);border-color:var(--line-2);background:rgba(255,255,255,.045)}
+  .card .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;
+    background:rgba(255,61,139,.12);border:1px solid rgba(255,61,139,.22)}
+  .card .ic svg{width:21px;height:21px;stroke:var(--pink)}
+  .card h3{font-family:var(--serif);font-size:19px;margin-bottom:8px;letter-spacing:-.01em}
+  .card p{color:var(--soft);font-size:14.5px;line-height:1.55}
+
+  /* ---- interactive preview ---- */
+  .demo{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:center;
+    padding:clamp(26px,3.5vw,44px);border-radius:30px;
+    background:linear-gradient(160deg,rgba(27,21,34,.7),rgba(15,10,20,.6));border:1px solid var(--line-2);box-shadow:var(--shadow)}
+  .demo h2{font-size:clamp(28px,4vw,42px);margin-bottom:16px}
+  .qchips{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+  .qchip{text-align:left;font-family:var(--sans);font-size:15px;color:var(--soft);cursor:pointer;
+    padding:14px 17px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);
+    transition:border-color .18s,color .18s,background .18s;display:flex;align-items:center;gap:11px}
+  .qchip::before{content:"›";color:var(--pink);font-weight:700}
+  .qchip:hover{color:var(--text);border-color:var(--line-2)}
+  .qchip.on{color:var(--text);border-color:rgba(255,61,139,.5);background:rgba(255,61,139,.08)}
+
+  /* ---- three products ---- */
+  .prods{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .prod{position:relative;display:flex;flex-direction:column;border-radius:26px;overflow:hidden;text-decoration:none;color:inherit;
+    border:1px solid var(--line);background:rgba(255,255,255,.028);transition:transform .2s ease,border-color .2s ease}
+  .prod:hover{transform:translateY(-4px);border-color:var(--line-2)}
+  .prod .art{height:172px;position:relative;overflow:hidden}
+  .prod .art img{width:100%;height:100%;object-fit:cover;display:block}
+  .prod.a .art img{object-position:center top}
+  .prod .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,8,16,.1),rgba(11,8,16,.5))}
+  .prod .art span{position:absolute;left:18px;top:14px;font-size:26px;z-index:2;filter:drop-shadow(0 2px 7px rgba(0,0,0,.6))}
+  .prod.v .art{background:radial-gradient(120% 120% at 20% 10%,rgba(255,61,139,.55),transparent 55%),radial-gradient(120% 120% at 90% 90%,rgba(155,92,255,.5),transparent 55%),#1a1322}
+  .prod.h .art{background:radial-gradient(120% 120% at 15% 20%,rgba(255,155,61,.5),transparent 55%),radial-gradient(120% 120% at 90% 90%,rgba(255,61,139,.45),transparent 55%),#1a1322}
+  .prod.a .art{background:radial-gradient(120% 120% at 20% 10%,rgba(56,224,160,.4),transparent 55%),radial-gradient(120% 120% at 90% 90%,rgba(155,92,255,.5),transparent 55%),#131a20}
+  .prod .body{padding:22px 24px 26px}
+  .prod .k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .prod h3{font-family:var(--serif);font-size:23px;margin:8px 0 9px}
+  .prod p{color:var(--soft);font-size:14.5px;line-height:1.55;margin-bottom:16px}
+  .prod .go{margin-top:auto;color:var(--pink);font-weight:600;font-size:14.5px}
+
+  /* real screenshot frame */
+  .shot{border-radius:20px;overflow:hidden;border:1px solid var(--line-2);box-shadow:var(--shadow);background:#0f0b14}
+  .shot-bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line)}
+  .shot-bar i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.16)}
+  .shot-bar .u{margin-left:10px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .shot img{width:100%;display:block}
+  .qtags{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+  .qtag{font-size:13.5px;color:var(--soft);background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
+
+  /* ---- how it works ---- */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+  .step{position:relative;padding:26px 22px;border-radius:var(--r);background:rgba(255,255,255,.028);border:1px solid var(--line)}
+  .step .n{counter-increment:s;font-family:var(--mono);font-size:12px;color:var(--pink);letter-spacing:.1em}
+  .step .n::before{content:"0" counter(s)}
+  .step h3{font-family:var(--serif);font-size:19px;margin:12px 0 8px}
+  .step p{color:var(--soft);font-size:14px;line-height:1.5}
+  .step:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:18px;height:1px;background:var(--line-2);z-index:3}
+
+  /* ---- stats ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+  .stat .big{font-family:var(--serif);font-size:clamp(38px,5.5vw,60px);line-height:1;letter-spacing:-.02em;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .lbl{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+
+  /* ---- social proof ---- */
+  .quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .quote{padding:26px 24px;border-radius:var(--r);background:rgba(255,255,255,.028);border:1px solid var(--line)}
+  .quote p{font-family:var(--serif);font-size:18px;font-style:italic;line-height:1.4;color:var(--text);margin-bottom:16px}
+  .quote .by{font-size:13px;color:var(--muted)}
+  .disclaimer{text-align:center;margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted)}
+
+  /* ---- newsletter ---- */
+  .news{max-width:620px;margin:0 auto;text-align:center;padding:clamp(38px,5vw,60px) clamp(24px,4vw,52px);
+    border-radius:30px;background:linear-gradient(160deg,rgba(27,21,34,.8),rgba(15,10,20,.7));border:1px solid var(--line-2);box-shadow:var(--shadow)}
+  .news h2{font-size:clamp(26px,3.6vw,38px);margin-bottom:12px}
+  .news p{color:var(--soft);margin-bottom:24px}
+  .nform{display:flex;gap:10px;max-width:440px;margin:0 auto}
+  .nform input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--line-2);border-radius:999px;
+    padding:14px 20px;color:var(--text);font-family:var(--sans);font-size:15px}
+  .nform input::placeholder{color:var(--muted)}
+  .nform input:focus{outline:none;border-color:rgba(255,61,139,.6)}
+  .nform button{border:none;white-space:nowrap}
+  .nthanks{color:#8ff0c4;font-weight:600;margin-top:14px;height:0;opacity:0;transition:opacity .3s}
+  .nthanks.show{opacity:1;height:auto}
+  .consent{font-size:12px;color:var(--muted);margin-top:16px}
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--line);padding:60px 0 44px;position:relative;z-index:2}
+  .foot-grid{display:flex;flex-wrap:wrap;gap:40px;justify-content:space-between;align-items:flex-start}
+  .foot-brand .brand{font-size:30px}
+  .foot-brand p{color:var(--muted);font-size:13.5px;margin-top:10px;max-width:30ch}
+  .foot-cols{display:flex;gap:56px;flex-wrap:wrap}
+  .foot-col h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;font-weight:500}
+  .foot-col a{display:block;color:var(--soft);text-decoration:none;font-size:14px;margin-bottom:10px;transition:color .15s}
+  .foot-col a:hover{color:var(--text)}
+  .foot-bottom{max-width:var(--maxw);margin:44px auto 0;padding:22px 24px 0;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted);font-size:13px}
+
+  /* ---- reveal ---- */
+  .rise{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .rise.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion: reduce){.rise{opacity:1;transform:none}}
+
+  /* ---- responsive ---- */
+  @media(max-width:960px){
+    .hero-grid{grid-template-columns:1fr;gap:40px}
+    .cards{grid-template-columns:repeat(2,1fr)}
+    .demo{grid-template-columns:1fr;gap:30px}
+    .prods{grid-template-columns:1fr}
+    .steps{grid-template-columns:repeat(2,1fr)}
+    .step:not(:last-child)::after{display:none}
+    .quotes{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .cards{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr);gap:32px 20px}
+    .nform{flex-direction:column}
+    .nform button{justify-content:center}
   }
 
-  .eyebrow{
-    display:inline-flex;align-items:center;gap:9px;
-    font-size:12.5px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
-    color:var(--text-soft);
-    border:1px solid var(--panel-bd);
-    border-radius:999px;
-    padding:8px 16px;
-    margin-bottom:34px;
-    backdrop-filter:blur(6px);
-  }
-  .eyebrow .dot{
-    width:7px;height:7px;border-radius:50%;background:var(--grad);
-    box-shadow:0 0 0 0 rgba(255,61,139,0.6);
-    animation:pulse 2.4s ease-out infinite;
-  }
-  @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(255,61,139,0.55)}
-    70%{box-shadow:0 0 0 9px rgba(255,61,139,0)}
-    100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}
-  }
-
-  .logo{
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    font-size:clamp(64px,17vw,140px);
-    line-height:0.92;
-    letter-spacing:-0.03em;
-    background:var(--grad);
-    -webkit-background-clip:text;background-clip:text;
-    -webkit-text-fill-color:transparent;
-    margin-bottom:8px;
-  }
-  .tag{
-    font-family:'Fraunces',serif;
-    font-weight:400;font-style:italic;
-    font-size:clamp(20px,4.5vw,30px);
-    color:var(--text);
-    letter-spacing:-0.01em;
-    margin-bottom:26px;
-  }
-  .blurb{
-    font-size:clamp(15px,2.6vw,17.5px);
-    line-height:1.65;
-    color:var(--text-soft);
-    max-width:460px;
-    margin:0 auto 40px;
-  }
-
-  /* Notify form */
-  .notify{
-    display:flex;gap:10px;width:100%;max-width:440px;
-    margin:0 auto 18px;
-  }
-  .notify input{
-    flex:1;
-    background:rgba(255,255,255,0.05);
-    border:1px solid var(--panel-bd);
-    border-radius:13px;
-    padding:15px 17px;
-    color:var(--text);
-    font-family:inherit;font-size:15px;
-    outline:none;
-    transition:border-color .2s, background .2s;
-  }
-  .notify input::placeholder{color:var(--text-dim)}
-  .notify input:focus{border-color:rgba(255,61,139,0.5);background:rgba(255,255,255,0.07)}
-  .notify button{
-    flex:none;
-    background:var(--grad);
-    color:#16101a;
-    font-family:inherit;font-weight:700;font-size:15px;
-    border:none;border-radius:13px;
-    padding:15px 22px;
-    cursor:pointer;
-    transition:transform .15s, filter .2s;
-    white-space:nowrap;
-  }
-  .notify button:hover{transform:translateY(-1px);filter:brightness(1.07)}
-  .notify button:active{transform:translateY(0)}
-
-  /* Primary CTA — the live app (now the hero action) */
-  .cta{
-    display:inline-flex;align-items:center;gap:8px;
-    background:var(--grad);color:#16101a;
-    font-family:inherit;font-weight:700;font-size:17px;
-    border-radius:14px;padding:16px 34px;
-    text-decoration:none;white-space:nowrap;
-    box-shadow:0 10px 34px rgba(255,61,139,0.28);
-    transition:transform .15s, filter .2s;
-    margin-bottom:16px;
-  }
-  .cta:hover{transform:translateY(-1px);filter:brightness(1.07)}
-  .cta:active{transform:translateY(0)}
-
-  /* Demoted newsletter — secondary to the app CTA */
-  .news{
-    max-width:440px;margin:38px auto 0;padding-top:28px;
-    border-top:1px solid var(--panel-bd);
-  }
-  .news-h{
-    font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;
-    color:var(--text-dim);margin-bottom:14px;
-  }
-
-  .beta-line{
-    font-size:14px;color:var(--text-dim);
-    margin-top:6px;
-  }
-  .consent{
-    font-size:12.5px;color:var(--text-dim);
-    margin:-6px auto 0;max-width:420px;line-height:1.5;
-  }
-  .notify-done{
-    max-width:440px;margin:0 auto 18px;
-    padding:15px 18px;
-    background:rgba(70,224,210,0.08);
-    border:1px solid rgba(70,224,210,0.25);
-    border-radius:13px;
-    color:var(--text);font-size:15px;
-    display:none;
-  }
-  .notify-done.show{display:block}
-  .beta-line a{
-    color:var(--cyan);
-    text-decoration:none;
-    font-weight:500;
-    border-bottom:1px solid rgba(70,224,210,0.35);
-    padding-bottom:1px;
-    transition:border-color .2s;
-  }
-  .beta-line a:hover{border-color:var(--cyan)}
-
-  /* Instagram follow button */
-  .social{
-    display:inline-flex;align-items:center;gap:9px;
-    margin-top:24px;
-    padding:10px 18px;border-radius:999px;
-    border:1px solid var(--panel-bd);
-    color:var(--text-soft);text-decoration:none;
-    font-size:14px;font-weight:500;
-    transition:border-color .2s, color .2s, transform .15s;
-  }
-  .social:hover{border-color:rgba(255,61,139,0.5);color:var(--text);transform:translateY(-1px)}
-  .social svg{width:18px;height:18px;flex:none}
-
-  footer{
-    position:relative;z-index:2;
-    text-align:center;
-    padding:26px 24px 30px;
-    color:var(--text-dim);font-size:13px;
-  }
-  footer a{color:var(--text-dim);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.14)}
-  footer a:hover{color:var(--text-soft)}
-  .sep{margin:0 9px;opacity:0.4}
-
-  /* SEO nav: real internal links to the place/answer pages. These pages were
-     discoverable only via the sitemap (a weak signal), which left them
-     "Crawled - currently not indexed" in Search Console. */
-  .seonav{position:relative;z-index:2;max-width:640px;margin:0 auto;padding:10px 24px 2px;text-align:center}
-  .seonav h2{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);opacity:.8;margin:0 0 10px}
-  .seonav ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:7px 8px}
-  .seonav a{display:inline-block;font-size:12.5px;color:var(--text-dim);text-decoration:none;border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:5px 12px;transition:color .2s,border-color .2s}
-  .seonav a:hover{color:var(--text-soft);border-color:rgba(255,61,139,0.4)}
-
-  /* Latest reels strip — secondary freshness row (auto-generated exotic reels) */
-  .reels{position:relative;z-index:2;max-width:640px;margin:18px auto 0;padding:0 24px}
-  .reels-h{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);opacity:.8;text-align:center;margin:0 0 12px}
-  .reels-row{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
-  .reels-row::-webkit-scrollbar{display:none}
-  .reel{position:relative;flex:0 0 108px;aspect-ratio:9/16;border-radius:12px;overflow:hidden;background:#1a1622;border:1px solid var(--panel-bd);scroll-snap-align:start;text-decoration:none;transition:transform .15s,border-color .15s}
-  .reel:hover{transform:translateY(-2px);border-color:rgba(255,61,139,0.5)}
-  .reel img{width:100%;height:100%;object-fit:cover;display:block}
-  .reel .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:rgba(12,9,16,0.5);display:grid;place-items:center;backdrop-filter:blur(2px)}
-  .reel .play svg{width:12px;height:12px;fill:#fff;margin-left:2px}
-  .reel .cap{position:absolute;left:0;right:0;bottom:0;padding:16px 8px 7px;font-size:10.5px;line-height:1.25;color:#fff;background:linear-gradient(to top,rgba(12,9,16,0.9),transparent);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  @media(max-width:480px){.reel{flex:0 0 96px}}
-  .reels-wrap{position:relative}
-  .reels-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:38px;height:38px;border-radius:50%;border:1px solid var(--panel-bd);background:rgba(18,14,24,0.85);color:var(--text);font-size:22px;line-height:0;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .18s,background .18s}
-  .reels-wrap:hover .reels-arrow.show{opacity:1;pointer-events:auto}
-  .reels-arrow:hover{background:var(--pink);color:#fff;border-color:transparent}
-  .reels-arrow.left{left:-6px}.reels-arrow.right{right:-6px}
-  @media(hover:none){.reels-arrow{display:none}}
-
-  /* Product hub — Hotels + Apartments (the consumer app lives in the hero) */
-  .prods{position:relative;z-index:2;max-width:640px;margin:46px auto 0;padding:0 24px}
-  .prods-h{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);opacity:.85;text-align:center;margin:0 0 16px}
-  .prods-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .prod{display:block;padding:24px 22px;border-radius:18px;text-decoration:none;
-    background:rgba(255,255,255,0.03);border:1px solid var(--panel-bd);
-    transition:transform .16s,border-color .16s,box-shadow .16s}
-  .prod:hover{transform:translateY(-2px);border-color:rgba(255,61,139,.45);box-shadow:0 18px 40px -22px rgba(255,61,139,.5)}
-  .prod-ic{font-size:26px;display:block;margin-bottom:12px;line-height:1}
-  .prod h3{font-family:'Fraunces',serif;font-weight:600;font-size:20px;color:var(--text);margin:0 0 7px}
-  .prod p{font-size:13.5px;color:var(--text-soft);line-height:1.55;margin:0 0 14px}
-  .prod-go{font-size:13.5px;font-weight:700;color:var(--pink)}
-  @media(max-width:520px){.prods-grid{grid-template-columns:1fr}}
-
-  /* Credibility stats */
-  .stats{position:relative;z-index:2;max-width:640px;margin:34px auto 0;padding:0 24px;display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
-  .stats .st{font-size:13px;font-weight:600;color:var(--text-soft);background:rgba(255,255,255,0.04);border:1px solid var(--panel-bd);border-radius:999px;padding:8px 15px}
-  .stats .st b{color:var(--text);font-weight:700}
-
-  /* Footer ecosystem */
-  .builtfor{position:relative;z-index:2;max-width:640px;margin:46px auto 0;padding:0 24px;display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:center}
-  .builtfor .bf-l{width:100%;text-align:center;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);opacity:.8;margin-bottom:3px}
-  .builtfor .bf{font-size:13px;color:var(--text-soft);background:rgba(255,255,255,0.04);border:1px solid var(--panel-bd);border-radius:999px;padding:7px 14px}
-
-  /* App preview tile — the live app's concierge orb, recreated + clickable */
-  .app-tile{display:block;max-width:330px;margin:6px auto 2px;padding:24px 22px 18px;border-radius:22px;border:1px solid var(--panel-bd);background:linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0));text-decoration:none;position:relative;transition:transform .2s,border-color .2s,box-shadow .2s}
-  .app-tile:hover{transform:translateY(-3px);border-color:rgba(255,61,139,0.45);box-shadow:0 22px 54px -26px rgba(255,61,139,0.55)}
-  .cc-orb-stage{position:relative;display:flex;align-items:center;justify-content:center}
-  .cc-orb-wrap{position:relative;width:262px;height:262px;max-width:100%;margin:0 auto}
-  .cc-ring{position:absolute;border-radius:50%;border:1px solid rgba(255,95,184,0.18)}
-  .cc-ring.a{inset:0;animation:cc-spin 22s linear infinite}
-  .cc-ring.b{inset:25px;border-color:rgba(255,153,102,0.16);animation:cc-spin 30s linear infinite reverse}
-  .cc-ring.c{inset:51px;border-color:rgba(155,92,255,0.18);animation:cc-spin 18s linear infinite}
-  @keyframes cc-spin{to{transform:rotate(360deg)}}
-  .cc-pulse{position:absolute;inset:66px;border-radius:50%;border:1px solid rgba(255,46,126,.5);opacity:0;animation:cc-sonar 3.6s ease-out infinite}
-  .cc-pulse.d2{animation-delay:1.2s}.cc-pulse.d3{animation-delay:2.4s}
-  @keyframes cc-sonar{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.9);opacity:0}}
-  .cc-orb{position:absolute;inset:72px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#ffe3c0 0%,#ff9b3d 22%,#ff2e7e 55%,#b3215f 78%,#5e0f3f 100%);box-shadow:0 0 56px rgba(255,61,139,.55),0 0 120px rgba(255,95,184,.28),inset 0 0 38px rgba(255,255,255,.18),inset -15px -18px 46px rgba(94,15,63,.7);animation:cc-breathe 6s ease-in-out infinite}
-  @keyframes cc-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
-  .cc-spark{position:absolute;inset:72px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 10px rgba(0,0,0,.4));animation:cc-breathe 6s ease-in-out infinite}
-  .cc-citypin{position:absolute;z-index:5;display:flex;align-items:center;gap:6px;animation:cc-breathe 6s ease-in-out infinite}
-  .cc-citypin.r{flex-direction:row-reverse}
-  .cc-citypin .pdot{width:7px;height:7px;border-radius:50%;background:#46e0d2;box-shadow:0 0 10px #46e0d2,0 0 22px rgba(70,224,210,.55)}
-  .cc-citypin .plbl{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--text-soft)}
-  .cc-orbcap{text-align:center;margin-top:2px}
-  .cc-orbcap .t{font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--text)}
-  .cc-orbcap .s{font-size:10.5px;color:var(--text-dim);margin-top:2px}
-  .app-tile-cta{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-weight:700;font-size:15px;color:#fff;background:var(--grad);border-radius:12px;padding:12px 18px;box-shadow:0 10px 24px -10px rgba(255,61,139,.55);transition:filter .2s}
-  .app-tile:hover .app-tile-cta{filter:brightness(1.06)}
-  @media(prefers-reduced-motion:reduce){.cc-ring,.cc-pulse,.cc-orb,.cc-spark,.cc-citypin{animation:none!important}}
-
-  /* Staggered entrance */
-  .eyebrow,.logo,.tag,.blurb,.cta,.notify,.beta-line,.news{
-    opacity:0;transform:translateY(16px);
-    animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
-  }
-  .tw-line{animation-delay:.60s;margin-top:4px}
-  .eyebrow{animation-delay:.05s}
-  .logo{animation-delay:.13s}
-  .tag{animation-delay:.24s}
-  .blurb{animation-delay:.34s}
-  .cta{animation-delay:.40s}
-  .beta-line{animation-delay:.50s}
-  .notify{animation-delay:.44s}
-  .news{animation-delay:.62s}
-  @keyframes rise{to{opacity:1;transform:none}}
-  @media(prefers-reduced-motion:reduce){
-    .eyebrow,.logo,.tag,.blurb,.cta,.notify,.beta-line,.tw-line,.news{animation:none;opacity:1;transform:none}
-    .orb,.eyebrow .dot{animation:none}
-  }
-
-  @media(max-width:480px){
-    .notify{flex-direction:column}
-    .notify button{padding:14px}
-  }
+  /* SEO internal links */
+  .seolinks{position:relative;z-index:2;padding:44px 0 6px;border-top:1px solid var(--line)}
+  .seolinks h2{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:center;margin-bottom:18px}
+  .seolinks ul{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:9px 10px;max-width:840px;margin:0 auto;padding:0 24px}
+  .seolinks a{color:var(--soft);text-decoration:none;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:7px 14px;transition:border-color .15s,color .15s}
+  .seolinks a:hover{color:var(--text);border-color:var(--line-2)}
 </style>
 </head>
 <body>
-  <div class="bg"><div class="orb"></div></div>
-  <div class="grain"></div>
 
-  <main class="shell">
-    <span class="eyebrow"><span class="dot"></span>Now live · Brussels &amp; Belgium</span>
 
-    <div class="logo">shou</div>
-    <div class="tag">Belgium's AI concierge</div>
+<div class="aurora"><i></i></div>
+<div class="grain"></div>
 
-    <p class="blurb">
-      Everything happening in Belgium.<br>
-      Ask in your language.<br>
-      Discover in seconds.
-    </p>
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="/">shou</a>
+    <div class="nav-links">
+      <a class="hide-sm" href="#products">Products</a>
+      <a class="hide-sm" href="#how">How it works</a>
+      <a class="hide-sm" href="#hotels">For hosts</a>
+      <a class="btn btn-primary nav-cta" href="https://app.shou.be">Open shou</a>
+    </div>
+  </div>
+</nav>
 
-    <a class="app-tile" href="https://app.shou.be" aria-label="Open shou — ask what's on in Belgium tonight">
-      <div class="cc-orb-stage" aria-hidden="true">
-        <div class="cc-orb-wrap">
-          <div class="cc-ring a"></div><div class="cc-ring b"></div><div class="cc-ring c"></div>
-          <div class="cc-pulse"></div><div class="cc-pulse d2"></div><div class="cc-pulse d3"></div>
-          <div class="cc-orb"></div>
-          <div class="cc-spark"><svg width="52" height="52" viewBox="0 0 24 24" fill="rgba(255,255,255,.95)"><path d="M12 2l1.7 5.1L19 8.8l-5.3 1.7L12 16l-1.7-5.5L5 8.8l5.3-1.7z"/><circle cx="18.5" cy="17.5" r="1.4"/><circle cx="6" cy="16" r="1"/></svg></div>
-          <div class="cc-citypin" style="top:9%;left:46%;animation-delay:.2s"><span class="pdot"></span><span class="plbl">Antwerp</span></div>
-          <div class="cc-citypin" style="top:33%;left:1%;animation-delay:1.4s"><span class="pdot"></span><span class="plbl">Ghent</span></div>
-          <div class="cc-citypin r" style="top:42%;right:1%;animation-delay:.8s"><span class="pdot"></span><span class="plbl">Liège</span></div>
-          <div class="cc-citypin" style="bottom:13%;left:14%;animation-delay:2.1s"><span class="pdot"></span><span class="plbl">Brussels</span></div>
+<a id="top"></a>
+<main>
+
+<!-- 1 · HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Belgium · AI concierge</span>
+        <h1>Belgium, <span class="grad-text serif-it">just&nbsp;ask.</span></h1>
+        <p class="lead">shou is your local concierge for Belgium. Ask what's on tonight — concerts, dinner, hidden bars — and get an answer in seconds, in your language.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="https://app.shou.be">Open shou <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="#how">See how it works</a>
+        </div>
+        <p class="hero-note">Live across Belgium · <b>7 languages</b> · no app to download</p>
+      </div>
+
+      <!-- signature moment: the concierge, thinking -->
+      <div class="chat" aria-hidden="true">
+        <div class="chat-top">
+          <span class="orb"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l1.7 5.1L19 8.8l-5.3 1.7L12 16l-1.7-5.5L5 8.8l5.3-1.7z"/><circle cx="18.5" cy="17.5" r="1.3"/></svg></span>
+          <div><div class="who">shou concierge</div><div class="st">near Grand-Place</div></div>
+          <div class="live">Live</div>
+        </div>
+        <div class="chat-body" id="chatBody">
+          <div class="qa on">
+            <div class="bubble me">What should I do tonight?</div>
+            <div class="ai-lead">A couple of ideas a short walk away —</div>
+            <div class="picks">
+              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#ff3d8b,#9b5cff)"></span><div><div class="pt">Late jazz at Sounds</div><div class="pm">400 m · 21:00 · ★ 4.7</div></div><span class="go">→</span></div>
+              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#ff9b3d,#ff3d8b)"></span><div><div class="pt">Rooftop DJ set · Flagey</div><div class="pm">1.2 km · tonight · free</div></div><span class="go">→</span></div>
+            </div>
+          </div>
+          <div class="qa">
+            <div class="bubble me">Un bon resto près d'ici&nbsp;?</div>
+            <div class="ai-lead">Voici deux adresses qu'on adore —</div>
+            <div class="picks">
+              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#38e0a0,#3d7bff)"></span><div><div class="pt">Chez Léon</div><div class="pm">5 min · moules · ★ 4.6</div></div><span class="go">→</span></div>
+              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#9b5cff,#ff3d8b)"></span><div><div class="pt">Bao Bang Bang</div><div class="pm">280 m · ★ 4.8</div></div><span class="go">→</span></div>
+            </div>
+          </div>
+          <div class="qa">
+            <div class="bubble me">Family stuff tomorrow?</div>
+            <div class="ai-lead">Two picks the kids will remember —</div>
+            <div class="picks">
+              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#ff9b3d,#9b5cff)"></span><div><div class="pt">Puppet theatre · Toone</div><div class="pm">11:00 · in your language</div></div><span class="go">→</span></div>
+              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#3d7bff,#38e0a0)"></span><div><div class="pt">Museum of Natural Sciences</div><div class="pm">dinosaurs · 900 m</div></div><span class="go">→</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-foot">
+          <div class="fake-input">Ask anything, in any language…</div>
+          <span class="send"><svg viewBox="0 0 24 24" fill="none" stroke="#1a0a12" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </div>
       </div>
-      <div class="cc-orbcap"><div class="t">what's the shou in Belgium tonight?</div><div class="s">ask in any language · powered by AI</div></div>
-      <span class="app-tile-cta">Open shou <span aria-hidden="true">→</span></span>
-    </a>
-
-    <p class="beta-line tw-line">
-      Or <a href="/belgium-events">browse what's on across Belgium →</a>
-    </p>
-
-    <div class="news">
-      <p class="news-h">Stay in the loop</p>
-      <div class="notify-done" id="notifyDone">Thanks — you're on the list.</div>
-      <form class="notify" id="notifyForm">
-        <input type="email" id="email" placeholder="your@email.com" aria-label="Email address" required>
-        <button type="submit" id="notifyBtn">Keep me posted</button>
-      </form>
-      <p class="consent" id="consentNote">The occasional email — new features and the best of each week. No spam, unsubscribe anytime.</p>
     </div>
-
-    <a class="social" href="https://www.instagram.com/shou.be/" target="_blank" rel="noopener" aria-label="Follow shou on Instagram">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="3" y="3" width="18" height="18" rx="5"/>
-        <circle cx="12" cy="12" r="4"/>
-        <circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/>
-      </svg>
-      <span>Follow @shou.be</span>
-    </a>
-  </main>
-
-  <!-- Product hub: the consumer app is in the hero; these are the host products -->
-  <section class="prods" aria-label="shou for hosts">
-    <p class="prods-h">Also from shou — for hosts</p>
-    <div class="prods-grid">
-      <a class="prod" href="/hotels/offer">
-        <span class="prod-ic">🏨</span>
-        <h3>Hotels</h3>
-        <p>Give every guest an AI concierge — what's on, dining and hidden gems nearby, in 7 languages.</p>
-        <span class="prod-go">Learn more →</span>
-      </a>
-      <a class="prod" href="/apartments/offer">
-        <span class="prod-ic">🏠</span>
-        <h3>Apartments</h3>
-        <p>Replace your welcome PDF with a smart guest companion — from the Wi-Fi to what's on tonight.</p>
-        <span class="prod-go">Learn more →</span>
-      </a>
-    </div>
-  </section>
-
-  <div class="stats" aria-label="shou by the numbers">
-    <span class="st"><b>20,000+</b> events</span>
-    <span class="st"><b>7</b> languages</span>
-    <span class="st">Updated <b>hourly</b></span>
-    <span class="st">Across <b>Belgium</b></span>
   </div>
+</section>
 
-  <nav class="seonav" aria-label="What's on in Belgium">
-    <h2>What's on in Belgium</h2>
-    <ul>
-      <li><a href="/this-week">This week in Belgium</a></li>
-      <li><a href="/belgium-events">All Belgium events</a></li>
-      <li><a href="/brussels-tonight">Tonight in Brussels</a></li>
-      <li><a href="/antwerp-tonight">Tonight in Antwerp</a></li>
-      <li><a href="/ghent-tonight">Tonight in Ghent</a></li>
-      <li><a href="/brussels-this-weekend">This weekend in Brussels</a></li>
-      <li><a href="/antwerp-this-weekend">This weekend in Antwerp</a></li>
-      <li><a href="/ghent-this-weekend">This weekend in Ghent</a></li>
-      <li><a href="/festivals-belgium">Festivals in Belgium</a></li>
-      <li><a href="/whats-new">What's new</a></li>
-      <li><a href="/hotels/offer">AI concierge for hotels</a></li>
-    </ul>
+<!-- 2 · WHY SHOU EXISTS -->
+<section>
+  <div class="wrap">
+    <div class="head center rise">
+      <span class="eyebrow">Why shou</span>
+      <h2>A city has a thousand answers. <span class="grad-text serif-it">shou gives you the right one.</span></h2>
+    </div>
+    <div class="cards">
+      <div class="card rise">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        <h3>Ask like a local</h3>
+        <p>Type a question the way you'd ask a friend. Get one real recommendation — not a page of results.</p>
+      </div>
+      <div class="card rise">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <h3>Tonight, not last year</h3>
+        <p>Every listing refreshes hourly. No dead events, no closed venues, no guidebook that's three summers old.</p>
+      </div>
+      <div class="card rise">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+        <h3>Actually near you</h3>
+        <p>Answers ranked by where you're standing and what's happening right now — walking distance, not a region.</p>
+      </div>
+      <div class="card rise">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.3 5.5L20 9l-4.4 3.7L17 19l-5-3-5 3 1.4-6.3L4 9l5.7-.5z"/></svg></span>
+        <h3>Beyond the obvious</h3>
+        <p>Concerts, exhibitions, the bar down an alley — the things the big listings sites never surface.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · INTERACTIVE PREVIEW -->
+<section id="how">
+  <div class="wrap">
+    <div class="demo rise">
+      <div>
+        <span class="eyebrow">A real answer</span>
+        <h2>Ask a question. <span class="grad-text serif-it">Get a plan.</span></h2>
+        <p class="lead">No endless list. shou reads thousands of live places and events and hands back the few that fit — with photos, ratings, walking distance and a map. This is a real answer from the app.</p>
+        <div class="qtags">
+          <span class="qtag">"Best jazz nearby?"</span>
+          <span class="qtag">"Free things tomorrow?"</span>
+          <span class="qtag">"Where do locals drink?"</span>
+          <span class="qtag">"Un bon resto&nbsp;?"</span>
+        </div>
+      </div>
+      <div class="shot">
+        <div class="shot-bar"><i></i><i></i><i></i><span class="u">shou.be</span></div>
+        <img src="/hotels/picks-coffee.jpg" alt="A real shou concierge answer — good coffee near the hotel, each place with a photo, rating, walking distance, and a map showing where they are." loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · THREE PRODUCTS -->
+<section id="products">
+  <div class="wrap">
+    <div class="head center rise">
+      <span class="eyebrow">One concierge, three ways</span>
+      <h2>Built for the whole trip.</h2>
+    </div>
+    <div class="prods">
+      <a class="prod v rise" href="https://app.shou.be">
+        <div class="art"><img src="/img/festivals.jpg" alt="A packed concert crowd under bright stage lights" loading="lazy"><span>🎉</span></div>
+        <div class="body">
+          <div class="k">For visitors</div>
+          <h3>Discover Belgium</h3>
+          <p>Concerts, festivals, food and the hidden corners — in your language, updated hourly.</p>
+          <span class="go">Open shou →</span>
+        </div>
+      </a>
+      <a class="prod h rise" id="hotels" href="/hotels/offer">
+        <div class="art"><img src="/img/brussels-tonight.jpg" alt="A lively Brussels street at night, lined with restaurants and warm lights" loading="lazy"><span>🏨</span></div>
+        <div class="body">
+          <div class="k">For hotels</div>
+          <h3>Give every guest a concierge</h3>
+          <p>Your own branded page. Guests scan a QR code and get answers 24/7 — reception stays quiet.</p>
+          <span class="go">For hotels →</span>
+        </div>
+      </a>
+      <a class="prod a rise" href="/apartments/offer">
+        <div class="art"><img src="/apartments/img/apt1.jpg" alt="A guest arriving with a suitcase into a bright, modern serviced apartment" loading="lazy"><span>🏠</span></div>
+        <div class="body">
+          <div class="k">For apartments</div>
+          <h3>Retire the welcome binder</h3>
+          <p>Wi-Fi, check-out, and what's on tonight — one smart page that answers so you don't have to.</p>
+          <span class="go">For apartments →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · HOW IT WORKS -->
+<section>
+  <div class="wrap">
+    <div class="head center rise">
+      <span class="eyebrow">How it works</span>
+      <h2>From question to plan in seconds.</h2>
+    </div>
+    <div class="steps">
+      <div class="step rise"><div class="n"></div><h3>Open shou</h3><p>In your browser. No download, no account, no friction.</p></div>
+      <div class="step rise"><div class="n"></div><h3>Ask</h3><p>Anything, in any of seven languages — like texting a friend who lives here.</p></div>
+      <div class="step rise"><div class="n"></div><h3>Discover</h3><p>Get a short, ranked answer — the right places, near you, on right now.</p></div>
+      <div class="step rise"><div class="n"></div><h3>Go</h3><p>Tap through for directions, tickets and hours. Then enjoy your night.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · WHY PEOPLE LOVE IT (stats) -->
+<section>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat rise"><div class="big">20,000+</div><div class="lbl">events tracked</div></div>
+      <div class="stat rise"><div class="big">7</div><div class="lbl">languages</div></div>
+      <div class="stat rise"><div class="big">hourly</div><div class="lbl">always current</div></div>
+      <div class="stat rise"><div class="big">AI</div><div class="lbl">answers, not lists</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · SOCIAL PROOF -->
+<section>
+  <div class="wrap">
+    <div class="head center rise">
+      <span class="eyebrow">In their words</span>
+      <h2>The nights people didn't plan.</h2>
+    </div>
+    <div class="quotes">
+      <div class="quote rise"><p>"Asked where to eat, ended up at a jazz bar we'd never have found. Best night of the trip."</p><div class="by">Elise · visiting from Lyon</div></div>
+      <div class="quote rise"><p>"Our guests stopped calling reception at midnight. They just scan and go."</p><div class="by">Boutique hotel · Brussels</div></div>
+      <div class="quote rise"><p>"Finally something that knows what's on tonight — not what was on in 2019."</p><div class="by">Tom · lives in Ghent</div></div>
+    </div>
+    <p class="disclaimer">Illustrative of the shou experience · pilot testimonials arriving</p>
+  </div>
+</section>
+
+<!-- 8 · NEWSLETTER -->
+<section>
+  <div class="wrap">
+    <div class="news rise">
+      <span class="eyebrow">Stay in the loop</span>
+      <h2>The best of Belgium, once a week.</h2>
+      <p>New features and the highlights of each week. No spam.</p>
+      <form class="nform" id="nform" novalidate>
+        <input type="email" id="nemail" placeholder="you@email.com" aria-label="Email address" required>
+        <button class="btn btn-primary" type="submit">Keep me posted</button>
+      </form>
+      <div class="nthanks" id="nthanks">Thanks — you're on the list.</div>
+      <p class="consent">Unsubscribe anytime.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · FOOTER -->
+</main>
+
+  <nav class="seolinks" aria-label="What's on in Belgium">
+    <div class="wrap">
+      <h2>What's on in Belgium</h2>
+      <ul>
+        <li><a href="/this-week">This week in Belgium</a></li>
+        <li><a href="/belgium-events">All Belgium events</a></li>
+        <li><a href="/brussels-tonight">Tonight in Brussels</a></li>
+        <li><a href="/antwerp-tonight">Tonight in Antwerp</a></li>
+        <li><a href="/ghent-tonight">Tonight in Ghent</a></li>
+        <li><a href="/brussels-this-weekend">This weekend in Brussels</a></li>
+        <li><a href="/festivals-belgium">Festivals in Belgium</a></li>
+        <li><a href="/whats-new">What's new</a></li>
+        <li><a href="/hotels/offer">AI concierge for hotels</a></li>
+        <li><a href="/apartments/offer">AI concierge for apartments</a></li>
+      </ul>
+    </div>
   </nav>
 
-  <div class="builtfor" aria-label="Built for">
-    <span class="bf-l">Built for</span>
-    <span class="bf">🏨 Hotels</span>
-    <span class="bf">🏠 Apartments</span>
-    <span class="bf">🌍 Travellers</span>
-    <span class="bf">🎉 Locals</span>
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="/">shou</a>
+        <p>Belgium's AI concierge — for travellers, hotels and the places they stay.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Discover</h4>
+          <a href="https://app.shou.be">Open shou</a>
+          <a href="/this-week">This week</a>
+          <a href="/festivals-belgium">Festivals</a>
+        </div>
+        <div class="foot-col">
+          <h4>For hosts</h4>
+          <a href="/hotels/offer">Hotels</a>
+          <a href="/apartments/offer">Apartments</a>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <a href="/privacy">Privacy</a>
+          <a href="https://www.instagram.com/shou.be/" target="_blank" rel="noopener">Instagram</a>
+        </div>
+      </div>
+    </div>
   </div>
+  <div class="foot-bottom">
+    <span>© 2026 shou · Belgium's AI concierge</span>
+    <span>Built for 🏨 Hotels · 🏠 Apartments · 🌍 Travellers · 🎉 Locals</span>
+  </div>
+</footer>
 
-  <footer>
-    <span>© 2026 ABSS Analytics · shou</span>
-    <span class="sep">·</span>
-    <a href="https://shou.be/privacy">Privacy</a>
-    <span class="sep">·</span>
-    <a href="/belgium-events">Belgium events</a>
-    <span class="sep">·</span>
-    <a href="/whats-new">What's new</a>
-  </footer>
+<script>
+  // Scroll reveal
+  (function(){
+    var els = document.querySelectorAll('.rise');
+    if(!('IntersectionObserver' in window)){ els.forEach(function(e){e.classList.add('in');}); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    },{threshold:.14});
+    els.forEach(function(e,i){ e.style.transitionDelay = Math.min(i%4*70,210)+'ms'; io.observe(e); });
+  })();
 
-  <script>
-    // Waitlist capture: POSTs the email to the backend, which stores it with a
-    // consent timestamp (lawful basis for the launch email). Frictionless — no
-    // email client, no app chooser. On success, swap the form for a thank-you.
-    // The backend lives on the app's API domain (separate from this landing page).
-    var API = 'https://shou-backend.vercel.app/api/waitlist';
-    var form = document.getElementById('notifyForm');
-    var btn  = document.getElementById('notifyBtn');
-    var done = document.getElementById('notifyDone');
-    var note = document.getElementById('consentNote');
+  // Hero concierge auto-cycle
+  (function(){
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce) return;
+    var body = document.getElementById('chatBody');
+    if(!body) return;
+    var qas = body.querySelectorAll('.qa'), i = 0;
+    setInterval(function(){
+      qas[i].classList.remove('on');
+      i = (i+1) % qas.length;
+      qas[i].classList.add('on');
+    }, 3400);
+  })();
 
-    form.addEventListener('submit', async function(e){
+  // Newsletter -> waitlist backend
+  (function(){
+    var f = document.getElementById('nform');
+    if(!f) return;
+    var API='https://shou-backend.vercel.app/api/waitlist';
+    f.addEventListener('submit', function(e){
       e.preventDefault();
-      var email = document.getElementById('email').value.trim();
-      if(!email) return;
-
-      btn.disabled = true;
-      var original = btn.textContent;
-      btn.textContent = '…';
-
-      try {
-        var resp = await fetch(API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email }),
-        });
-        if (resp.ok) {
-          form.style.display = 'none';
-          if (note) note.style.display = 'none';
-          done.classList.add('show');
-        } else {
-          btn.disabled = false;
-          btn.textContent = original;
-          if (note) note.textContent = 'Something went wrong — please try again.';
-        }
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = original;
-        if (note) note.textContent = 'Network error — please try again.';
-      }
+      var el = document.getElementById('nemail');
+      var v = (el.value||'').trim();
+      if(!v || v.indexOf('@')<1){ el.focus(); return; }
+      var btn=f.querySelector('button'); if(btn) btn.disabled=true;
+      var done=function(){ f.style.display='none'; document.getElementById('nthanks').classList.add('show'); };
+      fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:v})}).then(done,done);
     });
-  </script>
+  })();
+</script>
 </body>
 </html>
