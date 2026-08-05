@@ -264,23 +264,29 @@
   .reels-arrow.left{left:-6px}.reels-arrow.right{right:-6px}
   @media(hover:none){.reels-arrow{display:none}}
 
-  /* Hotels offer card — replaces the reels strip at the bottom */
-  .hotelcta{position:relative;z-index:2;display:block;max-width:640px;margin:44px auto 0;padding:34px 32px;
-    border-radius:22px;text-decoration:none;text-align:center;overflow:hidden;
-    background:radial-gradient(120% 150% at 0% 0%,rgba(255,61,139,.16),transparent 55%),
-               radial-gradient(120% 150% at 100% 100%,rgba(255,155,61,.14),transparent 55%),
-               rgba(255,255,255,0.03);
-    border:1px solid rgba(255,61,139,.28);box-shadow:0 20px 50px -24px rgba(255,61,139,.5);
-    transition:transform .18s,border-color .18s,box-shadow .18s}
-  .hotelcta:hover{transform:translateY(-2px);border-color:rgba(255,61,139,.5);box-shadow:0 26px 60px -22px rgba(255,61,139,.6)}
-  .hc-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink);
-    border:1px solid rgba(255,61,139,.35);border-radius:999px;padding:5px 13px;margin-bottom:15px}
-  .hc-title{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(23px,4.6vw,31px);color:var(--text);line-height:1.12;margin:0 0 12px;letter-spacing:-.01em}
-  .hc-title .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .hc-sub{color:var(--text-soft);font-size:15px;line-height:1.6;max-width:470px;margin:0 auto 22px}
-  .hc-go{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:15px;
-    padding:13px 24px;border-radius:999px;box-shadow:0 10px 24px -10px rgba(255,61,139,.6)}
-  .hc-go svg{width:16px;height:16px}
+  /* Product hub — Hotels + Apartments (the consumer app lives in the hero) */
+  .prods{position:relative;z-index:2;max-width:640px;margin:46px auto 0;padding:0 24px}
+  .prods-h{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);opacity:.85;text-align:center;margin:0 0 16px}
+  .prods-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .prod{display:block;padding:24px 22px;border-radius:18px;text-decoration:none;
+    background:rgba(255,255,255,0.03);border:1px solid var(--panel-bd);
+    transition:transform .16s,border-color .16s,box-shadow .16s}
+  .prod:hover{transform:translateY(-2px);border-color:rgba(255,61,139,.45);box-shadow:0 18px 40px -22px rgba(255,61,139,.5)}
+  .prod-ic{font-size:26px;display:block;margin-bottom:12px;line-height:1}
+  .prod h3{font-family:'Fraunces',serif;font-weight:600;font-size:20px;color:var(--text);margin:0 0 7px}
+  .prod p{font-size:13.5px;color:var(--text-soft);line-height:1.55;margin:0 0 14px}
+  .prod-go{font-size:13.5px;font-weight:700;color:var(--pink)}
+  @media(max-width:520px){.prods-grid{grid-template-columns:1fr}}
+
+  /* Credibility stats */
+  .stats{position:relative;z-index:2;max-width:640px;margin:34px auto 0;padding:0 24px;display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+  .stats .st{font-size:13px;font-weight:600;color:var(--text-soft);background:rgba(255,255,255,0.04);border:1px solid var(--panel-bd);border-radius:999px;padding:8px 15px}
+  .stats .st b{color:var(--text);font-weight:700}
+
+  /* Footer ecosystem */
+  .builtfor{position:relative;z-index:2;max-width:640px;margin:46px auto 0;padding:0 24px;display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:center}
+  .builtfor .bf-l{width:100%;text-align:center;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);opacity:.8;margin-bottom:3px}
+  .builtfor .bf{font-size:13px;color:var(--text-soft);background:rgba(255,255,255,0.04);border:1px solid var(--panel-bd);border-radius:999px;padding:7px 14px}
 
   /* App preview tile — the live app's concierge orb, recreated + clickable */
   .app-tile{display:block;max-width:330px;margin:6px auto 2px;padding:24px 22px 18px;border-radius:22px;border:1px solid var(--panel-bd);background:linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0));text-decoration:none;position:relative;transition:transform .2s,border-color .2s,box-shadow .2s}
@@ -391,14 +397,31 @@
     </a>
   </main>
 
-  <a class="hotelcta" href="/hotels/offer">
-    <span class="hc-badge">For hotels</span>
-    <h2 class="hc-title">Give every guest a <span class="grad">local concierge</span></h2>
-    <p class="hc-sub">Your hotel's own AI concierge — concerts, dining and hidden gems nearby, in 7 languages, 24/7. One QR code in every room, nothing to download.</p>
-    <span class="hc-go">See how it works
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </span>
-  </a>
+  <!-- Product hub: the consumer app is in the hero; these are the host products -->
+  <section class="prods" aria-label="shou for hosts">
+    <p class="prods-h">Also from shou — for hosts</p>
+    <div class="prods-grid">
+      <a class="prod" href="/hotels/offer">
+        <span class="prod-ic">🏨</span>
+        <h3>Hotels</h3>
+        <p>Give every guest an AI concierge — what's on, dining and hidden gems nearby, in 7 languages.</p>
+        <span class="prod-go">Learn more →</span>
+      </a>
+      <a class="prod" href="/apartments/offer">
+        <span class="prod-ic">🏠</span>
+        <h3>Apartments</h3>
+        <p>Replace your welcome PDF with a smart guest companion — from the Wi-Fi to what's on tonight.</p>
+        <span class="prod-go">Learn more →</span>
+      </a>
+    </div>
+  </section>
+
+  <div class="stats" aria-label="shou by the numbers">
+    <span class="st"><b>20,000+</b> events</span>
+    <span class="st"><b>7</b> languages</span>
+    <span class="st">Updated <b>hourly</b></span>
+    <span class="st">Across <b>Belgium</b></span>
+  </div>
 
   <nav class="seonav" aria-label="What's on in Belgium">
     <h2>What's on in Belgium</h2>
@@ -416,6 +439,14 @@
       <li><a href="/hotels/offer">AI concierge for hotels</a></li>
     </ul>
   </nav>
+
+  <div class="builtfor" aria-label="Built for">
+    <span class="bf-l">Built for</span>
+    <span class="bf">🏨 Hotels</span>
+    <span class="bf">🏠 Apartments</span>
+    <span class="bf">🌍 Travellers</span>
+    <span class="bf">🎉 Locals</span>
+  </div>
 
   <footer>
     <span>© 2026 ABSS Analytics · shou</span>
