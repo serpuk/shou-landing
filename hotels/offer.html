@@ -458,6 +458,57 @@
   .liveframe .lbar .u{margin-left:12px;font-size:12.5px;color:var(--text-dim);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 14px}
   .liveframe iframe{width:100%;height:580px;border:0;display:block;background:#fff}
   .live-note{text-align:center;margin:0 auto 30px;color:var(--text-dim);font-size:13px}
+
+  /* === Reception pain (manager-facing, below hero) === */
+  .recpain{max-width:940px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:34px 36px;box-shadow:var(--shadow-lift);display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center}
+  .recpain h3{font-size:clamp(20px,3vw,27px);margin-bottom:18px}
+  .recpain ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .recpain li{display:flex;gap:11px;align-items:flex-start;font-size:15.5px;color:var(--text-soft);font-style:italic}
+  .recpain li::before{content:'✓';flex:none;color:var(--cyan);font-weight:800;font-size:13px;margin-top:3px;font-style:normal}
+  .recpain .relief{background:linear-gradient(150deg,rgba(255,61,139,.08),rgba(255,155,61,.05));border:1px solid rgba(255,61,139,.22);border-radius:16px;padding:26px 24px;text-align:center}
+  .recpain .relief .qr{font-size:34px;margin-bottom:10px}
+  .recpain .relief .big{font-family:'Fraunces';font-weight:600;font-size:21px;color:var(--ink);line-height:1.22;margin-bottom:10px}
+  .recpain .relief p{font-size:14.5px;color:var(--text-soft);line-height:1.5}
+  @media(max-width:720px){ .recpain{grid-template-columns:1fr;gap:24px} }
+
+  /* === Designed-for strip === */
+  .designed{max-width:900px;margin:0 auto;text-align:center}
+  .designed .dl{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px}
+  .designed .dchips{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+  .designed .dchip{font-size:14px;font-weight:600;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:9px 17px;box-shadow:var(--shadow)}
+
+  /* === Differentiator: already knows === */
+  .knows{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:center;max-width:1000px;margin:0 auto}
+  .knows .khead .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);margin-bottom:12px}
+  .knows .khead h2{font-size:clamp(26px,4vw,37px);margin-bottom:14px}
+  .knows .khead p{font-size:17px;color:var(--text-soft);line-height:1.6}
+  .knows .khead .punch{font-family:'Fraunces';font-size:20px;color:var(--ink);margin-top:18px;font-weight:600}
+  .kgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .kitem{display:flex;gap:11px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px 15px;box-shadow:var(--shadow)}
+  .kitem .kico{font-size:20px;flex:none}
+  .kitem span{font-size:14.5px;font-weight:600;color:var(--ink)}
+  @media(max-width:760px){ .knows{grid-template-columns:1fr;gap:26px} }
+  @media(max-width:430px){ .kgrid{grid-template-columns:1fr} }
+
+  /* === Comparison (Maps / Tripadvisor / shou) === */
+  .compare{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:0 auto}
+  .cmp{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .cmp.you{border-color:rgba(255,61,139,.4);box-shadow:0 14px 34px -16px rgba(255,61,139,.4)}
+  .cmp .cn{font-family:'Fraunces';font-weight:700;font-size:19px;color:var(--ink);margin-bottom:8px}
+  .cmp.you .cn{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .cmp p{font-size:14.5px;color:var(--text-soft);line-height:1.55}
+  .cmp.you p{color:var(--text)}
+  .cmp .cline{display:block;margin-top:5px;font-weight:600;color:var(--ink)}
+  @media(max-width:720px){ .compare{grid-template-columns:1fr} }
+
+  /* === ROI === */
+  .roi{max-width:760px;margin:0 auto;text-align:center}
+  .roi .rlist{display:flex;flex-direction:column;gap:12px;max-width:540px;margin:0 auto 26px}
+  .roi .rrow{display:flex;gap:14px;align-items:center;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 18px;box-shadow:var(--shadow)}
+  .roi .rrow .ri{width:40px;height:40px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:19px;background:rgba(14,154,141,.1);border:1px solid rgba(14,154,141,.2)}
+  .roi .rrow b{color:var(--ink);font-weight:600;font-size:15px}
+  .roi .rq{font-family:'Fraunces';font-size:clamp(22px,3.6vw,30px);font-weight:600;color:var(--ink);line-height:1.25}
 </style>
 </head>
 <body>
@@ -502,6 +553,28 @@
   </div>
 </div></section>
 
+<!-- RECEPTION PAIN (manager-facing, right under the hero) -->
+<section style="padding-top:14px"><div class="wrap">
+  <div class="recpain">
+    <div>
+      <h3>The questions your reception answers <span class="grad-text">every single day</span></h3>
+      <ul>
+        <li>"What should we do tonight?"</li>
+        <li>"Any good restaurants nearby?"</li>
+        <li>"Is there live music this week?"</li>
+        <li>"What can we do with the kids?"</li>
+        <li>"Any free activities today?"</li>
+        <li>"Where's the nearest supermarket or pharmacy?"</li>
+      </ul>
+    </div>
+    <div class="relief">
+      <div class="qr">📱</div>
+      <div class="big">Now guests scan one QR code — and the concierge answers instantly.</div>
+      <p>Your reception closes. Your concierge doesn't. Available 24/7, in 7 languages.</p>
+    </div>
+  </div>
+</div></section>
+
 <!-- POSITIONING (reframe, right under the hero) -->
 <section style="padding-top:8px;padding-bottom:36px"><div class="wrap quote">
   <h2>“We don't sell hotels another app. We give every hotel its own digital concierge — trained specifically for its guests and its neighbourhood.”</h2>
@@ -517,7 +590,22 @@
 </div></section>
 
 <!-- TRUST -->
-<div class="trust"><div class="wrap"><p>Launching with Belgium's first pilot hotels — independent, boutique, serviced apartments &amp; B&amp;Bs.</p></div></div>
+<div class="trust"><div class="wrap"><p>Launching with Belgium's first pilot hotels.</p></div></div>
+
+<!-- DESIGNED FOR -->
+<section style="padding-top:26px;padding-bottom:10px"><div class="wrap">
+  <div class="designed">
+    <div class="dl">Designed for</div>
+    <div class="dchips">
+      <span class="dchip">Boutique hotels</span>
+      <span class="dchip">Business hotels</span>
+      <span class="dchip">Apart-hotels</span>
+      <span class="dchip">Serviced apartments</span>
+      <span class="dchip">Hostels</span>
+      <span class="dchip">B&amp;Bs</span>
+    </div>
+  </div>
+</div></section>
 
 <!-- ONE QR CODE · GUEST JOURNEY -->
 <section><div class="wrap">
@@ -541,6 +629,38 @@
     <span class="fc-ico">🖨</span>
     <div class="fc-txt"><b>Every room gets a print-ready guest card</b><span>Your logo, your theme and a QR to your page — ready to print and place. No design needed.</span></div>
     <a class="btn btn-ghost" href="/hotels/flyer-sample" target="_blank" rel="noopener">Preview the card →</a>
+  </div>
+</div></section>
+
+<!-- DIFFERENTIATOR: already knows -->
+<section><div class="wrap">
+  <div class="knows">
+    <div class="khead">
+      <span class="tag">Not another chatbot</span>
+      <h2>Unlike ChatGPT, your concierge <span class="grad-text">already knows</span></h2>
+      <p>It's trained on your hotel and your neighbourhood — so guests never get a generic answer a search box could have given them.</p>
+      <div class="punch">Guests don't search. They just ask.</div>
+    </div>
+    <div class="kgrid">
+      <div class="kitem"><span class="kico">🏨</span><span>Your hotel &amp; services</span></div>
+      <div class="kitem"><span class="kico">🍽</span><span>Your restaurant &amp; bar</span></div>
+      <div class="kitem"><span class="kico">💆</span><span>Your spa &amp; amenities</span></div>
+      <div class="kitem"><span class="kico">🚆</span><span>Nearby transport</span></div>
+      <div class="kitem"><span class="kico">🎭</span><span>Tonight's local events</span></div>
+      <div class="kitem"><span class="kico">💬</span><span>Your FAQ &amp; house info</span></div>
+      <div class="kitem"><span class="kico">📍</span><span>Your neighbourhood</span></div>
+      <div class="kitem"><span class="kico">🌍</span><span>In 7 languages</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- COMPARISON -->
+<section><div class="wrap">
+  <div class="sec-head"><h2>Where shou <span class="grad-text">fits</span></h2><p>Your guests already use these. None of them know your hotel.</p></div>
+  <div class="compare">
+    <div class="cmp"><div class="cn">Google Maps</div><p>Finds places on a map.</p></div>
+    <div class="cmp"><div class="cn">Tripadvisor</div><p>Shows reviews of places.</p></div>
+    <div class="cmp you"><div class="cn">shou</div><p>Answers your guests' questions.<span class="cline">Knows your hotel.</span><span class="cline">Knows what's on tonight.</span></p></div>
   </div>
 </div></section>
 
@@ -602,7 +722,7 @@
 <!-- ENGINE / HOTEL TYPES -->
 <section><div class="wrap">
   <div class="sec-head">
-    <h2>The same engine, <span class="grad-text">a different experience</span></h2>
+    <h2>Every hotel gets <span class="grad-text">its own concierge</span></h2>
     <p>Each hotel gets its own set of scrolls — cherry-picked for its guests. Items marked <span style="font-size:11px;border:1px solid var(--line);border-radius:999px;padding:1px 7px;color:var(--text-dim)">hotel</span> link to your own services or recommended points of interest.</p>
   </div>
   <div class="types">
@@ -814,6 +934,20 @@
     <p>shou tracks <b>20,000+ events</b> across Belgium and helps locals and visitors discover what to do, every single day.</p>
     <p>We're now bringing that experience into hotels.</p>
     <div class="chips"><span class="chip">20,000+ events</span><span class="chip">1,500+ every week</span><span class="chip">7 languages</span><span class="chip">Updated hourly</span><span class="chip">Every major Belgian city</span></div>
+  </div>
+</div></section>
+
+<!-- ROI (sell the manager) -->
+<section><div class="wrap">
+  <div class="roi">
+    <div class="sec-head"><h2>Worth <span class="grad-text">€99 a month?</span></h2><p>One quiet upgrade to every stay — and to every shift at the front desk.</p></div>
+    <div class="rlist">
+      <div class="rrow"><span class="ri">⭐</span><b>One extra 5-star review a month</b></div>
+      <div class="rrow"><span class="ri">🛟</span><b>One bad review quietly avoided</b></div>
+      <div class="rrow"><span class="ri">⏱</span><b>~20 minutes back at reception, every day</b></div>
+      <div class="rrow"><span class="ri">🍸</span><b>More guests discovering your own bar &amp; restaurant</b></div>
+    </div>
+    <p class="rq">Any one of these pays for it. <span class="grad-text">You get all four.</span></p>
   </div>
 </div></section>
 
