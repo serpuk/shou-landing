@@ -264,6 +264,24 @@
   .reels-arrow.left{left:-6px}.reels-arrow.right{right:-6px}
   @media(hover:none){.reels-arrow{display:none}}
 
+  /* Hotels offer card — replaces the reels strip at the bottom */
+  .hotelcta{position:relative;z-index:2;display:block;max-width:640px;margin:44px auto 0;padding:34px 32px;
+    border-radius:22px;text-decoration:none;text-align:center;overflow:hidden;
+    background:radial-gradient(120% 150% at 0% 0%,rgba(255,61,139,.16),transparent 55%),
+               radial-gradient(120% 150% at 100% 100%,rgba(255,155,61,.14),transparent 55%),
+               rgba(255,255,255,0.03);
+    border:1px solid rgba(255,61,139,.28);box-shadow:0 20px 50px -24px rgba(255,61,139,.5);
+    transition:transform .18s,border-color .18s,box-shadow .18s}
+  .hotelcta:hover{transform:translateY(-2px);border-color:rgba(255,61,139,.5);box-shadow:0 26px 60px -22px rgba(255,61,139,.6)}
+  .hc-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink);
+    border:1px solid rgba(255,61,139,.35);border-radius:999px;padding:5px 13px;margin-bottom:15px}
+  .hc-title{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(23px,4.6vw,31px);color:var(--text);line-height:1.12;margin:0 0 12px;letter-spacing:-.01em}
+  .hc-title .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hc-sub{color:var(--text-soft);font-size:15px;line-height:1.6;max-width:470px;margin:0 auto 22px}
+  .hc-go{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:15px;
+    padding:13px 24px;border-radius:999px;box-shadow:0 10px 24px -10px rgba(255,61,139,.6)}
+  .hc-go svg{width:16px;height:16px}
+
   /* App preview tile — the live app's concierge orb, recreated + clickable */
   .app-tile{display:block;max-width:330px;margin:6px auto 2px;padding:24px 22px 18px;border-radius:22px;border:1px solid var(--panel-bd);background:linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0));text-decoration:none;position:relative;transition:transform .2s,border-color .2s,box-shadow .2s}
   .app-tile:hover{transform:translateY(-3px);border-color:rgba(255,61,139,0.45);box-shadow:0 22px 54px -26px rgba(255,61,139,0.55)}
@@ -373,14 +391,14 @@
     </a>
   </main>
 
-  <section class="reels" id="reelsStrip" hidden aria-label="Latest from shou on Instagram">
-    <h2 class="reels-h">Latest from shou</h2>
-    <div class="reels-wrap">
-      <button class="reels-arrow left" id="reelsPrev" type="button" aria-label="Scroll left">‹</button>
-      <div class="reels-row" id="reelsRow"></div>
-      <button class="reels-arrow right" id="reelsNext" type="button" aria-label="Scroll right">›</button>
-    </div>
-  </section>
+  <a class="hotelcta" href="/hotels/offer">
+    <span class="hc-badge">For hotels</span>
+    <h2 class="hc-title">Give every guest a <span class="grad">local concierge</span></h2>
+    <p class="hc-sub">Your hotel's own AI concierge — concerts, dining and hidden gems nearby, in 7 languages, 24/7. One QR code in every room, nothing to download.</p>
+    <span class="hc-go">See how it works
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </span>
+  </a>
 
   <nav class="seonav" aria-label="What's on in Belgium">
     <h2>What's on in Belgium</h2>
@@ -450,44 +468,6 @@
         if (note) note.textContent = 'Network error — please try again.';
       }
     });
-  </script>
-
-  <!-- Latest reels strip: fetches recent auto-generated reels from the backend
-       (cached), renders poster thumbnails linking to Instagram. Hidden unless
-       there's something to show, so a fetch failure never leaves a broken row. -->
-  <script>
-    (function(){
-      var esc = function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
-      fetch('https://shou-backend.vercel.app/api/ig-recent?v=4')
-        .then(function(r){ return r.json(); })
-        .then(function(d){
-          var posts = (d && d.posts) || [];
-          if (!posts.length) return;
-          var row = document.getElementById('reelsRow');
-          row.innerHTML = posts.map(function(p){
-            var cap = esc(p.caption || '');
-            var fb = esc(p.fallback || '');
-            return '<a class="reel" href="' + esc(p.permalink) + '" target="_blank" rel="noopener" aria-label="Watch on Instagram">' +
-              '<img src="' + esc(p.thumbnail) + '" alt="' + cap + '" decoding="async" referrerpolicy="no-referrer"' + (fb ? ' onerror="this.onerror=null;this.src=\'' + fb + '\'"' : '') + '>' +
-              '<span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>' +
-              '</a>';
-          }).join('');
-          document.getElementById('reelsStrip').hidden = false;
-          // scroll arrows (desktop; mobile uses native swipe)
-          var prev = document.getElementById('reelsPrev'), next = document.getElementById('reelsNext');
-          function updateArrows(){
-            var max = row.scrollWidth - row.clientWidth - 1;
-            prev.classList.toggle('show', row.scrollLeft > 2);
-            next.classList.toggle('show', row.scrollLeft < max);
-          }
-          prev.onclick = function(){ row.scrollBy({ left: -row.clientWidth * 0.8, behavior: 'smooth' }); };
-          next.onclick = function(){ row.scrollBy({ left:  row.clientWidth * 0.8, behavior: 'smooth' }); };
-          row.addEventListener('scroll', updateArrows, { passive: true });
-          window.addEventListener('resize', updateArrows);
-          updateArrows();
-        })
-        .catch(function(){ /* silent — strip stays hidden */ });
-    })();
   </script>
 </body>
 </html>
