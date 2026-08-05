@@ -20,6 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"shou","url":"https://shou.be/","logo":"https://shou.be/og-this-week.png","description":"Belgium\u2019s AI concierge for discovering concerts, festivals, restaurants and local events in seven languages, with branded guest concierge pages for hotels and serviced apartments.","areaServed":"BE","sameAs":["https://www.instagram.com/shou.be/"]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"shou","url":"https://shou.be/","inLanguage":["en","fr","nl","de","es","it","uk"]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is shou?", "acceptedAnswer": {"@type": "Answer", "text": "shou is Belgium's AI concierge. Ask what's on tonight, from concerts and festivals to restaurants and hidden gems, and get a short, ranked answer in seconds, in your own language."}}, {"@type": "Question", "name": "Which cities and languages does shou cover?", "acceptedAnswer": {"@type": "Answer", "text": "shou covers events and places across Belgium, from Brussels, Antwerp and Ghent to Liège and beyond. It answers in seven languages: English, French, Dutch, German, Spanish, Italian and Ukrainian."}}, {"@type": "Question", "name": "Do I need to download an app?", "acceptedAnswer": {"@type": "Answer", "text": "No. shou runs in your browser, with no app and no account. Open it, ask a question, and go."}}, {"@type": "Question", "name": "How much does shou cost?", "acceptedAnswer": {"@type": "Answer", "text": "For visitors, shou is free to use. Hotels and serviced apartments get their own branded concierge page on a simple monthly plan."}}, {"@type": "Question", "name": "How does shou work for hotels and apartments?", "acceptedAnswer": {"@type": "Answer", "text": "You get a branded page and a QR code for each room. Guests scan it and ask anything, 24/7, in their language, so your reception answers fewer repeat questions."}}, {"@type": "Question", "name": "Is the information up to date?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. shou tracks more than 20,000 events across Belgium and refreshes hourly, so recommendations reflect what's actually on tonight."}}]}</script>
 <style>
   :root{
     color-scheme: dark;
@@ -281,6 +282,25 @@
     .nform button{justify-content:center}
   }
 
+  /* FAQ */
+  .faq{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .faq details{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.028);overflow:hidden}
+  .faq details[open]{border-color:var(--line-2)}
+  .faq summary{list-style:none;cursor:pointer;padding:20px 24px;font-family:var(--serif);font-size:clamp(17px,2.4vw,19px);color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";font-family:var(--sans);font-weight:400;font-size:24px;line-height:1;color:var(--pink);transition:transform .2s ease}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq summary:focus-visible{outline:2px solid var(--pink);outline-offset:-2px}
+  .faq .fa{padding:0 24px 20px}
+  .faq .fa p{color:var(--soft);font-size:15px;line-height:1.62}
+
+  /* Hero: cycling real concierge answers */
+  .hero-shot{position:relative}
+  .hshot-frame{position:relative;aspect-ratio:968/790;border-radius:24px;overflow:hidden;border:1px solid var(--line-2);box-shadow:var(--shadow);background:#141019}
+  .hshot-frame::before{content:"";position:absolute;inset:0;border-radius:24px;padding:1px;pointer-events:none;z-index:3;background:linear-gradient(140deg,rgba(255,61,139,.5),transparent 40%,transparent 60%,rgba(155,92,255,.45));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+  .hshot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transition:opacity .7s ease}
+  .hshot.on{opacity:1}
+
   /* SEO internal links */
   .seolinks{position:relative;z-index:2;padding:44px 0 6px;border-top:1px solid var(--line)}
   .seolinks h2{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:center;margin-bottom:18px}
@@ -325,42 +345,13 @@
         <p class="hero-note">Live across Belgium · <b>7 languages</b> · no app to download</p>
       </div>
 
-      <!-- signature moment: the concierge, thinking -->
-      <div class="chat" aria-hidden="true">
-        <div class="chat-top">
-          <span class="orb"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l1.7 5.1L19 8.8l-5.3 1.7L12 16l-1.7-5.5L5 8.8l5.3-1.7z"/><circle cx="18.5" cy="17.5" r="1.3"/></svg></span>
-          <div><div class="who">shou concierge</div><div class="st">near Grand-Place</div></div>
-          <div class="live">Live</div>
-        </div>
-        <div class="chat-body" id="chatBody">
-          <div class="qa on">
-            <div class="bubble me">What should I do tonight?</div>
-            <div class="ai-lead">A couple of ideas a short walk away —</div>
-            <div class="picks">
-              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#ff3d8b,#9b5cff)"></span><div><div class="pt">Late jazz at Sounds</div><div class="pm">400 m · 21:00 · ★ 4.7</div></div><span class="go">→</span></div>
-              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#ff9b3d,#ff3d8b)"></span><div><div class="pt">Rooftop DJ set · Flagey</div><div class="pm">1.2 km · tonight · free</div></div><span class="go">→</span></div>
-            </div>
-          </div>
-          <div class="qa">
-            <div class="bubble me">Un bon resto près d'ici&nbsp;?</div>
-            <div class="ai-lead">Voici deux adresses qu'on adore —</div>
-            <div class="picks">
-              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#38e0a0,#3d7bff)"></span><div><div class="pt">Chez Léon</div><div class="pm">5 min · moules · ★ 4.6</div></div><span class="go">→</span></div>
-              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#9b5cff,#ff3d8b)"></span><div><div class="pt">Bao Bang Bang</div><div class="pm">280 m · ★ 4.8</div></div><span class="go">→</span></div>
-            </div>
-          </div>
-          <div class="qa">
-            <div class="bubble me">Family stuff tomorrow?</div>
-            <div class="ai-lead">Two picks the kids will remember —</div>
-            <div class="picks">
-              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#ff9b3d,#9b5cff)"></span><div><div class="pt">Puppet theatre · Toone</div><div class="pm">11:00 · in your language</div></div><span class="go">→</span></div>
-              <div class="pick"><span class="thumb" style="background:linear-gradient(135deg,#3d7bff,#38e0a0)"></span><div><div class="pt">Museum of Natural Sciences</div><div class="pm">dinosaurs · 900 m</div></div><span class="go">→</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="chat-foot">
-          <div class="fake-input">Ask anything, in any language…</div>
-          <span class="send"><svg viewBox="0 0 24 24" fill="none" stroke="#1a0a12" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <!-- signature moment: the real concierge, cycling live answers -->
+      <div class="hero-shot">
+        <div class="hshot-frame">
+          <img class="hshot on" src="/img/concierge-nightlife.jpg" alt="shou answering a nightlife question with live music and club events near the hotel" fetchpriority="high">
+          <img class="hshot" src="/img/concierge-whatson.jpg" alt="shou answering what's on near the hotel this week" loading="lazy">
+          <img class="hshot" src="/img/concierge-kids.jpg" alt="shou answering a family question with kid-friendly activities near the hotel" loading="lazy">
+          <img class="hshot" src="/img/concierge-surprise.jpg" alt="shou surprising a guest with things to do near the hotel" loading="lazy">
         </div>
       </div>
     </div>
@@ -505,6 +496,24 @@
   </div>
 </section>
 
+<!-- 7b · FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="head center rise">
+      <span class="eyebrow">Questions</span>
+      <h2>Good to know.</h2>
+    </div>
+    <div class="faq">
+      <details class="rise"><summary>What is shou?</summary><div class="fa"><p>shou is Belgium's AI concierge. Ask what's on tonight, from concerts and festivals to restaurants and hidden gems, and get a short, ranked answer in seconds, in your own language.</p></div></details>
+      <details class="rise"><summary>Which cities and languages does shou cover?</summary><div class="fa"><p>shou covers events and places across Belgium, from Brussels, Antwerp and Ghent to Liège and beyond. It answers in seven languages: English, French, Dutch, German, Spanish, Italian and Ukrainian.</p></div></details>
+      <details class="rise"><summary>Do I need to download an app?</summary><div class="fa"><p>No. shou runs in your browser, with no app and no account. Open it, ask a question, and go.</p></div></details>
+      <details class="rise"><summary>How much does shou cost?</summary><div class="fa"><p>For visitors, shou is free to use. Hotels and serviced apartments get their own branded concierge page on a simple monthly plan.</p></div></details>
+      <details class="rise"><summary>How does shou work for hotels and apartments?</summary><div class="fa"><p>You get a branded page and a QR code for each room. Guests scan it and ask anything, 24/7, in their language, so your reception answers fewer repeat questions.</p></div></details>
+      <details class="rise"><summary>Is the information up to date?</summary><div class="fa"><p>Yes. shou tracks more than 20,000 events across Belgium and refreshes hourly, so recommendations reflect what's actually on tonight.</p></div></details>
+    </div>
+  </div>
+</section>
+
 <!-- 8 · NEWSLETTER -->
 <section>
   <div class="wrap">
@@ -587,18 +596,18 @@
     els.forEach(function(e,i){ e.style.transitionDelay = Math.min(i%4*70,210)+'ms'; io.observe(e); });
   })();
 
-  // Hero concierge auto-cycle
+  // Hero concierge auto-cycle (real answers)
   (function(){
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if(reduce) return;
-    var body = document.getElementById('chatBody');
-    if(!body) return;
-    var qas = body.querySelectorAll('.qa'), i = 0;
+    var imgs = document.querySelectorAll('.hshot');
+    if(imgs.length < 2) return;
+    var i = 0;
     setInterval(function(){
-      qas[i].classList.remove('on');
-      i = (i+1) % qas.length;
-      qas[i].classList.add('on');
-    }, 3400);
+      imgs[i].classList.remove('on');
+      i = (i+1) % imgs.length;
+      imgs[i].classList.add('on');
+    }, 3800);
   })();
 
   // Newsletter -> waitlist backend
