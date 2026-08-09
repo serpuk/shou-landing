@@ -244,8 +244,9 @@
   @keyframes mvup{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
   @keyframes mvin{from{transform:scale(.97);opacity:.6}to{transform:none;opacity:1}}
   .mv-hero{position:relative;height:230px;background:linear-gradient(135deg,var(--violet),var(--pink));overflow:hidden}
-  .mv-hero img{width:100%;height:100%;object-fit:cover;display:block}
-  .mv-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,16,30,.55),rgba(20,16,30,0) 55%)}
+  .mv-hero img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block}
+  .mv-hero img.mv-bg{position:absolute;inset:0;z-index:0;object-fit:cover;filter:blur(22px) brightness(.7);transform:scale(1.2)}
+  .mv-scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(20,16,30,.55),rgba(20,16,30,0) 55%)}
   /* Close X: anchored to the overlay (not the hero), floating top-right like the main app's modal */
   .mv-x{position:absolute;top:16px;right:16px;z-index:4;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(20,16,30,.8);backdrop-filter:blur(8px);color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 16px rgba(20,16,30,.3);transition:transform .12s,background .15s}
   .mv-x:hover{background:var(--pink)}
@@ -895,7 +896,7 @@ function buildCardHTML(idx){
   const dist=distLabel(e);
   const hasCoord=Number.isFinite(e.lat)&&Number.isFinite(e.lng);
   const dirUrl='https://www.google.com/maps/dir/?api=1&destination='+(hasCoord?e.lat+','+e.lng:encodeURIComponent(((e.venue||'')+' '+(e.city||'')).trim()||'Brussels'));
-  const hero=e.img?`<img src="${esc(e.img)}" alt="">`:'';
+  const hero=e.img?`<img class="mv-bg" src="${esc(e.img)}" alt="" aria-hidden="true"><img src="${esc(e.img)}" alt="">`:'';
   const seg=e.seg||catLabel(e.categorySlug)||'';
   const genre=(e.genre&&e.genre.toLowerCase()!==String(e.seg||'').toLowerCase())?' · '+e.genre:'';
   const segColor=SEG_COL[(e.categorySlug||'').toLowerCase()]||'var(--dim)';
