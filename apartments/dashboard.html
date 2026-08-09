@@ -634,6 +634,8 @@ $('qiResetBtn').onclick=function(){
     else alert((r.j&&r.j.error)||'Could not reset.');
   }).catch(function(){ b.disabled=false; alert('Could not reset.'); });
 };
+// Asked questions in the Preview tab? Refresh this apartment's stats on return.
+window.addEventListener('focus',function(){ if(editing&&$('editor').classList.contains('show'))loadUnitQuestions(editing.id); });
 /* ---------- invoices (issued automatically on each payment) ---------------- */
 function loadInvoices(){
   api('POST',{action:'invoices'},true).then(function(r){

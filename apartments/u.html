@@ -1542,8 +1542,10 @@ function aiLeadSwap(el,payload,fallback){
 function logQ(intent,kind,answered){
   try{
     if(!U||!U.slug)return;
+    var qb={action:'log_q',slug:U.slug,intent:intent,kind:kind,lang:curLang,answered:answered!==false};
+    if(_pv)qb.pv=_pv;   // preview pass → let the owner's test questions count toward the stats
     fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'log_q',slug:U.slug,intent:intent,kind:kind,lang:curLang,answered:answered!==false})}).catch(function(){});
+      body:JSON.stringify(qb)}).catch(function(){});
   }catch(e){}
 }
 
