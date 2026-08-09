@@ -1557,7 +1557,7 @@ function ask(q){
   var cls=classify(q), w=(U.content&&U.content.welcome)||{};
   // log the intent — and flag welcome-book questions the owner hasn't filled in
   if(cls)logQ(cls.id,cls.t,!(cls.t==='wb'&&!String(w[cls.id]||'').trim()));
-  else logQ('other','events',true);
+  else logQ('events','events',true);   // generic "what's on" → the events engine answers it, so bucket it as What's on (not Other)
   if(cls&&cls.t==='wb'&&String(w[cls.id]||'').trim()){
     addMsg('ai',esc(chr('here'))+'<div class="ans"><span class="wb-ic">'+ICON[cls.id]+'</span><div><div class="k">'+esc(lbl(cls.id))+'</div><div class="v">'+esc(wval(cls.id))+'</div></div></div>');
     asking=false;return;

@@ -105,7 +105,8 @@
   // Best-effort: pull the unit's branding so the card matches its theme + logo.
   // Renders fine without it (default gradient, ?name=) if the fetch fails.
   if(slug){
-    fetch(API+'/apt?slug='+encodeURIComponent(slug))
+    var _pv=p.get('pv');   // preview pass → render the owner's DRAFT branding (theme+logo) even before publish
+    fetch(API+'/apt?slug='+encodeURIComponent(slug)+(_pv?'&pv='+encodeURIComponent(_pv):''))
       .then(function(r){return r.ok?r.json():null;})
       .then(function(d){
         var h=d&&d.unit, b=(h&&h.branding)||{};

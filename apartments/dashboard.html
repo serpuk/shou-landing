@@ -1606,7 +1606,18 @@ function renderPubBox(unit){
   var qr='https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data='+encodeURIComponent(url);
   $('pubQr').src=qr; $('pubUrl').textContent=url;
   $('viewLive').href=url; $('qrDownload').href=qr;
-  $('flyerBtn').href='/apartments/flyer?slug='+encodeURIComponent(unit.slug)+'&name='+encodeURIComponent(unit.name||'');
+  var flyerBase='/apartments/flyer?slug='+encodeURIComponent(unit.slug)+'&name='+encodeURIComponent(unit.name||'');
+  $('flyerBtn').href=flyerBase;   // fallback: published branding if the token fetch fails
+  // Open the flyer with a preview token so it shows the owner's CURRENT (draft)
+  // logo + theme — like the hotels flyer — instead of only the published copy.
+  $('flyerBtn').onclick=function(ev){
+    ev.preventDefault();
+    var w=window.open('','_blank');
+    api('POST',{action:'preview_token',id:unit.id},true).then(function(r){
+      var u=flyerBase+((r.ok&&r.j&&r.j.token)?'&pv='+encodeURIComponent(r.j.token):'');
+      if(w)w.location=u; else window.open(u,'_blank');
+    }).catch(function(){ if(w)w.location=flyerBase; });
+  };
   show(box,true);
 }
 
