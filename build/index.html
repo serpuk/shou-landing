@@ -198,9 +198,13 @@
 <!-- edit item modal -->
 <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(20,16,30,.4);backdrop-filter:blur(2px)">
   <div class="card" style="max-width:720px;margin:5vh auto;background:#fff;max-height:88vh;overflow:auto">
-    <div class="row" style="justify-content:space-between">
-      <h2><span id="edit-verb">Edit</span> <span id="edit-kind" class="chip"></span> <span id="edit-idref" class="chip" title="Copy — reference in a commit/PR" style="display:none;cursor:pointer;font-family:ui-monospace,monospace"></span></h2>
-      <button id="edit-close" class="btn ghost sm">✕</button>
+    <div class="row" style="justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:3;padding-bottom:8px">
+      <h2 style="margin:0"><span id="edit-verb">Edit</span> <span id="edit-kind" class="chip"></span> <span id="edit-idref" class="chip" title="Copy — reference in a commit/PR" style="display:none;cursor:pointer;font-family:ui-monospace,monospace"></span></h2>
+      <div class="row" style="gap:8px;align-items:center">
+        <button id="edit-act" class="btn ghost sm" title="Copy a ready-to-paste Claude prompt (this item + context + build#)" style="display:none">⚡ Act on it</button>
+        <button id="edit-save" class="btn sm">Save</button>
+        <button id="edit-close" class="btn ghost sm">✕</button>
+      </div>
     </div>
     <div id="edit-crumbs" class="dim" style="font-size:12px;margin-top:1px;display:none"></div>
     <div style="margin-top:10px">
@@ -258,11 +262,7 @@
         </div>
       </div>
     </div>
-    <div class="row" style="margin-top:14px;justify-content:space-between">
-      <div class="row" style="gap:8px">
-        <button id="edit-save" class="btn">Save</button>
-        <button id="edit-act" class="btn ghost sm" title="Copy a ready-to-paste Claude prompt (this item + context + build#)" style="display:none">⚡ Act on it</button>
-      </div>
+    <div class="row" style="margin-top:16px;justify-content:flex-end;border-top:1px solid var(--line);padding-top:12px">
       <button id="edit-del" class="btn ghost sm" style="color:#c81e5b;border-color:rgba(200,30,91,.35)">Delete</button>
     </div>
   </div>
