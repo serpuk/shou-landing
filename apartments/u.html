@@ -1464,6 +1464,73 @@ var INTENTS=[
 function classify(q){var s=toks(q);for(var i=0;i<INTENTS.length;i++){var it=INTENTS[i];for(var j=0;j<it.kw.length;j++){var k=fold(it.kw[j]);var hit=(k.indexOf(' ')>=0||k.length>=5)?s.indexOf(k)>=0:s.indexOf(' '+k+' ')>=0;if(hit)return it;}}return null;}
 var REC_LEAD={dinner:{en:'For dinner, the host recommends:',fr:"Pour dîner, l'hôte recommande :",nl:'Om te eten raadt je gastheer aan:',de:'Zum Essen empfiehlt der Gastgeber:',es:'Para comer, el anfitrión recomienda:',it:"Per mangiare, l'host consiglia:",uk:'Поїсти господар радить:'},coffee:{en:'For coffee, the host recommends:',fr:"Pour un café, l'hôte recommande :",nl:'Voor koffie raadt je gastheer aan:',de:'Für einen Kaffee empfiehlt der Gastgeber:',es:'Para un café, el anfitrión recomienda:',it:"Per un caffè, l'host consiglia:",uk:'На каву господар радить:'},bar:{en:'For a drink, the host recommends:',fr:"Pour un verre, l'hôte recommande :",nl:'Voor een drankje raadt je gastheer aan:',de:'Für einen Drink empfiehlt der Gastgeber:',es:'Para una copa, el anfitrión recomienda:',it:"Per un drink, l'host consiglia:",uk:'Випити господар радить:'}};
 var REC_Q={dinner:'restaurants',breakfast:'breakfast brunch',coffee:'coffee',bar:'bars'};
+// A MIX intent blends several pick categories into one answer. "Breakfast" has
+// no pick bucket of its own, so it reads the host's bakery + coffee picks as
+// "morning spots" instead of dead-ending to a Maps search. Ported from hotels.
+var MIX_INTENT={breakfast:['bakery','coffee']};
+// Tone-aware lead-in phrases, keyed on the host's chosen voice (branding.tone,
+// one of host/concierge/brief/playful — same enum the backend whitelists). The
+// neutral per-intent REC_LEAD / chr() strings stay the fallback when no voice is
+// set. kind: 'one' = single pick, 'many' = several, 'maps' = a Maps search.
+var LEAD_TONE={
+  host:{
+    en:{one:'We love this one:',many:'A few places we always send guests:',maps:'Let’s find you a spot:'},
+    fr:{one:'On adore cette adresse :',many:'Quelques endroits qu’on recommande toujours :',maps:'On vous trouve ça :'},
+    nl:{one:'Deze vinden we top:',many:'Een paar plekken waar we gasten altijd heen sturen:',maps:'We zoeken iets voor je:'},
+    de:{one:'Die lieben wir:',many:'Ein paar Orte, die wir immer empfehlen:',maps:'Wir finden dir etwas:'},
+    es:{one:'Esta nos encanta:',many:'Unos sitios que siempre recomendamos:',maps:'Te buscamos un sitio:'},
+    it:{one:'Questo ci piace tantissimo:',many:'Un paio di posti che consigliamo sempre:',maps:'Ti troviamo un posto:'},
+    uk:{one:'Ми обожнюємо це місце:',many:'Кілька місць, куди ми завжди радимо:',maps:'Знайдемо тобі місце:'}
+  },
+  concierge:{
+    en:{one:'Certainly — our recommendation:',many:'With pleasure — a few we suggest:',maps:'Allow me to search nearby:'},
+    fr:{one:'Certainement — notre recommandation :',many:'Avec plaisir — quelques suggestions :',maps:'Permettez-moi de chercher à proximité :'},
+    nl:{one:'Zeker — onze aanbeveling:',many:'Met genoegen — enkele suggesties:',maps:'Sta me toe in de buurt te zoeken:'},
+    de:{one:'Sehr gern — unsere Empfehlung:',many:'Mit Vergnügen — einige Vorschläge:',maps:'Gestatten Sie, in der Nähe zu suchen:'},
+    es:{one:'Por supuesto — nuestra recomendación:',many:'Con mucho gusto — algunas sugerencias:',maps:'Permítame buscar en los alrededores:'},
+    it:{one:'Certamente — la nostra raccomandazione:',many:'Con piacere — alcuni suggerimenti:',maps:'Mi permetta di cercare nelle vicinanze:'},
+    uk:{one:'Безумовно — наша рекомендація:',many:'Із задоволенням — кілька пропозицій:',maps:'Дозвольте пошукати поблизу:'}
+  },
+  brief:{
+    en:{one:'Our pick:',many:'Our picks:',maps:'Search nearby:'},
+    fr:{one:'Notre adresse :',many:'Nos adresses :',maps:'À proximité :'},
+    nl:{one:'Onze tip:',many:'Onze tips:',maps:'In de buurt:'},
+    de:{one:'Unser Tipp:',many:'Unsere Tipps:',maps:'In der Nähe:'},
+    es:{one:'Nuestra elección:',many:'Nuestras elecciones:',maps:'Cerca de aquí:'},
+    it:{one:'Il nostro consiglio:',many:'I nostri consigli:',maps:'Qui vicino:'},
+    uk:{one:'Наш вибір:',many:'Наші поради:',maps:'Поблизу:'}
+  },
+  playful:{
+    en:{one:'Ooh, you’ll love this:',many:'Ooh, spoiled for choice:',maps:'Let’s hunt something down:'},
+    fr:{one:'Oh, vous allez adorer :',many:'Oh là, l’embarras du choix :',maps:'On part à la chasse :'},
+    nl:{one:'Oh, hier ga je van houden:',many:'Oei, keuze zat:',maps:'We gaan op jacht:'},
+    de:{one:'Oh, das wirst du lieben:',many:'Ooh, die Qual der Wahl:',maps:'Auf die Jagd:'},
+    es:{one:'Uy, te va a encantar:',many:'Uy, para elegir y no parar:',maps:'A la caza de algo:'},
+    it:{one:'Ooh, ti piacerà da matti:',many:'Ooh, c’è l’imbarazzo della scelta:',maps:'Andiamo a caccia:'},
+    uk:{one:'О, тобі це сподобається:',many:'О, є з чого вибрати:',maps:'Гайда на пошуки:'}
+  }
+};
+function hostTone(){ return (U.branding&&U.branding.tone)||null; }
+// Neutral fallback wins when no voice is set; otherwise the voice phrase.
+function pickLead(kind,intentId){
+  var tn=hostTone();
+  var m=tn&&LEAD_TONE[tn]&&LEAD_TONE[tn][curLang]&&LEAD_TONE[tn][curLang][kind];
+  if(m)return m;
+  if(kind==='maps')return chr('nearby');
+  if(intentId&&REC_LEAD[intentId])return REC_LEAD[intentId][curLang]||REC_LEAD[intentId].en;
+  return chr(kind==='one'?'hostpick1':'hostpicks');
+}
+// Show the fixed lead instantly, then (only when a voice is set) swap in a
+// fresh AI-written one in that voice. Best-effort: any failure keeps the fixed
+// phrase. textContent throughout, so a lead can never inject markup.
+function aiLeadSwap(el,payload,fallback){
+  if(!el)return;
+  el.textContent=fallback;
+  var tn=hostTone(); if(!tn)return;
+  payload.tone=tn;
+  fetch(API+'/concierge-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();}).then(function(d){ if(d&&d.lead)el.textContent=d.lead; }).catch(function(){});
+}
 
 // Aggregate-only signal for the owner's "what guests asked" digest: the matched
 // intent id, never the question itself. Fire-and-forget; never blocks the guest.
@@ -1503,28 +1570,48 @@ function ask(q){
   // The host's own picks beat a generic map search — that curation is the whole
   // point of a hosted apartment. Falls through when the owner has added none.
   if(cls&&cls.t==='rec'){
-    var picks=((U.content&&U.content.picks)||{})[cls.id]||[];
-    if(picks.length){
+    var pk=(U.content&&U.content.picks)||{};
+    var mixCats=MIX_INTENT[cls.id];   // breakfast → blend bakery + coffee picks
+    var list=[];
+    if(mixCats)mixCats.forEach(function(c){ (pk[c]||[]).forEach(function(p){ if(p&&p.n)list.push({p:p,c:c}); }); });
+    else (pk[cls.id]||[]).forEach(function(p){ if(p&&p.n)list.push({p:p,c:cls.id}); });
+    if(list.length){
+      // Blended answers dedupe by name and interleave by distance; a single
+      // category keeps the host's own order.
+      if(mixCats){
+        var pMeters=function(p){var s=String((p&&p.dist)||'').toLowerCase().replace(',','.');var m=s.match(/([\d.]+)\s*(km|m)\b/);if(!m)return 1e9;var v=parseFloat(m[1]);return m[2]==='km'?v*1000:v;};
+        var seen={};
+        list=list.filter(function(x){var k=String(x.p.n||'').toLowerCase();if(seen[k])return false;seen[k]=1;return true;})
+                 .sort(function(a,b){return pMeters(a.p)-pMeters(b.p);});
+      }
       var addr=U.address||'Brussels';
-      var rows=picks.map(function(p){return pickCard(p,cls.id,addr);}).join('');
+      var rows=list.map(function(x){return pickCard(x.p,x.c,addr);}).join('');
       // One map with every pick on it — the part that makes this read as places
       // rather than as a list. Only when we actually know where they are.
       // The same map as "Where you are", holding only what this answer named.
-      var pts=picks.filter(function(p){return isFinite(p.lat)&&isFinite(p.lng);})
-                   .map(function(p){return pickPoint(p,cls.id);});
+      var pts=list.filter(function(x){return isFinite(x.p.lat)&&isFinite(x.p.lng);})
+                  .map(function(x){return pickPoint(x.p,x.c);});
       var mapId='', mapEl='';
       if(pts.length&&U.lat&&U.lng){
         mapId='askMap'+(++_askMapN);        // a conversation can hold several
         mapEl='<div class="pick-map" id="'+mapId+'"></div>';
       }
       // Category-aware and number-neutral, so it reads right for one pick or five.
-      var lead=(REC_LEAD[cls.id]&&(REC_LEAD[cls.id][curLang]||REC_LEAD[cls.id].en))
-               ||chr(picks.length===1?'hostpick1':'hostpicks');
-      var pickMsg=addMsg('ai',esc(lead)
+      var kind=list.length===1?'one':'many';
+      var moreQ=REC_Q[cls.id]||cls.id;
+      // Lead shows instantly (fixed, category-aware), then swaps to an AI-written
+      // one in the host's voice when a voice is set.
+      var pickMsg=addMsg('ai','<div class="lead-ln"></div>'
         +'<div class="picks">'+rows+'</div>'+mapEl
-        +'<a class="pick-more" href="'+esc(maps(REC_Q[cls.id]+' near '+addr))+'" target="_blank" rel="noopener">'
+        +'<a class="pick-more" href="'+esc(maps(moreQ+' near '+addr))+'" target="_blank" rel="noopener">'
         +esc(chr('pkAll'))+' \u2197</a>');
-      if(pickMsg)pickMsg.className='msg ai wide';
+      if(pickMsg){
+        pickMsg.className='msg ai wide';
+        aiLeadSwap(pickMsg.querySelector('.lead-ln'),
+          {kind:kind,lang:curLang,query:q,hotel:(U.name||''),
+           picks:list.slice(0,6).map(function(x){return {name:x.p.n,cat:(lbl(x.c)||x.c),dist:x.p.dist,rating:x.p.grating};})},
+          pickLead(kind,cls.id));
+      }
       if(mapId)drawPlaceMap(mapId,pts);
       asking=false;return;
     }
@@ -1532,7 +1619,15 @@ function ask(q){
   if(cls&&(cls.t==='poi'||cls.t==='rec')){
     var near=U.address?(' near '+U.address):' Brussels';
     var qy=(cls.t==='poi'?({supermarket:'supermarket',pharmacy:'pharmacy',bakery:'bakery',transport:'metro tram',atm:'atm',attractions:'tourist attractions',taxi:'taxi rank'})[cls.id]:REC_Q[cls.id]);
-    addMsg('ai',esc(chr('nearby'))+'<div class="ans"><span class="wb-ic">'+(ICON[cls.id]||'📍')+'</span><div><div class="k">'+esc(lbl(cls.id)||cls.id)+'</div><a href="'+esc(maps(qy+near))+'" target="_blank" rel="noopener">'+esc(chr('seemap'))+' ↗</a></div></div>');
+    var fbody='<div class="ans"><span class="wb-ic">'+(ICON[cls.id]||'📍')+'</span><div><div class="k">'+esc(lbl(cls.id)||cls.id)+'</div><a href="'+esc(maps(qy+near))+'" target="_blank" rel="noopener">'+esc(chr('seemap'))+' ↗</a></div></div>';
+    // Food intents with no host pick get a voiced "let's find you a spot" lead
+    // (tone + AI); plain POIs keep the neutral "nearest options" line.
+    if(cls.t==='rec'){
+      var fm=addMsg('ai','<div class="lead-ln"></div>'+fbody);
+      if(fm)aiLeadSwap(fm.querySelector('.lead-ln'),{kind:'maps',lang:curLang,query:q,hotel:(U.name||''),mapsLabel:(lbl(cls.id)||cls.id)},pickLead('maps',cls.id));
+    } else {
+      addMsg('ai',esc(chr('nearby'))+fbody);
+    }
     asking=false;return;
   }
   var typing=document.createElement('div');typing.className='typing';typing.textContent=chr('thinking');document.getElementById('msgs').appendChild(typing);
