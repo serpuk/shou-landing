@@ -737,11 +737,16 @@ async function loadStats(id){
   const leadDays=started?((new Date(done||Date.now())-new Date(started))/86400000):null;
   const lead=leadDays==null?'—':(leadDays>=1?Math.round(leadDays)+'d':Math.max(1,Math.round(leadDays*24))+'h');
   const total=(s&&s.commits)||commits.length||0,machine=(s&&s.machine)||0,human=(s&&s.human)||0;
+  // Human time isn't tracked — estimate it as commits × ~12 min of review/direction
+  // (one feedback cycle per commit). Tune HUMAN_MIN_PER_COMMIT to taste.
+  const HUMAN_MIN_PER_COMMIT=12,hMin=total*HUMAN_MIN_PER_COMMIT;
+  const humanEst=hMin>=90?(Math.round(hMin/60*10)/10)+'h':hMin+'m';
   $('edit-stats').innerHTML=`<div class="row" style="gap:16px;flex-wrap:wrap;font-size:12px">
     ${startedReal?statPill('Started',fmtDate(started)):(it.created_at?statPill('Created',fmtDate(it.created_at)):'')}
     ${done?statPill('Done',fmtDate(done)):''}
-    ${statPill(done?'Lead time':'Elapsed',lead)}
-    ${statPill('Commits',total?`${total} <span class="dim">·</span> ${machine}⚙${human?' '+human+'👤':''}`:'<span class="dim">syncing…</span>')}
+    <span title="Calendar time from first to last activity — how long the task spanned, NOT hours worked by anyone"><span class="dim">${done?'Lead time':'Open'}</span> <b>${lead}</b></span>
+    ${statPill('Commits',total?`${total} <span class="dim">(${machine}⚙ ${human}👤)</span>`:'<span class="dim">syncing…</span>')}
+    ${total?`<span title="Rough estimate of HUMAN effort (review + direction): ${total} commits × ~${HUMAN_MIN_PER_COMMIT} min. Not measured time. Machine generation time is minutes, not shown."><span class="dim">Human effort</span> <b>~${humanEst}</b> <span class="dim">est</span></span>`:''}
   </div>`;
   const cs=commits.slice(0,8);
   $('edit-commits').innerHTML=cs.length?cs.map(c=>`
