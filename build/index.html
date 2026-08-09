@@ -685,6 +685,15 @@ function cmInitial(n){return (String(n||'?').trim()[0]||'?').toUpperCase();}
 function cmHue(n){let h=0;for(const c of String(n||''))h=(h+c.charCodeAt(0))%360;return h;}
 function avatarHtml(name,size){const s=size||30;return `<div style="flex:none;width:${s}px;height:${s}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${Math.round(s*0.44)}px;font-weight:700;color:#fff;background:hsl(${cmHue(name)},58%,55%)">${esc(cmInitial(name))}</div>`;}
 function relTime(iso){if(!iso)return'';const d=new Date(iso),s=(Date.now()-d.getTime())/1000;if(s<45)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString(undefined,{day:'numeric',month:'short'});}
+/* git-hours: active time from commit gaps. Gaps < maxGap = continuous work;
+   a bigger gap = a break/new session that only adds a ramp, not the idle hours. */
+function activeMinutes(times,maxGap=90,ramp=30){
+  const t=times.map(x=>new Date(x).getTime()).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
+  if(!t.length)return 0;
+  let tot=ramp;
+  for(let i=1;i<t.length;i++){const g=(t[i]-t[i-1])/60000;tot+=g<maxGap?g:ramp;}
+  return Math.round(tot);
+}
 function renderComments(list){
   $('edit-comments').innerHTML=list.length?list.map(c=>`
     <div data-cm="${c.id}" class="cm-row" style="display:flex;gap:9px;padding:8px 0">
@@ -737,16 +746,16 @@ async function loadStats(id){
   const leadDays=started?((new Date(done||Date.now())-new Date(started))/86400000):null;
   const lead=leadDays==null?'—':(leadDays>=1?Math.round(leadDays)+'d':Math.max(1,Math.round(leadDays*24))+'h');
   const total=(s&&s.commits)||commits.length||0,machine=(s&&s.machine)||0,human=(s&&s.human)||0;
-  // Human time isn't tracked — estimate it as commits × ~12 min of review/direction
-  // (one feedback cycle per commit). Tune HUMAN_MIN_PER_COMMIT to taste.
-  const HUMAN_MIN_PER_COMMIT=12,hMin=total*HUMAN_MIN_PER_COMMIT;
-  const humanEst=hMin>=90?(Math.round(hMin/60*10)/10)+'h':hMin+'m';
+  // Active in-the-loop time from commit-gap analysis (git-hours) — a real proxy
+  // for human review/direction; Claude's own generation is only minutes of it.
+  const actMin=activeMinutes(commits.map(c=>c.committed_at).filter(Boolean));
+  const actStr=actMin>=90?(Math.round(actMin/60*10)/10)+'h':actMin+'m';
   $('edit-stats').innerHTML=`<div class="row" style="gap:16px;flex-wrap:wrap;font-size:12px">
     ${startedReal?statPill('Started',fmtDate(started)):(it.created_at?statPill('Created',fmtDate(it.created_at)):'')}
     ${done?statPill('Done',fmtDate(done)):''}
-    <span title="Calendar time from first to last activity — how long the task spanned, NOT hours worked by anyone"><span class="dim">${done?'Lead time':'Open'}</span> <b>${lead}</b></span>
+    <span title="Elapsed calendar time from first to last activity — how long the task spanned, NOT hours worked"><span class="dim">${done?'Lead time':'Open'}</span> <b>${lead}</b></span>
     ${statPill('Commits',total?`${total} <span class="dim">(${machine}⚙ ${human}👤)</span>`:'<span class="dim">syncing…</span>')}
-    ${total?`<span title="Rough estimate of HUMAN effort (review + direction): ${total} commits × ~${HUMAN_MIN_PER_COMMIT} min. Not measured time. Machine generation time is minutes, not shown."><span class="dim">Human effort</span> <b>~${humanEst}</b> <span class="dim">est</span></span>`:''}
+    ${commits.length?`<span title="Estimated ACTIVE time from commit gaps: continuous where commits are <90 min apart, +30 min ramp per session. Strips out idle time — a real proxy for human review/direction. Claude's own generation is only a few minutes of it."><span class="dim">Active</span> <b>~${actStr}</b> <span class="dim">est</span></span>`:''}
   </div>`;
   const cs=commits.slice(0,8);
   $('edit-commits').innerHTML=cs.length?cs.map(c=>`
