@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guest card — shou</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#15101b;--soft:#5b5566;--dim:#8a8494;--line:rgba(20,16,30,.12);
+        --pink:#ff3d8b;--orange:#ff9b3d;--violet:#9b5cff;
+        --grad:linear-gradient(105deg,var(--pink),var(--orange))}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f4f1f8;font-family:'Inter',system-ui,sans-serif;color:var(--ink);padding:26px 16px}
+  .bar{max-width:640px;margin:0 auto 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .bar h1{font-family:'Fraunces';font-size:19px;font-weight:600}
+  .btn{margin-left:auto;font-family:inherit;font-weight:700;font-size:14px;padding:10px 18px;border:none;border-radius:11px;background:var(--grad);color:#fff;cursor:pointer}
+  .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:600;margin-left:0}
+  .hint{max-width:640px;margin:0 auto 18px;color:var(--soft);font-size:13.5px}
+
+  /* The card itself — A6-ish, sized to sit on a desk or the kitchen counter. */
+  .card{width:420px;max-width:100%;margin:0 auto;background:#fff;border-radius:22px;
+        box-shadow:0 18px 44px -18px rgba(20,16,30,.35);overflow:hidden;
+        border:1px solid var(--line)}
+  .top{background:linear-gradient(140deg,var(--violet),var(--pink));padding:22px 28px;color:#fff}
+  .top .brandrow{display:flex;align-items:center;gap:15px}
+  .top .logo{height:52px;max-width:112px;object-fit:contain;background:#fff;border-radius:12px;padding:7px 9px;flex:none;display:none}
+  .top .hotel{font-family:'Fraunces';font-weight:700;font-size:24px;line-height:1.12}
+  .top .kicker{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;opacity:.85;margin-bottom:4px}
+  .body{padding:24px 28px 26px;text-align:center}
+  .body h2{font-family:'Fraunces';font-weight:600;font-size:20px;margin-bottom:6px}
+  .body p{color:var(--soft);font-size:14px;margin-bottom:18px}
+  .qr{width:210px;height:210px;margin:0 auto;display:block;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff}
+  .url{font-size:12.5px;color:var(--dim);margin-top:12px;word-break:break-all}
+  .feats{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:18px}
+  .feat{font-size:11.5px;font-weight:600;color:var(--soft);background:#f4f1f8;border-radius:999px;padding:5px 11px}
+  .foot{border-top:1px solid var(--line);padding:13px 28px;text-align:center;font-size:11.5px;color:var(--dim)}
+
+  @media print{
+    body{background:#fff;padding:0}
+    .bar,.hint{display:none}
+    .card{box-shadow:none;border:1px solid #ddd;margin:0 auto}
+    @page{margin:14mm}
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <h1>Guest card</h1>
+    <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+  <p class="hint">Print this and leave it in the apartment — on the counter, the desk or the fridge. Guests scan it — no app, no login.</p>
+
+  <div class="card">
+    <div class="top">
+      <div class="brandrow">
+        <img class="logo" id="logo" alt="">
+        <div>
+          <div class="kicker">Your local concierge</div>
+          <div class="hotel" id="hotel">Your apartment</div>
+        </div>
+      </div>
+    </div>
+    <div class="body">
+      <h2 id="h2">What is on tonight?</h2>
+      <p id="sub">Scan for concerts, dining and what is happening around you — in your language.</p>
+      <img class="qr" id="qr" alt="QR code to the guest page">
+      <div class="url" id="url"></div>
+      <div class="feats">
+        <span class="feat">🎭 What is on nearby</span>
+        <span class="feat">🍽 Where to eat</span>
+        <span class="feat">🌍 In your language</span>
+        <span class="feat">📱 No app needed</span>
+      </div>
+    </div>
+    <div class="foot">powered by <b>shou</b> · shou.be</div>
+  </div>
+
+<script>
+(function(){
+  var API='https://shou-backend.vercel.app/api';
+  // Per-theme header, mirroring the guest page. LIGHT themes get their accent
+  // gradient. DARK themes (bold/boutique) get a DARK header with a neon-accent
+  // kicker — otherwise bold's pink→orange accent is indistinguishable from the
+  // default shou band and the card looks unbranded.
+  var THEME={
+    warm:         {grad:'linear-gradient(140deg,#c2622f,#e0913f)'},
+    nordic:       {grad:'linear-gradient(140deg,#3d7ea6,#6aa3c0)'},
+    botanical:    {grad:'linear-gradient(140deg,#2f7d5b,#6fae74)'},
+    mediterranean:{grad:'linear-gradient(140deg,#c1683f,#dda15e)'},
+    bold:         {bg:'#17141d',accent:'#ff4d8d'},
+    boutique:     {bg:'#191713',accent:'#c9a227'}
+  };
+  var p=new URLSearchParams(location.search);
+  var slug=(p.get('slug')||'').replace(/[^a-z0-9-]/gi,'');
+  var name=p.get('name')||'Your apartment';
+  var url='https://shou.be/apartments/u/'+slug;
+  document.getElementById('hotel').textContent=name;
+  document.getElementById('url').textContent='shou.be/apartments/u/'+slug;
+  // High error-correction so the code still scans after printing/creasing.
+  document.getElementById('qr').src='https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=0&ecc=H&color=15101b&data='+encodeURIComponent(url);
+  document.title=name+' — guest card';
+  // Best-effort: pull the unit's branding so the card matches its theme + logo.
+  // Renders fine without it (default gradient, ?name=) if the fetch fails.
+  if(slug){
+    fetch(API+'/apt?slug='+encodeURIComponent(slug))
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var h=d&&d.unit, b=(h&&h.branding)||{};
+        if(h&&h.name){document.getElementById('hotel').textContent=h.name;document.title=h.name+' — guest card';}
+        var th=THEME[b.theme];
+        if(th){
+          var top=document.querySelector('.top');
+          if(th.grad){ top.style.background=th.grad; }
+          else{ top.style.background=th.bg; var k=top.querySelector('.kicker'); if(k){k.style.color=th.accent;k.style.opacity='1';} }
+        }
+        if(b.logo){var lg=document.getElementById('logo');lg.src=b.logo;lg.style.display='inline-block';}
+      }).catch(function(){});
+  }
+})();
+</script>
+</body>
+</html>

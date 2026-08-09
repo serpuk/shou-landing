@@ -81,6 +81,10 @@
       "destination": "/apartments/invoice.html"
     },
     {
+      "source": "/apartments/flyer",
+      "destination": "/apartments/flyer.html"
+    },
+    {
       "source": "/apartments/u/:slug",
       "destination": "/apartments/u.html?u=:slug"
     },
