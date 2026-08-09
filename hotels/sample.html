@@ -139,7 +139,7 @@
   /* premium hotel card (replaces the map). Per hotel: set a photo background and
      swap .hc-name for the hotel's white logo <img class="hc-logo">. Branding is
      applied at runtime from the hotel's saved photo/logo/theme (see loadPortal). */
-  .hotelcard{position:relative;border-radius:20px;overflow:hidden;min-height:430px;display:flex;background-size:cover;background-position:center;box-shadow:0 18px 44px rgba(20,16,30,.24)}
+  .hotelcard{position:relative;border-radius:20px;overflow:hidden;min-height:430px;display:flex;background:var(--grad);background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 18px 44px rgba(20,16,30,.24)}
   .hc-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,16,27,.12) 0%,rgba(21,16,27,0) 40%,rgba(21,16,27,.55) 74%,rgba(21,16,27,.88) 100%)}
   .hc-body{position:relative;z-index:2;margin-top:auto;width:100%;padding:26px 24px 24px;display:flex;flex-direction:column;gap:13px;color:#fff}
   .hc-name{font-family:'Fraunces';font-weight:700;font-size:26px;line-height:1.05;text-shadow:0 2px 10px rgba(0,0,0,.45)}
@@ -1597,6 +1597,12 @@ async function loadPortal(){
   // marketing demo, so the public sample never regresses to an empty page.
   const explicit=!!(qslug||pseg);
   const slug=qslug||pseg||'sample-hotel';
+  // Real hotel (explicit slug): drop the hardcoded /img/brussels-tonight.jpg demo
+  // hero to a themed gradient RIGHT NOW — synchronously, before the branding
+  // fetch — so the guest never sees the sample image flash in before this hotel's
+  // own photo is applied (and preloaded) below. The bare /hotels/sample demo is
+  // left untouched, keeping its instant hardcoded hero.
+  if(explicit){const _hc=document.querySelector('.hotelcard'); if(_hc)_hc.style.backgroundImage='var(--grad)';}
   try{
     const r=await fetch(`${API}/hotel-portal`,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'public_content',slug})});
@@ -1631,8 +1637,13 @@ async function loadPortal(){
     const b=(h.branding&&typeof h.branding==='object')?h.branding:{};
     // Hero cover: override the hardcoded /img/brussels-tonight.jpg only when the
     // hotel supplied its own photo (u.html applies the same url() to .hcard).
+    // Preload the hotel's own photo and swap it in only once it has fully
+    // decoded, so the hero goes gradient → real photo in one clean step (never a
+    // half-painted image, never the demo photo first).
     if(b.photo){const hcard=document.querySelector('.hotelcard');
-      if(hcard)hcard.style.backgroundImage="url('"+b.photo+"')";}
+      if(hcard){const _im=new Image();
+        _im.onload=function(){hcard.style.backgroundImage="url('"+b.photo+"')";};
+        _im.src=b.photo;}}
     // Logo badge: swap the initial tile for the hotel's own mark when supplied.
     // b.logo is server-whitelisted to a bare https URL, so setting img.src is safe.
     if(b.logo){const lg=document.querySelector('.hlogo');
