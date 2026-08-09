@@ -652,12 +652,14 @@ function render(){
   document.title=(U.name||'Guest Companion')+' · powered by shou';
   // Option text is the language NAME only — the flag lives beside the select as
   var photo=(U.branding&&U.branding.photo)?('background-image:url(\''+U.branding.photo+'\')'):'';
-  // A logo, if the owner set one, wins the header badge over the photo/monogram —
-  // it is the truest brand mark. Contained on white so transparent PNGs read.
+  // Header badge = the owner's logo (contained on white so transparent PNGs
+  // read), else the name's monogram. Never the hero PHOTO: a cover-cropped photo
+  // in a 44px badge reads as a random thumbnail, not a brand mark (matches how
+  // the hotels guest page does it). The photo stays the hero background below.
   var logo=(U.branding&&U.branding.logo)||'';
-  var hlogoCls=logo?' haslogo':(photo?' hasimg':'');
-  var hlogoIn=logo?('<img src="'+String(logo).replace(/"/g,'&quot;')+'" alt="">'):(photo?'':esc(monogram(U.name)));
-  var hlogoSt=(!logo&&photo)?(' style="'+photo+'"'):'';
+  var hlogoCls=logo?' haslogo':'';
+  var hlogoIn=logo?('<img src="'+String(logo).replace(/"/g,'&quot;')+'" alt="">'):esc(monogram(U.name));
+  var hlogoSt='';
   // SVG, because an <option> can't contain markup and emoji flags break on Windows.
   var langOpts=LANGS.map(function(l){return '<option value="'+l.c+'"'+(l.c===curLang?' selected':'')+'>'+l.n+'</option>';}).join('');
   document.getElementById('root').innerHTML=
