@@ -237,13 +237,23 @@
         <div id="edit-dep-results" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:5;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 26px -12px rgba(20,16,30,.3);max-height:210px;overflow:auto;margin-top:2px"></div>
         <div id="edit-dep-chips" class="row" style="gap:6px;margin-top:6px"></div>
       </div>
+      <div id="edit-stats-wrap" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;display:none">
+        <label class="dim" style="font-size:12px">Activity</label>
+        <div id="edit-stats" style="margin-top:8px"></div>
+        <div id="edit-commits" style="margin-top:8px"></div>
+      </div>
       <div id="edit-comments-wrap" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
         <label class="dim" style="font-size:12px">Comments</label>
-        <div id="edit-comments" style="margin-top:6px"></div>
-        <div class="row" style="gap:6px;margin-top:8px">
-          <input class="f" id="edit-comment-author" placeholder="You" style="width:110px">
-          <input class="f" id="edit-comment-body" placeholder="Add a comment…" style="flex:1">
-          <button id="edit-comment-add" class="btn sm">Post</button>
+        <div id="edit-comments" style="margin-top:8px"></div>
+        <div class="row" style="gap:9px;margin-top:12px;align-items:flex-start">
+          <div id="edit-comment-avatar" style="flex:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#ff3d8b,#ff9b3d)">Y</div>
+          <div style="flex:1;min-width:0">
+            <textarea class="f" id="edit-comment-body" placeholder="Add a comment…  (⌘/Ctrl+Enter to post)" rows="2" style="width:100%;resize:vertical;font:inherit"></textarea>
+            <div class="row" style="gap:8px;margin-top:6px;justify-content:flex-end;align-items:center">
+              <input class="f" id="edit-comment-author" placeholder="Your name" style="width:130px">
+              <button id="edit-comment-add" class="btn sm">Comment</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -669,23 +679,65 @@ async function loadComments(id){
   $('edit-comments').innerHTML='<span class="dim" style="font-size:12px">Loading…</span>';
   try{const d=await api('comments',{query:{itemId:id}});renderComments(d.comments||[]);}catch(e){$('edit-comments').innerHTML='';}
 }
+/* avatar + relative-time helpers (shared by comments + activity) */
+function cmInitial(n){return (String(n||'?').trim()[0]||'?').toUpperCase();}
+function cmHue(n){let h=0;for(const c of String(n||''))h=(h+c.charCodeAt(0))%360;return h;}
+function avatarHtml(name,size){const s=size||30;return `<div style="flex:none;width:${s}px;height:${s}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${Math.round(s*0.44)}px;font-weight:700;color:#fff;background:hsl(${cmHue(name)},58%,55%)">${esc(cmInitial(name))}</div>`;}
+function relTime(iso){if(!iso)return'';const d=new Date(iso),s=(Date.now()-d.getTime())/1000;if(s<45)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString(undefined,{day:'numeric',month:'short'});}
 function renderComments(list){
   $('edit-comments').innerHTML=list.length?list.map(c=>`
-    <div data-cm="${c.id}" style="padding:7px 0;border-bottom:1px solid rgba(20,16,30,.06)">
-      <div class="row" style="gap:8px"><b style="font-size:12.5px">${esc(c.author||'—')}</b><span class="dim" style="font-size:11.5px">${fmtDate(c.created_at)}</span><span class="dim cm-del" style="font-size:11.5px;margin-left:auto;cursor:pointer" title="Delete">✕</span></div>
-      <div style="font-size:13px;white-space:pre-wrap;margin-top:2px">${esc(c.body)}</div>
-    </div>`).join(''):'<span class="dim" style="font-size:12px">No comments yet.</span>';
-  $('edit-comments').querySelectorAll('[data-cm]').forEach(row=>{
-    row.querySelector('.cm-del').onclick=async()=>{if(!confirm('Delete comment?'))return;try{await api('comment_delete',{method:'POST',body:{id:+row.getAttribute('data-cm')}});loadComments(editId);}catch(e){toast(e.message||'Failed');}};
+    <div data-cm="${c.id}" class="cm-row" style="display:flex;gap:9px;padding:8px 0">
+      ${avatarHtml(c.author,30)}
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <b style="font-size:13px">${esc(c.author||'Someone')}</b>
+          <span class="dim" style="font-size:11.5px" title="${esc(fmtDate(c.created_at))}">${relTime(c.created_at)}</span>
+          <span class="cm-del" style="font-size:12px;margin-left:auto;cursor:pointer;color:#c81e5b;opacity:0;transition:opacity .12s" title="Delete">✕</span>
+        </div>
+        <div style="font-size:13px;line-height:1.5;white-space:pre-wrap;margin-top:2px">${esc(c.body)}</div>
+      </div>
+    </div>`).join(''):'<span class="dim" style="font-size:12px">No comments yet — start the thread.</span>';
+  $('edit-comments').querySelectorAll('.cm-row').forEach(row=>{
+    const del=row.querySelector('.cm-del');
+    row.onmouseenter=()=>{if(del)del.style.opacity='.7';};
+    row.onmouseleave=()=>{if(del)del.style.opacity='0';};
+    if(del)del.onclick=async()=>{if(!confirm('Delete comment?'))return;try{await api('comment_delete',{method:'POST',body:{id:+row.getAttribute('data-cm')}});loadComments(editId);}catch(e){toast(e.message||'Failed');}};
   });
 }
+function refreshComposerAvatar(){const n=$('edit-comment-author').value.trim()||'You';const a=$('edit-comment-avatar');a.textContent=cmInitial(n);a.style.background=n==='You'?'linear-gradient(135deg,#ff3d8b,#ff9b3d)':`hsl(${cmHue(n)},58%,55%)`;}
+$('edit-comment-author').addEventListener('input',refreshComposerAvatar);
 $('edit-comment-add').onclick=async()=>{
   if(!editId)return;const body=$('edit-comment-body').value.trim();if(!body)return;
-  const author=$('edit-comment-author').value.trim();const b=$('edit-comment-add');b.disabled=true;
+  const author=$('edit-comment-author').value.trim();if(author)localStorage.setItem('build_comment_author',author);
+  const b=$('edit-comment-add');b.disabled=true;
   try{await api('comment_add',{method:'POST',body:{itemId:editId,author,body}});$('edit-comment-body').value='';await loadComments(editId);}
   catch(e){toast(e.message||'Failed');}finally{b.disabled=false;}
 };
-$('edit-comment-body').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('edit-comment-add').click();}});
+$('edit-comment-body').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();$('edit-comment-add').click();}});
+/* activity: lifecycle stats + linked commits */
+function statPill(label,val){return `<span style="white-space:nowrap"><span class="dim">${label}</span> <b>${val}</b></span>`;}
+async function loadStats(id){
+  const wrap=$('edit-stats-wrap');wrap.style.display='none';$('edit-commits').innerHTML='';
+  try{
+    const d=await api('stats',{query:{itemId:id}});const s=d&&d.stats;
+    if(!s||(!s.commits&&!s.started_at))return;
+    const lead=s.lead_days==null?'—':(s.lead_days>=1?s.lead_days+'d':Math.max(1,Math.round(s.lead_days*24))+'h');
+    $('edit-stats').innerHTML=`<div class="row" style="gap:16px;flex-wrap:wrap;font-size:12px">
+      ${s.started_at?statPill('Started',fmtDate(s.started_at)):''}
+      ${s.done_at?statPill('Done',fmtDate(s.done_at)):''}
+      ${statPill(s.lead_open?'Elapsed':'Lead time',lead)}
+      ${statPill('Commits',`${s.commits} <span class="dim">·</span> ${s.machine}⚙${s.human?' '+s.human+'👤':''}`)}
+    </div>`;
+    const cs=(d.commits||[]).slice(0,8);
+    if(cs.length)$('edit-commits').innerHTML=cs.map(c=>`
+      <div class="row" style="gap:7px;align-items:baseline;font-size:12px;padding:2px 0">
+        <span title="${c.is_machine?'machine':'human'}">${c.is_machine?'⚙':'👤'}</span>
+        <a href="${esc(c.url||'#')}" target="_blank" rel="noopener" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:inherit;text-decoration:none">${esc(c.message||c.sha)}</a>
+        <span class="dim" style="font-size:11px;white-space:nowrap">${relTime(c.committed_at)}</span>
+      </div>`).join('');
+    wrap.style.display='';
+  }catch(e){/* pre-migration / no stats — stay hidden */}
+}
 let editKind=null;
 function applyKindVisibility(kind){
   $('edit-assignee-wrap').style.display=kind==='task'?'':'none';
@@ -709,7 +761,8 @@ function openEdit(id){
   const idref=$('edit-idref');idref.style.display='';idref.textContent='build#'+id;idref.onclick=()=>copyRef(id);
   fillModal(it.kind,it);
   $('edit-move-wrap').style.display='';$('edit-kind-sel').value=it.kind;populateParents(it.kind);
-  $('edit-comments-wrap').style.display='';loadComments(id);
+  $('edit-comments-wrap').style.display='';loadComments(id);loadStats(id);
+  $('edit-comment-author').value=localStorage.getItem('build_comment_author')||'';refreshComposerAvatar();
 }
 function openCreate(kind,parentId){
   editId=null;createCtx={kind,parent_id:parentId||null};editKind=kind;
@@ -717,7 +770,7 @@ function openCreate(kind,parentId){
   $('edit-idref').style.display='none';
   fillModal(kind,{});
   $('edit-move-wrap').style.display='none';
-  $('edit-comments-wrap').style.display='none';
+  $('edit-comments-wrap').style.display='none';$('edit-stats-wrap').style.display='none';
 }
 $('edit-close').onclick=closeEdit;
 $('edit-act').onclick=()=>{if(editId)actOnItem(editId);};
