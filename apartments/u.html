@@ -114,6 +114,8 @@
     font-family:'Fraunces';font-weight:700;font-size:21px;color:#fff;flex:none;letter-spacing:.01em;
     overflow:hidden;box-shadow:0 1px 4px rgba(20,16,30,.14),inset 0 0 0 1px rgba(255,255,255,.45)}
   .hlogo.hasimg{background-size:cover;background-position:center;font-size:0}
+  .hlogo.haslogo{background:#fff;font-size:0}
+  .hlogo.haslogo img{width:100%;height:100%;object-fit:contain;padding:5px}
   .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
   .hpow{font-size:11px;color:var(--dim)}
   /* Inline SVG flag beside the picker. It can't go INSIDE the <option> —
@@ -650,10 +652,16 @@ function render(){
   document.title=(U.name||'Guest Companion')+' · powered by shou';
   // Option text is the language NAME only — the flag lives beside the select as
   var photo=(U.branding&&U.branding.photo)?('background-image:url(\''+U.branding.photo+'\')'):'';
+  // A logo, if the owner set one, wins the header badge over the photo/monogram —
+  // it is the truest brand mark. Contained on white so transparent PNGs read.
+  var logo=(U.branding&&U.branding.logo)||'';
+  var hlogoCls=logo?' haslogo':(photo?' hasimg':'');
+  var hlogoIn=logo?('<img src="'+String(logo).replace(/"/g,'&quot;')+'" alt="">'):(photo?'':esc(monogram(U.name)));
+  var hlogoSt=(!logo&&photo)?(' style="'+photo+'"'):'';
   // SVG, because an <option> can't contain markup and emoji flags break on Windows.
   var langOpts=LANGS.map(function(l){return '<option value="'+l.c+'"'+(l.c===curLang?' selected':'')+'>'+l.n+'</option>';}).join('');
   document.getElementById('root').innerHTML=
-    '<header><div class="bar"><div class="hlogo'+(photo?' hasimg':'')+'"'+(photo?' style="'+photo+'"':'')+'>'+(photo?'':esc(monogram(U.name)))+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow'))+'</div></div>'+
+    '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow'))+'</div></div>'+
       '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div></div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(greeting())+'</p></div>'+
