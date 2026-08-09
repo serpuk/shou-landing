@@ -197,11 +197,12 @@
 
 <!-- edit item modal -->
 <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(20,16,30,.4);backdrop-filter:blur(2px)">
-  <div class="card" style="max-width:540px;margin:6vh auto;background:#fff;max-height:86vh;overflow:auto">
+  <div class="card" style="max-width:720px;margin:5vh auto;background:#fff;max-height:88vh;overflow:auto">
     <div class="row" style="justify-content:space-between">
       <h2><span id="edit-verb">Edit</span> <span id="edit-kind" class="chip"></span> <span id="edit-idref" class="chip" title="Copy — reference in a commit/PR" style="display:none;cursor:pointer;font-family:ui-monospace,monospace"></span></h2>
       <button id="edit-close" class="btn ghost sm">✕</button>
     </div>
+    <div id="edit-crumbs" class="dim" style="font-size:12px;margin-top:1px;display:none"></div>
     <div style="margin-top:10px">
       <label class="dim" style="font-size:12px">Title</label>
       <input class="f" id="edit-title" style="margin:3px 0 8px">
@@ -223,7 +224,7 @@
       </div>
       <div id="edit-desc-wrap">
         <label class="dim" style="font-size:12px">Description</label>
-        <textarea class="f" id="edit-desc" style="margin:3px 0 8px;min-height:64px;resize:vertical"></textarea>
+        <textarea class="f" id="edit-desc" style="margin:3px 0 8px;min-height:120px;resize:vertical"></textarea>
       </div>
       <div class="grid3">
         <div id="edit-assignee-wrap"><label class="dim" style="font-size:12px">Assignee</label><input class="f" id="edit-assignee" list="assignee-dl" autocomplete="off" placeholder="Search team…" style="margin-top:3px"><datalist id="assignee-dl"></datalist></div>
@@ -714,29 +715,42 @@ $('edit-comment-add').onclick=async()=>{
   catch(e){toast(e.message||'Failed');}finally{b.disabled=false;}
 };
 $('edit-comment-body').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();$('edit-comment-add').click();}});
-/* activity: lifecycle stats + linked commits */
+/* breadcrumb: roadmap › project › epic (ancestors of this item) */
+function renderCrumbs(id){
+  const el=$('edit-crumbs');const chain=[];const seen=new Set();
+  let cur=byId(id);let p=cur&&cur.parent_id;
+  while(p&&!seen.has(p)){seen.add(p);const it=byId(p);if(!it)break;chain.unshift(it);p=it.parent_id;}
+  if(!chain.length){el.style.display='none';return;}
+  el.innerHTML=chain.map(it=>`<span title="${esc(it.kind)}" style="cursor:pointer" data-crumb="${it.id}">${esc(it.title)}</span>`).join(' <span style="opacity:.45">›</span> ');
+  el.querySelectorAll('[data-crumb]').forEach(sp=>sp.onclick=()=>openEdit(+sp.getAttribute('data-crumb')));
+  el.style.display='';
+}
+/* activity: lifecycle stats + linked commits — always shown, with item-level fallbacks */
 function statPill(label,val){return `<span style="white-space:nowrap"><span class="dim">${label}</span> <b>${val}</b></span>`;}
 async function loadStats(id){
-  const wrap=$('edit-stats-wrap');wrap.style.display='none';$('edit-commits').innerHTML='';
-  try{
-    const d=await api('stats',{query:{itemId:id}});const s=d&&d.stats;
-    if(!s||(!s.commits&&!s.started_at))return;
-    const lead=s.lead_days==null?'—':(s.lead_days>=1?s.lead_days+'d':Math.max(1,Math.round(s.lead_days*24))+'h');
-    $('edit-stats').innerHTML=`<div class="row" style="gap:16px;flex-wrap:wrap;font-size:12px">
-      ${s.started_at?statPill('Started',fmtDate(s.started_at)):''}
-      ${s.done_at?statPill('Done',fmtDate(s.done_at)):''}
-      ${statPill(s.lead_open?'Elapsed':'Lead time',lead)}
-      ${statPill('Commits',`${s.commits} <span class="dim">·</span> ${s.machine}⚙${s.human?' '+s.human+'👤':''}`)}
-    </div>`;
-    const cs=(d.commits||[]).slice(0,8);
-    if(cs.length)$('edit-commits').innerHTML=cs.map(c=>`
-      <div class="row" style="gap:7px;align-items:baseline;font-size:12px;padding:2px 0">
-        <span title="${c.is_machine?'machine':'human'}">${c.is_machine?'⚙':'👤'}</span>
-        <a href="${esc(c.url||'#')}" target="_blank" rel="noopener" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:inherit;text-decoration:none">${esc(c.message||c.sha)}</a>
-        <span class="dim" style="font-size:11px;white-space:nowrap">${relTime(c.committed_at)}</span>
-      </div>`).join('');
-    wrap.style.display='';
-  }catch(e){/* pre-migration / no stats — stay hidden */}
+  const wrap=$('edit-stats-wrap');const it=byId(id)||{};
+  let s=null,commits=[];
+  try{const d=await api('stats',{query:{itemId:id}});s=d&&d.stats;commits=(d&&d.commits)||[];}catch(e){}
+  const startedReal=(s&&s.started_at)||it.started_at||null;
+  const started=startedReal||it.created_at||null;
+  const done=it.status==='done'?((s&&s.done_at)||it.done_at||it.updated_at||null):null;
+  const leadDays=started?((new Date(done||Date.now())-new Date(started))/86400000):null;
+  const lead=leadDays==null?'—':(leadDays>=1?Math.round(leadDays)+'d':Math.max(1,Math.round(leadDays*24))+'h');
+  const total=(s&&s.commits)||commits.length||0,machine=(s&&s.machine)||0,human=(s&&s.human)||0;
+  $('edit-stats').innerHTML=`<div class="row" style="gap:16px;flex-wrap:wrap;font-size:12px">
+    ${startedReal?statPill('Started',fmtDate(started)):(it.created_at?statPill('Created',fmtDate(it.created_at)):'')}
+    ${done?statPill('Done',fmtDate(done)):''}
+    ${statPill(done?'Lead time':'Elapsed',lead)}
+    ${statPill('Commits',total?`${total} <span class="dim">·</span> ${machine}⚙${human?' '+human+'👤':''}`:'<span class="dim">syncing…</span>')}
+  </div>`;
+  const cs=commits.slice(0,8);
+  $('edit-commits').innerHTML=cs.length?cs.map(c=>`
+    <div class="row" style="gap:7px;align-items:baseline;font-size:12px;padding:2px 0">
+      <span title="${c.is_machine?'machine':'human'}">${c.is_machine?'⚙':'👤'}</span>
+      <a href="${esc(c.url||'#')}" target="_blank" rel="noopener" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:inherit;text-decoration:none">${esc(c.message||c.sha)}</a>
+      <span class="dim" style="font-size:11px;white-space:nowrap">${relTime(c.committed_at)}</span>
+    </div>`).join(''):`<div class="dim" style="font-size:11.5px;margin-top:4px">No commits linked yet — reference <code>build#${id}</code> in a commit; they sync from GitHub every ~10 min.</div>`;
+  wrap.style.display='';
 }
 let editKind=null;
 function applyKindVisibility(kind){
@@ -761,7 +775,7 @@ function openEdit(id){
   const idref=$('edit-idref');idref.style.display='';idref.textContent='build#'+id;idref.onclick=()=>copyRef(id);
   fillModal(it.kind,it);
   $('edit-move-wrap').style.display='';$('edit-kind-sel').value=it.kind;populateParents(it.kind);
-  $('edit-comments-wrap').style.display='';loadComments(id);loadStats(id);
+  $('edit-comments-wrap').style.display='';loadComments(id);loadStats(id);renderCrumbs(id);
   $('edit-comment-author').value=localStorage.getItem('build_comment_author')||'';refreshComposerAvatar();
 }
 function openCreate(kind,parentId){
@@ -770,7 +784,7 @@ function openCreate(kind,parentId){
   $('edit-idref').style.display='none';
   fillModal(kind,{});
   $('edit-move-wrap').style.display='none';
-  $('edit-comments-wrap').style.display='none';$('edit-stats-wrap').style.display='none';
+  $('edit-comments-wrap').style.display='none';$('edit-stats-wrap').style.display='none';$('edit-crumbs').style.display='none';
 }
 $('edit-close').onclick=closeEdit;
 $('edit-act').onclick=()=>{if(editId)actOnItem(editId);};
