@@ -437,7 +437,8 @@
   .totop:hover{color:var(--pink);border-color:rgba(255,61,139,.45)}
   @media(prefers-reduced-motion:reduce){.totop{transition:none}}
   .chatform{display:flex;gap:10px;position:sticky;bottom:0;background:linear-gradient(to top,var(--fade) 75%,transparent);padding:10px 0 14px}
-  .chatform input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;font-family:inherit;font-size:15px;outline:none;box-shadow:var(--shadow)}
+  .chatform input{flex:1;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;font-family:inherit;font-size:15px;outline:none;box-shadow:var(--shadow)}
+  .chatform input::placeholder{color:var(--dim)}
   .chatform input:focus{border-color:rgba(255,61,139,.5)}
   .chatform button{background:var(--grad);color:#fff;border:none;border-radius:14px;padding:0 22px;font-weight:700;font-size:15px;cursor:pointer}
   .typing{color:var(--dim);font-size:13px;padding:6px 4px}
