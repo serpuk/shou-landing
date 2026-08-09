@@ -328,7 +328,9 @@
   .wy-pop b{display:block;font-size:13.5px;color:#15101b;line-height:1.25}
   .wy-pop span{display:block;font-size:12px;color:#5b5566;margin-top:2px}
   .wy-pop a{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:#0e9a8d;text-decoration:none}
-  .leaflet-container{font:inherit}
+  /* Contain Leaflet's internal panes/controls (z-index up to ~1000) in their own
+     stacking context, so the map can't paint over the event modal (.mv, z-index 60). */
+  .leaflet-container{font:inherit;position:relative;isolation:isolate}
   .tease{position:relative;overflow:hidden;margin:22px 0 4px;background:var(--card);
     border:1px solid var(--line);border-radius:18px;padding:16px 18px 15px;
     box-shadow:var(--shadow);cursor:pointer}
