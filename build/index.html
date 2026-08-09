@@ -749,13 +749,14 @@ async function loadStats(id){
   // Active in-the-loop time from commit-gap analysis (git-hours) — a real proxy
   // for human review/direction; Claude's own generation is only minutes of it.
   const actMin=activeMinutes(commits.map(c=>c.committed_at).filter(Boolean));
-  const actStr=actMin>=90?(Math.round(actMin/60*10)/10)+'h':actMin+'m';
+  const claudeMin=Math.round(machine*2.5),humanMin=Math.max(0,actMin-claudeMin);
+  const dur=m=>m>=90?(Math.round(m/60*10)/10)+'h':Math.max(1,Math.round(m))+'m';
   $('edit-stats').innerHTML=`<div class="row" style="gap:16px;flex-wrap:wrap;font-size:12px">
     ${startedReal?statPill('Started',fmtDate(started)):(it.created_at?statPill('Created',fmtDate(it.created_at)):'')}
     ${done?statPill('Done',fmtDate(done)):''}
     <span title="Elapsed calendar time from first to last activity — how long the task spanned, NOT hours worked"><span class="dim">${done?'Lead time':'Open'}</span> <b>${lead}</b></span>
     ${statPill('Commits',total?`${total} <span class="dim">(${machine}⚙ ${human}👤)</span>`:'<span class="dim">syncing…</span>')}
-    ${commits.length?`<span title="Estimated ACTIVE time from commit gaps: continuous where commits are <90 min apart, +30 min ramp per session. Strips out idle time — a real proxy for human review/direction. Claude's own generation is only a few minutes of it."><span class="dim">Active</span> <b>~${actStr}</b> <span class="dim">est</span></span>`:''}
+    ${commits.length?`<span title="Active in-the-loop time (git-hours gap analysis, gaps <90 min = continuous work). Split: Claude ≈ ${machine} machine commits × ~2.5 min generation; the rest is your review/direction. Estimates, not tracked time."><span class="dim">Active</span> <b>~${dur(actMin)}</b> <span class="dim">(you ~${dur(humanMin)} · Claude ~${dur(claudeMin)})</span></span>`:''}
   </div>`;
   const cs=commits.slice(0,8);
   $('edit-commits').innerHTML=cs.length?cs.map(c=>`
