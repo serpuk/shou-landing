@@ -761,6 +761,11 @@ function actText(id){
   if(path.length)L.push(`Where it sits: ${path.map(p=>`${p.kind} "${p.title}" [build#${p.id}]`).join(' › ')}`);
   path.filter(p=>p.description).forEach(p=>L.push(`  · ${p.kind} "${p.title}": ${p.description}`));
   if(it.description){L.push('');L.push('What it is:');L.push(it.description);}
+  // Screenshots pasted into the description render as ![](url); list their URLs
+  // explicitly so a fetching agent (e.g. Claude Code) can open each one.
+  const imgs=[];const imgRe=/!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/g;let im;
+  while((im=imgRe.exec(it.description||''))) if(imgs.indexOf(im[1])<0) imgs.push(im[1]);
+  if(imgs.length){L.push('');L.push('Screenshots on this task (open each to view):');imgs.forEach(u=>L.push('- '+u));}
   const deps=(it.depends_on||[]).map(d=>{const x=byId(d);return x?`"${x.title}" [build#${d}]`:`build#${d}`;});
   if(deps.length){L.push('');L.push(`Depends on (assume done, or do first): ${deps.join('; ')}`);}
   if(it.kind!=='task'){const kids=descendantTasks(it.id);if(kids.length){L.push('');L.push('Tasks under it:');kids.forEach(t=>L.push(`  [${t.status==='done'?'x':' '}] ${t.title} [build#${t.id}]`));}}
