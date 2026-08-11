@@ -183,6 +183,24 @@
     .nav-in{flex-wrap:wrap;gap:8px 12px;padding:10px 14px}
     .road-block{padding-bottom:10px}
   }
+  /* ---- rendered markdown (descriptions + comments) ---- */
+  .md{font-size:13.5px;line-height:1.55;color:var(--ink);overflow-wrap:anywhere}
+  .md>*:first-child{margin-top:0}
+  .md>*:last-child{margin-bottom:0}
+  .md p{margin:0 0 8px}
+  .md ul,.md ol{margin:4px 0 8px;padding-left:22px}
+  .md li{margin:2px 0}
+  .md a{color:var(--pink);text-decoration:none}
+  .md a:hover{text-decoration:underline}
+  .md code{font-family:ui-monospace,monospace;font-size:.9em;background:rgba(20,16,30,.06);padding:1px 5px;border-radius:5px}
+  .md-pre{background:rgba(20,16,30,.05);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow-x:auto;margin:6px 0}
+  .md-pre code{background:none;padding:0;font-size:12.5px}
+  .md-img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);margin:6px 0;display:block}
+  .md strong{font-weight:700}
+  /* description: rendered when viewing, click to edit */
+  .desc-view{min-height:42px;padding:9px 12px;margin-top:2px;border:1px solid transparent;border-radius:9px;cursor:text}
+  .desc-view:hover{background:var(--hover)}
+  .desc-view.desc-empty{color:var(--faint)}
 </style>
 
 <nav><div class="nav-in">
@@ -324,7 +342,8 @@
       </div>
       <div id="edit-desc-wrap" style="margin-top:16px">
         <div class="ml">Description</div>
-        <textarea class="f" id="edit-desc" style="min-height:120px;resize:vertical"></textarea>
+        <div id="edit-desc-view" class="md desc-view"></div>
+        <textarea class="f" id="edit-desc" style="min-height:120px;resize:vertical;display:none"></textarea>
       </div>
       <div class="sec-div"></div>
       <div class="meta-grid">
@@ -383,6 +402,57 @@
 const API = 'https://shou-backend.vercel.app/api/build';
 const $ = id => document.getElementById(id);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ---------- tiny sanitized markdown + image paste ---------- */
+// Only http(s)/mailto URLs with no quotes/brackets survive — kills javascript: etc.
+function safeUrl(u){u=String(u||'').trim();return (/^(https?:\/\/|mailto:)/i.test(u)&&!/["'<>\s]/.test(u))?u:null;}
+// Inline transforms on ALREADY-ESCAPED text. Links/images/code are stashed so
+// later bold/italic/autolink passes can't touch their innards.
+function mdInline(s){
+  s=s.replace(/`([^`]+)`/g,function(m,c){return '<code>'+c+'</code>';});
+  s=s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,function(m,alt,url){var u=safeUrl(url);return u?'<img class="md-img" src="'+u+'" alt="'+alt+'">':m;});
+  s=s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,function(m,t,url){var u=safeUrl(url);return u?'<a href="'+u+'" target="_blank" rel="noopener">'+t+'</a>':m;});
+  s=s.replace(/(^|[\s>(])(https?:\/\/[^\s<"]+[^\s<".,;:!?)\]}])/g,function(m,pre,url){var u=safeUrl(url);return u?pre+'<a href="'+u+'" target="_blank" rel="noopener">'+url+'</a>':m;});
+  s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<em>$2</em>');
+  return s;
+}
+function mdToHtml(text){
+  var raw=String(text==null?'':text),blocks=[];
+  var src=raw.replace(/```([\s\S]*?)```/g,function(m,code){blocks.push('<pre class="md-pre"><code>'+esc(code.replace(/^\n/,'').replace(/\s+$/,''))+'</code></pre>');return '\nCODEBLK'+(blocks.length-1)+'ENDBLK\n';});
+  src=esc(src);
+  var lines=src.split('\n'),out=[],i=0;
+  var isBlk=function(x){return /^CODEBLK\d+ENDBLK$/.test(x);};
+  while(i<lines.length){
+    var ln=lines[i],mb=ln.match(/^CODEBLK(\d+)ENDBLK$/);
+    if(mb){out.push(blocks[+mb[1]]);i++;continue;}
+    if(!ln.trim()){i++;continue;}
+    if(/^\s*[-*]\s+/.test(ln)){var it=[];while(i<lines.length&&/^\s*[-*]\s+/.test(lines[i])){it.push('<li>'+mdInline(lines[i].replace(/^\s*[-*]\s+/,''))+'</li>');i++;}out.push('<ul>'+it.join('')+'</ul>');continue;}
+    if(/^\s*\d+\.\s+/.test(ln)){var it2=[];while(i<lines.length&&/^\s*\d+\.\s+/.test(lines[i])){it2.push('<li>'+mdInline(lines[i].replace(/^\s*\d+\.\s+/,''))+'</li>');i++;}out.push('<ol>'+it2.join('')+'</ol>');continue;}
+    var buf=[];while(i<lines.length&&lines[i].trim()&&!/^\s*[-*]\s+/.test(lines[i])&&!/^\s*\d+\.\s+/.test(lines[i])&&!isBlk(lines[i])){buf.push(lines[i]);i++;}
+    out.push('<p>'+mdInline(buf.join('\n')).replace(/\n/g,'<br>')+'</p>');
+  }
+  return out.join('');
+}
+function fileToShrunkDataUrl(file,maxW,q){
+  return new Promise((res,rej)=>{const fr=new FileReader();
+    fr.onload=()=>{const img=new Image();img.onload=()=>{try{let w=img.width,h=img.height;if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',q));}catch(e){rej(e);}};img.onerror=()=>rej(new Error('decode'));img.src=fr.result;};
+    fr.onerror=()=>rej(new Error('read'));fr.readAsDataURL(file);});
+}
+function insertAtCursor(ta,text){const s=ta.selectionStart||0,e=ta.selectionEnd||0;ta.value=ta.value.slice(0,s)+text+ta.value.slice(e);const p=s+text.length;ta.selectionStart=ta.selectionEnd=p;ta.focus();}
+// Paste-to-upload: intercept an image on the clipboard, upload it, drop in ![](url).
+function wireImagePaste(ta){
+  if(!ta||ta._pasteWired)return;ta._pasteWired=true;
+  ta.addEventListener('paste',async e=>{
+    const items=(e.clipboardData&&e.clipboardData.items)||[];let file=null;
+    for(const it of items){if(it.kind==='file'&&it.type&&it.type.indexOf('image/')===0){file=it.getAsFile();break;}}
+    if(!file)return;
+    e.preventDefault();
+    const tag='![uploading…]('+Date.now()+')';
+    insertAtCursor(ta,tag);
+    try{const dataUrl=await fileToShrunkDataUrl(file,1600,0.85);const d=await api('upload',{method:'POST',body:{data:dataUrl}});ta.value=ta.value.replace(tag,'![image]('+d.url+')');}
+    catch(err){ta.value=ta.value.replace(tag,'');toast((err&&err.message)||'Image upload failed');}
+  });
+}
 let token = localStorage.getItem('shou_build_token') || '';
 let items = [];
 let proposal = null, proposalOrigin = '';
@@ -731,7 +801,7 @@ function closeEdit(){$('edit-modal').style.display='none';editId=null;createCtx=
 function fillModal(kind,v){
   $('edit-kind').textContent=kind;
   $('edit-title').value=v.title||'';
-  $('edit-desc').value=v.description||'';
+  $('edit-desc').value=v.description||'';renderDescView();
   $('edit-assignee').value=v.assignee||'';
   $('edit-start').value=v.start_date||'';
   $('edit-due').value=v.due_date||'';
@@ -799,7 +869,7 @@ function renderComments(list){
           <span class="dim" style="font-size:11.5px" title="${esc(fmtDate(c.created_at))}">${relTime(c.created_at)}</span>
           <span class="cm-del" style="font-size:12px;margin-left:auto;cursor:pointer;color:#c81e5b;opacity:0;transition:opacity .12s" title="Delete">✕</span>
         </div>
-        <div style="font-size:13px;line-height:1.5;white-space:pre-wrap;margin-top:2px">${esc(c.body)}</div>
+        <div class="md" style="margin-top:3px">${mdToHtml(c.body)}</div>
       </div>
     </div>`).join(''):'<span class="dim" style="font-size:12px">No comments yet — start the thread.</span>';
   $('edit-comments').querySelectorAll('.cm-row').forEach(row=>{
@@ -902,6 +972,20 @@ function openCreate(kind,parentId){
 $('edit-close').onclick=closeEdit;
 $('edit-act').onclick=()=>{if(editId)actOnItem(editId);};
 $('edit-modal').onclick=e=>{if(e.target===$('edit-modal'))closeEdit();};
+/* description: render markdown when viewing, swap to the textarea to edit */
+function renderDescView(){
+  const ta=$('edit-desc'),view=$('edit-desc-view');if(!view)return;
+  const val=(ta.value||'').trim();
+  if(val){view.innerHTML=mdToHtml(ta.value);view.classList.remove('desc-empty');}
+  else{view.textContent='Add a description…';view.classList.add('desc-empty');}
+  view.style.display='';ta.style.display='none';
+}
+function editDescStart(){const ta=$('edit-desc'),view=$('edit-desc-view');if(!view)return;view.style.display='none';ta.style.display='';ta.focus();}
+$('edit-desc-view').addEventListener('click',editDescStart);
+$('edit-desc').addEventListener('blur',renderDescView);
+// paste an image into the description or a comment → uploads + inserts ![](url)
+wireImagePaste($('edit-desc'));
+wireImagePaste($('edit-comment-body'));
 /* header overflow menu (Act on it · Delete) */
 (function(){
   const btn=$('edit-ovf-btn'),menu=$('edit-ovf-menu');if(!btn||!menu)return;
