@@ -59,8 +59,8 @@
   .drop-before{box-shadow:0 -3px 0 0 var(--pink)}
   .drop-after{box-shadow:0 3px 0 0 var(--pink)}
   /* Touch devices can't drag (HTML5 DnD needs a mouse) → swap the grip for ↑↓ */
-  .nudge{display:none;width:22px;height:22px;line-height:20px;text-align:center;border:1px solid var(--line);border-radius:6px;color:var(--dim);font-size:12px;cursor:pointer;user-select:none;flex:none}
-  .nudge:active{background:rgba(242,83,141,.12);color:var(--pink)}
+  .nudge{display:none;width:20px;height:26px;line-height:26px;text-align:center;border:none;background:none;border-radius:6px;color:var(--faint);font-size:14px;cursor:pointer;user-select:none;flex:none}
+  .nudge:active{background:var(--hover);color:var(--pink)}
   @media (hover:none),(max-width:640px){
     .grip{display:none}
     .nudge{display:inline-block}
@@ -168,18 +168,20 @@
   /* ---- mobile-first: rows reflow to two lines, bigger tap targets ---- */
   @media(max-width:640px){
     .wrap{padding:14px 12px}
-    .node{flex-wrap:wrap;gap:5px 6px;padding:7px 4px;min-height:44px}
+    .node{flex-wrap:wrap;gap:4px 6px;padding:6px 4px;min-height:40px}
     .node .idref{display:none}                 /* build# ref stays available in the panel */
-    .node-title{flex:1 1 auto;min-width:110px}
+    .node-title{flex:1 1 auto;min-width:90px}
     .node-meta{order:3;flex:1 1 100%;gap:6px;padding-left:30px}
     .node-meta:empty{display:none}
-    .row-actions{order:2;opacity:1}            /* actions always tappable on touch */
-    .icon-act{width:32px;height:32px;font-size:14px}
+    /* reorder (↑↓) + row actions (⚡ ✎ ✕) declutter on mobile: reorder on
+       desktop, and per-row actions live in the panel — tap the row to open it */
+    .nudge{display:none}
+    .row-actions{display:none}
     .node-desc{margin-left:30px}
-    .children{margin-left:8px;padding-left:9px}
-    .add-row{margin-left:12px}
+    .children{margin-left:7px;padding-left:9px}
+    .add-row{margin-left:10px}
     .nav-in{flex-wrap:wrap;gap:8px 12px;padding:10px 14px}
-    .road-block{padding-bottom:12px}
+    .road-block{padding-bottom:10px}
   }
 </style>
 
