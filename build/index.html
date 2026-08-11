@@ -153,15 +153,26 @@
   .icon-act:hover{background:var(--hover);color:var(--ink)}
   .icon-act.rd-del:hover{color:#c81e5b}
   .idref{font-family:ui-monospace,monospace;cursor:pointer}
+  /* mobile-overflow guard for compact rows (full mobile pass is stage 4) */
+  @media(max-width:640px){
+    .wrap{padding:14px}
+    .node{gap:6px;padding:5px 4px}
+    .node .idref{display:none}          /* build# ref stays available in the panel */
+    .node-meta{gap:5px}
+    .node-desc{margin-left:32px}
+    .children{margin-left:9px;padding-left:9px}
+    .add-row{margin-left:14px}
+    .nav-in{flex-wrap:wrap;gap:8px 12px}
+  }
 </style>
 
 <nav><div class="nav-in">
-  <a class="brand" href="/">shou<small>Build · execution layer</small></a>
+  <a class="brand" href="/">shou<small>Build</small></a>
   <div class="nav-actions">
     <span id="count" class="dim" style="font-size:13px"></span>
-    <a id="nav-team" href="/build/team" style="display:none;color:var(--dim);text-decoration:none;font-size:13.5px">Team ›</a>
-    <button id="btn-notify" class="btn ghost sm" style="display:none" title="Assignee notifications"></button>
-    <button id="btn-logout" class="btn ghost sm" style="display:none">Lock</button>
+    <a id="nav-team" href="/build/team" style="display:none;color:var(--dim);text-decoration:none;font-size:13.5px">Team</a>
+    <button id="btn-notify" class="icon-btn" style="display:none" title="Assignee notifications" aria-label="Assignee notifications"></button>
+    <button id="btn-logout" class="btn ghost sm" style="display:none" title="Lock Build — clears the admin token on this device">🔒 Lock</button>
   </div>
 </div></nav>
 
@@ -240,7 +251,7 @@
       <div class="row" style="gap:8px">
         <button id="btn-collapse" class="btn ghost sm" title="Collapse or expand every level">Collapse all</button>
         <div class="seg"><button id="seg-list" class="seg-btn on">List</button><button id="seg-board" class="seg-btn">Board</button><button id="seg-time" class="seg-btn">Timeline</button></div>
-        <button id="btn-add-road" class="btn ghost sm">+ New item</button>
+        <button id="btn-add-road" class="btn sm">+ New item</button>
       </div>
     </div>
     <div class="row" id="road-filters" style="gap:8px;margin:0 0 12px">
