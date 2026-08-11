@@ -64,7 +64,7 @@
   }
   #btn-mic.rec{background:#c81e5b;color:#fff;border-color:#c81e5b;animation:micpulse 1.3s ease-in-out infinite}
   @keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,30,91,.45)}50%{box-shadow:0 0 0 7px rgba(200,30,91,0)}}
-  .epic{margin:10px 0 0;padding:10px 0 0;border-top:1px dashed var(--line)}
+  .epic{margin:2px 0 0}
   .task{display:flex;align-items:center;gap:10px;padding:6px 0 6px 10px;border-left:2px solid transparent}
   .task .t-title{flex:1}
   .muted{color:#aaa}
@@ -124,6 +124,35 @@
   .rrow:hover>.row-actions,.rrow:focus-within>.row-actions,.card:hover .row-actions{opacity:1}
   @media(hover:none){.row-actions{opacity:1}}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+  /* ---- roadmap: compact tree rows (Linear-style) ---- */
+  .road-block{padding:4px 0 10px;margin:0 0 6px;border-bottom:1px solid var(--line)}
+  .road-block:last-child{border-bottom:none}
+  .node{display:flex;align-items:center;gap:8px;min-height:34px;padding:4px 8px;border-radius:var(--r-sm)}
+  .node-title{flex:1;min-width:0;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .node-road .node-title b{font-size:15.5px;font-weight:700}
+  .node-project .node-title{font-weight:600;font-size:14px}
+  .node-epic .node-title{font-weight:600;font-size:13.5px}
+  .node-task .node-title{font-weight:400;font-size:13.5px}
+  .node-task.st-done .node-title{text-decoration:line-through;color:var(--faint)}
+  .node-meta{display:flex;align-items:center;gap:6px;flex:none}
+  .node-desc{color:var(--dim);font-size:12.5px;margin:1px 0 6px 48px}
+  .children{margin-left:15px;padding-left:11px;border-left:1px solid var(--line)}
+  .add-row{display:flex;gap:8px;margin:5px 0 2px 26px}
+  /* status rail on task rows */
+  .node-task{border-left:2px solid transparent;margin-left:-2px;padding-left:8px}
+  .node-task.st-todo{border-left-color:rgba(154,160,170,.4)}
+  .node-task.st-in_progress{border-left-color:var(--prog)}
+  .node-task.st-done{border-left-color:rgba(14,154,141,.32)}
+  /* quiet inline progress */
+  .mprog{display:inline-flex;align-items:center;gap:6px}
+  .mprog-bar{width:54px;height:4px;background:rgba(20,16,30,.08);border-radius:4px;overflow:hidden}
+  .mprog-bar i{display:block;height:100%;background:var(--done);opacity:.6}
+  .mprog-n{font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+  /* hover-revealed row action icons */
+  .icon-act{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border:none;background:none;color:var(--dim);border-radius:7px;cursor:pointer;font-size:13px;line-height:1;padding:0}
+  .icon-act:hover{background:var(--hover);color:var(--ink)}
+  .icon-act.rd-del:hover{color:#c81e5b}
+  .idref{font-family:ui-monospace,monospace;cursor:pointer}
 </style>
 
 <nav><div class="nav-in">
@@ -1248,6 +1277,11 @@ function bindDnD(){
   });
 }
 
+// Quiet inline progress: a slim muted bar + count. Secondary, never dominant.
+function miniProg(done,total,pct){
+  if(!total)return '';
+  return `<span class="mprog" title="${done}/${total} tasks done"><span class="mprog-bar"><i style="width:${pct}%"></i></span><span class="mprog-n">${done}/${total}</span></span>`;
+}
 function renderRoadmap(){
   renderOverview();
   recomputeVis();
@@ -1267,36 +1301,28 @@ function renderRoadmap(){
     const tasks=descendantTasks(r.id);
     const done=tasks.filter(t=>t.status==='done').length;
     const pct=tasks.length?Math.round(done/tasks.length*100):(r.status==='done'?100:0);
-    return `<div class="card" data-road="${r.id}" style="margin-bottom:12px">
-      <div class="row" style="justify-content:space-between;align-items:flex-start">
-        <div style="flex:1;min-width:0">
-          <div class="row" style="gap:8px">
-            ${handleHtml(r.id)}${caret(r.id)}
-            <span class="pill ${r.status}" data-st="${r.id}">${statusLabel(r.status)}</span>
-            <b class="open-item" data-id="${r.id}" title="Open" style="font-size:16px;cursor:pointer">${kindIcon('roadmap')} ${esc(r.title)}</b>
-          </div>
-          ${r.description?`<div class="dim" style="font-size:13.5px;margin-top:3px">${esc(r.description)}</div>`:''}
-          <div class="row" style="gap:6px;margin-top:6px">
-            ${r.quarter?`<span class="chip">${esc(r.quarter)}</span>`:''}
-            ${dueChip(r,'due ')}
-            ${r.customer_label?`<span class="chip">👤 ${esc(r.customer_label)}</span>`:''}
-            <span class="chip">${done}/${tasks.length} tasks</span>
-            <span class="chip idref" data-ref="${r.id}" title="Copy build#${r.id}" style="cursor:pointer;font-family:ui-monospace,monospace">build#${r.id}</span>
-          </div>
-        </div>
-        <div class="row" style="gap:6px">
-          ${r.customer_label?`<button class="btn ghost sm rd-draft" title="Draft a 'shipped' update to the customer">✉ Update</button>`:''}
-          <button class="btn ghost sm it-act" data-act="${r.id}" title="Copy a ready-to-paste Claude prompt for this roadmap item">⚡</button>
-          <button class="btn ghost sm it-edit" data-id="${r.id}" title="Edit">✎</button>
-          <button class="btn ghost sm rd-del" title="Delete">✕</button>
-        </div>
+    return `<div class="road-block" data-road="${r.id}">
+      <div class="rrow node node-road">
+        ${handleHtml(r.id)}${caret(r.id)}
+        <span class="pill ${r.status}" data-st="${r.id}">${statusLabel(r.status)}</span>
+        <span class="node-title open-item" data-id="${r.id}" title="Open">${kindIcon('roadmap')} <b>${esc(r.title)}</b></span>
+        <span class="node-meta">
+          ${r.quarter?`<span class="chip">${esc(r.quarter)}</span>`:''}
+          ${dueChip(r,'due ')}
+          ${r.customer_label?`<span class="chip">👤 ${esc(r.customer_label)}</span>`:''}
+          ${miniProg(done,tasks.length,pct)}
+          <span class="chip idref" data-ref="${r.id}" title="Copy build#${r.id}">build#${r.id}</span>
+        </span>
+        <span class="row-actions">
+          ${r.customer_label?`<button class="icon-act rd-draft" title="Draft a shipped update to the customer">✉</button>`:''}
+          <button class="icon-act it-act" data-act="${r.id}" title="Copy a ready-to-paste Claude prompt for this roadmap item">⚡</button>
+          <button class="icon-act it-edit" data-id="${r.id}" title="Edit">✎</button>
+          <button class="icon-act rd-del" title="Delete">✕</button>
+        </span>
       </div>
-      <div class="prog-track" style="margin-top:10px"><div class="prog-fill" style="width:${pct}%"></div></div>
-      ${isCollapsed(r.id)?'':`<div class="epics">${projects.map(p=>projectHtml(p)).join('')}${directEpics.map(e=>epicHtml(e)).join('')}</div>
-      <div class="row" style="gap:8px;margin-top:10px">
-        <button class="btn ghost sm rd-addproject">+ Project</button>
-        <button class="btn ghost sm rd-addepic">+ Epic</button>
-      </div>`}
+      ${r.description?`<div class="node-desc">${esc(r.description)}</div>`:''}
+      ${isCollapsed(r.id)?'':`<div class="children">${projects.map(p=>projectHtml(p)).join('')}${directEpics.map(e=>epicHtml(e)).join('')}</div>
+      <div class="add-row"><button class="btn ghost sm rd-addproject">+ Project</button><button class="btn ghost sm rd-addepic">+ Epic</button></div>`}
     </div>`;
   }).join('');
   bindRoadmap();
@@ -1307,35 +1333,38 @@ function projectHtml(p){
   const tasks=descendantTasks(p.id);
   const done=tasks.filter(t=>t.status==='done').length;
   const pct=tasks.length?Math.round(done/tasks.length*100):(p.status==='done'?100:0);
-  return `<div class="project" data-project="${p.id}" style="margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line)">
-    <div class="row" style="gap:8px">
+  return `<div class="project" data-project="${p.id}">
+    <div class="rrow node node-project">
       ${handleHtml(p.id)}${caret(p.id)}
       <span class="pill ${p.status}" data-st="${p.id}">${statusLabel(p.status)}</span>
-      <b class="open-item" data-id="${p.id}" title="Open" style="font-size:15px;cursor:pointer">${kindIcon('project')} ${esc(p.title)}</b>
-      ${p.description?`<span class="dim" style="font-size:12.5px">— ${esc(p.description)}</span>`:''}
-      <span class="chip">${done}/${tasks.length}</span>
-      <span class="chip idref" data-ref="${p.id}" title="Copy build#${p.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${p.id}</span>
-      <button class="btn ghost sm it-act" data-act="${p.id}" title="Copy a ready-to-paste Claude prompt for this project" style="padding:2px 9px">⚡</button>
-      <button class="btn ghost sm it-edit" data-id="${p.id}" title="Edit project" style="padding:2px 9px">✎</button>
+      <span class="node-title open-item" data-id="${p.id}" title="Open">${kindIcon('project')} ${esc(p.title)}</span>
+      <span class="node-meta">${miniProg(done,tasks.length,pct)}<span class="chip idref" data-ref="${p.id}" title="Copy build#${p.id}">build#${p.id}</span></span>
+      <span class="row-actions">
+        <button class="icon-act it-act" data-act="${p.id}" title="Copy a ready-to-paste Claude prompt for this project">⚡</button>
+        <button class="icon-act it-edit" data-id="${p.id}" title="Edit project">✎</button>
+      </span>
     </div>
-    <div class="prog-track" style="margin:8px 0 0"><div class="prog-fill" style="width:${pct}%"></div></div>
-    ${isCollapsed(p.id)?'':`<div style="margin-left:14px">${epics.map(e=>epicHtml(e)).join('')}</div>
-    <button class="btn ghost sm pr-addepic" data-project-add="${p.id}" style="margin:8px 0 0 14px">+ Epic</button>`}
+    ${isCollapsed(p.id)?'':`<div class="children">${epics.map(e=>epicHtml(e)).join('')}</div>
+    <div class="add-row"><button class="btn ghost sm pr-addepic" data-project-add="${p.id}">+ Epic</button></div>`}
   </div>`;
 }
 function epicHtml(e){
   const tasks=childrenOf(e.id);
-  const taskRow=t=>`<div class="task st-${t.status}" data-task="${t.id}">
+  const taskRow=t=>`<div class="rrow node node-task st-${t.status}" data-task="${t.id}">
         ${handleHtml(t.id)}
         <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
-        <span class="t-title open-item ${t.status==='done'?'muted':''}" data-id="${t.id}" title="Open" style="cursor:pointer;${t.status==='done'?'text-decoration:line-through':''}">${kindIcon('task')} ${esc(t.title)}</span>
-        ${priChip(t)}
-        ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
-        ${dueChip(t)}
-        ${(t.depends_on&&t.depends_on.length)?`<span class="chip" title="Depends on ${t.depends_on.map(d=>{const x=byId(d);return x?x.title:'build#'+d;}).join(', ')}">⛓ ${t.depends_on.length}</span>`:''}
-        <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR" style="cursor:pointer;font-family:ui-monospace,monospace">build#${t.id}</span>
-        <button class="btn ghost sm it-act" data-act="${t.id}" title="Copy a ready-to-paste Claude prompt for this task (context + build#)" style="padding:2px 8px">⚡</button>
-        <button class="btn ghost sm it-edit" data-id="${t.id}" title="Edit task" style="padding:2px 8px">✎</button>
+        <span class="node-title open-item" data-id="${t.id}" title="Open">${esc(t.title)}</span>
+        <span class="node-meta">
+          ${priChip(t)}
+          ${t.assignee?`<span class="chip">${esc(t.assignee)}</span>`:''}
+          ${dueChip(t)}
+          ${(t.depends_on&&t.depends_on.length)?`<span class="chip" title="Depends on ${t.depends_on.map(d=>{const x=byId(d);return x?x.title:'build#'+d;}).join(', ')}">⛓ ${t.depends_on.length}</span>`:''}
+          <span class="chip idref" data-ref="${t.id}" title="Copy build#${t.id} — reference it in a commit/PR">build#${t.id}</span>
+        </span>
+        <span class="row-actions">
+          <button class="icon-act it-act" data-act="${t.id}" title="Copy a ready-to-paste Claude prompt for this task (context + build#)">⚡</button>
+          <button class="icon-act it-edit" data-id="${t.id}" title="Edit task">✎</button>
+        </span>
       </div>`;
   // Completed tasks fold under a "▸ N done" toggle so the active work isn't
   // buried under struck-through history (default folded; choice persists).
@@ -1351,18 +1380,21 @@ function epicHtml(e){
     if(open) taskHtml+=doneTasks.map(taskRow).join('');
   }
   return `<div class="epic" data-epic="${e.id}">
-    <div class="row" style="gap:8px">
+    <div class="rrow node node-epic">
       ${handleHtml(e.id)}${caret(e.id)}
       <span class="pill ${e.status}" data-st="${e.id}">${statusLabel(e.status)}</span>
-      <b class="open-item" data-id="${e.id}" title="Open" style="font-size:14px;cursor:pointer">${kindIcon('epic')} ${esc(e.title)}</b>
-      ${e.description?`<span class="dim" style="font-size:12.5px">— ${esc(e.description)}</span>`:''}
-      ${(isCollapsed(e.id)&&tasks.length)?`<span class="chip">${tasks.filter(t=>t.status==='done').length}/${tasks.length}</span>`:''}
-      <span class="chip idref" data-ref="${e.id}" title="Copy build#${e.id}" style="margin-left:auto;cursor:pointer;font-family:ui-monospace,monospace">build#${e.id}</span>
-      <button class="btn ghost sm it-act" data-act="${e.id}" title="Copy a ready-to-paste Claude prompt for this epic (context + tasks + build#)" style="padding:2px 9px">⚡</button>
-      <button class="btn ghost sm it-edit" data-id="${e.id}" title="Edit epic" style="padding:2px 9px">✎</button>
+      <span class="node-title open-item" data-id="${e.id}" title="Open">${kindIcon('epic')} ${esc(e.title)}</span>
+      <span class="node-meta">
+        ${(isCollapsed(e.id)&&tasks.length)?`<span class="chip">${tasks.filter(t=>t.status==='done').length}/${tasks.length}</span>`:''}
+        <span class="chip idref" data-ref="${e.id}" title="Copy build#${e.id}">build#${e.id}</span>
+      </span>
+      <span class="row-actions">
+        <button class="icon-act it-act" data-act="${e.id}" title="Copy a ready-to-paste Claude prompt for this epic (context + tasks + build#)">⚡</button>
+        <button class="icon-act it-edit" data-id="${e.id}" title="Edit epic">✎</button>
+      </span>
     </div>
-    ${isCollapsed(e.id)?'':`<div style="margin:2px 0 0 4px">${taskHtml}</div>
-    <button class="btn ghost sm ep-addtask" data-epic-add="${e.id}" style="margin:4px 0 0 4px">+ task</button>`}
+    ${isCollapsed(e.id)?'':`<div class="children">${taskHtml}</div>
+    <div class="add-row"><button class="btn ghost sm ep-addtask" data-epic-add="${e.id}">+ task</button></div>`}
   </div>`;
 }
 function bindRoadmap(){
