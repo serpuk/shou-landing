@@ -104,8 +104,10 @@
   .panel-body{padding:18px 20px 30px;flex:1}
   .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:none;background:none;color:var(--dim);border-radius:var(--r-sm);cursor:pointer;font-size:15px;line-height:1}
   .icon-btn:hover{background:var(--hover);color:var(--ink)}
-  .title-input{width:100%;border:none;background:none;font-family:inherit;font-size:20px;font-weight:700;line-height:1.3;color:var(--ink);padding:2px 0;outline:none}
+  .title-input{width:100%;border:none;background:none;font-family:inherit;font-size:20px;font-weight:700;line-height:1.3;color:var(--ink);padding:3px 7px;margin-left:-7px;border-radius:7px;outline:none;transition:background .12s}
   .title-input::placeholder{color:var(--faint)}
+  .title-input:hover{background:var(--hover)}
+  .title-input:focus,.title-input:focus-visible{outline:none;background:rgba(242,83,141,.07)}
   .ml{font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
   .meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px 16px}
   @media(max-width:560px){.meta-grid{grid-template-columns:1fr 1fr}}
@@ -153,16 +155,21 @@
   .icon-act:hover{background:var(--hover);color:var(--ink)}
   .icon-act.rd-del:hover{color:#c81e5b}
   .idref{font-family:ui-monospace,monospace;cursor:pointer}
-  /* mobile-overflow guard for compact rows (full mobile pass is stage 4) */
+  /* ---- mobile-first: rows reflow to two lines, bigger tap targets ---- */
   @media(max-width:640px){
-    .wrap{padding:14px}
-    .node{gap:6px;padding:5px 4px}
-    .node .idref{display:none}          /* build# ref stays available in the panel */
-    .node-meta{gap:5px}
-    .node-desc{margin-left:32px}
-    .children{margin-left:9px;padding-left:9px}
-    .add-row{margin-left:14px}
-    .nav-in{flex-wrap:wrap;gap:8px 12px}
+    .wrap{padding:14px 12px}
+    .node{flex-wrap:wrap;gap:5px 6px;padding:7px 4px;min-height:44px}
+    .node .idref{display:none}                 /* build# ref stays available in the panel */
+    .node-title{flex:1 1 auto;min-width:110px}
+    .node-meta{order:3;flex:1 1 100%;gap:6px;padding-left:30px}
+    .node-meta:empty{display:none}
+    .row-actions{order:2;opacity:1}            /* actions always tappable on touch */
+    .icon-act{width:32px;height:32px;font-size:14px}
+    .node-desc{margin-left:30px}
+    .children{margin-left:8px;padding-left:9px}
+    .add-row{margin-left:12px}
+    .nav-in{flex-wrap:wrap;gap:8px 12px;padding:10px 14px}
+    .road-block{padding-bottom:12px}
   }
 </style>
 
@@ -421,7 +428,8 @@ function dueChip(it,prefix){
     if(it.due_date<today){cls='chip od';tip='Overdue';}
     else if(it.due_date<=addDays(today,7)){cls='chip soon';tip='Due soon';}
   }
-  return `<span class="${cls}"${tip?` title="${tip}"`:''}>${prefix||''}${esc(it.due_date)}</span>`;
+  const full=tip?`${tip} · ${it.due_date}`:it.due_date;
+  return `<span class="${cls}" title="${esc(full)}">${prefix||''}${esc(fmtDate(it.due_date))}</span>`;
 }
 function renderOverview(){
   const ov=$('overview');
