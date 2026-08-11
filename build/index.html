@@ -48,7 +48,10 @@
   .gantt-bar{position:absolute;top:6px;height:16px;border-radius:5px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
   .gantt-bar:hover{filter:brightness(1.05)}
   #gantt-split:hover{background:rgba(242,83,141,.35)}
-  .caret:hover{color:var(--pink)!important}
+  .caret{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;cursor:pointer;user-select:none;color:var(--faint);font-size:11px;flex:none}
+  .caret:hover{background:var(--hover);color:var(--pink)}
+  .caret-sp{display:inline-block;width:22px;flex:none}
+  @media(max-width:640px){.caret,.caret-sp{width:28px;height:28px}}
   .grip{display:inline-block;width:13px;text-align:center;cursor:grab;color:#cbc7d2;font-size:12px;line-height:1;user-select:none;flex:none}
   .grip:hover{color:var(--pink)}
   .grip:active{cursor:grabbing}
@@ -102,6 +105,13 @@
   @keyframes panelIn{from{transform:translateX(26px);opacity:.5}to{transform:translateX(0);opacity:1}}
   .panel-head{position:sticky;top:0;background:var(--card);z-index:3;padding:13px 20px 11px;border-bottom:1px solid var(--line)}
   .panel-body{padding:18px 20px 30px;flex:1}
+  /* mobile: the task detail is a full-screen page, not a squeezed side panel */
+  @media(max-width:768px){
+    .panel{width:100%;border-left:none;box-shadow:none;animation:panelUp .2s ease}
+    .panel-head{padding:12px 15px 10px}
+    .panel-body{padding:16px 15px 44px}
+  }
+  @keyframes panelUp{from{transform:translateY(1.5%);opacity:.6}to{transform:translateY(0);opacity:1}}
   .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:none;background:none;color:var(--dim);border-radius:var(--r-sm);cursor:pointer;font-size:15px;line-height:1}
   .icon-btn:hover{background:var(--hover);color:var(--ink)}
   .title-input{width:100%;border:none;background:none;font-family:inherit;font-size:20px;font-weight:700;line-height:1.3;color:var(--ink);padding:3px 7px;margin-left:-7px;border-radius:7px;outline:none;transition:background .12s}
@@ -1222,8 +1232,8 @@ const isCollapsed=id=>collapsed.has(id);
 function saveCollapsed(){try{localStorage.setItem('build_collapsed',JSON.stringify([...collapsed]));}catch(e){}}
 function toggleCollapse(id){collapsed.has(id)?collapsed.delete(id):collapsed.add(id);saveCollapsed();renderRoadmap();}
 function caret(id){
-  if(!hasKids(id))return '<span style="display:inline-block;width:15px"></span>';
-  return `<span class="caret" data-c="${id}" title="Collapse / expand" style="display:inline-block;width:15px;text-align:center;cursor:pointer;user-select:none;color:var(--dim);font-size:11px">${isCollapsed(id)?'▶':'▼'}</span>`;
+  if(!hasKids(id))return '<span class="caret-sp"></span>';
+  return `<span class="caret" data-c="${id}" title="Collapse / expand" role="button" aria-label="Collapse or expand">${isCollapsed(id)?'▶':'▼'}</span>`;
 }
 function bindCarets(){document.querySelectorAll('.caret').forEach(c=>{c.onclick=e=>{e.stopPropagation();toggleCollapse(+c.getAttribute('data-c'));};});}
 
@@ -1322,7 +1332,7 @@ function renderRoadmap(){
     const pct=tasks.length?Math.round(done/tasks.length*100):(r.status==='done'?100:0);
     return `<div class="road-block" data-road="${r.id}">
       <div class="rrow node node-road">
-        ${handleHtml(r.id)}${caret(r.id)}
+        ${caret(r.id)}${handleHtml(r.id)}
         <span class="pill ${r.status}" data-st="${r.id}">${statusLabel(r.status)}</span>
         <span class="node-title open-item" data-id="${r.id}" title="Open">${kindIcon('roadmap')} <b>${esc(r.title)}</b></span>
         <span class="node-meta">
@@ -1354,7 +1364,7 @@ function projectHtml(p){
   const pct=tasks.length?Math.round(done/tasks.length*100):(p.status==='done'?100:0);
   return `<div class="project" data-project="${p.id}">
     <div class="rrow node node-project">
-      ${handleHtml(p.id)}${caret(p.id)}
+      ${caret(p.id)}${handleHtml(p.id)}
       <span class="pill ${p.status}" data-st="${p.id}">${statusLabel(p.status)}</span>
       <span class="node-title open-item" data-id="${p.id}" title="Open">${kindIcon('project')} ${esc(p.title)}</span>
       <span class="node-meta">${miniProg(done,tasks.length,pct)}<span class="chip idref" data-ref="${p.id}" title="Copy build#${p.id}">build#${p.id}</span></span>
@@ -1370,7 +1380,7 @@ function projectHtml(p){
 function epicHtml(e){
   const tasks=childrenOf(e.id);
   const taskRow=t=>`<div class="rrow node node-task st-${t.status}" data-task="${t.id}">
-        ${handleHtml(t.id)}
+        ${caret(t.id)}${handleHtml(t.id)}
         <span class="pill ${t.status}" data-st="${t.id}">${statusLabel(t.status)}</span>
         <span class="node-title open-item" data-id="${t.id}" title="Open">${esc(t.title)}</span>
         <span class="node-meta">
@@ -1400,7 +1410,7 @@ function epicHtml(e){
   }
   return `<div class="epic" data-epic="${e.id}">
     <div class="rrow node node-epic">
-      ${handleHtml(e.id)}${caret(e.id)}
+      ${caret(e.id)}${handleHtml(e.id)}
       <span class="pill ${e.status}" data-st="${e.id}">${statusLabel(e.status)}</span>
       <span class="node-title open-item" data-id="${e.id}" title="Open">${kindIcon('epic')} ${esc(e.title)}</span>
       <span class="node-meta">
