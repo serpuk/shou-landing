@@ -539,14 +539,15 @@ function metaVal(k){var c=U.content||{};var base=c[k];if(curLang===(U.baseLang||
 var navLang=(navigator.language||'en').slice(0,2).toLowerCase();
 if(CHR[navLang])curLang=navLang;
 
-// SAMPLE PAGE — this is the live guest page (apartments/u.html) rendered against
-// a fixed demo apartment instead of fetching /apt?slug=. It is deliberately a
-// verbatim copy of u.html so the sample can never drift from the real design:
-// only this boot block differs. The Welcome book / branding below are hardcoded;
-// "This week" (events) and "Ask the concierge" still hit the live backend using
-// the demo's Brussels coordinates, so a prospect sees the real thing working.
-// Demo unit "Apt 51" — a Sainte-Catherine / Dansaert one-bed in central Brussels.
-var U={
+// SAMPLE PAGE — this is the live guest page (apartments/u.html), pointed at a
+// REAL published demo unit ("shou-sample") so the public sample stays in sync
+// with whatever the demo owner edits in the dashboard (reflected within the
+// API's 60s cache). It is otherwise a verbatim copy of u.html, so the design can
+// never drift. DEMO below is a hardcoded fallback used ONLY if that unit is ever
+// unpublished/unreachable — the page then degrades to a static "Apt 51" instead
+// of the guest "guide unavailable" screen. "This week" events + the concierge
+// always hit the live backend using the unit's Brussels coordinates.
+var DEMO={
   name:'Apt 51', slug:'', baseLang:'en',
   lat:50.8480, lng:4.3470,
   address:'Rue Antoine Dansaert 51, 1000 Brussels',
@@ -574,16 +575,23 @@ var U={
     i18n:{}
   }
 };
-// Deferred like the original fetch callback so every top-level definition below
-// (THEMES, chip tables, loadEvents…) is assigned before the first render runs.
-Promise.resolve().then(function(){
+// Fetch the live demo unit; fall back to DEMO if it's ever unreachable. The .then
+// runs async (after every top-level definition below — THEMES, chip tables,
+// loadEvents — is assigned), so the first render never races those like a
+// synchronous call would.
+fetch(API+'/apt?slug=shou-sample').then(function(r){
+  if(!r.ok)throw new Error('nf'); return r.json();
+}).then(function(d){ U=(d&&d.unit)?d.unit:DEMO; boot(); })
+.catch(function(){ U=DEMO; boot(); });
+
+function boot(){
   // A visitor who picked a language keeps it across reloads (shared demo key).
-  try{var _sv=localStorage.getItem('apt_guest_lang:sample');
+  try{var _sv=localStorage.getItem('apt_guest_lang:'+slug);
     if(_sv&&LANGS.some(function(l){return l.c===_sv;}))curLang=_sv;
     else curLang=U.baseLang||'en';
   }catch(e){ curLang=U.baseLang||'en'; }
   render(); loadEvents();
-});
+}
 
 function poiValue(k){
   var near = U.address ? (' near '+U.address) : (U.building?(' near '+U.building+' Brussels'):' Brussels');
