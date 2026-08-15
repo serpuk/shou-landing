@@ -914,6 +914,7 @@ function openEditor(unit){
   $('pubBtn').style.display=unit?'':'none';
   if(saveTimer){clearTimeout(saveTimer);saveTimer=null;}
   lastSavedJSON=JSON.stringify(collect());   // baseline: fields are populated, so no-op autosaves are skipped
+  lastEnrichJSON='';                          // a freshly opened unit enriches its picks once
   setSaveStatus(unit?'saved':'');
   updatePubBtn();
   renderPubBox(unit);
@@ -1272,13 +1273,25 @@ function wirePlaceholders(){
 // After a save: ask the server to fill in any missing pick photos from the
 // venues' own websites, then repaint the rows. Fire and forget — a save is
 // already complete without it, and a slow venue site must not hold anything up.
+var lastEnrichJSON='';
 function enrichPicks(id){
   if(!id)return;
+  // Only re-enrich when the picks actually changed — saving an unrelated field
+  // (address, welcome book, branding) shouldn't re-hit the server for picks, and
+  // a no-op enrich is a chance for a stale in-flight response to disturb the list.
+  var before=JSON.stringify(collectPicks());
+  if(before===lastEnrichJSON)return;
   api('POST',{action:'enrich_picks',id:id},true).then(function(r){
     if(!(r.ok&&r.j&&r.j.picks))return;
     if(!document.getElementById('editor').classList.contains('show'))return;
-    renderPicks(r.j.picks);
-    applyI18n();
+    // Merge enrichment INTO the current rows (distances, coords, Google facts and
+    // thumbnails) instead of rebuilding the list. A wholesale renderPicks() here
+    // tore the DOM out from under the owner mid-edit — losing focus, text
+    // selection and half-finished deletes, and an out-of-order response could even
+    // resurrect a row they had just removed. Merging touches only the hidden
+    // ride-along data, never the name/note inputs the owner is editing.
+    mergePickEnrichment(r.j.picks);
+    lastEnrichJSON=JSON.stringify(collectPicks());
   }).catch(function(){});
 }
 function openPreview(th){
@@ -1475,6 +1488,44 @@ function collectPicks(){
     if(rows.length)out[k]=rows.slice(0,6);
   });
   return out;
+}
+// Fold server enrichment into the rows already on screen WITHOUT rebuilding them:
+// match each visible row to a server pick (by Google id, else by name) and refresh
+// only its hidden ride-along data — coords, distance, and the Google facts — plus
+// add a thumbnail if one appeared and the row has none. Never writes the name/note
+// inputs, so focus, selection and in-progress edits/deletes survive untouched.
+function mergePickEnrichment(picks){
+  picks=picks||{};
+  if(!$('editor').classList.contains('show'))return;
+  var nrm=function(x){return String(x||'').toLowerCase().normalize('NFD')
+    .replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');};
+  PICK_KINDS.forEach(function(k){
+    var srv=picks[k]||[];
+    if(!srv.length)return;
+    $('picksBody').querySelectorAll('.pick-grp[data-k="'+k+'"] .pick-row').forEach(function(r){
+      var nameInp=r.querySelector('.pk-n'); if(!nameInp)return;
+      var nm=nrm(nameInp.value); if(!nm)return;                 // blank/new row → nothing to match
+      var gp=r.getAttribute('data-gpid')||'', match=null;
+      if(gp){ for(var i=0;i<srv.length;i++){ if(srv[i].gpid&&srv[i].gpid===gp){match=srv[i];break;} } }
+      if(!match){ for(var j=0;j<srv.length;j++){ if(nrm(srv[j].n)===nm){match=srv[j];break;} } }
+      if(!match)return;
+      if(match.lat!=null&&match.lng!=null){ r.setAttribute('data-lat',match.lat); r.setAttribute('data-lng',match.lng); }
+      if(match.dist){ r.setAttribute('data-dist',match.dist); var ds=r.querySelector('.pk-dist'); if(ds)ds.textContent=match.dist; }
+      PICK_PASSTHROUGH.forEach(function(f){ if(match[f]!=null&&match[f]!=='')r.setAttribute('data-'+f,match[f]); });
+      // Only ADD a thumb the row is missing; never replace or drop one (the owner
+      // may have deliberately cleared it), and this touches only the thumb cell.
+      var im=match.img||'';
+      if(im&&!r.getAttribute('data-img')){
+        r.setAttribute('data-img',im);
+        var no=r.querySelector('.pk-nothumb');
+        if(no){ var btn=document.createElement('button'); btn.type='button'; btn.className='pk-thumb';
+          btn.setAttribute('data-i-title','pkImgDrop'); btn.title=t('pkImgDrop');
+          btn.style.backgroundImage="url('"+String(im).replace(/'/g,'%27')+"')";
+          no.parentNode.replaceChild(btn,no); }
+      }
+    });
+  });
+  wirePickThumb();   // bind click-to-drop on any thumb we just added
 }
 
 function collect(){
