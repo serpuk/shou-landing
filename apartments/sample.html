@@ -779,7 +779,13 @@ function render(){
   // Restore the tab the guest was on before this render (a language switch re-renders).
   setTab((curTab==='week'&&!hasWeek)?'book':curTab);
   document.getElementById('cf').onsubmit=function(e){e.preventDefault();var v=document.getElementById('ci').value;document.getElementById('ci').value='';ask(v);};
-  document.getElementById('langSel').onchange=function(e){curLang=e.target.value;try{localStorage.setItem('apt_guest_lang:'+slug,curLang);}catch(e2){}document.documentElement.lang=curLang;render();loadEvents();};
+  document.getElementById('langSel').onchange=function(e){curLang=e.target.value;try{localStorage.setItem('apt_guest_lang:'+slug,curLang);}catch(e2){}document.documentElement.lang=curLang;
+    // Keep the concierge conversation across the switch. render() rebuilds the whole
+    // page (and an empty #msgs), so snapshot the chat, restore it after render, then
+    // re-translate its event cards in place — mirrors the hotels guest page.
+    var _sv=''; var _m=document.getElementById('msgs'); if(_m)_sv=_m.innerHTML;
+    render(); var _m2=document.getElementById('msgs'); if(_m2&&_sv)_m2.innerHTML=_sv;
+    loadEvents(); retranslateChatCards();};
   var chips=chipsForNow();
   document.getElementById('exs').innerHTML=chips.map(function(q){return '<button class="ex" data-q="'+esc(q)+'">'+esc(q)+'</button>';}).join('');
   try{ cyclePlaceholder(); }catch(e){}
@@ -1632,6 +1638,22 @@ function logQ(intent,kind,answered){
 }
 
 var asking=false;
+// After a language switch, re-translate the event cards already in the chat, in
+// place — re-fetch each by id in the new language, re-index, re-render, redraw its
+// map. The AI's own reply text stays as written (matches the hotels guest page).
+function retranslateChatCards(){
+  [].slice.call(document.querySelectorAll('#msgs .res')).forEach(function(grid){
+    var ids=[].slice.call(grid.querySelectorAll('.ev[data-id]')).map(function(c){return c.getAttribute('data-id');}).filter(Boolean);
+    if(!ids.length)return;
+    Promise.all(ids.map(function(id){return fetch(API+'/events?id='+encodeURIComponent(id)+'&lang='+curLang).then(function(x){return x.json();}).then(function(x){return x.events&&x.events[0];}).catch(function(){return null;});}))
+      .then(function(fresh){
+        var got=fresh.filter(Boolean); if(got.length)indexEvents(got);
+        grid.innerHTML=ids.map(function(id){var e=evById[id];return e?evCard(e,nextOccurrence(e)):'';}).join('');
+        var mp=grid.nextElementSibling;
+        if(mp&&mp.classList&&mp.classList.contains('pick-map')){var evs=ids.map(function(id){return evById[id];}).filter(Boolean);var pts=eventPoints(evs);if(pts.length){try{drawPlaceMap(mp.id,pts);}catch(_){}}}
+      }).catch(function(){});
+  });
+}
 function addMsg(cls,html){var el=document.createElement('div');el.className='msg '+cls;el.innerHTML=html;document.getElementById('msgs').appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});try{topBtnScroll();}catch(e){}return el;}
 function ask(q){
   if(!q||!q.trim()||asking)return;asking=true;
