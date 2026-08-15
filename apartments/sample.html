@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=Lora:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#15101b; --text:#1a1622; --soft:#5b5566; --dim:#8a8494;
+    --ink:#15101b; --text:#1a1622; --soft:#5b5566; --dim:#6c6577;
     --bg:#ffffff; --card:#ffffff; --panel-soft:#f7f5fa; --line:rgba(20,16,30,0.10);
     --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
     --grad:linear-gradient(105deg,var(--pink),var(--orange));
@@ -34,7 +34,7 @@
   /* ---- themes: owner picks one; each is a variable override, never a layout
      change, so a bad choice can still only look different, not broken. ---- */
   body[data-theme="warm"]{
-    --ink:#2b1b13; --text:#33241c; --soft:#6d5648; --dim:#9a8577;
+    --ink:#2b1b13; --text:#33241c; --soft:#6d5648; --dim:#786249;
     --bg:#fdf6ef; --card:#fffaf5; --panel-soft:#f6ebe0; --line:rgba(60,35,20,.13);
     --pink:#c2622f; --orange:#e0913f; --grad:linear-gradient(105deg,#c2622f,#e0913f);
     --warm-bg:#f7e3d3; --warm-bd:#e8c4a8; --warm-ink:#8a4218;
@@ -45,7 +45,7 @@
   body[data-theme="warm"] h1,body[data-theme="warm"] h2,body[data-theme="warm"] .hname{font-family:'Lora',Georgia,serif}
 
   body[data-theme="nordic"]{
-    --ink:#1b2430; --text:#26313d; --soft:#5d6b7a; --dim:#64717f;
+    --ink:#1b2430; --text:#26313d; --soft:#5d6b7a; --dim:#556472;
     --bg:#f4f7f9; --card:#ffffff; --panel-soft:#e9eff4; --line:rgba(27,36,48,.12);
     --pink:#3d7ea6; --orange:#6aa3c0; --grad:linear-gradient(105deg,#3d7ea6,#6aa3c0);
     --cool-bg:#e2edf4; --cool-bd:#c3daea; --cool-ink:#255d80;
@@ -56,19 +56,19 @@
   body[data-theme="nordic"] h1,body[data-theme="nordic"] h2,body[data-theme="nordic"] .hname{font-family:'Inter',system-ui,sans-serif;letter-spacing:-.02em}
 
   body[data-theme="bold"]{
-    --ink:#f5f3f7; --text:#e8e4ee; --soft:#a9a2b6; --dim:#8a8299;
-    --bg:#17141d; --card:#211d2a; --panel-soft:#1c1825; --line:rgba(255,255,255,.14);
+    --ink:#f5f3f7; --text:#e8e4ee; --soft:#b3acc0; --dim:#9990a6;
+    --bg:#201c29; --card:#2b2637; --panel-soft:#262231; --line:rgba(255,255,255,.14);
     --pink:#ff4d8d; --orange:#ffb03d; --grad:linear-gradient(105deg,#ff4d8d,#ffb03d);
     --warm-bg:#3a2130; --warm-bd:#5a3247; --warm-ink:#ffb3cd;
     --cool-bg:#241f3a; --cool-bd:#3b3260; --cool-ink:#c9bcff;
     --mint-bg:#123330; --mint-bd:#1d4f49; --mint-ink:#7fd8cb;
-    --chrome:rgba(23,20,29,.9); --fade:#17141d;
+    --chrome:rgba(32,28,41,.9); --fade:#201c29;
     --shadow:0 1px 3px rgba(0,0,0,.5);
   }
   body[data-theme="bold"] h1,body[data-theme="bold"] h2,body[data-theme="bold"] .hname{font-family:'Space Grotesk',system-ui,sans-serif}
 
   body[data-theme="botanical"]{
-    --ink:#152a20; --text:#1d3529; --soft:#4f6a5c; --dim:#5c7166;
+    --ink:#152a20; --text:#1d3529; --soft:#4f6a5c; --dim:#4c6055;
     --bg:#f2f7f3; --card:#ffffff; --panel-soft:#e6efe8; --line:rgba(21,42,32,.13);
     --pink:#2f7d5b; --orange:#6fae74; --grad:linear-gradient(105deg,#2f7d5b,#6fae74);
     --mint-bg:#dcefe2; --mint-bd:#b9dcc4; --mint-ink:#1f6144;
@@ -84,13 +84,13 @@
   /* Boutique: charcoal and champagne — the one theme that reads as luxury
      rather than as a colour scheme. */
   body[data-theme="boutique"]{
-    --ink:#f4efe6; --text:#e6ded0; --soft:#a89d8c; --dim:#8d8375;
-    --bg:#191713; --card:#221f1a; --panel-soft:#1e1b17; --line:rgba(232,214,178,.16);
+    --ink:#f4efe6; --text:#e6ded0; --soft:#b6ab98; --dim:#a2977f;
+    --bg:#241f18; --card:#322b21; --panel-soft:#2a241c; --line:rgba(232,214,178,.16);
     --pink:#c9a227; --orange:#e6c66b; --grad:linear-gradient(105deg,#c9a227,#e6c66b);
     --warm-bg:#332c1e; --warm-bd:#4f452e; --warm-ink:#e8cf8a;
     --cool-bg:#26241f; --cool-bd:#3d3930; --cool-ink:#d8cfbb;
     --mint-bg:#1e2a24; --mint-bd:#2f4237; --mint-ink:#9fc9b1;
-    --chrome:rgba(25,23,19,.9); --fade:#191713;
+    --chrome:rgba(36,31,24,.9); --fade:#241f18;
     --shadow:0 1px 3px rgba(0,0,0,.5);
   }
   body[data-theme="boutique"] h1,body[data-theme="boutique"] h2,body[data-theme="boutique"] .hname{font-family:'Lora',Georgia,serif;letter-spacing:.005em}
@@ -98,7 +98,7 @@
   /* Mediterranean: sand and olive with a sea-blue accent — the holiday-let
      palette, and the one owners near the coast ask for. */
   body[data-theme="mediterranean"]{
-    --ink:#2e2418; --text:#3a2f21; --soft:#6f6250; --dim:#948871;
+    --ink:#2e2418; --text:#3a2f21; --soft:#6f6250; --dim:#726346;
     --bg:#fdf8f0; --card:#fffdf8; --panel-soft:#f4ecdd; --line:rgba(70,55,30,.14);
     --pink:#c1683f; --orange:#dda15e; --cyan:#2b7a91; --violet:#7a8b52;
     --grad:linear-gradient(105deg,#c1683f,#dda15e);
