@@ -122,7 +122,10 @@
     overflow:hidden;box-shadow:0 1px 4px rgba(20,16,30,.14),inset 0 0 0 1px rgba(255,255,255,.45)}
   .hlogo.hasimg{background-size:cover;background-position:center;font-size:0}
   .hlogo.haslogo{background:#fff;font-size:0}
-  .hlogo.haslogo img{width:100%;height:100%;object-fit:contain;padding:5px}
+  /* Fill the badge edge-to-edge (cover), so a square mark/app-icon/favicon has no
+     white gutter. Non-square logos are centre-cropped; the white ground stays as a
+     fallback behind any transparency. */
+  .hlogo.haslogo img{width:100%;height:100%;object-fit:cover;padding:0}
   .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
   .hpow{font-size:11px;color:var(--dim)}
   /* Inline SVG flag beside the picker. It can't go INSIDE the <option> —
