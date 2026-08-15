@@ -643,14 +643,24 @@ function bookHtml(){
       +'</div>';
   }
 
-  return (aptCards?'<h2 class="wb-sec">'+esc(sec('apt'))+'</h2><div class="wb-grid">'+aptCards+'</div>':'')+
-    (hp?'<h2 class="wb-sec">'+esc(chr('pickSec'))+'</h2>'+hp:'')+
-    '<h2 class="wb-sec">'+esc(sec('building'))+'</h2>'+
-    (poiPicks?'<div class="hp nb-grid">'+poiPicks+'</div>':'')+
-    (otherCards?'<h2 class="wb-sec">'+esc(chr('otherSec'))+'</h2><div class="hp">'+otherCards+'</div>':'')+
-    (poiCards?'<div class="wb-grid">'+poiCards+'</div>':'')+
-    (addr?'<h2 class="wb-sec">'+esc(chr('addrSec'))+'</h2>'+addr:'')+
-    (safeCards?'<h2 class="wb-sec">'+esc(sec('safety'))+'</h2><div class="wb-grid">'+safeCards+'</div>':'');
+  // Each welcome-book section is a named block; they are emitted in the owner's
+  // chosen order (content.sectionOrder), with the default order as fallback and any
+  // missing/newer section appended — so an old saved order can never drop a section.
+  var SEC_BLOCKS={
+    apt: aptCards?'<h2 class="wb-sec">'+esc(sec('apt'))+'</h2><div class="wb-grid">'+aptCards+'</div>':'',
+    picks: hp?'<h2 class="wb-sec">'+esc(chr('pickSec'))+'</h2>'+hp:'',
+    building:(poiPicks||otherCards||poiCards)?
+      ('<h2 class="wb-sec">'+esc(sec('building'))+'</h2>'
+       +(poiPicks?'<div class="hp nb-grid">'+poiPicks+'</div>':'')
+       +(otherCards?'<h2 class="wb-sec">'+esc(chr('otherSec'))+'</h2><div class="hp">'+otherCards+'</div>':'')
+       +(poiCards?'<div class="wb-grid">'+poiCards+'</div>':'')):'',
+    address: addr?'<h2 class="wb-sec">'+esc(chr('addrSec'))+'</h2>'+addr:'',
+    safety: safeCards?'<h2 class="wb-sec">'+esc(sec('safety'))+'</h2><div class="wb-grid">'+safeCards+'</div>':''
+  };
+  var DEF_SEC=['apt','picks','building','address','safety'], seen={}, ord=[];
+  ((U.content&&Array.isArray(U.content.sectionOrder)?U.content.sectionOrder:[]).concat(DEF_SEC))
+    .forEach(function(k){ if(DEF_SEC.indexOf(k)>=0 && !seen[k]){seen[k]=1;ord.push(k);} });
+  return ord.map(function(k){return SEC_BLOCKS[k];}).join('');
 }
 
 // Theme is a fixed id from the owner's picker; anything unknown falls back to
@@ -725,6 +735,8 @@ function render(){
   document.getElementById('tBook').onclick=function(){setTab('book');};
   if(hasWeek)document.getElementById('tWeek').onclick=function(){setTab('week');};
   document.getElementById('tAsk').onclick=function(){setTab('ask');};
+  // Restore the tab the guest was on before this render (a language switch re-renders).
+  setTab((curTab==='week'&&!hasWeek)?'book':curTab);
   document.getElementById('cf').onsubmit=function(e){e.preventDefault();var v=document.getElementById('ci').value;document.getElementById('ci').value='';ask(v);};
   document.getElementById('langSel').onchange=function(e){curLang=e.target.value;try{localStorage.setItem('apt_guest_lang:'+slug,curLang);}catch(e2){}document.documentElement.lang=curLang;render();loadEvents();};
   var chips=chipsForNow();
@@ -773,7 +785,11 @@ function setupTopBtn(){
   topBtnScroll();
 }
 
+// Remembered so a re-render (e.g. switching language, which rebuilds the whole
+// page) can restore the tab the guest was on instead of snapping back to Welcome.
+var curTab='book';
 function setTab(n){
+  curTab=n;
   // 'week' is absent when the unit has no coordinates — both lookups can be null.
   ['book','week','ask'].forEach(function(x){var p=document.getElementById(x),t=document.getElementById(({book:'tBook',week:'tWeek',ask:'tAsk'})[x]);
     if(p)p.classList.toggle('on',x===n);if(t)t.classList.toggle('on',x===n);});
