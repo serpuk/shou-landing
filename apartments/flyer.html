@@ -26,7 +26,10 @@
         border:1px solid var(--line)}
   .top{background:linear-gradient(140deg,var(--violet),var(--pink));padding:22px 28px;color:#fff}
   .top .brandrow{display:flex;align-items:center;gap:15px}
-  .top .logo{height:52px;max-width:112px;object-fit:contain;background:#fff;border-radius:12px;padding:7px 9px;flex:none;display:none}
+  /* Fill the badge edge-to-edge so a square mark/app-icon has no white gutter
+     (matches the guest page). Non-square logos centre-crop; white ground stays
+     behind any transparency. */
+  .top .logo{height:56px;width:56px;object-fit:cover;background:#fff;border-radius:12px;flex:none;display:none}
   .top .hotel{font-family:'Fraunces';font-weight:700;font-size:24px;line-height:1.12}
   .top .kicker{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;opacity:.85;margin-bottom:4px}
   .body{padding:24px 28px 26px;text-align:center}
@@ -64,13 +67,15 @@
       </div>
     </div>
     <div class="body">
-      <h2 id="h2">What is on tonight?</h2>
-      <p id="sub">Scan for concerts, dining and what is happening around you — in your language.</p>
+      <h2 id="h2">Everything for your stay</h2>
+      <p id="sub">Scan for your welcome book, local recommendations, guest discounts and what is on nearby — all in your language.</p>
       <img class="qr" id="qr" alt="QR code to the guest page">
       <div class="url" id="url"></div>
       <div class="feats">
+        <span class="feat">📖 Welcome book</span>
+        <span class="feat">📍 Local recommendations</span>
+        <span class="feat">🏷 Guest discounts</span>
         <span class="feat">🎭 What is on nearby</span>
-        <span class="feat">🍽 Where to eat</span>
         <span class="feat">🌍 In your language</span>
         <span class="feat">📱 No app needed</span>
       </div>
