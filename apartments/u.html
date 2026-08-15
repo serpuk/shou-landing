@@ -160,6 +160,10 @@
   .wb-intro{color:var(--soft);font-size:15px;max-width:640px;margin:6px 0 4px}
   .wb-sec{font-family:'Fraunces';font-weight:600;font-size:20px;color:var(--ink);margin:24px 0 12px;padding-bottom:8px;position:relative}
   .wb-sec::after{content:'';position:absolute;left:0;bottom:0;width:40px;height:3px;border-radius:2px;background:var(--grad)}
+  /* category subheading inside a picks section (Eat / Coffee / Drinks) */
+  .hp-cat{font-family:'Fraunces';font-weight:600;font-size:15.5px;color:var(--soft);margin:20px 0 9px;display:flex;align-items:center;gap:8px}
+  .wb-sec + .hp-cat{margin-top:8px}
+  .hp-cat .e{font-size:17px;line-height:1}
   .wb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
   .wb-card{display:flex;gap:13px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);text-decoration:none;color:inherit}
   a.wb-card{transition:border-color .15s,transform .15s}a.wb-card:hover{border-color:rgba(255,61,139,.4);transform:translateY(-1px)}
@@ -475,6 +479,17 @@ var ICON={wifi:'📶',checkin:'🔑',checkout:'🚪',heating:'🌡',laundry:'�
 var APT_ORDER=['wifi','checkin','checkout','heating','laundry','coffee','trash','parking','luggage'];
 var SAFE_ORDER=['rules','emergency'];
 var POI_ORDER=['supermarket','bakery','pharmacy','transport'];
+// Friendly headings for the owner's picks, grouped by category on the guest page.
+var PICK_CAT_LBL={
+  en:{dinner:'Eat',coffee:'Coffee & cafés',bar:'Bars & nightlife'},
+  fr:{dinner:'Où manger',coffee:'Cafés',bar:'Bars & sorties'},
+  nl:{dinner:'Eten',coffee:'Koffie & cafés',bar:'Bars & uitgaan'},
+  de:{dinner:'Essen',coffee:'Kaffee & Cafés',bar:'Bars & Ausgehen'},
+  es:{dinner:'Comer',coffee:'Cafés',bar:'Bares y vida nocturna'},
+  it:{dinner:'Mangiare',coffee:'Caffè',bar:'Bar e vita notturna'},
+  uk:{dinner:'Поїсти',coffee:'Кава та кафе',bar:'Бари та нічне життя'}
+};
+function catLbl(k){return (PICK_CAT_LBL[curLang]||PICK_CAT_LBL.en)[k]||k;}
 
 var LANGS=[{c:'en',f:'🇬🇧',n:'English'},{c:'fr',f:'🇫🇷',n:'Français'},{c:'nl',f:'🇳🇱',n:'Nederlands'},{c:'de',f:'🇩🇪',n:'Deutsch'},{c:'es',f:'🇪🇸',n:'Español'},{c:'it',f:'🇮🇹',n:'Italiano'},{c:'uk',f:'🇺🇦',n:'Українська'}];
 // Inline SVG flags — emoji flags (LANGS[].f) render as bare letter-pairs on
@@ -602,12 +617,16 @@ function bookHtml(){
   }).join('');
   // The owner's own picks — previously reachable only by asking the concierge
   // the right question, which is a poor home for curation they took time over.
-  var pk=(U.content&&U.content.picks)||{}, hpAll=[];
-  ['dinner','coffee','bar'].forEach(function(k){   // errands render under Around the corner
-    // the whole pick: the card needs its photo, rating, hours and coordinates
-    (pk[k]||[]).forEach(function(p){ if(p&&p.n) hpAll.push(Object.assign({},p,{k:k})); });
-  });
-  var hp=hpAll.map(function(p){return pickCard(p,p.k,U.address||'');}).join('');
+  // Group the owner's picks under their own category headings — a guest scans by
+  // intent (eat / coffee / drinks) instead of reading a pill on every card. Only
+  // categories with at least one pick get a heading, so no empty labels appear.
+  var pk=(U.content&&U.content.picks)||{};
+  var hp=[['dinner','🍽'],['coffee','☕'],['bar','🍸']].map(function(c){
+    var list=(pk[c[0]]||[]).filter(function(p){return p&&p.n;});
+    if(!list.length)return '';
+    var cards=list.map(function(p){return pickCard(p,c[0],U.address||'');}).join('');
+    return '<h3 class="hp-cat"><span class="e">'+c[1]+'</span><span>'+esc(catLbl(c[0]))+'</span></h3><div class="hp">'+cards+'</div>';
+  }).join('');
 
   // The address itself was never shown — a guest could not read it out to a taxi.
   var addr='';
@@ -623,7 +642,7 @@ function bookHtml(){
   }
 
   return (aptCards?'<h2 class="wb-sec">'+esc(sec('apt'))+'</h2><div class="wb-grid">'+aptCards+'</div>':'')+
-    (hp?'<h2 class="wb-sec">'+esc(chr('pickSec'))+'</h2><div class="hp">'+hp+'</div>':'')+
+    (hp?'<h2 class="wb-sec">'+esc(chr('pickSec'))+'</h2>'+hp:'')+
     '<h2 class="wb-sec">'+esc(sec('building'))+'</h2>'+
     (poiPicks?'<div class="hp nb-grid">'+poiPicks+'</div>':'')+
     (otherCards?'<h2 class="wb-sec">'+esc(chr('otherSec'))+'</h2><div class="hp">'+otherCards+'</div>':'')+
