@@ -146,6 +146,22 @@
   .feat h3{font-size:16px;margin-bottom:6px}
   .feat p{color:var(--text-soft);font-size:13.5px}
 
+  /* Why owners choose shou — Top 5 (tangible owner benefits) */
+  .reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:0 auto}
+  .reason{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 22px 20px;box-shadow:var(--shadow);overflow:hidden}
+  .reason .rn{position:absolute;top:12px;right:18px;font-family:'Fraunces',serif;font-weight:700;font-size:46px;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;opacity:.9}
+  .reason .ric{font-size:28px;margin-bottom:10px}
+  .reason h3{font-size:18px;margin-bottom:7px;padding-right:40px}
+  .reason p{color:var(--text-soft);font-size:14px}
+  .reason .rben{margin-top:13px;font-size:12.5px;font-weight:700;color:var(--cyan);display:inline-flex;align-items:center;gap:7px}
+  .reason .rben::before{content:'✓';font-weight:800}
+  .cap-strip{margin:26px auto 0;max-width:860px;text-align:center}
+  .cap-strip .cl{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}
+  .cap-chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+  .cap-chips span{font-size:13px;font-weight:600;color:var(--text-soft);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;box-shadow:var(--shadow)}
+  @media(max-width:860px){ .reasons{grid-template-columns:1fr 1fr} }
+  @media(max-width:560px){ .reasons{grid-template-columns:1fr} }
+
   /* Ask flow (multilingual) */
   .ask-flow{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
   .ask{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 18px;box-shadow:var(--shadow)}
@@ -257,6 +273,65 @@
     <span class="trust-chip"><b>✓</b>Corporate housing</span>
     <span class="trust-chip"><b>✓</b>Holiday homes</span>
     <span class="trust-chip"><b>✓</b>Airbnb hosts</span>
+  </div>
+</div></section>
+
+<!-- WHY OWNERS CHOOSE SHOU (Top 5) -->
+<section style="padding-top:24px"><div class="wrap">
+  <div class="sec-head" style="max-width:680px">
+    <span class="eyebrow"><span class="dot"></span>For owners &amp; operators</span>
+    <h2 style="margin-top:15px">Six reasons owners choose <span class="grad-text">shou</span></h2>
+    <p>It's more than a concierge — it's your whole guest experience, working for your ratings, your brand and your revenue.</p>
+  </div>
+  <div class="reasons">
+    <div class="reason">
+      <div class="rn">1</div><div class="ric">🤫</div>
+      <h3>Your phone finally goes quiet</h3>
+      <p>Guests self-serve 24/7 in seven languages — Wi-Fi, check-out, parking, the lot. No more answering the same questions at 11pm, on holiday, or for the tenth time this week.</p>
+      <div class="rben">Hours back, every week</div>
+    </div>
+    <div class="reason">
+      <div class="rn">2</div><div class="ric">⭐</div>
+      <h3>Better reviews, better ranking</h3>
+      <p>A guest who feels hosted rates you higher — and a well-guided stay means far fewer nasty surprises. Higher scores climb the OTA rankings and win you more bookings.</p>
+      <div class="rben">Ratings that drive occupancy</div>
+    </div>
+    <div class="reason">
+      <div class="rn">3</div><div class="ric">🎨</div>
+      <h3>Your brand — not a generic PDF</h3>
+      <p>A branded guest page with your logo and your own recommendations. You own the guest relationship, and every "what's nearby" answer carries your name, not the OTA's.</p>
+      <div class="rben">More direct &amp; repeat bookings</div>
+    </div>
+    <div class="reason">
+      <div class="rn">4</div><div class="ric">📊</div>
+      <h3>See exactly what guests need</h3>
+      <p>Your dashboard shows what they actually ask — parking, breakfast, things to do — and in which languages. Fix a gap once, and those questions simply stop.</p>
+      <div class="rben">Fewer complaints, smarter listings</div>
+    </div>
+    <div class="reason">
+      <div class="rn">5</div><div class="ric">🚀</div>
+      <h3>One flat fee. Live in an afternoon</h3>
+      <p>No commission, no per-guest charge, no app to install. Self-service from your first apartment to your five-hundredth — the same dashboard scales with you. First month free.</p>
+      <div class="rben">Low, predictable cost that scales</div>
+    </div>
+    <div class="reason">
+      <div class="rn">6</div><div class="ric">💸</div>
+      <h3>New revenue, not just savings</h3>
+      <p>Surface late check-out, extra nights, cleaning add-ons and your own partner tips right where guests are already looking — and turn "what's nearby?" into upsells and direct rebookings.</p>
+      <div class="rben">Turn guest questions into income</div>
+    </div>
+  </div>
+  <div class="cap-strip">
+    <div class="cl">One platform — everything included</div>
+    <div class="cap-chips">
+      <span>🤖 AI concierge</span>
+      <span>📗 Digital welcome book</span>
+      <span>📍 Local guide &amp; what's-on</span>
+      <span>🎨 Your branding</span>
+      <span>📊 Guest insights</span>
+      <span>🔳 Print-ready QR flyer</span>
+      <span>🏢 Multi-unit dashboard</span>
+    </div>
   </div>
 </div></section>
 
