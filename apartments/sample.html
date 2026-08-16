@@ -173,12 +173,14 @@
   .hp-cat .e{font-size:17px;line-height:1}
   /* Extras — owner add-ons a guest can request (a tap emails the owner) */
   .xtras{display:flex;flex-direction:column;gap:10px}
-  .xtra{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow)}
+  .xtra{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+  .xtra:hover{border-color:rgba(255,61,139,.35);transform:translateY(-1px)}
+  .xt-ic{flex:none;font-size:22px;width:44px;height:44px;display:grid;place-items:center;background:var(--panel-soft);border-radius:12px;line-height:1}
   .xt-b{flex:1;min-width:0}
-  .xt-l{font-weight:700;font-size:14.5px;color:var(--ink)}
-  .xt-p{font-size:13px;color:var(--soft);margin-top:1px}
-  .xt-req{flex:none;background:var(--grad);color:#fff;border:none;font:inherit;font-weight:700;font-size:13px;padding:9px 15px;border-radius:11px;cursor:pointer}
-  .xt-req:hover{filter:brightness(1.05)}
+  .xt-l{font-weight:700;font-size:15px;color:var(--ink)}
+  .xt-p{font-size:13.5px;font-weight:700;color:var(--cyan);margin-top:2px}
+  .xt-req{flex:none;background:var(--grad);color:#fff;border:none;font:inherit;font-weight:700;font-size:13.5px;padding:11px 20px;border-radius:12px;cursor:pointer;box-shadow:0 6px 16px -8px rgba(255,61,139,.45);transition:filter .15s}
+  .xt-req:hover{filter:brightness(1.06)}
   .reqmv{position:fixed;inset:0;z-index:80;background:rgba(15,12,20,.5);display:none;align-items:center;justify-content:center;padding:18px}
   .reqmv.on{display:flex}
   .reqbox{position:relative;background:var(--card);border-radius:20px;padding:24px 22px 22px;max-width:400px;width:100%;box-shadow:0 24px 60px -18px rgba(15,12,20,.5)}
@@ -663,6 +665,16 @@ function greeting(){
   var t=(U.branding&&U.branding.tone)||'';
   return chr({host:'gHost',concierge:'gConcierge',brief:'gBrief',playful:'gPlayful'}[t]||'sub');
 }
+function addonIcon(label){var l=fold(label);
+  if(/late|tardif|tard|laat|spat|tardi/.test(l))return '\u23f0';
+  if(/early|anticip|vroeg|fruh|tempran/.test(l))return '\ud83c\udf05';
+  if(/clean|menage|schoonmaak|reinig|limpiez|puliz|linen|linge|towel|serviett|handdoek|handtuch|toalla|asciugam/.test(l))return '\ud83e\uddfa';
+  if(/night|nuit|nacht|noche|notte/.test(l))return '\ud83c\udf19';
+  if(/airport|aeroport|luchthaven|flughafen|aeropuerto|aeroporto|transfer|navette/.test(l))return '\u2708\ufe0f';
+  if(/luggage|bag|bagage|gepack|equipaje|valig|bagagli/.test(l))return '\ud83e\uddf3';
+  if(/basket|welcome|bienvenue|welkom|willkommen|bienvenida|benvenuto|grocer|course|boodschap|einkauf|compra|spesa/.test(l))return '\ud83c\udf81';
+  return '\u2728';
+}
 function bookHtml(){
   var w=(U.content&&U.content.welcome)||{};
   var aptCards=APT_ORDER.filter(function(k){return w[k];}).map(function(k){
@@ -742,7 +754,7 @@ function bookHtml(){
     .forEach(function(k){ if(DEF_SEC.indexOf(k)>=0 && !seen[k]){seen[k]=1;ord.push(k);} });
   var _ads=((U.content&&U.content.addons)||[]).filter(function(a){return a&&a.label;});
   var extras=_ads.length?('<h2 class="wb-sec">'+esc(chr('extrasSec'))+'</h2><div class="xtras">'
-    +_ads.map(function(a){return '<div class="xtra"><div class="xt-b"><div class="xt-l">'+esc(a.label)+'</div>'
+    +_ads.map(function(a){return '<div class="xtra"><span class="xt-ic">'+addonIcon(a.label)+'</span><div class="xt-b"><div class="xt-l">'+esc(a.label)+'</div>'
       +(a.price?'<div class="xt-p">'+esc(a.price)+'</div>':'')+'</div>'
       +'<button type="button" class="xt-req" data-addon="'+esc(a.label)+'" data-price="'+esc(a.price||'')+'">'+esc(chr('reqBtn'))+'</button></div>';}).join('')
     +'</div>'):'';
