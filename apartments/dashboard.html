@@ -1660,7 +1660,7 @@ function collect(){
     lat:(addrLat==null?'':addrLat), lng:(addrLng==null?'':addrLng),
     branding:{photo:photoUrl(),theme:themeSel,tone:toneSel,logo:logoSel},
     // radius removed from the form — the guest page generates the badge now.
-    content:{ welcome:welcome, picks:collectPicks(), sectionOrder:secOrder, addons:collectAddons(), bookUrl:$('f_bookurl').value.trim(), bookMsg:$('f_bookmsg').value.trim() }
+    content:{ welcome:welcome, picks:collectPicks(), sectionOrder:secOrder, addons:collectAddons(), bookUrl:$('f_bookurl').value.trim(), bookMsg:$('f_bookmsg').value.trim(), ownerLang:uiLang }
   };
 }
 // ---- autosave + publish state ----------------------------------------------
