@@ -161,6 +161,18 @@
   .cap-chips span{font-size:13px;font-weight:600;color:var(--text-soft);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;box-shadow:var(--shadow)}
   @media(max-width:860px){ .reasons{grid-template-columns:1fr 1fr} }
   @media(max-width:560px){ .reasons{grid-template-columns:1fr} }
+  /* "Where the revenue comes from" — example upsell plays (illustrative) */
+  .plays{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:0 auto}
+  .play{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .play .pic{font-size:26px;margin-bottom:10px}
+  .play .pmoment{font-size:12.5px;color:var(--text-dim);font-style:italic;margin-bottom:9px}
+  .play h3{font-size:17px;margin-bottom:6px}
+  .play p{color:var(--text-soft);font-size:14px;flex:1 0 auto}
+  .play .pben{margin-top:14px;font-size:12.5px;font-weight:700;color:var(--cyan);display:inline-flex;align-items:center;gap:7px}
+  .play .pben::before{content:'↑';font-weight:800}
+  @media(max-width:860px){ .plays{grid-template-columns:1fr 1fr} }
+  @media(max-width:560px){ .plays{grid-template-columns:1fr} }
+  .playnote{text-align:center;color:var(--text-dim);font-size:13px;margin:22px auto 0;max-width:640px}
 
   /* Ask flow (multilingual) */
   .ask-flow{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
@@ -333,6 +345,60 @@
       <span>🏢 Multi-unit dashboard</span>
     </div>
   </div>
+</div></section>
+
+<!-- WHERE THE REVENUE COMES FROM -->
+<section style="padding-top:20px"><div class="wrap">
+  <div class="sec-head" style="max-width:680px">
+    <span class="eyebrow"><span class="dot"></span>Reason 6, in practice</span>
+    <h2 style="margin-top:15px">Where the new revenue comes from</h2>
+    <p>The same moments guests already ask about — turned into offers you set, surfaced automatically, and paid straight to you, commission-free.</p>
+  </div>
+  <div class="plays">
+    <div class="play">
+      <div class="pic">⏰</div>
+      <div class="pmoment">"What time do we need to leave?"</div>
+      <h3>Offer a late check-out</h3>
+      <p>The concierge offers a 2pm check-out for ~€20 — one tap, instead of the free late leave you'd usually wave through.</p>
+      <div class="pben">≈ €20 a stay</div>
+    </div>
+    <div class="play">
+      <div class="pic">🌅</div>
+      <div class="pmoment">"Can we drop our bags early?"</div>
+      <h3>Sell an early check-in</h3>
+      <p>Offer a guaranteed noon check-in for ~€15 when the place is ready — captured the moment they ask, not after a back-and-forth.</p>
+      <div class="pben">≈ €15 a stay</div>
+    </div>
+    <div class="play">
+      <div class="pic">🌙</div>
+      <div class="pmoment">"What's on this weekend?"</div>
+      <h3>Sell the extra night</h3>
+      <p>When the answer is "loads" and the calendar's open, it nudges them to stay Sunday too — booked with you, not re-searched on an OTA.</p>
+      <div class="pben">A whole extra night</div>
+    </div>
+    <div class="play">
+      <div class="pic">🧺</div>
+      <div class="pmoment">Longer stays, around day four</div>
+      <h3>Add a mid-stay refresh</h3>
+      <p>Offer a mid-stay clean or fresh linen as a paid add-on, right when it's useful — no awkward ask, no email thread.</p>
+      <div class="pben">Add-on income</div>
+    </div>
+    <div class="play">
+      <div class="pic">🍽</div>
+      <div class="pmoment">"Anything good nearby?"</div>
+      <h3>Earn on partner tips</h3>
+      <p>Your recommended bike rental, restaurant or walking tour — the ones that pay you a referral — sit right where every guest is already looking.</p>
+      <div class="pben">Referral income</div>
+    </div>
+    <div class="play">
+      <div class="pic">🔑</div>
+      <div class="pmoment">On their way out</div>
+      <h3>Win the direct rebooking</h3>
+      <p>"Loved it? Book direct next time" with your own code — so their next stay skips the OTA commission entirely.</p>
+      <div class="pben">Skip the OTA fee</div>
+    </div>
+  </div>
+  <p class="playnote">Illustrative — you choose the offers and the prices. shou just puts them where guests are already looking, and every euro is yours.</p>
 </div></section>
 
 <!-- TODAY vs SHOU -->
