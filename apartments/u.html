@@ -586,6 +586,10 @@ function chr(k){var d=CHR[curLang]||{};return d[k]!=null?d[k]:CHR.en[k];}
 // welcome value for the current language: base if same, else i18n, else base.
 function wval(k){var c=U.content||{},w=c.welcome||{};var base=w[k];if(curLang===(U.baseLang||'en'))return base;var t=(c.i18n&&c.i18n[curLang])||{};return t[k]||base;}
 function metaVal(k){var c=U.content||{};var base=c[k];if(curLang===(U.baseLang||'en'))return base;var t=(c.i18n&&c.i18n[curLang])||{};return t[k]||base;}
+// Extras labels are host free text (any language). Translated on save under the
+// key 'addon:<label>'; shown in the guest's language, but the BASE label is what
+// we send to the backend (validation + the owner's own-language email).
+function txAddon(lbl){lbl=lbl||'';if(curLang===(U.baseLang||'en'))return lbl;var t=(U.content&&U.content.i18n&&U.content.i18n[curLang])||{};return t['addon:'+lbl]||lbl;}
 
 // The unit never loads on the .catch below, so the browser's language is the only
 // signal that screen has. Bounded to CHR's seven codes; the success path overwrites
@@ -713,9 +717,9 @@ function bookHtml(){
     .forEach(function(k){ if(DEF_SEC.indexOf(k)>=0 && !seen[k]){seen[k]=1;ord.push(k);} });
   var _ads=((U.content&&U.content.addons)||[]).filter(function(a){return a&&a.label;});
   var extras=_ads.length?('<h2 class="wb-sec">'+esc(chr('extrasSec'))+'</h2><div class="xtras">'
-    +_ads.map(function(a){return '<div class="xtra"><span class="xt-ic">'+addonIcon(a.label)+'</span><div class="xt-b"><div class="xt-l">'+esc(a.label)+'</div>'
+    +_ads.map(function(a){return '<div class="xtra"><span class="xt-ic">'+addonIcon(a.label)+'</span><div class="xt-b"><div class="xt-l">'+esc(txAddon(a.label))+'</div>'
       +(a.price?'<div class="xt-p">'+esc(a.price)+'</div>':'')+'</div>'
-      +'<button type="button" class="xt-req" data-addon="'+esc(a.label)+'" data-price="'+esc(a.price||'')+'">'+esc(chr('reqBtn'))+'</button></div>';}).join('')
+      +'<button type="button" class="xt-req" data-addon="'+esc(a.label)+'" data-label="'+esc(txAddon(a.label))+'" data-price="'+esc(a.price||'')+'">'+esc(chr('reqBtn'))+'</button></div>';}).join('')
     +'</div>'):'';
   var _bu=(U.content&&U.content.bookUrl)||'', _bm=(U.content&&U.content.bookMsg)||'';
   var bookd=(_bu&&/^https?:\/\//i.test(_bu))?('<div class="bookd"><div class="bd-ic">\U0001F511</div><div class="bd-b"><div class="bd-t">'+esc(chr('bookT'))+'</div>'+(_bm?'<div class="bd-m">'+esc(_bm)+'</div>':'')+'</div><a class="bd-go" href="'+esc(_bu)+'" target="_blank" rel="noopener">'+esc(chr('bookGo'))+'</a></div>'):'';
@@ -941,14 +945,14 @@ function evCard(e,showDate){
 // ---- event modal (the app's rich card, opened in-page, with prev/next nav) ----
 // ---- guest add-on requests (owner-set extras; a tap emails the owner) --------
 var _reqAddon=null;
-function openReqModal(addon,price){_reqAddon=addon;document.getElementById('reqTitle').textContent=chr('reqTitle').replace('{x}',addon);var pe=document.getElementById('reqPrice');pe.textContent=price||'';pe.style.display=price?'block':'none';var nm=document.getElementById('reqName');nm.value='';nm.placeholder=chr('reqNamePh');var ct=document.getElementById('reqContact');ct.value='';ct.placeholder=chr('reqContactPh');var nt=document.getElementById('reqNote');nt.value='';nt.placeholder=chr('reqNotePh');var sb=document.getElementById('reqSend');sb.textContent=chr('reqSend');sb.disabled=false;sb.style.display='';var mg=document.getElementById('reqMsg');mg.textContent='';mg.className='reqmsg';var m=document.getElementById('reqModal');m.classList.add('on');m.setAttribute('aria-hidden','false');setTimeout(function(){try{nm.focus();}catch(e){}},40);}
+function openReqModal(addon,price,sendAddon){_reqAddon=sendAddon||addon;document.getElementById('reqTitle').textContent=chr('reqTitle').replace('{x}',addon);var pe=document.getElementById('reqPrice');pe.textContent=price||'';pe.style.display=price?'block':'none';var nm=document.getElementById('reqName');nm.value='';nm.placeholder=chr('reqNamePh');var ct=document.getElementById('reqContact');ct.value='';ct.placeholder=chr('reqContactPh');var nt=document.getElementById('reqNote');nt.value='';nt.placeholder=chr('reqNotePh');var sb=document.getElementById('reqSend');sb.textContent=chr('reqSend');sb.disabled=false;sb.style.display='';var mg=document.getElementById('reqMsg');mg.textContent='';mg.className='reqmsg';var m=document.getElementById('reqModal');m.classList.add('on');m.setAttribute('aria-hidden','false');setTimeout(function(){try{nm.focus();}catch(e){}},40);}
 function closeReqModal(){var m=document.getElementById('reqModal');m.classList.remove('on');m.setAttribute('aria-hidden','true');_reqAddon=null;}
 function submitReq(){if(!_reqAddon)return;var name=document.getElementById('reqName').value.trim();var contact=document.getElementById('reqContact').value.trim();var note=document.getElementById('reqNote').value.trim();var sb=document.getElementById('reqSend'),mg=document.getElementById('reqMsg');sb.disabled=true;mg.className='reqmsg';mg.textContent=chr('reqSending');fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'request_addon',slug:(U&&U.slug)||slug,addon:_reqAddon,guestName:name,contact:contact,note:note})}).then(function(r){return r.json().catch(function(){return{};});}).then(function(d){if(d&&d.ok){mg.className='reqmsg ok';mg.textContent=chr('reqSent');sb.style.display='none';setTimeout(closeReqModal,2400);}else{sb.disabled=false;mg.className='reqmsg err';mg.textContent=chr('reqFail');}}).catch(function(){sb.disabled=false;mg.className='reqmsg err';mg.textContent=chr('reqFail');});}
 document.getElementById('reqClose').onclick=closeReqModal;
 document.getElementById('reqSend').onclick=submitReq;
 document.getElementById('reqModal').onclick=function(e){if(e.target===this)closeReqModal();};
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.getElementById('reqModal').classList.contains('on'))closeReqModal();});
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.xt-req');if(!b)return;openReqModal(b.getAttribute('data-addon'),b.getAttribute('data-price')||'');});
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.xt-req');if(!b)return;openReqModal(b.getAttribute('data-label')||b.getAttribute('data-addon'),b.getAttribute('data-price')||'',b.getAttribute('data-addon'));});
 const mv=document.getElementById('mv');
 let modalList=[], modalDates=[], modalIdx=0;   // modalDates: occurrence date to show per card (parallel to modalList)
 function catLabel(slug){if(!slug)return '';const k=CAT_L[slug];return k?chr(k):slug.charAt(0).toUpperCase()+slug.slice(1);}
@@ -1711,7 +1715,7 @@ function relatedAddon(id){var mk={checkout:['late','tardif','tard','laat','spat'
   var ads=activeAddons(); for(var i=0;i<ads.length;i++){var lab=fold(ads[i].label); if(mk.some(function(m){return lab.indexOf(fold(m))>=0;}))return ads[i];} return null;}
 var BOOKD_KW=['book direct','book directly','book again','book with you','rebook','next time','next stay','come back','stay again','reserver en direct','reserver directement','prochaine fois','revenir','rechtstreeks boeken','opnieuw boeken','volgende keer','direkt buchen','nachstes mal','wiederkommen','reservar directo','proxima vez','volver','prenota diretto','prossima volta','tornare','забронювати напряму','наступного разу','повернутись'];
 function isBookDirectQ(q){return _hitAny(_fq(q),BOOKD_KW);}
-function addonReply(a){var m=addMsg('ai',esc(chr('addonLead').replace('{x}',a.label))+(a.price?' '+esc(a.price):''));var b=document.createElement('button');b.className='ex';b.type='button';b.textContent=chr('reqBtn');b.style.marginTop='8px';b.addEventListener('click',function(){openReqModal(a.label,a.price||'');});m.appendChild(b);}
+function addonReply(a){var _tl=txAddon(a.label);var m=addMsg('ai',esc(chr('addonLead').replace('{x}',_tl))+(a.price?' '+esc(a.price):''));var b=document.createElement('button');b.className='ex';b.type='button';b.textContent=chr('reqBtn');b.style.marginTop='8px';b.addEventListener('click',function(){openReqModal(_tl,a.price||'',a.label);});m.appendChild(b);}
 function ask(q){
   if(!q||!q.trim()||asking)return;asking=true;
   addMsg('me',esc(q));
@@ -1723,7 +1727,7 @@ function ask(q){
   var _ad=matchAddon(q); if(_ad){addonReply(_ad);asking=false;return;}
   if(cls&&cls.t==='wb'&&String(w[cls.id]||'').trim()){
     var _wm=addMsg('ai',esc(chr('here'))+'<div class="ans"><span class="wb-ic">'+ICON[cls.id]+'</span><div><div class="k">'+esc(lbl(cls.id))+'</div><div class="v">'+esc(wval(cls.id))+'</div></div></div>');
-    var _ra=relatedAddon(cls.id); if(_ra&&_wm){var _rb=document.createElement('button');_rb.className='ex';_rb.type='button';_rb.textContent=chr('reqBtn')+' — '+_ra.label+(_ra.price?' ('+_ra.price+')':'');_rb.style.marginTop='8px';_rb.addEventListener('click',function(){openReqModal(_ra.label,_ra.price||'');});_wm.appendChild(_rb);}
+    var _ra=relatedAddon(cls.id); if(_ra&&_wm){var _rl=txAddon(_ra.label);var _rb=document.createElement('button');_rb.className='ex';_rb.type='button';_rb.textContent=chr('reqBtn')+' — '+_rl+(_ra.price?' ('+_ra.price+')':'');_rb.style.marginTop='8px';_rb.addEventListener('click',function(){openReqModal(_rl,_ra.price||'',_ra.label);});_wm.appendChild(_rb);}
     asking=false;return;
   }
   // Matched a welcome-book question the host left blank. Saying so beats
