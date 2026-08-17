@@ -1950,7 +1950,11 @@ function ask(q){
     var list=[];var seen={};(d.events||[]).concat(d.suggestedEvents||[]).forEach(function(e){if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;list.push(e);}});
     // Nearest first — the guest is anchored at the apartment, so a 5 km show beats a
     // 90 km one the shared search ranked highly on relevance alone. Guarded on coords.
-    list=dedupe(list); if(U.lat!=null&&U.lng!=null)list.sort(function(a,b){return km(a)-km(b);}); list=list.slice(0,8); indexEvents(list);
+    list=dedupe(list); if(U.lat!=null&&U.lng!=null)list.sort(function(a,b){return km(a)-km(b);});
+    // Same title at several venues (a film showing at multiple cinemas) → keep only the
+    // nearest showing, so "Ice Cream Man" doesn't fill the list three times over.
+    var _seenT={}; list=list.filter(function(e){var tk=norm(cleanTitle(e.name||e.title||'')); if(!tk)return true; if(_seenT[tk])return false; _seenT[tk]=1; return true;});
+    list=list.slice(0,8); indexEvents(list);
     if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(function(e){return evCard(e,nextOccurrence(e));}).join('');document.getElementById('msgs').appendChild(g);
       // Eight distances read one at a time is arithmetic; the same eight on a
       // map is a glance. Only when it can show all of them close enough to walk.
