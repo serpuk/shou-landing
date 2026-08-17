@@ -843,7 +843,7 @@ function bookHtml(){
     address: addr?'<h2 class="wb-sec">'+esc(chr('addrSec'))+'</h2>'+addr:'',
     safety: safeCards?'<h2 class="wb-sec">'+esc(sec('safety'))+'</h2><div class="wb-grid">'+safeCards+'</div>':''
   };
-  var DEF_SEC=['apt','picks','building','address','safety','extras'], seen={}, ord=[];
+  var DEF_SEC=['apt','picks','building','address','safety','extras','bookd'], seen={}, ord=[];
   ((U.content&&Array.isArray(U.content.sectionOrder)?U.content.sectionOrder:[]).concat(DEF_SEC))
     .forEach(function(k){ if(DEF_SEC.indexOf(k)>=0 && !seen[k]){seen[k]=1;ord.push(k);} });
   var _ads=((U.content&&U.content.addons)||[]).filter(function(a){return a&&a.label;});
@@ -853,8 +853,8 @@ function bookHtml(){
       +'<button type="button" class="xt-req" data-addon="'+esc(a.label)+'" data-label="'+esc(txAddon(a.label))+'" data-price="'+esc(a.price||'')+'">'+esc(chr('reqBtn'))+'</button></div>';}).join('')
     +'</div>'):'';
   var _bu=(U.content&&U.content.bookUrl)||'', _bm=(U.content&&U.content.bookMsg)||'';
-  var bookd=(_bu&&/^https?:\/\//i.test(_bu))?('<div class="bookd"><div class="bd-ic">\U0001F511</div><div class="bd-b"><div class="bd-t">'+esc(chr('bookT'))+'</div>'+(_bm?'<div class="bd-m">'+esc(_bm)+'</div>':'')+'</div><a class="bd-go" href="'+esc(_bu)+'" target="_blank" rel="noopener">'+esc(chr('bookGo'))+'</a></div>'):'';
-  SEC_BLOCKS.extras=extras; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('')+bookd;
+  var bookd=(_bu&&/^https?:\/\//i.test(_bu))?('<div class="bookd"><div class="bd-ic">🔑</div><div class="bd-b"><div class="bd-t">'+esc(chr('bookT'))+'</div>'+(_bm?'<div class="bd-m">'+esc(_bm)+'</div>':'')+'</div><a class="bd-go" href="'+esc(_bu)+'" target="_blank" rel="noopener">'+esc(chr('bookGo'))+'</a></div>'):'';
+  SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
 }
 
 // Theme is a fixed id from the owner's picker; anything unknown falls back to
