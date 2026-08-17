@@ -105,28 +105,30 @@
   h1,h2{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.015em;line-height:1.1;color:var(--ink)}
   a{color:inherit}
   .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
-  header{position:sticky;top:0;z-index:20;background:var(--chrome);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-  .bar{display:flex;align-items:center;gap:13px;padding:12px 20px;max-width:1040px;margin:0 auto}
+  header{position:sticky;top:0;z-index:20;background:var(--chrome);backdrop-filter:blur(16px) saturate(1.25);-webkit-backdrop-filter:blur(16px) saturate(1.25);border-bottom:1px solid var(--line);box-shadow:0 12px 34px -26px rgba(20,16,30,.55)}
+  .bar{display:flex;align-items:center;gap:14px;padding:14px 22px;max-width:1040px;margin:0 auto}
   /* The property's own photo when there is one — a monogram is what you show
      when you have no picture, and this page has had one all along in the hero.
      The ring and shadow keep a photo from reading as a hole in the header. */
-  .hlogo{width:44px;height:44px;border-radius:13px;background:var(--grad);display:grid;place-items:center;
-    font-family:'Fraunces';font-weight:700;font-size:21px;color:#fff;flex:none;letter-spacing:.01em;
-    overflow:hidden;box-shadow:0 1px 4px rgba(20,16,30,.14),inset 0 0 0 1px rgba(255,255,255,.45)}
+  .hlogo{width:46px;height:46px;border-radius:14px;background:var(--grad);display:grid;place-items:center;
+    font-family:'Fraunces';font-weight:700;font-size:22px;color:#fff;flex:none;letter-spacing:.01em;
+    overflow:hidden;box-shadow:0 6px 18px -6px rgba(20,16,30,.32),inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(255,255,255,.28)}
   .hlogo.hasimg{background-size:cover;background-position:center;font-size:0}
   .hlogo.haslogo{background:#fff;font-size:0}
   /* Fill the badge edge-to-edge (cover), so a square mark/app-icon/favicon has no
      white gutter. Non-square logos are centre-cropped; the white ground stays as a
      fallback behind any transparency. */
   .hlogo.haslogo img{width:100%;height:100%;object-fit:cover;padding:0}
-  .hname{font-family:'Fraunces';font-weight:700;font-size:18px;color:var(--ink);line-height:1.05}
-  .hpow{font-size:11px;color:var(--dim)}
+  .hname{font-family:'Fraunces';font-weight:700;font-size:19.5px;color:var(--ink);line-height:1.08;letter-spacing:-.012em;font-optical-sizing:auto}
+  .hpow{font-size:11px;color:var(--soft);letter-spacing:.012em;margin-top:2px;font-weight:500}
+  .hpow-brand{font-weight:700;color:var(--pink);background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   /* Inline SVG flag beside the picker. It can't go INSIDE the <option> —
      browsers render option text only — and a native <select> is worth keeping
      for the mobile picker, so the flag sits next to it and tracks the choice.
      (Emoji flags were showing as bare letter-pairs on Windows.) */
   .lang{margin-left:auto;display:flex;align-items:center;gap:8px}
-  .lang select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;outline:none}
+  .lang select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;outline:none;box-shadow:0 1px 2px rgba(20,16,30,.05);transition:border-color .15s,box-shadow .15s}
+  .lang select:hover{border-color:color-mix(in srgb,var(--ink) 22%,var(--line));box-shadow:0 2px 8px -3px rgba(20,16,30,.14)}
   .langflag{line-height:0;flex:none}
   .langflag svg{width:24px;height:16px;border-radius:3px;box-shadow:0 1px 3px rgba(20,16,30,.25);display:block}
 
@@ -865,7 +867,7 @@ function render(){
   // SVG, because an <option> can't contain markup and emoji flags break on Windows.
   var langOpts=LANGS.map(function(l){return '<option value="'+l.c+'"'+(l.c===curLang?' selected':'')+'>'+l.n+'</option>';}).join('');
   document.getElementById('root').innerHTML=
-    '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow'))+'</div></div>'+
+    '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow')).replace('shou','<b class="hpow-brand">shou</b>')+'</div></div>'+
       '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div></div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(greeting())+'</p></div>'+
