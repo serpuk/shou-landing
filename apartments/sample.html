@@ -1663,10 +1663,11 @@ function km(e){return (Number.isFinite(e.lat)&&Number.isFinite(e.lng))?haversine
 // a club 4 km away 90 m from the door. Those coordinates still drive
 // 'roughly near here'; they may not be quoted to the metre.
 function distLabel(e){
-  if(e.geoPrecision&&e.geoPrecision!=='exact')return '';
-  const k=km(e);if(k>60)return '';
-  if(k<1.1)return Math.max(1,Math.round(k*12))+' '+chr('walk');
-  return k.toFixed(1)+' km';
+  const k=km(e); if(!isFinite(k)||k>=999)return '';   // only when we actually have coords
+  // "X min walk" only for an EXACT venue coord within walking range — a town/street
+  // centroid would fake a "1 min walk" (see geo_precision), so imprecise coords stay as km.
+  if(k<1.1&&(!e.geoPrecision||e.geoPrecision==='exact'))return Math.max(1,Math.round(k*12))+' '+chr('walk');
+  return (k<10?k.toFixed(1):Math.round(k))+' km';
 }
 function haversine(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180;const s=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));}
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'');
@@ -1947,7 +1948,9 @@ function ask(q){
   .then(function(r){return r.json();}).then(function(d){
     typing.remove();addMsg('ai',esc(d.reasoning||'')||chr('none'));
     var list=[];var seen={};(d.events||[]).concat(d.suggestedEvents||[]).forEach(function(e){if(e&&e.id&&e.name&&!seen[e.id]){seen[e.id]=1;list.push(e);}});
-    list=dedupe(list).slice(0,8); indexEvents(list);
+    // Nearest first — the guest is anchored at the apartment, so a 5 km show beats a
+    // 90 km one the shared search ranked highly on relevance alone. Guarded on coords.
+    list=dedupe(list); if(U.lat!=null&&U.lng!=null)list.sort(function(a,b){return km(a)-km(b);}); list=list.slice(0,8); indexEvents(list);
     if(list.length){var g=document.createElement('div');g.className='res';g.innerHTML=list.map(function(e){return evCard(e,nextOccurrence(e));}).join('');document.getElementById('msgs').appendChild(g);
       // Eight distances read one at a time is arithmetic; the same eight on a
       // map is a glance. Only when it can show all of them close enough to walk.
