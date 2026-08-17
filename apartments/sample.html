@@ -1586,20 +1586,16 @@ var CHIP_SLOT={breakfast:'am',coffee:'am',today:'am',
   kids:'pm',free:'pm',art:'pm',walk:'pm',
   surprise:'eve',dinner:'eve',bar:'eve',music:'eve',
   week:'',weekend:'',concert:''};
-// Weather layer on top of the time-of-day slotting: when it's wet, hide the outdoor
-// prompt (a walk) and float an indoor one (art & exhibitions); when it's fair, float
-// the walk. Uses the already-loaded forecast; a no-op until/without it.
-var CHIP_OUTDOOR={walk:1}, CHIP_INDOOR={art:1};
 function chipSlotNow(){ var h=new Date().getHours(); return h<11?'am':(h<17?'pm':'eve'); }
+// Slot by time of day only. Weather is deliberately NOT used here: a chip is a
+// conversation starter, and we don't know which time window the guest has in mind —
+// hiding "a nice walk" because it's raining right now presumes too much. Weather is
+// applied REACTIVELY instead, in the concierge's answers (weatherReply + wet-day nudge).
 function chipsForNow(){
   var pool=chr('chips')||{}, slot=chipSlotNow(), now=[], any=[];
-  var wet=false, fair=false;
-  if(WX&&WX.daily){var c0=(WX.current&&WX.current.weather_code!=null)?WX.current.weather_code:WX.daily.weather_code[0]; wet=wxWet(c0); fair=!wet;}
   Object.keys(pool).forEach(function(k){
     var when=CHIP_SLOT[k]||'';
-    if(wet&&CHIP_OUTDOOR[k])return;                                        // wet → drop the walk
-    var timely=(when===slot)||(fair&&CHIP_OUTDOOR[k])||(wet&&CHIP_INDOOR[k]);  // float weather-fit prompts
-    if(timely)now.push(pool[k]); else if(!when)any.push(pool[k]);
+    if(when===slot)now.push(pool[k]); else if(!when)any.push(pool[k]);
   });
   return now.concat(any).slice(0,6);          // timely first, then the undated ones
 }
