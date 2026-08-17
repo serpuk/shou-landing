@@ -130,6 +130,9 @@
   .ed-head .btn{margin-left:auto}
   .ed-sub{color:var(--soft);font-size:14px;margin-bottom:22px}
   .grp{margin:24px 0 8px;font-family:'Fraunces';font-weight:600;font-size:16px;color:var(--ink);padding-bottom:8px;border-bottom:1px solid var(--line)}
+  /* sub-heading inside a section (e.g. Photo / Logo under Basics) — a label, not a
+     collapsible .grp, so it stays with its section and hides when it collapses */
+  .subgrp{margin:22px 0 10px;padding-top:16px;border-top:1px solid var(--line);font-family:'Fraunces';font-weight:600;font-size:14.5px;color:var(--ink)}
   .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .geo{font-size:13px;color:var(--soft);background:var(--bg);border:1px solid var(--line);
     border-radius:10px;padding:9px 12px}
@@ -408,13 +411,9 @@
         <input id="f_address" placeholder="Start typing — street, number, postcode" data-i-ph="phAddress" autocomplete="off">
         <div class="addr-list" id="addrList"></div></div>
       <div class="f full"><div class="geo" id="geoNote"></div><div class="map" id="addrMap"></div></div>
-      
     </div>
 
-    </div>
-
-    <div class="sec">
-    <div class="grp" data-i="grpPhoto">Photo</div>
+    <div class="subgrp" data-i="grpPhoto">Photo</div>
     <p class="ed-sub" data-i="photoSub" style="margin-bottom:12px"></p>
     <div class="fields">
       <div class="f full">
@@ -429,10 +428,7 @@
     <div class="stock" id="stockRow"></div>
     <div class="photo-prev" id="photoPrev"></div>
 
-    </div>
-
-    <div class="sec">
-    <div class="grp" data-i="grpLogo">Logo</div>
+    <div class="subgrp" data-i="grpLogo">Logo</div>
     <p class="ed-sub" data-i="logoSub" style="margin-bottom:12px"></p>
     <div class="fields">
       <div class="f full">
