@@ -1132,6 +1132,9 @@ function applyProposal(p){
   openEditor(null); p=p||{};
   if(p.name)$('f_name').value=p.name;
   if(p.address)$('f_address').value=p.address;
+  // Coords from the listing (Airbnb hides the street but exposes lat/lng) so the draft
+  // has a location immediately — the map, weather and "This week" events all need it.
+  if(p.lat!=null&&p.lng!=null){ addrLat=Number(p.lat); addrLng=Number(p.lng); try{renderMap();renderGeoLine();}catch(e){} }
   var w=p.welcome||{}, filled=0;
   WFIELDS.forEach(function(k){ if(w[k]){ $('w_'+k).value=w[k]; filled++; } });
   ['f_name','f_address'].concat(WFIELDS.map(function(k){return 'w_'+k;})).forEach(function(id){ var el=$(id); if(el)el.dispatchEvent(new Event('input',{bubbles:true})); });
