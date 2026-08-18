@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pricing — Guest Companion for Serviced Apartments · shou</title>
+<title>Examples — A Guest Companion in Every Style · shou</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
-<meta name="description" content="Pricing for shou — the guest experience platform for serviced apartments. Solo €19/mo, Host €59/mo (up to 5), Pro €199/mo (up to 20). Unlimited guests, no commission. First month free, + VAT, cancel anytime. Self-service.">
+<meta name="description" content="See shou live — the guest companion for serviced apartments. The same welcome book, AI concierge, live events and day-by-day "Plan my stay" planner, shown in six branded looks. Open any example.">
 <meta name="robots" content="index,follow">
-<meta property="og:title" content="Pricing — Guest Experience Platform · shou">
-<meta property="og:description" content="Solo €19/mo · Host €59/mo · Pro €199/mo. One QR code: welcome book, AI concierge, live events, 7 languages. Unlimited guests, no per-guest fees. First month free.">
+<meta property="og:title" content="Examples — A Guest Companion in Every Style · shou">
+<meta property="og:description" content="The same guest companion in six branded looks — welcome book, AI concierge, live events and a "Plan my stay" planner behind one QR code. Open any example live.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://shou.be/apartments/pricing">
+<meta property="og:url" content="https://shou.be/apartments/examples">
 <meta property="og:image" content="https://shou.be/og-this-week.png">
-<link rel="canonical" href="https://shou.be/apartments/pricing">
+<link rel="canonical" href="https://shou.be/apartments/examples">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..800;1,9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -135,8 +135,31 @@
 
   @media(max-width:900px){ .tiers{grid-template-columns:1fr 1fr;max-width:640px} }
   @media(max-width:520px){ .tiers{grid-template-columns:1fr;max-width:420px} .nav-links a.txt{display:none} }
+  /* Examples gallery */
+  .ex-head{text-align:center;max-width:720px;margin:0 auto;padding:56px 0 4px}
+  .ex-head h1{font-size:clamp(34px,5.4vw,54px);margin:20px 0 14px}
+  .ex-head p{color:var(--text-soft);font-size:18px}
+  .ex-head p b{color:var(--ink)}
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1120px;margin:44px auto 0}
+  .gcard{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);text-decoration:none;transition:transform .15s,box-shadow .2s}
+  .gcard:hover{transform:translateY(-3px);box-shadow:0 22px 46px -22px rgba(20,16,30,.32)}
+  .gprev{background:var(--tbg);padding:20px 18px 22px;border-bottom:1px solid var(--line)}
+  .gph{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+  .glogo{width:38px;height:38px;border-radius:11px;background:var(--tac);color:#fff;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:700;font-size:19px;flex:none}
+  .gname{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--tink);line-height:1.1}
+  .gsub{font-size:11px;color:var(--tink);opacity:.62;margin-top:1px}
+  .gchips{display:flex;flex-wrap:wrap;gap:7px}
+  .gchips span{font-size:11.5px;font-weight:600;color:var(--tink);background:color-mix(in srgb,var(--tink) 9%,transparent);border:1px solid color-mix(in srgb,var(--tink) 20%,transparent);border-radius:999px;padding:5px 11px}
+  .gmeta{padding:16px 18px 18px;display:flex;flex-direction:column;gap:4px}
+  .gt{font-family:'Fraunces',serif;font-weight:600;font-size:18px;color:var(--ink)}
+  .gv{color:var(--text-soft);font-size:14px;line-height:1.45}
+  .gopen{margin-top:9px;color:var(--pink);font-weight:700;font-size:14px}
+  .ex-note{text-align:center;color:var(--text-dim);font-size:13.5px;margin:22px auto 0;max-width:640px;line-height:1.55}
+  @media(max-width:900px){ .gal{grid-template-columns:1fr 1fr;max-width:720px} .nav-links a.txt{display:none} }
+  @media(max-width:560px){ .gal{grid-template-columns:1fr;max-width:420px} }
 </style>
 </head>
+
 <body>
 <div class="bg"></div>
 
@@ -145,209 +168,49 @@
     <a class="brand" href="https://shou.be">shou <small>for apartments</small></a>
     <div class="nav-links">
       <a class="txt" href="/apartments/offer">Overview</a>
-      <a class="txt" href="/apartments/examples">Examples</a>
-      <a class="nav-cta" href="/apartments/dashboard">Start free →</a>
+      <a class="txt" href="/apartments/pricing">Pricing</a>
+      <a class="nav-cta" href="/apartments/dashboard">Start free &rarr;</a>
     </div>
   </div>
 </nav>
 
 <div class="wrap">
-  <div class="phead">
-    <span class="eyebrow"><span class="dot"></span>Guest experience platform</span>
-    <h1>The whole guest experience, <span class="grad-text">one subscription.</span></h1>
-    <p style="color:var(--ink);font-weight:500;font-size:18px;max-width:580px;margin:14px auto 0">A multilingual guest companion that answers questions, cuts repetitive messages and helps guests discover your city — all through one QR code.</p>
-    <p style="margin-top:14px">One flat monthly fee — <b>unlimited guests</b>, no commission, no per-guest charge. Everything below is <b>+ VAT</b>, first month <b>free</b>, cancel anytime.</p>
+  <div class="ex-head">
+    <span class="eyebrow"><span class="dot"></span>See it live</span>
+    <h1>One guest companion, <span class="grad-text">every style.</span></h1>
+    <p>Welcome book, AI concierge, live events and a day-by-day <b>Plan&nbsp;my&nbsp;stay</b> &mdash; all behind one QR code. Open any example to explore the real thing.</p>
   </div>
 
-  <div class="promo">
-    <span class="em">🎁</span>
-    <p><b>Build your guide today. Pay nothing for 30 days. Cancel anytime.</b><br>
-    Add a payment method to start — the first charge only happens on day 30, and you can cancel from your dashboard before then.</p>
-  </div>
+  <section style="padding-top:24px">
+    <div class="gal">
+      <a class="gcard" href="/apartments/sample?th=boutique" target="_blank" rel="noopener" style="--tbg:#241f18;--tink:#f4efe6;--tac:#c8a24a"><div class="gprev"><div class="gph"><span class="glogo">G</span><div><div class="gname">Grand Residence</div><div class="gsub">Your guest companion</div></div></div><div class="gchips"><span>Wi-Fi</span><span>Check-out</span><span>What&rsquo;s on</span><span>Plan my stay</span></div></div><div class="gmeta"><div class="gt">Grand Residence</div><div class="gv">Reads like a five-star stay — ideal for high-end, design-led apartments.</div><span class="gopen">Open live &rarr;</span></div></a>
+      <a class="gcard" href="/apartments/sample?th=warm" target="_blank" rel="noopener" style="--tbg:#fdf6ef;--tink:#2b1b13;--tac:#e0906f"><div class="gprev"><div class="gph"><span class="glogo">M</span><div><div class="gname">Maison Claire</div><div class="gsub">Your guest companion</div></div></div><div class="gchips"><span>Wi-Fi</span><span>Check-out</span><span>What&rsquo;s on</span><span>Plan my stay</span></div></div><div class="gmeta"><div class="gt">Maison Claire</div><div class="gv">Feels like a home, not a rental. Ideal for family and Airbnb stays.</div><span class="gopen">Open live &rarr;</span></div></a>
+      <a class="gcard" href="/apartments/sample?th=bold" target="_blank" rel="noopener" style="--tbg:#201c29;--tink:#f5f3f7;--tac:#ff3d8b"><div class="gprev"><div class="gph"><span class="glogo">C</span><div><div class="gname">City Loft</div><div class="gsub">Your guest companion</div></div></div><div class="gchips"><span>Wi-Fi</span><span>Check-out</span><span>What&rsquo;s on</span><span>Plan my stay</span></div></div><div class="gmeta"><div class="gt">City Loft</div><div class="gv">Bold and night-ready. Ideal for lofts and nightlife districts.</div><span class="gopen">Open live &rarr;</span></div></a>
+      <a class="gcard" href="/apartments/sample?th=nordic" target="_blank" rel="noopener" style="--tbg:#f4f7f9;--tink:#1b2430;--tac:#4f7fa8"><div class="gprev"><div class="gph"><span class="glogo">N</span><div><div class="gname">Nordic Nest</div><div class="gsub">Your guest companion</div></div></div><div class="gchips"><span>Wi-Fi</span><span>Check-out</span><span>What&rsquo;s on</span><span>Plan my stay</span></div></div><div class="gmeta"><div class="gt">Nordic Nest</div><div class="gv">Calm and uncluttered. Ideal for business guests and long stays.</div><span class="gopen">Open live &rarr;</span></div></a>
+      <a class="gcard" href="/apartments/sample?th=botanical" target="_blank" rel="noopener" style="--tbg:#f2f7f3;--tink:#152a20;--tac:#3f8f5a"><div class="gprev"><div class="gph"><span class="glogo">G</span><div><div class="gname">Garden House</div><div class="gsub">Your guest companion</div></div></div><div class="gchips"><span>Wi-Fi</span><span>Check-out</span><span>What&rsquo;s on</span><span>Plan my stay</span></div></div><div class="gmeta"><div class="gt">Garden House</div><div class="gv">A calm, premium feel. Perfect near parks or greenery.</div><span class="gopen">Open live &rarr;</span></div></a>
+      <a class="gcard" href="/apartments/sample?th=mediterranean" target="_blank" rel="noopener" style="--tbg:#fdf8f0;--tink:#2e2418;--tac:#cf8f3a"><div class="gprev"><div class="gph"><span class="glogo">C</span><div><div class="gname">Casa Oliva</div><div class="gsub">Your guest companion</div></div></div><div class="gchips"><span>Wi-Fi</span><span>Check-out</span><span>What&rsquo;s on</span><span>Plan my stay</span></div></div><div class="gmeta"><div class="gt">Casa Oliva</div><div class="gv">Feels like a holiday the moment they arrive. Perfect for sunny, coastal lets.</div><span class="gopen">Open live &rarr;</span></div></a>
+      
+    </div>
+    <p class="ex-note">Every example opens the <b>same live sample apartment</b> in a different branded look &mdash; the exact experience your guests would get. Try switching the language and opening the <b>Plan&nbsp;my&nbsp;stay</b> tab.</p>
+  </section>
+
+  <section>
+    <div class="cta">
+      <span class="eyebrow"><span class="dot"></span>Your turn</span>
+      <h2>Build yours in an afternoon.</h2>
+      <p>Add your apartment, pick a look, publish. First month free &mdash; nothing charged today.</p>
+      <a class="btn btn-primary" href="/apartments/dashboard">Start free &rarr;</a>
+    </div>
+  </section>
 </div>
 
-<!-- PRICING -->
-<section style="padding-top:20px"><div class="wrap">
-
-  <div class="includes" style="margin:0 0 22px">
-    <div class="inc-lbl">Every plan includes — nothing here is an add-on</div>
-    <div class="inc-row">
-      <span class="inc">📗 Welcome book</span>
-      <span class="inc">💬 AI concierge</span>
-      <span class="inc">🎭 Live events</span>
-      <span class="inc">🗺️ Stay planner</span>
-      <span class="inc">📍 Map links</span>
-      <span class="inc">🌍 7 languages</span>
-      <span class="inc">🔑 QR &amp; your brand</span>
-      <span class="inc">✏️ Edit anytime</span>
-      <span class="inc">📱 No app to install</span>
-    </div>
-  </div>
-
-  <div class="tiers">
-
-    <!-- Solo -->
-    <div class="tier">
-      <span class="tbadge">Solo</span>
-      <h2 class="tname">Solo</h2>
-      <p class="tpos">1 apartment</p>
-      <div class="tprice"><span class="cur">€</span>19<span class="permo"> /mo</span></div>
-      <div class="tper">€19 / apartment</div>
-      <div class="tyear">or €190/yr · <b>2 months free</b></div>
-      <div class="tfree">First month free</div>
-      <ul>
-        <li>One branded guest companion</li>
-        <li>Welcome book, concierge &amp; live events</li>
-        <li>Day-by-day &ldquo;Plan my stay&rdquo;</li>
-        <li><b>7 languages</b>, auto-translated</li>
-        <li>QR code &amp; map links</li>
-        <li>Import from an Airbnb/Booking link</li>
-        <li>Edit everything yourself</li>
-      </ul>
-      <a class="btn btn-ghost" href="/apartments/dashboard?plan=solo">Start free →</a>
-    </div>
-
-    <!-- Host (featured) -->
-    <div class="tier feat">
-      <span class="tbadge pink">Most popular</span>
-      <h2 class="tname">Host</h2>
-      <p class="tpos">up to 5 apartments</p>
-      <div class="tprice"><span class="cur">€</span>59<span class="permo"> /mo</span></div>
-      <div class="tper">€11.80 / apartment</div>
-      <div class="tyear">or €590/yr · <b>2 months free</b></div>
-      <div class="tfree">First month free</div>
-      <ul>
-        <li><b>Everything in Solo</b>, for up to 5 units</li>
-        <li>Per-apartment details &amp; QR codes</li>
-        <li>Your logo &amp; colours across all</li>
-        <li>One dashboard for the whole set</li>
-        <li>Guest-usage insights</li>
-      </ul>
-      <a class="btn btn-primary" href="/apartments/dashboard?plan=host">Start free →</a>
-    </div>
-
-    <!-- Pro -->
-    <div class="tier">
-      <span class="tbadge violet">Pro</span>
-      <h2 class="tname">Pro</h2>
-      <p class="tpos">up to 20 apartments</p>
-      <div class="tprice"><span class="cur">€</span>199<span class="permo"> /mo</span></div>
-      <div class="tper">€9.95 / apartment</div>
-      <div class="tyear">or €1,990/yr · <b>2 months free</b></div>
-      <div class="tfree">First month free</div>
-      <ul>
-        <li><b>Everything in Host</b>, for up to 20 units</li>
-        <li>Bulk edit &amp; duplicate apartments</li>
-        <li>Priority support</li>
-        <li>Best value per apartment</li>
-      </ul>
-      <a class="btn btn-ghost" href="/apartments/dashboard?plan=pro">Start free →</a>
-    </div>
-
-    <!-- Portfolio -->
-    <div class="tier">
-      <span class="tbadge">Portfolio</span>
-      <h2 class="tname">Portfolio</h2>
-      <p class="tpos">20+ apartments</p>
-      <div class="tprice custom">Custom</div>
-      <div class="tfree">Let's talk</div>
-      <ul>
-        <li><b>Everything in Pro</b>, at scale</li>
-        <li>Volume pricing</li>
-        <li>Onboarding help &amp; bulk import</li>
-        <li>Custom domain &amp; dedicated support</li>
-      </ul>
-      <a class="btn btn-ghost" href="/apartments/start">Talk to us →</a>
-    </div>
-
-  </div>
-
-  <p class="monthly-line">All prices are <b>monthly, + VAT</b> — no commission, no per-guest charge, cancel anytime.</p>
-  <p class="monthly-line" style="font-size:14px;margin-top:10px">Your fee covers unlimited guest usage, the live events engine, auto-translation, updates and support.</p>
-
-</div></section>
-
-<!-- COMPARISON -->
-<section style="padding-top:14px"><div class="wrap cmp-sec">
-  <h2>More than a guidebook</h2>
-  <p class="lead">One subscription replaces the guidebook, the house manual, the FAQ, the translation tool, the local recommendations <em>and</em> the QR generator — and does what none of them can.</p>
-  <div class="cmp-wrap">
-  <table class="cmp">
-    <thead><tr><th class="feat"></th><th>A static PDF</th><th>A guidebook tool</th><th class="shou">shou</th></tr></thead>
-    <tbody>
-      <tr><td class="feat">Digital welcome book</td><td class="yes">✓</td><td class="yes">✓</td><td class="shou yes">✓</td></tr>
-      <tr><td class="feat">One QR code</td><td class="no">—</td><td class="yes">✓</td><td class="shou yes">✓</td></tr>
-      <tr><td class="feat">Auto translation · 7 languages</td><td class="no">—</td><td class="yes">✓</td><td class="shou yes">✓</td></tr>
-      <tr><td class="feat">AI answers to any question</td><td class="no">—</td><td class="lim">Limited</td><td class="shou yes">✓</td></tr>
-      <tr><td class="feat">Live local events</td><td class="no">—</td><td class="no">—</td><td class="shou yes">✓</td></tr>
-      <tr><td class="feat">Always up to date</td><td class="no">—</td><td class="no">—</td><td class="shou yes">✓</td></tr>
-      <tr><td class="feat">Personalised recommendations</td><td class="no">—</td><td class="lim">Limited</td><td class="shou yes">✓</td></tr>
-    </tbody>
-  </table>
-  </div>
-</div></section>
-
-<!-- FAQ -->
-<section style="padding-top:20px"><div class="wrap faq">
-  <h2>Questions</h2>
-  <details>
-    <summary>How does the free first month work?</summary>
-    <div class="a">You add a payment method when you start, but you're <b>not charged for the first 30 days</b>. Build your welcome book, print your QR codes and see guests use it. The first payment only happens on day 30 — and if you cancel from your dashboard before then, you're never charged.</div>
-  </details>
-  <details>
-    <summary>Do my guests need to install an app?</summary>
-    <div class="a">No — and they never will. Your guest scans the QR code and the guide opens straight in their phone's browser, in their own language. No download, no account, no login.</div>
-  </details>
-  <details>
-    <summary>How long does setup take?</summary>
-    <div class="a">Minutes if you import — paste your Airbnb or Booking.com link and we draft the apartment for you to review (Wi-Fi and check-in you add yourself, since they're not on a public listing). Starting from scratch, an afternoon for your first apartment. You can publish with the basics and keep adding later; every change is live the moment you save.</div>
-  </details>
-  <details>
-    <summary>Can I use my own logo and colours?</summary>
-    <div class="a">Yes. Add your logo, accent colour and a photo of the apartment — the guest page carries your brand, not ours.</div>
-  </details>
-  <details>
-    <summary>Do I need a demo or a sales call?</summary>
-    <div class="a">No. It's fully self-service — sign up, add your apartment's details yourself, publish, and you're live. There's a <a href="/apartments/sample" style="color:var(--cyan)" target="_blank" rel="noopener">live sample</a> you can explore first.</div>
-  </details>
-  <details>
-    <summary>Can I edit my apartment details later?</summary>
-    <div class="a">Anytime. Everything — Wi-Fi, check-out, house rules, recommendations, your branding — is editable from your dashboard, and changes go live instantly. You write it in one language and we translate it into all seven automatically.</div>
-  </details>
-  <details>
-    <summary>Are prices including VAT?</summary>
-    <div class="a">Prices are excluding VAT (+ 21% Belgian VAT where applicable). You'll receive a proper monthly invoice from ABSS Analytics.</div>
-  </details>
-  <details>
-    <summary>Is there a contract or lock-in?</summary>
-    <div class="a">No lock-in — it's month-to-month and you can cancel anytime from your dashboard. No setup fee.</div>
-  </details>
-  <details>
-    <summary>What if I have more than 20 apartments?</summary>
-    <div class="a">The Portfolio plan covers larger operators with volume pricing, bulk import and onboarding help. <a href="mailto:apartments@shou.be" style="color:var(--cyan)">Get in touch</a> and we'll tailor it.</div>
-  </details>
-</div></section>
-
-<!-- LIFESTYLE BANNER -->
-<section style="padding-top:6px"><div class="wrap" style="max-width:920px">
-  <img src="/apartments/img/apt11.jpg" alt="A guest relaxing in their apartment, using the guest companion" loading="lazy" style="width:100%;border-radius:22px;aspect-ratio:16/7;object-fit:cover;box-shadow:0 20px 50px -22px rgba(20,16,30,.34);display:block">
-</div></section>
-
-<!-- CTA -->
-<section style="padding-top:20px"><div class="wrap cta">
-  <span class="eyebrow"><span class="dot"></span>First month free</span>
-  <h2 style="margin-top:20px">Start with one apartment.</h2>
-  <p>Set it up yourself in minutes. Free for a month, cancel anytime.</p>
-  <a class="btn btn-primary" href="/apartments/dashboard">Start free →</a>
-</div></section>
-
 <footer>
-  <span>© 2026 ABSS Analytics · shou</span>
-  <span class="sep">·</span>
+  <span>&copy; 2026 ABSS Analytics &middot; shou</span>
+  <span class="sep">&middot;</span>
   <a href="/apartments/offer">For apartments</a>
-  <span class="sep">·</span>
+  <span class="sep">&middot;</span>
   <a href="https://shou.be">shou.be</a>
-  <span class="sep">·</span>
+  <span class="sep">&middot;</span>
   <a href="https://shou.be/privacy">Privacy</a>
 </footer>
 </body>
