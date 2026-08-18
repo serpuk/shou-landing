@@ -1898,13 +1898,16 @@ function planRestoreRails(host){
 var planSummaryCache={},planSummaryT=null;
 function planFetchSummary(day,i){
   var el=document.getElementById('planSummary');if(!el)return;
-  var stops=day.slots.map(function(slot){
-    var c=slot.pool[0],name='',cat='',dist='';
-    if(c.t==='ev'){name=cleanTitle(c.e.name);cat=c.e.seg||catLabel(c.e.categorySlug)||'';dist=distLabel(c.e);}
-    else if(c.t==='pick'){name=c.p.n;cat=c.p.gtype||c.kind||'';dist=c.p.dist||'';}
-    return {slot:slot.label,name:name,cat:cat,dist:dist};
-  }).filter(function(s){return s.name;});
-  if(!stops.length)return;
+  var iso=day.iso;
+  function catCount(cats){return catalog.filter(function(e){return e&&e.id&&cats.indexOf(e.categorySlug)>=0&&occursOn(e,iso);}).length;}
+  var counts={},has=false;
+  if(PLAN.interests.night)counts.music=catCount(['music']);
+  if(PLAN.interests.cult)counts.culture=catCount(['exhibition','theatre']);
+  if(PLAN.interests.out)counts.outdoors=catCount(['festival']);
+  if(PLAN.interests.fam)counts.family=catCount(['family']);
+  if(PLAN.interests.food){var pk=(U.content&&U.content.picks)||{};counts.food=((pk.coffee||[]).length+(pk.dinner||[]).length+(pk.bar||[]).length);}
+  for(var kk in counts){if(counts[kk]>0)has=true;}
+  if(!has)return;
   var sig=curLang+'|'+((U.branding&&U.branding.tone)||'')+'|'+day.iso+'|'+['food','cult','night','out','fam'].filter(function(k){return PLAN.interests[k];}).join('');
   el.setAttribute('data-sig',sig);
   if(planSummaryCache[sig]!==undefined){if(planSummaryCache[sig]){el.textContent=planSummaryCache[sig];el.classList.add('ready');}return;}
@@ -1913,7 +1916,8 @@ function planFetchSummary(day,i){
     var dow=new Date(day.iso+'T12:00:00').toLocaleDateString(planLoc(),{weekday:'long'});
     var wx=day.wx?(wxLabel(day.wx.code)+' '+day.wx.hi+'°'):'';
     var area=(U.content&&U.content.hood)||U.building||'';
-    fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'plan_summary',lang:curLang,tone:((U.branding&&U.branding.tone)||null),day:dow,area:area,weather:wx,stops:stops})})
+    var tally={},city='',bn=0;catalog.forEach(function(e){if(e&&e.city&&occursOn(e,iso)){tally[e.city]=(tally[e.city]||0)+1;if(tally[e.city]>bn){bn=tally[e.city];city=e.city;}}});
+    fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'plan_summary',lang:curLang,tone:((U.branding&&U.branding.tone)||null),day:dow,area:area,city:city,weather:wx,counts:counts})})
     .then(function(r){return r.json();}).then(function(d){
       var sum=(d&&d.summary)||'';planSummaryCache[sig]=sum;
       var cur=document.getElementById('planSummary');
