@@ -1796,6 +1796,7 @@ function planEventsOn(iso,cats,wet){
   list.sort(function(a,b){if(wet){var ra=PLAN_INDOOR[a.categorySlug]?0:1,rb=PLAN_INDOOR[b.categorySlug]?0:1;if(ra!==rb)return ra-rb;}return km(a)-km(b);});
   return list.slice(0,12);
 }
+function planIsEvening(e){var m=/^(\d{1,2}):(\d{2})/.exec(String(e&&e.time||''));return !!m&&+m[1]>=18;}
 function planAddonChip(a){return '<div class="xtra"><span class="xt-ic">'+addonIcon(a.label)+'</span><div class="xt-b"><div class="xt-l">'+esc(txAddon(a.label))+'</div>'+(a.price?'<div class="xt-p">'+esc(a.price)+'</div>':'')+'</div><button type="button" class="xt-req" data-addon="'+esc(a.label)+'" data-label="'+esc(txAddon(a.label))+'" data-price="'+esc(a.price||'')+'">'+esc(chr('reqBtn'))+'</button></div>';}
 function planStageAddons(re){var ads=((U.content&&U.content.addons)||[]).filter(function(a){return a&&a.label&&re.test(fold(a.label));});
   return ads.length?ads.map(planAddonChip).join(''):'';}
@@ -1806,12 +1807,16 @@ function planDay(i,days){
   var coffee=(picks.coffee||[]).filter(planHasN),dinner=(picks.dinner||[]).filter(planHasN);
   var slots=[];
   if(PLAN.interests.food&&coffee.length)slots.push({key:iso+':am',emoji:'☕',label:plt('morning'),pool:coffee.map(function(p){return {t:'pick',p:p,kind:'coffee'};})});
-  var dayPool=planEventsOn(iso,planDaytimeCats(),wet);
-  if(dayPool.length)slots.push({key:iso+':pm',emoji:'📍',label:plt('afternoon'),pool:dayPool.map(function(e){return {t:'ev',e:e,iso:iso};})});
+  // Combined event pool split by TIME (not category): a 20:00 show -> Tonight,
+  // a 12:15 concert -> Afternoon. Interests still decide which categories qualify.
+  var evCats=planDaytimeCats();if(PLAN.interests.night)evCats=evCats.concat(['music']);
+  var dayEv=evCats.length?catalog.filter(function(e){return e&&e.id&&evCats.indexOf(e.categorySlug)>=0&&occursOn(e,iso);}):[];
+  dayEv.sort(function(a,b){if(wet){var ra=PLAN_INDOOR[a.categorySlug]?0:1,rb=PLAN_INDOOR[b.categorySlug]?0:1;if(ra!==rb)return ra-rb;}return km(a)-km(b);});
+  var aftEv=dayEv.filter(function(e){return !planIsEvening(e);}).slice(0,12),eveEv=dayEv.filter(planIsEvening).slice(0,12);
+  if(aftEv.length)slots.push({key:iso+':pm',emoji:'📍',label:plt('afternoon'),pool:aftEv.map(function(e){return {t:'ev',e:e,iso:iso};})});
   else if(PLAN.interests.out)slots.push({key:iso+':pm',emoji:'🌳',label:plt('afternoon'),pool:[{t:'idea',text:plt('walkCap'),href:maps('parks near '+(U.address||U.building||'Brussels'))}]});
   if(PLAN.interests.food&&dinner.length)slots.push({key:iso+':dn',emoji:'🍽️',label:plt('evening'),pool:dinner.map(function(p){return {t:'pick',p:p,kind:'dinner'};})});
-  var night=PLAN.interests.night?planEventsOn(iso,['music'],false):[];
-  if(night.length)slots.push({key:iso+':nt',emoji:'🎟️',label:plt('tonight'),pool:night.map(function(e){return {t:'ev',e:e,iso:iso};})});
+  if(eveEv.length)slots.push({key:iso+':nt',emoji:'🎟️',label:plt('tonight'),pool:eveEv.map(function(e){return {t:'ev',e:e,iso:iso};})});
   var extras='';
   if(i===0)extras+=planStageAddons(PLAN_ARRIVE);
   if(i===days-1)extras+=planStageAddons(PLAN_LEAVE);
