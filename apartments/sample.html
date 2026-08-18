@@ -1811,6 +1811,7 @@ var PLAN={days:3,view:'overview',sel:{},interests:{food:true,cult:true,night:tru
 // The guest's choices persist on their own device (per unit), so re-scanning the
 // QR mid-stay brings back the agenda they curated.
 try{var _ps=JSON.parse(localStorage.getItem('apt_plan:'+slug)||'null');if(_ps&&typeof _ps==='object'){if(_ps.interests)PLAN.interests=_ps.interests;if(_ps.days)PLAN.days=_ps.days;if(_ps.sel)PLAN.sel=_ps.sel;if(_ps.view!=null)PLAN.view=_ps.view;}}catch(e){}
+try{var _pt=todayISO();for(var _pk in PLAN.sel){var _pd=String(_pk).split(':')[0];if(/^\d{4}-\d{2}-\d{2}$/.test(_pd)&&_pd<_pt)delete PLAN.sel[_pk];}}catch(e){}
 function planSave(){try{localStorage.setItem('apt_plan:'+slug,JSON.stringify({days:PLAN.days,view:PLAN.view,sel:PLAN.sel,interests:PLAN.interests}));}catch(e){}}
 var SHUF_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>';
 var ARW_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
@@ -1841,13 +1842,13 @@ function planDay(i,days){
   var picks=(U.content&&U.content.picks)||{};
   var coffee=(picks.coffee||[]).filter(planHasN),dinner=(picks.dinner||[]).filter(planHasN);
   var slots=[];
-  if(PLAN.interests.food&&coffee.length)slots.push({key:i+':am',emoji:'☕',label:plt('morning'),pool:coffee.map(function(p){return {t:'pick',p:p,kind:'coffee'};})});
+  if(PLAN.interests.food&&coffee.length)slots.push({key:iso+':am',emoji:'☕',label:plt('morning'),pool:coffee.map(function(p){return {t:'pick',p:p,kind:'coffee'};})});
   var dayPool=planEventsOn(iso,planDaytimeCats(),wet);
-  if(dayPool.length)slots.push({key:i+':pm',emoji:'📍',label:plt('afternoon'),pool:dayPool.map(function(e){return {t:'ev',e:e,iso:iso};})});
-  else if(PLAN.interests.out)slots.push({key:i+':pm',emoji:'🌳',label:plt('afternoon'),pool:[{t:'idea',text:plt('walkCap'),href:maps('parks near '+(U.address||U.building||'Brussels'))}]});
-  if(PLAN.interests.food&&dinner.length)slots.push({key:i+':dn',emoji:'🍽️',label:plt('evening'),pool:dinner.map(function(p){return {t:'pick',p:p,kind:'dinner'};})});
+  if(dayPool.length)slots.push({key:iso+':pm',emoji:'📍',label:plt('afternoon'),pool:dayPool.map(function(e){return {t:'ev',e:e,iso:iso};})});
+  else if(PLAN.interests.out)slots.push({key:iso+':pm',emoji:'🌳',label:plt('afternoon'),pool:[{t:'idea',text:plt('walkCap'),href:maps('parks near '+(U.address||U.building||'Brussels'))}]});
+  if(PLAN.interests.food&&dinner.length)slots.push({key:iso+':dn',emoji:'🍽️',label:plt('evening'),pool:dinner.map(function(p){return {t:'pick',p:p,kind:'dinner'};})});
   var night=PLAN.interests.night?planEventsOn(iso,['music'],false):[];
-  if(night.length)slots.push({key:i+':nt',emoji:'🎟️',label:plt('tonight'),pool:night.map(function(e){return {t:'ev',e:e,iso:iso};})});
+  if(night.length)slots.push({key:iso+':nt',emoji:'🎟️',label:plt('tonight'),pool:night.map(function(e){return {t:'ev',e:e,iso:iso};})});
   var extras='';
   if(i===0)extras+=planStageAddons(PLAN_ARRIVE);
   if(i===days-1)extras+=planStageAddons(PLAN_LEAVE);
@@ -1875,7 +1876,7 @@ function planOverviewHtml(all){
   return '<div class="pt-narrow">'+(strip?'<div class="pt-sec">'+esc(plt('weather'))+'</div>'+strip:'')
     +'<div class="pt-sec">'+esc(plt('yourDays'))+'</div><div class="ps-list">'+cards+'</div></div>';
 }
-function planSlotPick(slot,i){var len=slot.pool.length;return slot.pool[(((PLAN.sel[slot.key]||0)+i)%len+len)%len];}
+function planSlotPick(slot,i){var len=slot.pool.length;return slot.pool[(((PLAN.sel[slot.key]||0))%len+len)%len];}
 function planDayPoints(day,i){
   var pts=[];
   day.slots.forEach(function(slot,idx){
@@ -1887,7 +1888,7 @@ function planDayPoints(day,i){
   return pts;
 }
 function planSlotHtml(slot,i,num){
-  var len=slot.pool.length,cur=(((PLAN.sel[slot.key]||0)+i)%len+len)%len;
+  var len=slot.pool.length,cur=(((PLAN.sel[slot.key]||0))%len+len)%len;
   var nav=len>1?'<div class="pt-nav"><span class="pt-hint">'+esc(plt('another'))+'</span><button type="button" class="pt-arw" data-k="'+slot.key+'" data-d="-1" aria-label="'+esc(plt('prev'))+'">'+ARW_L+'</button><button type="button" class="pt-pos" data-pick="'+slot.key+'" title="'+esc(plt('another'))+'">'+(cur+1)+' / '+len+'</button><button type="button" class="pt-arw" data-k="'+slot.key+'" data-d="1" aria-label="'+esc(plt('next'))+'">'+ARW_R+'</button></div>':'';
   return '<div class="pt-node"><div class="pt-marker">'+num+'</div><div class="pt-body"><div class="pt-slot"><span class="pt-slabel">'+slot.emoji+' '+esc(slot.label)+'</span>'+nav+'</div><div class="pt-items">'+planCard(slot.pool[cur])+'</div></div></div>';
 }
@@ -1973,7 +1974,7 @@ function openSlotPicker(slotKey){
   var day=PLAN._curDay,i=PLAN._curI;if(!day)return;
   var slot=null,ss=day.slots;for(var k=0;k<ss.length;k++){if(ss[k].key===slotKey)slot=ss[k];}
   if(!slot||slot.pool.length<2)return;
-  var len=slot.pool.length,cur=(((PLAN.sel[slotKey]||0)+i)%len+len)%len;
+  var len=slot.pool.length,cur=(((PLAN.sel[slotKey]||0))%len+len)%len;
   var rows=slot.pool.map(function(c,idx){var l=planOptLabel(c);
     return '<button type="button" class="pk-opt'+(idx===cur?' on':'')+'" data-idx="'+idx+'"><span class="pk-rad"></span><span class="pk-num">'+(idx+1)+'</span><span class="pk-b"><span class="pk-n">'+esc(l.name)+'</span>'+(l.meta?'<span class="pk-m">'+esc(l.meta)+'</span>':'')+'</span></button>';
   }).join('');
@@ -1985,7 +1986,7 @@ function openSlotPicker(slotKey){
   document.addEventListener('keydown',onkey);
   ov.addEventListener('click',function(e){if(e.target===ov)close();});
   ov.querySelector('.pk-x').onclick=close;
-  ov.querySelectorAll('.pk-opt').forEach(function(b){b.onclick=function(){var target=+b.getAttribute('data-idx');PLAN.sel[slotKey]=target-i;renderPlan();close();};});
+  ov.querySelectorAll('.pk-opt').forEach(function(b){b.onclick=function(){var target=+b.getAttribute('data-idx');PLAN.sel[slotKey]=target;renderPlan();close();};});
   var onEl=ov.querySelector('.pk-opt.on');if(onEl)try{onEl.scrollIntoView({block:'center'});}catch(e){}
 }
 function renderPlan(){
