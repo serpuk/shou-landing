@@ -69,6 +69,10 @@
       "destination": "/apartments/pricing.html"
     },
     {
+      "source": "/apartments/examples",
+      "destination": "/apartments/examples.html"
+    },
+    {
       "source": "/apartments/start",
       "destination": "/apartments/start.html"
     },
