@@ -1787,6 +1787,10 @@ function addDaysISO(iso,n){var d=new Date(iso+'T12:00:00');d.setDate(d.getDate()
 function wxForDate(iso){if(!WX||!WX.daily||!WX.daily.time)return null;var i=WX.daily.time.indexOf(iso);
   if(i<0)return null;return {code:WX.daily.weather_code[i],hi:Math.round(WX.daily.temperature_2m_max[i]),lo:Math.round(WX.daily.temperature_2m_min[i])};}
 var PLAN_INDOOR={exhibition:1,theatre:1};
+var PLAN_OUTDOOR_RX=/open.?air|open.?lucht|plein.?air|festival|kermis|\bfoire\b|\bpark\b|parc\b|parco\b|jardin|tuin|garden|\bbeach\b|plage|strand|\bmarket\b|markt|marché|\bzoo\b|botani|terras|terrace|rooftop|\bquai\b|\bkaai\b|promenade|waterfront/i;
+function planIsOutdoor(e){return !!e&&(e.categorySlug==='festival'||PLAN_OUTDOOR_RX.test((e.name||'')+' '+(e.venue||'')));}
+function planMatchInterest(e){if(!e)return false;var I=PLAN.interests,c=e.categorySlug;if(I.cult&&(c==='exhibition'||c==='theatre'))return true;if(I.night&&c==='music')return true;if(I.fam&&c==='family')return true;if(I.out&&planIsOutdoor(e))return true;return false;}
+function planAnyInterest(){var I=PLAN.interests;return !!(I.cult||I.night||I.fam||I.out);}
 var PLAN_ARRIVE=/early|check.?in|arriv|luggage|bag|storage|welcome|basket|grocer|course|einkauf|boodschap|spesa|compra|linen|towel|serviett|handdoek|handtuch|toalla|asciugam/;
 var PLAN_LEAVE=/late|check.?out|depart|luggage|bag|storage|airport|aeroport|luchthaven|flughafen|aeropuerto|aeroporto|transfer|navette|taxi|clean|menage|schoonmaak|reinig|limpiez|puliz/;
 function planDaytimeCats(){var c=[];if(PLAN.interests.cult)c.push('exhibition','theatre');if(PLAN.interests.out)c.push('festival');if(PLAN.interests.fam)c.push('family');return c;}
@@ -1808,10 +1812,11 @@ function planDay(i,days){
   var slots=[];
   if(PLAN.interests.food&&coffee.length)slots.push({key:iso+':am',emoji:'☕',label:plt('morning'),pool:coffee.map(function(p){return {t:'pick',p:p,kind:'coffee'};})});
   // Combined event pool split by TIME (not category): a 20:00 show -> Tonight,
-  // a 12:15 concert -> Afternoon. Interests still decide which categories qualify.
-  var evCats=planDaytimeCats();if(PLAN.interests.night)evCats=evCats.concat(['music']);
-  var dayEv=evCats.length?catalog.filter(function(e){return e&&e.id&&evCats.indexOf(e.categorySlug)>=0&&occursOn(e,iso);}):[];
-  dayEv.sort(function(a,b){if(wet){var ra=PLAN_INDOOR[a.categorySlug]?0:1,rb=PLAN_INDOOR[b.categorySlug]?0:1;if(ra!==rb)return ra-rb;}return km(a)-km(b);});
+  // a 12:15 concert -> Afternoon. planMatchInterest() decides what qualifies per
+  // the "I'm into" chips; Outdoors spans categories via planIsOutdoor (keyword +
+  // festival), and on a wet day outdoor picks sink so an indoor card leads.
+  var dayEv=planAnyInterest()?catalog.filter(function(e){return e&&e.id&&planMatchInterest(e)&&occursOn(e,iso);}):[];
+  dayEv.sort(function(a,b){if(wet){var ra=planIsOutdoor(a)?1:0,rb=planIsOutdoor(b)?1:0;if(ra!==rb)return ra-rb;}return km(a)-km(b);});
   var aftEv=dayEv.filter(function(e){return !planIsEvening(e);}).slice(0,12),eveEv=dayEv.filter(planIsEvening).slice(0,12);
   if(aftEv.length)slots.push({key:iso+':pm',emoji:'📍',label:plt('afternoon'),pool:aftEv.map(function(e){return {t:'ev',e:e,iso:iso};})});
   else if(PLAN.interests.out)slots.push({key:iso+':pm',emoji:'🌳',label:plt('afternoon'),pool:[{t:'idea',text:plt('walkCap'),href:maps('parks near '+(U.address||U.building||'Brussels'))}]});
@@ -1909,7 +1914,7 @@ function planFetchSummary(day,i){
   var counts={},has=false;
   if(PLAN.interests.night)counts.music=catCount(['music']);
   if(PLAN.interests.cult)counts.culture=catCount(['exhibition','theatre']);
-  if(PLAN.interests.out)counts.outdoors=catCount(['festival']);
+  if(PLAN.interests.out)counts.outdoors=catalog.filter(function(e){return e&&e.id&&planIsOutdoor(e)&&occursOn(e,iso);}).length;
   if(PLAN.interests.fam)counts.family=catCount(['family']);
   if(PLAN.interests.food){var pk=(U.content&&U.content.picks)||{};counts.food=((pk.coffee||[]).length+(pk.dinner||[]).length+(pk.bar||[]).length);}
   for(var kk in counts){if(counts[kk]>0)has=true;}
