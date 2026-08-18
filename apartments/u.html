@@ -1885,7 +1885,7 @@ function planFetchSummary(day,i){
     return {slot:slot.label,name:name,cat:cat,dist:dist};
   }).filter(function(s){return s.name;});
   if(!stops.length)return;
-  var sig=curLang+'|'+day.iso+'|'+['food','cult','night','out','fam'].filter(function(k){return PLAN.interests[k];}).join('');
+  var sig=curLang+'|'+((U.branding&&U.branding.tone)||'')+'|'+day.iso+'|'+['food','cult','night','out','fam'].filter(function(k){return PLAN.interests[k];}).join('');
   el.setAttribute('data-sig',sig);
   if(planSummaryCache[sig]!==undefined){if(planSummaryCache[sig]){el.textContent=planSummaryCache[sig];el.classList.add('ready');}return;}
   clearTimeout(planSummaryT);
@@ -1893,7 +1893,7 @@ function planFetchSummary(day,i){
     var dow=new Date(day.iso+'T12:00:00').toLocaleDateString(planLoc(),{weekday:'long'});
     var wx=day.wx?(wxLabel(day.wx.code)+' '+day.wx.hi+'°'):'';
     var area=(U.content&&U.content.hood)||U.building||'';
-    fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'plan_summary',lang:curLang,day:dow,area:area,weather:wx,stops:stops})})
+    fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'plan_summary',lang:curLang,tone:((U.branding&&U.branding.tone)||null),day:dow,area:area,weather:wx,stops:stops})})
     .then(function(r){return r.json();}).then(function(d){
       var sum=(d&&d.summary)||'';planSummaryCache[sig]=sum;
       var cur=document.getElementById('planSummary');
