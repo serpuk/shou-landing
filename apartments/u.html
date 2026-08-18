@@ -19,6 +19,7 @@
     --warm-bg:#fce4ed; --warm-bd:#f3bfd2; --warm-ink:#a02a54;
     --cool-bg:#ece5ff; --cool-bd:#d2c3f6; --cool-ink:#4e35a0;
     --mint-bg:#e3f4f1; --mint-bd:#bfe6df; --mint-ink:#0e6b60;
+    --plan-bg:#e0edfa; --plan-bd:#bcd6f2; --plan-ink:#1e5fae;
     --chrome:rgba(255,255,255,.9);   /* translucent sticky header */
     --fade:#ffffff;                  /* the fade behind the chat input */
     --shadow:0 1px 3px rgba(20,16,30,.06);
@@ -33,6 +34,7 @@
     --warm-bg:#f7e3d3; --warm-bd:#e8c4a8; --warm-ink:#8a4218;
     --cool-bg:#efe6f0; --cool-bd:#d9c6da; --cool-ink:#6d3f63;
     --mint-bg:#e9efe3; --mint-bd:#cfdcc3; --mint-ink:#456630;
+    --plan-bg:#e6ecf2; --plan-bd:#ccd8e6; --plan-ink:#3c5a80;
     --chrome:rgba(253,246,239,.9); --fade:#fdf6ef;
   }
   body[data-theme="warm"] h1,body[data-theme="warm"] h2,body[data-theme="warm"] .hname{font-family:'Lora',Georgia,serif}
@@ -44,6 +46,7 @@
     --cool-bg:#e2edf4; --cool-bd:#c3daea; --cool-ink:#255d80;
     --warm-bg:#eeeef1; --warm-bd:#d7dae2; --warm-ink:#4b5566;
     --mint-bg:#e2eff0; --mint-bd:#c2dcdf; --mint-ink:#1f5c63;
+    --plan-bg:#e6e8f5; --plan-bd:#c9cdec; --plan-ink:#3a3f92;
     --chrome:rgba(244,247,249,.9); --fade:#f4f7f9;
   }
   body[data-theme="nordic"] h1,body[data-theme="nordic"] h2,body[data-theme="nordic"] .hname{font-family:'Inter',system-ui,sans-serif;letter-spacing:-.02em}
@@ -55,6 +58,7 @@
     --warm-bg:#3a2130; --warm-bd:#5a3247; --warm-ink:#ffb3cd;
     --cool-bg:#241f3a; --cool-bd:#3b3260; --cool-ink:#c9bcff;
     --mint-bg:#123330; --mint-bd:#1d4f49; --mint-ink:#7fd8cb;
+    --plan-bg:#182536; --plan-bd:#294059; --plan-ink:#8fc0f5;
     --chrome:rgba(32,28,41,.9); --fade:#201c29;
     --shadow:0 1px 3px rgba(0,0,0,.5);
   }
@@ -65,6 +69,7 @@
     --bg:#f2f7f3; --card:#ffffff; --panel-soft:#e6efe8; --line:rgba(21,42,32,.13);
     --pink:#2f7d5b; --orange:#6fae74; --grad:linear-gradient(105deg,#2f7d5b,#6fae74);
     --mint-bg:#dcefe2; --mint-bd:#b9dcc4; --mint-ink:#1f6144;
+    --plan-bg:#e2ebf6; --plan-bd:#c3d7ee; --plan-ink:#2b568c;
     --warm-bg:#f0ebe0; --warm-bd:#ddd2bd; --warm-ink:#6a5930;
     --cool-bg:#e5eef0; --cool-bd:#c7dade; --cool-ink:#2a5a64;
     --chrome:rgba(242,247,243,.9); --fade:#f2f7f3;
@@ -83,6 +88,7 @@
     --warm-bg:#332c1e; --warm-bd:#4f452e; --warm-ink:#e8cf8a;
     --cool-bg:#26241f; --cool-bd:#3d3930; --cool-ink:#d8cfbb;
     --mint-bg:#1e2a24; --mint-bd:#2f4237; --mint-ink:#9fc9b1;
+    --plan-bg:#1e2530; --plan-bd:#333e4e; --plan-ink:#aec6e6;
     --chrome:rgba(36,31,24,.9); --fade:#241f18;
     --shadow:0 1px 3px rgba(0,0,0,.5);
   }
@@ -98,6 +104,7 @@
     --warm-bg:#f7e6d2; --warm-bd:#e6c9a4; --warm-ink:#8c4a22;
     --cool-bg:#e3eef1; --cool-bd:#c2dce3; --cool-ink:#215f72;
     --mint-bg:#eaeedd; --mint-bd:#d2dab8; --mint-ink:#4f6027;
+    --plan-bg:#e4ebf6; --plan-bd:#c7d8ee; --plan-ink:#2c5586;
     --chrome:rgba(253,248,240,.9); --fade:#fdf8f0;
   }
   body[data-theme="mediterranean"] h1,body[data-theme="mediterranean"] h2,body[data-theme="mediterranean"] .hname{font-family:'Lora',Georgia,serif}
@@ -153,12 +160,13 @@
   #tBook.on{background:var(--mint-bg);color:var(--mint-ink);border-color:var(--mint-bd)}
   #tWeek.on{background:var(--warm-bg);color:var(--warm-ink);border-color:var(--warm-bd)}
   #tAsk.on{background:var(--cool-bg);color:var(--cool-ink);border-color:var(--cool-bd)}
-  #tPlan .tab-dot{background:var(--violet)}
-  #tPlan.on{background:var(--cool-bg);color:var(--cool-ink);border-color:var(--cool-bd)}
+  #tPlan .tab-dot{background:var(--plan-ink)}
+  #tPlan.on{background:var(--plan-bg);color:var(--plan-ink);border-color:var(--plan-bd)}
   .subpage{border:1px solid;border-radius:0 0 18px 18px;padding:16px 22px 26px;transition:background .2s,border-color .2s}
   .subpage.mint{background:var(--mint-bg);border-color:var(--mint-bd)}
   .subpage.warm{background:var(--warm-bg);border-color:var(--warm-bd)}
   .subpage.cool{background:var(--cool-bg);border-color:var(--cool-bd)}
+  .subpage.plan{background:var(--plan-bg);border-color:var(--plan-bd)}
   /* Plan my stay — itinerary */
   .pt-lead{max-width:560px;margin:0 auto 12px;font-size:14.5px;color:var(--soft);line-height:1.5}
   .pt-prefs{max-width:560px;margin:0 auto 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 15px 15px;box-shadow:var(--shadow)}
@@ -1045,7 +1053,7 @@ function setTab(n){
   // 'week' is absent when the unit has no coordinates — both lookups can be null.
   ['book','week','plan','ask'].forEach(function(x){var p=document.getElementById(x),t=document.getElementById(({book:'tBook',week:'tWeek',plan:'tPlan',ask:'tAsk'})[x]);
     if(p)p.classList.toggle('on',x===n);if(t)t.classList.toggle('on',x===n);});
-  var sp=document.getElementById('subpage');sp.className='subpage '+({book:'mint',week:'warm',plan:'cool',ask:'cool'})[n];
+  var sp=document.getElementById('subpage');sp.className='subpage '+({book:'mint',week:'warm',plan:'plan',ask:'cool'})[n];
   // A hidden panel measures zero, so the rails can only be sized once the tab is
   // actually on screen — wiring them at render time attaches nothing.
   if(n==='week'&&typeof setupArrows==='function')setupArrows();
