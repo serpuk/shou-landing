@@ -155,14 +155,10 @@
   .tab{font-size:14px;font-weight:600;padding:11px 20px 14px;border-radius:14px 14px 0 0;color:var(--soft);cursor:pointer;border:1px solid var(--line);border-bottom:none;background:var(--panel-soft);background:color-mix(in srgb,var(--ink) 6%,var(--bg));font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:8px}
   .tab:not(.on){transform:translateY(4px);opacity:.92}
   .tab-dot{width:8px;height:8px;border-radius:50%}
-  #tBook .tab-dot{background:var(--cyan)}#tWeek .tab-dot{background:var(--grad)}#tAsk .tab-dot{background:var(--grad-cool)}
-  .tab.on{margin-bottom:-1px;z-index:3;padding-bottom:15px}.tab.on .tab-dot{background:var(--card);box-shadow:0 0 0 1px rgba(0,0,0,.08)}
-  #tBook.on{background:var(--mint-bg);color:var(--mint-ink);border-color:var(--mint-bd)}
-  #tWeek.on{background:var(--warm-bg);color:var(--warm-ink);border-color:var(--warm-bd)}
-  #tAsk.on{background:var(--cool-bg);color:var(--cool-ink);border-color:var(--cool-bd)}
-  #tPlan .tab-dot{background:var(--plan-ink)}
-  #tPlan.on{background:var(--plan-bg);color:var(--plan-ink);border-color:var(--plan-bd)}
-  .subpage{border:1px solid;border-radius:0 0 18px 18px;padding:16px 22px 26px;transition:background .2s,border-color .2s}
+  .tab .tab-dot{background:var(--pink)}
+  .tab.on{margin-bottom:-1px;z-index:3;padding-bottom:15px;background:color-mix(in srgb,var(--pink) 8%,var(--card));color:var(--pink);border-color:color-mix(in srgb,var(--pink) 22%,var(--line))}
+  .tab.on .tab-dot{background:var(--card);box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+  .subpage{border:1px solid;border-color:color-mix(in srgb,var(--pink) 22%,var(--line));background:color-mix(in srgb,var(--pink) 8%,var(--card));border-radius:0 0 18px 18px;padding:16px 22px 26px;transition:background .2s,border-color .2s}
   .subpage.mint{background:var(--mint-bg);border-color:var(--mint-bd)}
   .subpage.warm{background:var(--warm-bg);border-color:var(--warm-bd)}
   .subpage.cool{background:var(--cool-bg);border-color:var(--cool-bd)}
@@ -194,7 +190,7 @@
   .pt-daywrap{display:grid;grid-template-columns:1fr;gap:16px}
   .pt-mapcol{order:-1}
   .pt-daymain{min-width:0}
-  @media(min-width:820px){.pt-daywrap{grid-template-columns:minmax(0,1fr) 340px;align-items:start}.pt-mapcol{order:0;position:sticky;top:12px;margin-top:28px}}
+  @media(min-width:820px){.pt-daywrap{grid-template-columns:minmax(0,1fr) 340px;align-items:start}.pt-mapcol{order:0;position:sticky;top:12px;margin-top:60px}}
   .pt-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:2px 0 11px}
   .pw-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:20px;scrollbar-width:none}
   .pw-strip::-webkit-scrollbar{display:none}
@@ -1065,7 +1061,7 @@ function setTab(n){
   // 'week' is absent when the unit has no coordinates — both lookups can be null.
   ['book','week','plan','ask'].forEach(function(x){var p=document.getElementById(x),t=document.getElementById(({book:'tBook',week:'tWeek',plan:'tPlan',ask:'tAsk'})[x]);
     if(p)p.classList.toggle('on',x===n);if(t)t.classList.toggle('on',x===n);});
-  var sp=document.getElementById('subpage');sp.className='subpage '+({book:'mint',week:'warm',plan:'plan',ask:'cool'})[n];
+  var sp=document.getElementById('subpage');sp.className='subpage';
   // A hidden panel measures zero, so the rails can only be sized once the tab is
   // actually on screen — wiring them at render time attaches nothing.
   if(n==='week'&&typeof setupArrows==='function')setupArrows();
@@ -1883,13 +1879,13 @@ var planSummaryCache={},planSummaryT=null;
 function planFetchSummary(day,i){
   var el=document.getElementById('planSummary');if(!el)return;
   var stops=day.slots.map(function(slot){
-    var c=planSlotPick(slot,i),name='',cat='',dist='';
+    var c=slot.pool[0],name='',cat='',dist='';
     if(c.t==='ev'){name=cleanTitle(c.e.name);cat=c.e.seg||catLabel(c.e.categorySlug)||'';dist=distLabel(c.e);}
     else if(c.t==='pick'){name=c.p.n;cat=c.p.gtype||c.kind||'';dist=c.p.dist||'';}
     return {slot:slot.label,name:name,cat:cat,dist:dist};
   }).filter(function(s){return s.name;});
   if(!stops.length)return;
-  var sig=curLang+'|'+day.iso+'|'+stops.map(function(s){return s.name;}).join('|');
+  var sig=curLang+'|'+day.iso+'|'+['food','cult','night','out','fam'].filter(function(k){return PLAN.interests[k];}).join('');
   el.setAttribute('data-sig',sig);
   if(planSummaryCache[sig]!==undefined){if(planSummaryCache[sig]){el.textContent=planSummaryCache[sig];el.classList.add('ready');}return;}
   clearTimeout(planSummaryT);
