@@ -227,7 +227,9 @@
   .pl-idea{display:flex;align-items:center;gap:11px;background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500}
   .pl-idea .pl-ii{font-size:18px;flex:none}
   .pl-idea .pl-go{margin-left:auto;color:var(--dim)}
-  .pl-free{font-size:13px;color:var(--dim);font-style:italic;padding:10px 0}
+  .pl-free{font-size:13px;color:var(--dim);font-style:italic;padding:10px 0 4px}
+  .pl-asklink{display:inline-block;margin:0 0 8px;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--pink);background:none;border:none;cursor:pointer;padding:0}
+  .pl-asklink:hover{text-decoration:underline}
   @media(max-width:560px){ .pt-dtitle{font-size:21px} }
   #book,#week,#ask{display:none}#book.on,#week.on,#ask.on{display:block}
 
@@ -1749,7 +1751,7 @@ function wxForDate(iso){if(!WX||!WX.daily||!WX.daily.time)return null;var i=WX.d
 var PLAN_INDOOR={exhibition:1,theatre:1};
 var PLAN_ARRIVE=/early|check.?in|arriv|luggage|bag|storage|welcome|basket|grocer|course|einkauf|boodschap|spesa|compra|linen|towel|serviett|handdoek|handtuch|toalla|asciugam/;
 var PLAN_LEAVE=/late|check.?out|depart|luggage|bag|storage|airport|aeroport|luchthaven|flughafen|aeropuerto|aeroporto|transfer|navette|taxi|clean|menage|schoonmaak|reinig|limpiez|puliz/;
-function planDaytimeCats(){var c=[];if(PLAN.interests.cult)c.push('exhibition','theatre','festival');if(PLAN.interests.fam)c.push('family');return c;}
+function planDaytimeCats(){var c=[];if(PLAN.interests.cult)c.push('exhibition','theatre');if(PLAN.interests.out)c.push('festival');if(PLAN.interests.fam)c.push('family');return c;}
 function planEventsOn(iso,cats,wet){
   if(!cats.length)return [];
   var list=catalog.filter(function(e){return e&&e.id&&cats.indexOf(e.categorySlug)>=0&&occursOn(e,iso);});
@@ -1768,7 +1770,7 @@ function planDay(i,days){
   if(PLAN.interests.food&&coffee.length)slots.push({key:i+':am',emoji:'☕',label:plt('morning'),pool:coffee.map(function(p){return {t:'pick',p:p,kind:'coffee'};})});
   var dayPool=planEventsOn(iso,planDaytimeCats(),wet);
   if(dayPool.length)slots.push({key:i+':pm',emoji:'📍',label:plt('afternoon'),pool:dayPool.map(function(e){return {t:'ev',e:e,iso:iso};})});
-  else if(PLAN.interests.out&&!wet)slots.push({key:i+':pm',emoji:'🌳',label:plt('afternoon'),pool:[{t:'idea',text:plt('walkCap'),href:maps('parks near '+(U.address||U.building||'Brussels'))}]});
+  else if(PLAN.interests.out)slots.push({key:i+':pm',emoji:'🌳',label:plt('afternoon'),pool:[{t:'idea',text:plt('walkCap'),href:maps('parks near '+(U.address||U.building||'Brussels'))}]});
   if(PLAN.interests.food&&dinner.length)slots.push({key:i+':dn',emoji:'🍽️',label:plt('evening'),pool:dinner.map(function(p){return {t:'pick',p:p,kind:'dinner'};})});
   var night=PLAN.interests.night?planEventsOn(iso,['music'],false):[];
   if(night.length)slots.push({key:i+':nt',emoji:'🎟️',label:plt('tonight'),pool:night.map(function(e){return {t:'ev',e:e,iso:iso};})});
@@ -1810,7 +1812,7 @@ function planTimelineHtml(day,i){
   var dtitle=dt.toLocaleDateString(planLoc(),{weekday:'long'}),dsub=dt.toLocaleDateString(planLoc(),{day:'numeric',month:'long'});
   var head='<div class="pt-dhead"><div><div class="pt-dtitle">'+esc(dtitle)+'</div><div class="pt-dsub">'+esc(dsub)+'</div></div>'+(day.wx?'<span class="pt-dwx">'+wxIcon(day.wx.code)+'<b>'+day.wx.hi+'°</b></span>':'')+'</div>';
   var tip=day.wx?'<div class="pt-tip">'+esc(day.wet?plt('wetTip'):plt('fairTip'))+'</div>':'';
-  var body=day.slots.length?day.slots.map(function(s){return planSlotHtml(s,i);}).join(''):'<div class="pl-free">'+esc(plt('freeDay'))+'</div>';
+  var body=day.slots.length?day.slots.map(function(s){return planSlotHtml(s,i);}).join(''):'<div class="pl-free">'+esc(plt('freeDay'))+'</div><button type="button" class="pl-asklink" data-goask="1">'+esc(chr('ask'))+' →</button>';
   var extras=day.extras?'<div class="pt-extras"><div class="pt-sec">'+esc(chr('extrasSec'))+'</div><div class="xtras">'+day.extras+'</div></div>':'';
   return head+tip+'<div class="pt-timeline">'+body+'</div>'+extras;
 }
@@ -1830,6 +1832,7 @@ function wirePlan(host){
   host.querySelectorAll('.pl-chip').forEach(function(b){b.onclick=function(){var k=b.getAttribute('data-int');PLAN.interests[k]=!PLAN.interests[k];renderPlan();};});
   host.querySelectorAll('.pl-nu').forEach(function(b){b.onclick=function(){PLAN.days=+b.getAttribute('data-days');if(PLAN.view!=='overview'&&+PLAN.view>=PLAN.days)PLAN.view=PLAN.days-1;renderPlan();};});
   host.querySelectorAll('.pt-shuf').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-k');PLAN.sel[k]=(PLAN.sel[k]||0)+1;renderPlan();};});
+  host.querySelectorAll('[data-goask]').forEach(function(b){b.onclick=function(){setTab('ask');};});
   host.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){var v=b.getAttribute('data-view');PLAN.view=(v==='overview')?'overview':(+v);renderPlan();try{host.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}};});
 }
 function renderPlan(){
