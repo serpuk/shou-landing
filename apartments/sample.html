@@ -224,13 +224,18 @@
   .pt-timeline{margin-top:16px}
   .pt-node{display:grid;grid-template-columns:32px 1fr;gap:13px;position:relative;padding-bottom:18px}
   .pt-node:not(:last-child)::before{content:'';position:absolute;left:15px;top:36px;bottom:2px;width:2px;background:var(--line)}
-  .pt-marker{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:15px;background:color-mix(in srgb,var(--pink) 13%,var(--card));border:1px solid color-mix(in srgb,var(--pink) 24%,var(--line));z-index:1}
+  .pt-marker{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:13.5px;font-weight:800;color:var(--ink);background:color-mix(in srgb,var(--pink) 13%,var(--card));border:1px solid color-mix(in srgb,var(--pink) 24%,var(--line));z-index:1}
   .pt-body{min-width:0}
   .pt-slot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 9px}
   .pt-slabel{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim)}
-  .pt-cnt{font-size:11px;font-weight:700;color:var(--dim);flex:none;text-transform:none;letter-spacing:0}
-  .pt-items .wk-rail{padding:2px 2px 10px;scroll-snap-type:x mandatory}
-  .pt-items .wk-rail .ev-res,.pt-items .wk-rail .pick,.pt-items .wk-rail .pl-idea{flex:0 0 85%;scroll-snap-align:start}
+  .pt-map{height:200px;border-radius:14px;overflow:hidden;border:1px solid var(--line);margin:0 0 18px}
+  .pt-pin{display:flex;width:22px;height:22px;border-radius:50%;background:var(--pink);color:#fff;font-weight:800;font-size:12.5px;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+  .pt-shuf{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--soft);background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;flex:none;transition:.15s}
+  .pt-shuf:hover{color:var(--ink);border-color:color-mix(in srgb,var(--ink) 32%,var(--line))}
+  .pt-shuf svg{width:13px;height:13px}
+  .pt-items .pick{flex-direction:row;align-items:center;gap:12px;padding:11px 12px}
+  .pt-items .pick-ph{width:82px;height:82px;flex:none;border-radius:11px}
+  .pt-items .pick-ic{width:82px;height:82px;flex:none}
   .pt-items{display:flex;flex-direction:column;gap:9px}
   .pt-items .ev-res{padding:11px 12px;border-radius:13px}
   .pt-items .ev-res .thumb{width:82px;min-height:82px}
@@ -1845,20 +1850,31 @@ function planOverviewHtml(all){
   return (strip?'<div class="pt-sec">'+esc(plt('weather'))+'</div>'+strip:'')
     +'<div class="pt-sec">'+esc(plt('yourDays'))+'</div><div class="ps-list">'+cards+'</div>';
 }
-function planSlotHtml(slot,i){
+function planSlotPick(slot,i){var len=slot.pool.length;return slot.pool[(((PLAN.sel[slot.key]||0)+i)%len+len)%len];}
+function planDayPoints(day,i){
+  var pts=[];
+  day.slots.forEach(function(slot,idx){
+    var c=planSlotPick(slot,i),pt=null;
+    if(c.t==='ev'&&isFinite(c.e.lat)&&isFinite(c.e.lng))pt=eventPoint(c.e);
+    else if(c.t==='pick'&&isFinite(c.p.lat)&&isFinite(c.p.lng))pt=pickPoint(c.p,c.kind);
+    if(pt){pt.icon='<span class="pt-pin">'+(idx+1)+'</span>';pts.push(pt);}
+  });
+  return pts;
+}
+function planSlotHtml(slot,i,num){
   var len=slot.pool.length;
-  var cnt=len>1?'<span class="pt-cnt">'+len+' '+esc(plt('options'))+'</span>':'';
-  var body=len>1?'<div class="wk-rail pt-rail" data-k="'+slot.key+'">'+slot.pool.map(planCard).join('')+'</div>':planCard(slot.pool[0]);
-  return '<div class="pt-node"><div class="pt-marker">'+slot.emoji+'</div><div class="pt-body"><div class="pt-slot"><span class="pt-slabel">'+esc(slot.label)+'</span>'+cnt+'</div><div class="pt-items">'+body+'</div></div></div>';
+  var ref=len>1?'<button type="button" class="pt-shuf" data-k="'+slot.key+'" title="'+esc(plt('another'))+'">'+SHUF_IC+'<span>'+len+'</span></button>':'';
+  return '<div class="pt-node"><div class="pt-marker">'+num+'</div><div class="pt-body"><div class="pt-slot"><span class="pt-slabel">'+slot.emoji+' '+esc(slot.label)+'</span>'+ref+'</div><div class="pt-items">'+planCard(planSlotPick(slot,i))+'</div></div></div>';
 }
 function planTimelineHtml(day,i){
   var dt=new Date(day.iso+'T12:00:00');
   var dtitle=dt.toLocaleDateString(planLoc(),{weekday:'long'}),dsub=dt.toLocaleDateString(planLoc(),{day:'numeric',month:'long'});
   var head='<div class="pt-dhead"><div><div class="pt-dtitle">'+esc(dtitle)+'</div><div class="pt-dsub">'+esc(dsub)+'</div></div>'+(day.wx?'<span class="pt-dwx">'+wxIcon(day.wx.code)+'<b>'+day.wx.hi+'°</b></span>':'')+'</div>';
   var tip=day.wx?'<div class="pt-tip">'+esc(day.wet?plt('wetTip'):plt('fairTip'))+'</div>':'';
-  var body=day.slots.length?day.slots.map(function(s){return planSlotHtml(s,i);}).join(''):'<div class="pl-free">'+esc(plt('freeDay'))+'</div><button type="button" class="pl-asklink" data-goask="1">'+esc(chr('ask'))+' →</button>';
+  var map=day.slots.length?'<div class="pt-map" id="planDayMap"></div>':'';
+  var body=day.slots.length?day.slots.map(function(s,idx){return planSlotHtml(s,i,idx+1);}).join(''):'<div class="pl-free">'+esc(plt('freeDay'))+'</div><button type="button" class="pl-asklink" data-goask="1">'+esc(chr('ask'))+' →</button>';
   var extras=day.extras?'<div class="pt-extras"><div class="pt-sec">'+esc(chr('extrasSec'))+'</div><div class="xtras">'+day.extras+'</div></div>':'';
-  return head+tip+'<div class="pt-timeline">'+body+'</div>'+extras;
+  return head+tip+map+'<div class="pt-timeline">'+body+'</div>'+extras;
 }
 function planTabsHtml(){
   var t='<button type="button" class="pt-tab'+(PLAN.view==='overview'?' on':'')+'" data-view="overview">'+esc(plt('overview'))+'</button>';
@@ -1876,6 +1892,7 @@ function wirePlan(host){
   host.querySelectorAll('.pl-chip').forEach(function(b){b.onclick=function(){var k=b.getAttribute('data-int');PLAN.interests[k]=!PLAN.interests[k];renderPlan();};});
   host.querySelectorAll('.pl-nu').forEach(function(b){b.onclick=function(){PLAN.days=+b.getAttribute('data-days');if(PLAN.view!=='overview'&&+PLAN.view>=PLAN.days)PLAN.view=PLAN.days-1;renderPlan();};});
   host.querySelectorAll('[data-goask]').forEach(function(b){b.onclick=function(){setTab('ask');};});
+  host.querySelectorAll('.pt-shuf').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-k');PLAN.sel[k]=(PLAN.sel[k]||0)+1;renderPlan();};});
   host.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){var v=b.getAttribute('data-view');PLAN.view=(v==='overview')?'overview':(+v);renderPlan();try{host.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}};});
 }
 function planRestoreRails(host){
@@ -1895,7 +1912,7 @@ function renderPlan(){
   var idx=(PLAN.view==='overview')?-1:Math.min(+PLAN.view,all.length-1);
   var content=idx<0?planOverviewHtml(all):planTimelineHtml(all[idx],idx);
   host.innerHTML=planControls()+planTabsHtml()+'<div class="pt-content">'+content+'</div>';
-  wirePlan(host);if(typeof setupArrows==='function')setupArrows();planRestoreRails(host);planSave();
+  wirePlan(host);if(idx>=0&&typeof drawPlaceMap==='function')drawPlaceMap('planDayMap',planDayPoints(all[idx],idx));planSave();
 }
 
 function loadEvents(){
