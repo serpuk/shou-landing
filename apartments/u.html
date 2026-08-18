@@ -1015,7 +1015,7 @@ function render(){
   if(hasWeek)document.getElementById('tPlan').onclick=function(){setTab('plan');};
   document.getElementById('tAsk').onclick=function(){setTab('ask');};
   // Restore the tab the guest was on before this render (a language switch re-renders).
-  setTab((curTab==='week'&&!hasWeek)?'book':curTab);
+  setTab(((curTab==='week'||curTab==='plan')&&!hasWeek)?'book':curTab);
   paintWx();
   document.getElementById('cf').onsubmit=function(e){e.preventDefault();var v=document.getElementById('ci').value;document.getElementById('ci').value='';ask(v);};
   document.getElementById('langSel').onchange=function(e){curLang=e.target.value;try{localStorage.setItem('apt_guest_lang:'+slug,curLang);}catch(e2){}document.documentElement.lang=curLang;
@@ -1074,9 +1074,10 @@ function setupTopBtn(){
 
 // Remembered so a re-render (e.g. switching language, which rebuilds the whole
 // page) can restore the tab the guest was on instead of snapping back to Welcome.
-var curTab='book';
+var curTab=(function(){try{var _t=localStorage.getItem('apt_tab:'+slug);return (_t==='book'||_t==='week'||_t==='plan'||_t==='ask')?_t:'book';}catch(e){return 'book';}})();
 function setTab(n){
   curTab=n;
+  try{localStorage.setItem('apt_tab:'+slug,n);}catch(e){}
   // 'week' is absent when the unit has no coordinates — both lookups can be null.
   ['book','week','plan','ask'].forEach(function(x){var p=document.getElementById(x),t=document.getElementById(({book:'tBook',week:'tWeek',plan:'tPlan',ask:'tAsk'})[x]);
     if(p)p.classList.toggle('on',x===n);if(t)t.classList.toggle('on',x===n);});
