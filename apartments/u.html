@@ -218,7 +218,8 @@
   .pt-dsub{font-size:13.5px;color:var(--dim);font-weight:600;margin-top:3px}
   .pt-dwx{display:flex;align-items:center;gap:5px;font-size:19px;color:var(--soft)}
   .pt-dwx b{font-size:15px;font-weight:800;color:var(--ink)}
-  .pt-tip{font-size:12.5px;color:var(--dim);margin:9px 0 2px}
+  .pt-tip{font-size:12.5px;color:var(--dim);margin:9px 0 2px;transition:color .2s}
+  .pt-tip.ready{font-size:14px;font-style:italic;color:var(--soft);line-height:1.5}
   .pt-timeline{margin-top:16px}
   .pt-node{display:grid;grid-template-columns:32px 1fr;gap:13px;position:relative;padding-bottom:18px}
   .pt-node:not(:last-child)::before{content:'';position:absolute;left:15px;top:36px;bottom:2px;width:2px;background:var(--line)}
@@ -1842,7 +1843,7 @@ function planTimelineHtml(day,i){
   var dt=new Date(day.iso+'T12:00:00');
   var dtitle=dt.toLocaleDateString(planLoc(),{weekday:'long'}),dsub=dt.toLocaleDateString(planLoc(),{day:'numeric',month:'long'});
   var head='<div class="pt-dhead"><div><div class="pt-dtitle">'+esc(dtitle)+'</div><div class="pt-dsub">'+esc(dsub)+'</div></div>'+(day.wx?'<span class="pt-dwx">'+wxIcon(day.wx.code)+'<b>'+day.wx.hi+'°</b></span>':'')+'</div>';
-  var tip=day.wx?'<div class="pt-tip">'+esc(day.wet?plt('wetTip'):plt('fairTip'))+'</div>':'';
+  var tip='<div class="pt-tip" id="planSummary" data-sig="">'+esc(day.wx?(day.wet?plt('wetTip'):plt('fairTip')):'')+'</div>';
   var body=day.slots.length?day.slots.map(function(s,idx){return planSlotHtml(s,i,idx+1);}).join(''):'<div class="pl-free">'+esc(plt('freeDay'))+'</div><button type="button" class="pl-asklink" data-goask="1">'+esc(chr('ask'))+' →</button>';
   var extras=day.extras?'<div class="pt-extras"><div class="pt-sec">'+esc(chr('extrasSec'))+'</div><div class="xtras">'+day.extras+'</div></div>':'';
   var main='<div class="pt-daymain"><div class="pt-timeline">'+body+'</div>'+extras+'</div>';
@@ -1878,6 +1879,32 @@ function planRestoreRails(host){
     },140);},{passive:true});
   });
 }
+var planSummaryCache={},planSummaryT=null;
+function planFetchSummary(day,i){
+  var el=document.getElementById('planSummary');if(!el)return;
+  var stops=day.slots.map(function(slot){
+    var c=planSlotPick(slot,i),name='',cat='',dist='';
+    if(c.t==='ev'){name=cleanTitle(c.e.name);cat=c.e.seg||catLabel(c.e.categorySlug)||'';dist=distLabel(c.e);}
+    else if(c.t==='pick'){name=c.p.n;cat=c.p.gtype||c.kind||'';dist=c.p.dist||'';}
+    return {slot:slot.label,name:name,cat:cat,dist:dist};
+  }).filter(function(s){return s.name;});
+  if(!stops.length)return;
+  var sig=curLang+'|'+day.iso+'|'+stops.map(function(s){return s.name;}).join('|');
+  el.setAttribute('data-sig',sig);
+  if(planSummaryCache[sig]!==undefined){if(planSummaryCache[sig]){el.textContent=planSummaryCache[sig];el.classList.add('ready');}return;}
+  clearTimeout(planSummaryT);
+  planSummaryT=setTimeout(function(){
+    var dow=new Date(day.iso+'T12:00:00').toLocaleDateString(planLoc(),{weekday:'long'});
+    var wx=day.wx?(wxLabel(day.wx.code)+' '+day.wx.hi+'°'):'';
+    var area=(U.content&&U.content.hood)||U.building||'';
+    fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'plan_summary',lang:curLang,day:dow,area:area,weather:wx,stops:stops})})
+    .then(function(r){return r.json();}).then(function(d){
+      var sum=(d&&d.summary)||'';planSummaryCache[sig]=sum;
+      var cur=document.getElementById('planSummary');
+      if(sum&&cur&&cur.getAttribute('data-sig')===sig){cur.textContent=sum;cur.classList.add('ready');}
+    }).catch(function(){});
+  },400);
+}
 function renderPlan(){
   var host=document.getElementById('plan');if(!host)return;
   if(!(U.lat&&U.lng)){host.innerHTML='';return;}
@@ -1885,7 +1912,7 @@ function renderPlan(){
   var idx=(PLAN.view==='overview')?-1:Math.min(+PLAN.view,all.length-1);
   var content=idx<0?planOverviewHtml(all):planTimelineHtml(all[idx],idx);
   host.innerHTML=planControls()+planTabsHtml()+'<div class="pt-content">'+content+'</div>';
-  wirePlan(host);if(idx>=0&&typeof drawPlaceMap==='function')drawPlaceMap('planDayMap',planDayPoints(all[idx],idx),17);planSave();
+  wirePlan(host);if(idx>=0&&typeof drawPlaceMap==='function')drawPlaceMap('planDayMap',planDayPoints(all[idx],idx),17);if(idx>=0&&typeof planFetchSummary==='function')planFetchSummary(all[idx],idx);planSave();
 }
 
 function loadEvents(){
