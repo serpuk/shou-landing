@@ -157,32 +157,43 @@
   .subpage.mint{background:var(--mint-bg);border-color:var(--mint-bd)}
   .subpage.warm{background:var(--warm-bg);border-color:var(--warm-bd)}
   .subpage.cool{background:var(--cool-bg);border-color:var(--cool-bd)}
-  /* Plan my stay — the discovery layer */
-  .pl-ctrl{margin:2px 0 16px}
-  .pl-lead{font-size:13.5px;color:var(--dim);margin:0 0 12px;line-height:1.5}
-  .pl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
-  .pl-lbl{font-size:11.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
-  .pl-chip{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--soft);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:.15s}
-  .pl-chip:hover{border-color:color-mix(in srgb,var(--ink) 24%,var(--line))}
-  .pl-chip.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 6px 16px -8px rgba(255,61,139,.6)}
-  .pl-nu{font-family:inherit;font-size:14px;font-weight:700;color:var(--soft);background:var(--card);border:1px solid var(--line);border-radius:11px;width:38px;height:38px;cursor:pointer;transition:.15s}
-  .pl-nu:hover{border-color:color-mix(in srgb,var(--ink) 24%,var(--line))}
-  .pl-nu.on{color:#fff;background:var(--grad);border-color:transparent}
-  .pl-days{display:flex;flex-direction:column;gap:14px}
-  .pl-day{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px 16px 17px;box-shadow:var(--shadow)}
-  .pl-dh{display:flex;align-items:baseline;gap:10px}
-  .pl-dn{font-family:'Fraunces',serif;font-weight:700;font-size:18px;color:var(--ink)}
-  .pl-date{font-size:13px;color:var(--dim)}
-  .pl-wx{margin-left:auto;font-size:13.5px;font-weight:600;color:var(--soft);white-space:nowrap}
-  .pl-tip{font-size:12.5px;color:var(--dim);margin:4px 0 2px}
-  .pl-slot{margin-top:13px}
-  .pl-sl{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:8px}
-  .pl-sl .pl-e{font-size:13.5px}
+  /* Plan my stay — trip board */
+  .pl-ctrl{margin:2px 0 18px}
+  .pl-lead{font-size:13.5px;color:var(--dim);margin:0 0 13px;line-height:1.5}
+  .pl-row{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:0 0 11px}
+  .pl-lbl{font-size:11.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-right:3px}
+  .pl-chip{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer;transition:.15s}
+  .pl-chip .pl-emo{opacity:.45;transition:opacity .15s}
+  .pl-chip .pl-ck{display:none;font-weight:800;margin-left:1px}
+  .pl-chip:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
+  .pl-chip.on{color:#fff;background:var(--grad);border-color:transparent;font-weight:700;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
+  .pl-chip.on .pl-emo{opacity:1}
+  .pl-chip.on .pl-ck{display:inline}
+  .pl-nu{font-family:inherit;font-size:14.5px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:11px;min-width:40px;height:40px;padding:0 8px;cursor:pointer;transition:.15s}
+  .pl-nu:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
+  .pl-nu.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
+  .pl-days{display:grid;gap:14px;align-items:start;justify-content:center}
+  .pl-day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0 0 14px;box-shadow:var(--shadow);overflow:hidden}
+  .pl-dh{display:flex;align-items:center;gap:10px;padding:12px 15px;background:color-mix(in srgb,var(--pink) 8%,var(--card));border-bottom:1px solid var(--line)}
+  .pl-dd{display:flex;flex-direction:column;line-height:1.04}
+  .pl-wd{font-family:'Fraunces',serif;font-weight:700;font-size:19px;color:var(--ink);text-transform:capitalize}
+  .pl-date{font-size:12px;color:var(--dim);font-weight:600;margin-top:2px}
+  .pl-wx{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:16px;color:var(--soft)}
+  .pl-wx b{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .pl-tip{font-size:12px;color:var(--dim);margin:0;padding:9px 15px 0}
+  .pl-slot{padding:12px 14px 0}
+  .pl-sl{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:8px}
+  .pl-sl .pl-e{font-size:13px}
   .pl-items{display:flex;flex-direction:column;gap:9px}
-  .pl-idea{display:flex;align-items:center;gap:11px;background:var(--panel-soft);border:1px solid var(--line);border-radius:13px;padding:12px 14px;text-decoration:none;color:var(--ink);font-size:14.5px;font-weight:500}
+  .pl-items .ev-res{padding:11px 12px;border-radius:13px}
+  .pl-items .ev-res .thumb{width:82px;min-height:82px}
+  .pl-items .pick-ph{height:74px}
+  .pl-items .qdesc{-webkit-line-clamp:2}
+  .pl-idea{display:flex;align-items:center;gap:11px;background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500}
   .pl-idea .pl-ii{font-size:18px;flex:none}
   .pl-idea .pl-go{margin-left:auto;color:var(--dim)}
-  .pl-free{font-size:13.5px;color:var(--dim);font-style:italic}
+  .pl-free{font-size:13px;color:var(--dim);font-style:italic;padding:14px 15px}
+  @media(max-width:720px){ .pl-days{grid-template-columns:1fr !important} }
   #book,#week,#ask{display:none}#book.on,#week.on,#ask.on{display:block}
 
   .wb-intro{color:var(--soft);font-size:15px;max-width:640px;margin:6px 0 4px}
@@ -1723,13 +1734,15 @@ function planDayHtml(i,days,used){
   if(eve)rows+=planSlot(plt('evening'),'🍽️',eve);
   if(i===days-1){var la=planStageAddons(PLAN_LEAVE);if(la)rows+=planSlot(plt('before'),'✈️',la);}
   if(!rows)rows='<div class="pl-free">'+esc(plt('freeDay'))+'</div>';
-  var head='<div class="pl-dh"><span class="pl-dn">'+esc(plt('dayN'))+' '+(i+1)+'</span><span class="pl-date">'+esc(fmtDate(iso))+'</span>'+(wx?'<span class="pl-wx">'+wxIcon(wx.code)+' '+wx.hi+'°</span>':'')+'</div>';
+  var dt=new Date(iso+'T12:00:00'),loc=LOCMAP[curLang]||'en-GB';
+  var wd=dt.toLocaleDateString(loc,{weekday:'short'}),dm=dt.toLocaleDateString(loc,{day:'numeric',month:'short'});
+  var head='<div class="pl-dh"><div class="pl-dd"><span class="pl-wd">'+esc(wd)+'</span><span class="pl-date">'+esc(dm)+'</span></div>'+(wx?'<span class="pl-wx">'+wxIcon(wx.code)+'<b>'+wx.hi+'°</b></span>':'')+'</div>';
   var tip=wx?'<div class="pl-tip">'+esc(wet?plt('wetTip'):plt('fairTip'))+'</div>':'';
   return '<div class="pl-day">'+head+tip+rows+'</div>';
 }
 function planControls(){
   var order=[['food','🍽️','iFood'],['cult','🎨','iCult'],['night','🎶','iNight'],['out','🌳','iOut'],['fam','🧸','iFam']];
-  var chips=order.map(function(o){return '<button type="button" class="pl-chip'+(PLAN.interests[o[0]]?' on':'')+'" data-int="'+o[0]+'"><span>'+o[1]+'</span>'+esc(plt(o[2]))+'</button>';}).join('');
+  var chips=order.map(function(o){return '<button type="button" class="pl-chip'+(PLAN.interests[o[0]]?' on':'')+'" data-int="'+o[0]+'"><span class="pl-emo">'+o[1]+'</span><span class="pl-lab">'+esc(plt(o[2]))+'</span><span class="pl-ck">✓</span></button>';}).join('');
   var nums=[1,2,3].map(function(n){return '<button type="button" class="pl-nu'+(PLAN.days===n?' on':'')+'" data-days="'+n+'">'+n+'</button>';}).join('');
   return '<div class="pl-ctrl"><div class="pl-lead">'+esc(plt('lead'))+'</div><div class="pl-row">'+chips+'</div><div class="pl-row"><span class="pl-lbl">'+esc(plt('howlong'))+'</span>'+nums+'</div></div>';
 }
@@ -1742,7 +1755,8 @@ function renderPlan(){
   if(!(U.lat&&U.lng)){host.innerHTML='';return;}
   var used={},body='';
   for(var i=0;i<PLAN.days;i++)body+=planDayHtml(i,PLAN.days,used);
-  host.innerHTML=planControls()+'<div class="pl-days">'+body+'</div>';
+  var gtc=PLAN.days===1?'minmax(0,480px)':'repeat('+PLAN.days+',minmax(0,1fr))';
+  host.innerHTML=planControls()+'<div class="pl-days" style="grid-template-columns:'+gtc+'">'+body+'</div>';
   wirePlan(host);
 }
 
