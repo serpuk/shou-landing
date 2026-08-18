@@ -1875,7 +1875,7 @@ function planTabsHtml(){
 function planControls(){
   var order=[['food','🍽️','iFood'],['cult','🎨','iCult'],['night','🎶','iNight'],['out','🌳','iOut'],['fam','🧸','iFam']];
   var chips=order.map(function(o){return '<button type="button" class="pl-chip'+(PLAN.interests[o[0]]?' on':'')+'" data-int="'+o[0]+'"><span class="pl-emo">'+o[1]+'</span><span class="pl-lab">'+esc(plt(o[2]))+'</span><span class="pl-ck">✓</span></button>';}).join('');
-  var nums=[1,2,3].map(function(n){return '<button type="button" class="pl-nu'+(PLAN.days===n?' on':'')+'" data-days="'+n+'">'+n+'</button>';}).join('');
+  var nums=[1,2,3,4,5,6,7].map(function(n){return '<button type="button" class="pl-nu'+(PLAN.days===n?' on':'')+'" data-days="'+n+'">'+n+'</button>';}).join('');
   return '<div class="pt-lead">'+esc(plt('ask'))+'</div><div class="pt-prefs"><div class="pt-plabel">'+esc(plt('interests'))+'</div><div class="pt-prow">'+chips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+nums+'</div></div>';
 }
 function wirePlan(host){
@@ -1966,7 +1966,10 @@ function renderPlan(){
 function loadEvents(){
   if(!(U.lat&&U.lng))return; // render() omits the tab entirely — nothing to fill.
   var cats=['music','exhibition','theatre','family','festival'];
-  Promise.all(cats.map(function(c){return fetch(API+'/events?lang='+curLang+'&category='+c+'&sort=date&limit=60&lat='+U.lat+'&lng='+U.lng).then(function(r){return r.json();}).then(function(d){return d.events||[];}).catch(function(){return[];});}))
+  // Fetch within the visible 7-day window (This week + Plan), not open-ended: a flat
+  // limit spread across weeks starves single-date categories (music) on any one day.
+  var _wf=todayISO(),_wt=addDaysISO(todayISO(),6);
+  Promise.all(cats.map(function(c){return fetch(API+'/events?lang='+curLang+'&category='+c+'&sort=date&from='+_wf+'&to='+_wt+'&limit=100&lat='+U.lat+'&lng='+U.lng).then(function(r){return r.json();}).then(function(d){return d.events||[];}).catch(function(){return[];});}))
   .then(function(parts){
     // Round-robin, not concatenation: music comes back first and full, so a plain
     // concat made merged.slice(0,15) below a byte-for-byte copy of the music rail.
