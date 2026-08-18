@@ -229,8 +229,8 @@
   .pt-slot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 9px}
   .pt-slabel{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim)}
   .pt-cnt{font-size:11px;font-weight:700;color:var(--dim);flex:none;text-transform:none;letter-spacing:0}
-  .pt-items .wk-rail{padding:2px 2px 10px}
-  .pt-items .wk-rail .ev-res,.pt-items .wk-rail .pick,.pt-items .wk-rail .pl-idea{flex:0 0 min(82vw,286px);scroll-snap-align:start}
+  .pt-items .wk-rail{padding:2px 2px 10px;scroll-snap-type:x mandatory}
+  .pt-items .wk-rail .ev-res,.pt-items .wk-rail .pick,.pt-items .wk-rail .pl-idea{flex:0 0 85%;scroll-snap-align:start}
   .pt-items{display:flex;flex-direction:column;gap:9px}
   .pt-items .ev-res{padding:11px 12px;border-radius:13px}
   .pt-items .ev-res .thumb{width:82px;min-height:82px}
@@ -1848,7 +1848,7 @@ function planOverviewHtml(all){
 function planSlotHtml(slot,i){
   var len=slot.pool.length;
   var cnt=len>1?'<span class="pt-cnt">'+len+' '+esc(plt('options'))+'</span>':'';
-  var body=len>1?'<div class="wk-rail pt-rail">'+slot.pool.map(planCard).join('')+'</div>':planCard(slot.pool[0]);
+  var body=len>1?'<div class="wk-rail pt-rail" data-k="'+slot.key+'">'+slot.pool.map(planCard).join('')+'</div>':planCard(slot.pool[0]);
   return '<div class="pt-node"><div class="pt-marker">'+slot.emoji+'</div><div class="pt-body"><div class="pt-slot"><span class="pt-slabel">'+esc(slot.label)+'</span>'+cnt+'</div><div class="pt-items">'+body+'</div></div></div>';
 }
 function planTimelineHtml(day,i){
@@ -1878,6 +1878,16 @@ function wirePlan(host){
   host.querySelectorAll('[data-goask]').forEach(function(b){b.onclick=function(){setTab('ask');};});
   host.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){var v=b.getAttribute('data-view');PLAN.view=(v==='overview')?'overview':(+v);renderPlan();try{host.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}};});
 }
+function planRestoreRails(host){
+  host.querySelectorAll('.wk-rail[data-k]').forEach(function(r){
+    var k=r.getAttribute('data-k'),first=r.firstElementChild;if(!first)return;
+    var step=first.getBoundingClientRect().width+12;
+    var idx=PLAN.sel[k]||0;if(idx>0){try{r.scrollLeft=Math.round(idx*step);}catch(e){}}
+    var t;r.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){
+      var i=Math.max(0,Math.round(r.scrollLeft/step));if(i!==(PLAN.sel[k]||0)){PLAN.sel[k]=i;planSave();}
+    },140);},{passive:true});
+  });
+}
 function renderPlan(){
   var host=document.getElementById('plan');if(!host)return;
   if(!(U.lat&&U.lng)){host.innerHTML='';return;}
@@ -1885,7 +1895,7 @@ function renderPlan(){
   var idx=(PLAN.view==='overview')?-1:Math.min(+PLAN.view,all.length-1);
   var content=idx<0?planOverviewHtml(all):planTimelineHtml(all[idx],idx);
   host.innerHTML=planControls()+planTabsHtml()+'<div class="pt-content">'+content+'</div>';
-  wirePlan(host);if(typeof setupArrows==='function')setupArrows();planSave();
+  wirePlan(host);if(typeof setupArrows==='function')setupArrows();planRestoreRails(host);planSave();
 }
 
 function loadEvents(){
