@@ -189,7 +189,12 @@
   .pt-tab:hover{color:var(--ink)}
   .pt-tab.on{color:var(--ink);font-weight:700}
   .pt-tab.on::after{content:'';position:absolute;left:12px;right:12px;bottom:-1px;height:2.5px;border-radius:3px;background:var(--grad)}
-  .pt-content{max-width:560px;margin:0 auto}
+  .pt-content{max-width:780px;margin:0 auto}
+  .pt-narrow{max-width:560px;margin:0 auto}
+  .pt-daywrap{display:grid;grid-template-columns:1fr;gap:16px}
+  .pt-mapcol{order:-1}
+  .pt-daymain{min-width:0}
+  @media(min-width:760px){.pt-daywrap{grid-template-columns:minmax(0,1fr) 300px;align-items:start}.pt-mapcol{order:0;position:sticky;top:12px}}
   .pt-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:2px 0 11px}
   .pw-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:20px;scrollbar-width:none}
   .pw-strip::-webkit-scrollbar{display:none}
@@ -221,11 +226,14 @@
   .pt-body{min-width:0}
   .pt-slot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 9px}
   .pt-slabel{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim)}
-  .pt-map{height:200px;border-radius:14px;overflow:hidden;border:1px solid var(--line);margin:0 0 18px}
+  .pt-map{height:230px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  @media(min-width:760px){.pt-map{height:420px}}
   .pt-pin{display:flex;width:22px;height:22px;border-radius:50%;background:var(--pink);color:#fff;font-weight:800;font-size:12.5px;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.35)}
-  .pt-shuf{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--soft);background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;flex:none;transition:.15s}
-  .pt-shuf:hover{color:var(--ink);border-color:color-mix(in srgb,var(--ink) 32%,var(--line))}
-  .pt-shuf svg{width:13px;height:13px}
+  .pt-nav{display:inline-flex;align-items:center;gap:6px;flex:none}
+  .pt-arw{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;color:var(--soft);background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:0;transition:.15s}
+  .pt-arw:hover{color:var(--ink);border-color:color-mix(in srgb,var(--ink) 32%,var(--line))}
+  .pt-arw svg{width:13px;height:13px}
+  .pt-pos{font-size:11.5px;font-weight:700;color:var(--dim);min-width:30px;text-align:center;font-variant-numeric:tabular-nums}
   .pt-items .pick{flex-direction:row;align-items:center;gap:12px;padding:11px 12px}
   .pt-items .pick-ph{width:82px;height:82px;flex:none;border-radius:11px}
   .pt-items .pick-ic{width:82px;height:82px;flex:none}
@@ -1557,7 +1565,7 @@ var _askMapN=0;
 // One map drawer. Points are {n, lat, lng, kind, p}; the apartment is always
 // pinned, because "how far is that from home" is the question a map answers.
 var _maps = {};
-function drawPlaceMap(elId, pts){
+function drawPlaceMap(elId, pts, mz){
   var el=document.getElementById(elId);
   if(!el||!(U.lat&&U.lng))return;
   loadLeaflet().then(function(L){
@@ -1583,7 +1591,7 @@ function drawPlaceMap(elId, pts){
         .bindPopup('<div class="wy-pop">'+(x.pop||('<b>'+esc(x.n)+'</b>'))+'</div>');
     });
 
-    if(bounds.length>1) map.fitBounds(bounds,{padding:[28,28],maxZoom:16});
+    if(bounds.length>1) map.fitBounds(bounds,{padding:[28,28],maxZoom:mz||16});
     else map.setView([U.lat,U.lng],15);
     // The container is sized by CSS after Leaflet measures it on some layouts.
     setTimeout(function(){ try{ map.invalidateSize(); }catch(e){} },200);
@@ -1810,8 +1818,8 @@ function planSummaryCard(day,i){
 function planOverviewHtml(all){
   var strip=planWxStrip(),cards='';
   for(var i=0;i<all.length;i++)cards+=planSummaryCard(all[i],i);
-  return (strip?'<div class="pt-sec">'+esc(plt('weather'))+'</div>'+strip:'')
-    +'<div class="pt-sec">'+esc(plt('yourDays'))+'</div><div class="ps-list">'+cards+'</div>';
+  return '<div class="pt-narrow">'+(strip?'<div class="pt-sec">'+esc(plt('weather'))+'</div>'+strip:'')
+    +'<div class="pt-sec">'+esc(plt('yourDays'))+'</div><div class="ps-list">'+cards+'</div></div>';
 }
 function planSlotPick(slot,i){var len=slot.pool.length;return slot.pool[(((PLAN.sel[slot.key]||0)+i)%len+len)%len];}
 function planDayPoints(day,i){
@@ -1825,19 +1833,20 @@ function planDayPoints(day,i){
   return pts;
 }
 function planSlotHtml(slot,i,num){
-  var len=slot.pool.length;
-  var ref=len>1?'<button type="button" class="pt-shuf" data-k="'+slot.key+'" title="'+esc(plt('another'))+'">'+SHUF_IC+'<span>'+len+'</span></button>':'';
-  return '<div class="pt-node"><div class="pt-marker">'+num+'</div><div class="pt-body"><div class="pt-slot"><span class="pt-slabel">'+slot.emoji+' '+esc(slot.label)+'</span>'+ref+'</div><div class="pt-items">'+planCard(planSlotPick(slot,i))+'</div></div></div>';
+  var len=slot.pool.length,cur=(((PLAN.sel[slot.key]||0)+i)%len+len)%len;
+  var nav=len>1?'<div class="pt-nav"><button type="button" class="pt-arw" data-k="'+slot.key+'" data-d="-1" aria-label="'+esc(plt('prev'))+'">'+ARW_L+'</button><span class="pt-pos">'+(cur+1)+'/'+len+'</span><button type="button" class="pt-arw" data-k="'+slot.key+'" data-d="1" aria-label="'+esc(plt('next'))+'">'+ARW_R+'</button></div>':'';
+  return '<div class="pt-node"><div class="pt-marker">'+num+'</div><div class="pt-body"><div class="pt-slot"><span class="pt-slabel">'+slot.emoji+' '+esc(slot.label)+'</span>'+nav+'</div><div class="pt-items">'+planCard(slot.pool[cur])+'</div></div></div>';
 }
 function planTimelineHtml(day,i){
   var dt=new Date(day.iso+'T12:00:00');
   var dtitle=dt.toLocaleDateString(planLoc(),{weekday:'long'}),dsub=dt.toLocaleDateString(planLoc(),{day:'numeric',month:'long'});
   var head='<div class="pt-dhead"><div><div class="pt-dtitle">'+esc(dtitle)+'</div><div class="pt-dsub">'+esc(dsub)+'</div></div>'+(day.wx?'<span class="pt-dwx">'+wxIcon(day.wx.code)+'<b>'+day.wx.hi+'°</b></span>':'')+'</div>';
   var tip=day.wx?'<div class="pt-tip">'+esc(day.wet?plt('wetTip'):plt('fairTip'))+'</div>':'';
-  var map=day.slots.length?'<div class="pt-map" id="planDayMap"></div>':'';
   var body=day.slots.length?day.slots.map(function(s,idx){return planSlotHtml(s,i,idx+1);}).join(''):'<div class="pl-free">'+esc(plt('freeDay'))+'</div><button type="button" class="pl-asklink" data-goask="1">'+esc(chr('ask'))+' →</button>';
   var extras=day.extras?'<div class="pt-extras"><div class="pt-sec">'+esc(chr('extrasSec'))+'</div><div class="xtras">'+day.extras+'</div></div>':'';
-  return head+tip+map+'<div class="pt-timeline">'+body+'</div>'+extras;
+  var main='<div class="pt-daymain"><div class="pt-timeline">'+body+'</div>'+extras+'</div>';
+  var mapcol=day.slots.length?'<div class="pt-mapcol"><div class="pt-map" id="planDayMap"></div></div>':'';
+  return head+tip+'<div class="pt-daywrap">'+main+mapcol+'</div>';
 }
 function planTabsHtml(){
   var t='<button type="button" class="pt-tab'+(PLAN.view==='overview'?' on':'')+'" data-view="overview">'+esc(plt('overview'))+'</button>';
@@ -1855,7 +1864,7 @@ function wirePlan(host){
   host.querySelectorAll('.pl-chip').forEach(function(b){b.onclick=function(){var k=b.getAttribute('data-int');PLAN.interests[k]=!PLAN.interests[k];renderPlan();};});
   host.querySelectorAll('.pl-nu').forEach(function(b){b.onclick=function(){PLAN.days=+b.getAttribute('data-days');if(PLAN.view!=='overview'&&+PLAN.view>=PLAN.days)PLAN.view=PLAN.days-1;renderPlan();};});
   host.querySelectorAll('[data-goask]').forEach(function(b){b.onclick=function(){setTab('ask');};});
-  host.querySelectorAll('.pt-shuf').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-k');PLAN.sel[k]=(PLAN.sel[k]||0)+1;renderPlan();};});
+  host.querySelectorAll('.pt-arw').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-k'),d=+b.getAttribute('data-d');PLAN.sel[k]=(PLAN.sel[k]||0)+d;renderPlan();};});
   host.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){var v=b.getAttribute('data-view');PLAN.view=(v==='overview')?'overview':(+v);renderPlan();try{host.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}};});
 }
 function planRestoreRails(host){
@@ -1875,7 +1884,7 @@ function renderPlan(){
   var idx=(PLAN.view==='overview')?-1:Math.min(+PLAN.view,all.length-1);
   var content=idx<0?planOverviewHtml(all):planTimelineHtml(all[idx],idx);
   host.innerHTML=planControls()+planTabsHtml()+'<div class="pt-content">'+content+'</div>';
-  wirePlan(host);if(idx>=0&&typeof drawPlaceMap==='function')drawPlaceMap('planDayMap',planDayPoints(all[idx],idx));planSave();
+  wirePlan(host);if(idx>=0&&typeof drawPlaceMap==='function')drawPlaceMap('planDayMap',planDayPoints(all[idx],idx),17);planSave();
 }
 
 function loadEvents(){
