@@ -844,6 +844,9 @@ function greeting(){
   return chr({host:'gHost',concierge:'gConcierge',brief:'gBrief',playful:'gPlayful'}[t]||'sub');
 }
 var SVC_TITLE={en:'Recommended services',fr:'Services recommandés',nl:'Aanbevolen diensten',de:'Empfohlene Dienste',es:'Servicios recomendados',it:'Servizi consigliati',uk:'Рекомендовані послуги'};
+var SVC_LEAD={en:'Your host recommends {x}:',fr:'Votre hôte recommande {x} :',nl:'Je gastheer raadt {x} aan:',de:'Dein Gastgeber empfiehlt {x}:',es:'Tu anfitrión recomienda {x}:',it:'Il tuo host consiglia {x}:',uk:'Ваш господар радить {x}:'};
+var SVC_STOP=['rent','rental','rentals','hire','book','get','the','and','your','our','for','with','near','best','good','app','online','city'];
+function svcMatch(q){var fq=_fq(q);var svcs=(U.content&&U.content.services)||[];for(var i=0;i<svcs.length;i++){var s=svcs[i];if(!s||!s.label||!s.url||!/^https?:\/\//i.test(s.url))continue;var kws=fold(s.label).split(/\s+/).filter(function(w){return w.length>=3&&SVC_STOP.indexOf(w)<0;});for(var j=0;j<kws.length;j++){if(fq.indexOf(' '+kws[j]+' ')>=0)return s;}}return null;}
 function addonIcon(label){var l=fold(label);
   if(/late|tardif|tard|laat|spat|tardi/.test(l))return '\u23f0';
   if(/early|anticip|vroeg|fruh|tempran/.test(l))return '\ud83c\udf05';
@@ -928,7 +931,7 @@ function bookHtml(){
     address: addr?'<h2 class="wb-sec">'+esc(chr('addrSec'))+'</h2>'+addr:'',
     safety: safeCards?'<h2 class="wb-sec">'+esc(sec('safety'))+'</h2><div class="wb-grid">'+safeCards+'</div>':''
   };
-  var DEF_SEC=['apt','picks','building','address','safety','extras','bookd'], seen={}, ord=[];
+  var DEF_SEC=['apt','picks','building','address','safety','extras','services','bookd'], seen={}, ord=[];
   ((U.content&&Array.isArray(U.content.sectionOrder)?U.content.sectionOrder:[]).concat(DEF_SEC))
     .forEach(function(k){ if(DEF_SEC.indexOf(k)>=0 && !seen[k]){seen[k]=1;ord.push(k);} });
   var _ads=((U.content&&U.content.addons)||[]).filter(function(a){return a&&a.label;});
@@ -945,7 +948,6 @@ function bookHtml(){
   var services=_svcs.length?('<h2 class="wb-sec">'+esc(SVC_TITLE[curLang]||SVC_TITLE.en)+'</h2><div class="xtras">'
     +_svcs.map(function(s){return '<a class="xtra svc" href="'+esc(s.url)+'" target="_blank" rel="noopener"><span class="xt-ic">'+addonIcon(s.label)+'</span><div class="xt-b"><div class="xt-l">'+esc(s.label)+'</div>'+(s.price?'<div class="xt-p">'+esc(s.price)+'</div>':'')+'</div><span class="xt-go" aria-hidden="true">\u2197</span></a>';}).join('')
     +'</div>'):'';
-  if(_svcs.length){var _pi=ord.indexOf('picks');ord.splice(_pi>=0?_pi+1:ord.length,0,'services');}
   SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; SEC_BLOCKS.services=services; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
 }
 
@@ -2197,6 +2199,7 @@ function ask(q){
   else logQ('events','events',true);   // generic "what's on" → the events engine answers it, so bucket it as What's on (not Other)
   if(WX&&isWeatherQ(q)){weatherReply();asking=false;return;}
   if((U.content&&U.content.bookUrl)&&/^https?:/i.test(U.content.bookUrl)&&isBookDirectQ(q)){var _bm=addMsg('ai',esc(chr('bookLead')));var _ba=document.createElement('a');_ba.className='ex';_ba.href=U.content.bookUrl;_ba.target='_blank';_ba.rel='noopener';_ba.textContent=chr('bookGo');_ba.style.marginTop='8px';_ba.style.display='inline-block';_bm.appendChild(_ba);asking=false;return;}
+  var _svc=svcMatch(q);if(_svc){var _sm=addMsg('ai',esc((SVC_LEAD[curLang]||SVC_LEAD.en).replace('{x}',_svc.label))+(_svc.price?' '+esc(_svc.price):''));var _sa=document.createElement('a');_sa.className='ex';_sa.href=_svc.url;_sa.target='_blank';_sa.rel='noopener';_sa.textContent=chr('pkOpen')+' \u2197';_sa.style.marginTop='8px';_sa.style.display='inline-block';_sm.appendChild(_sa);asking=false;return;}
   var _ad=matchAddon(q); if(_ad){addonReply(_ad);asking=false;return;}
   if(cls&&cls.t==='wb'&&String(w[cls.id]||'').trim()){
     var _wm=addMsg('ai',esc(chr('here'))+'<div class="ans"><span class="wb-ic">'+ICON[cls.id]+'</span><div><div class="k">'+esc(lbl(cls.id))+'</div><div class="v">'+esc(wval(cls.id))+'</div></div></div>');
