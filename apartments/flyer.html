@@ -39,6 +39,10 @@
   .url{font-size:12.5px;color:var(--dim);margin-top:12px;word-break:break-all}
   .feats{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:18px}
   .feat{font-size:11.5px;font-weight:600;color:var(--soft);background:#f4f1f8;border-radius:999px;padding:5px 11px}
+  .langline{margin-top:15px;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+  .langline .ll{font-size:11.5px;font-weight:600;color:var(--soft)}
+  .flags{display:inline-flex;gap:5px}
+  .flags svg{width:22px;height:15px;border-radius:3px;border:1px solid rgba(20,16,30,.12);box-shadow:0 1px 2px rgba(20,16,30,.08);display:block}
   .foot{border-top:1px solid var(--line);padding:13px 28px;text-align:center;font-size:11.5px;color:var(--dim)}
 
   @media print{
@@ -68,16 +72,29 @@
     </div>
     <div class="body">
       <h2 id="h2">Everything for your stay</h2>
-      <p id="sub">Scan for your welcome book, local recommendations, guest discounts and what is on nearby — all in your language.</p>
+      <p id="sub">Scan for your welcome book, local recommendations, a day-by-day planner and what is on nearby — all in your language.</p>
       <img class="qr" id="qr" alt="QR code to the guest page">
       <div class="url" id="url"></div>
       <div class="feats">
         <span class="feat">📖 Welcome book</span>
+        <span class="feat">🤖 Ask anything</span>
         <span class="feat">📍 Local recommendations</span>
-        <span class="feat">🏷 Guest discounts</span>
+        <span class="feat">🗺️ Plan your stay</span>
         <span class="feat">🎭 What is on nearby</span>
-        <span class="feat">🌍 In your language</span>
+        <span class="feat">🏷 Guest discounts</span>
         <span class="feat">📱 No app needed</span>
+      </div>
+      <div class="langline">
+        <span class="ll">In your language</span>
+        <span class="flags">
+          <svg viewBox="0 0 60 30" preserveAspectRatio="none" role="img" aria-label="English"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30 M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30 M60,0 0,30" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></svg>
+          <svg viewBox="0 0 3 2" preserveAspectRatio="none" role="img" aria-label="Français"><rect width="1" height="2" x="0" fill="#002395"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#ED2939"/></svg>
+          <svg viewBox="0 0 3 2" preserveAspectRatio="none" role="img" aria-label="Nederlands"><rect width="3" height="1" y="0" fill="#AE1C28"/><rect width="3" height=".667" y="0.667" fill="#fff"/><rect width="3" height=".667" y="1.333" fill="#21468B"/></svg>
+          <svg viewBox="0 0 5 3" preserveAspectRatio="none" role="img" aria-label="Deutsch"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg>
+          <svg viewBox="0 0 3 2" preserveAspectRatio="none" role="img" aria-label="Español"><rect width="3" height="2" fill="#AA151B"/><rect width="3" height="1" y=".5" fill="#F1BF00"/></svg>
+          <svg viewBox="0 0 3 2" preserveAspectRatio="none" role="img" aria-label="Italiano"><rect width="1" height="2" x="0" fill="#008C45"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#CD212A"/></svg>
+          <svg viewBox="0 0 3 2" preserveAspectRatio="none" role="img" aria-label="Українська"><rect width="3" height="1" y="0" fill="#0057B7"/><rect width="3" height="1" y="1" fill="#FFDD00"/></svg>
+        </span>
       </div>
     </div>
     <div class="foot">powered by <b>shou</b> · shou.be</div>
