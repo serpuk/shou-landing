@@ -609,6 +609,13 @@
   .pick-n{font-weight:700;font-size:14.5px}
   .pick-t{font-size:13px;color:var(--soft)}
   .pick-more{display:inline-block;margin-top:4px;font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none}
+  /* Host's picks use the same card as Experiences: full-bleed image flush to
+     the card's 16px corner, no border, text in a padded body below. */
+  .hp .pick{padding:0;gap:0;overflow:hidden}
+  .hp .pick-ph,.hp .pick-ic{width:100%;border:none;border-radius:0}
+  .hp .pick-ph{height:150px}
+  .hp .pick-ic{height:118px}
+  .hp .pick-b{padding:11px 13px 13px}
   .ans{display:flex;gap:12px;align-items:flex-start;margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
   .ans .k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
   .ans .v{font-size:14px;color:var(--ink);font-weight:500}
