@@ -244,6 +244,20 @@
     .nav-links a.txt{display:none}
   }
   @media(max-width:520px){ .feat-grid{grid-template-columns:1fr} .compare .cell{padding:13px 14px;font-size:14px} }
+  .cmp-sec{max-width:820px;margin:0 auto}
+  .cmp-sec h2{text-align:center;font-size:clamp(26px,4vw,36px);margin-bottom:8px}
+  .cmp-sec .lead{text-align:center;color:var(--text-soft);font-size:16px;margin-bottom:28px}
+  .cmp-wrap{overflow-x:auto}
+  .cmp{width:100%;min-width:520px;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+  .cmp th,.cmp td{padding:14px 14px;text-align:center;font-size:14px;border-bottom:1px solid var(--line)}
+  .cmp thead th{font-size:12.5px;font-weight:700;letter-spacing:.03em;color:var(--text-soft);background:var(--panel-soft)}
+  .cmp th.feat,.cmp td.feat{text-align:left;font-weight:600;color:var(--ink)}
+  .cmp .shou{background:linear-gradient(180deg,rgba(255,61,139,.07),rgba(255,155,61,.03))}
+  .cmp thead th.shou{color:var(--pink);font-size:15px}
+  .cmp tbody tr:last-child td{border-bottom:none}
+  .cmp .yes{color:var(--cyan);font-weight:800}
+  .cmp .no{color:#c9c3d0;font-weight:700}
+  .cmp .lim{color:var(--text-dim);font-size:12.5px;font-weight:600}
 </style>
 </head>
 <body>
@@ -369,6 +383,27 @@
     <div class="feat"><div class="ic">🗺️</div><h3>Plan my stay</h3><p>One tap builds a day-by-day itinerary from what's on, the forecast and your picks — and offers early check-in, late check-out or luggage storage at exactly the right moment.</p></div>
   </div>
 </div></section>
+<!-- COMPARISON: more than a guidebook -->
+<section style="padding-top:26px"><div class="wrap cmp-sec">
+  <h2>More than a guidebook</h2>
+  <p class="lead">One subscription replaces the guidebook, the house manual, the FAQ, the translation tool, the local recommendations <em>and</em> the QR generator — and does what none of them can.</p>
+  <div class="cmp-wrap">
+  <table class="cmp">
+    <thead><tr><th class="feat"></th><th>A static PDF</th><th>A guidebook tool</th><th class="shou">shou</th></tr></thead>
+    <tbody>
+      <tr><td class="feat">Digital welcome book</td><td class="yes">✓</td><td class="yes">✓</td><td class="shou yes">✓</td></tr>
+      <tr><td class="feat">One QR code</td><td class="no">—</td><td class="yes">✓</td><td class="shou yes">✓</td></tr>
+      <tr><td class="feat">Auto translation · 7 languages</td><td class="no">—</td><td class="yes">✓</td><td class="shou yes">✓</td></tr>
+      <tr><td class="feat">AI answers to any question</td><td class="no">—</td><td class="lim">Limited</td><td class="shou yes">✓</td></tr>
+      <tr><td class="feat">Live local events</td><td class="no">—</td><td class="no">—</td><td class="shou yes">✓</td></tr>
+      <tr><td class="feat">Always up to date</td><td class="no">—</td><td class="no">—</td><td class="shou yes">✓</td></tr>
+      <tr><td class="feat">Personalised recommendations</td><td class="no">—</td><td class="lim">Limited</td><td class="shou yes">✓</td></tr>
+      <tr><td class="feat">Day-by-day stay planner</td><td class="no">—</td><td class="no">—</td><td class="shou yes">✓</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div></section>
+
 <section style="background:var(--panel-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap">
   <div class="sec-head">
     <h2>What your guests actually ask</h2>
