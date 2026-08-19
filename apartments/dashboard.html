@@ -95,6 +95,29 @@
   .delbox .delact{display:flex;gap:10px;justify-content:flex-end}
   .delbox #delGo:disabled{opacity:.45;cursor:default}
   .delbox .delmsg{margin-top:10px;font-size:13px}
+  /* Publish screen (card-at-publish celebratory modal) */
+  .pubmodal{position:fixed;inset:0;z-index:130;background:rgba(20,16,30,.55);display:none;align-items:center;justify-content:center;padding:20px}
+  .pubmodal.on{display:flex}
+  .pubbox{background:var(--panel);border-radius:20px;padding:26px 24px;max-width:440px;width:100%;box-shadow:0 24px 60px -20px rgba(20,16,30,.5);text-align:center;max-height:92vh;overflow:auto}
+  .pubbox .pb-emoji{font-size:32px;line-height:1}
+  .pubbox h3{margin:6px 0 2px;font-family:'Fraunces';font-size:23px;color:var(--ink)}
+  .pubbox .pb-unit{font-size:14px;color:var(--dim);margin-bottom:16px}
+  .pubbox .pb-list{list-style:none;margin:0 auto 16px;padding:0;text-align:left;display:table}
+  .pubbox .pb-list li{font-size:14px;color:var(--ink);padding:5px 0 5px 26px;position:relative}
+  .pubbox .pb-list li::before{content:'\2713';position:absolute;left:0;color:var(--cyan);font-weight:800}
+  .pubbox .pb-free{font-family:'Fraunces';font-size:20px;font-weight:600;color:var(--ink)}
+  .pubbox .pb-sub{font-size:13px;color:var(--soft);margin-bottom:16px}
+  .pubbox .pb-planlbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--dim);margin-bottom:8px}
+  .pubbox .pb-plans{display:flex;gap:8px;margin-bottom:18px}
+  .pubbox .pb-planbtn{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 6px;cursor:pointer;display:flex;flex-direction:column;gap:2px;font:inherit}
+  .pubbox .pb-planbtn.on{border-color:var(--pink);background:color-mix(in srgb,var(--pink) 8%,var(--panel))}
+  .pubbox .pb-planbtn .pp-n{font-size:13px;font-weight:700;color:var(--ink)}
+  .pubbox .pb-planbtn .pp-p{font-size:13px;color:var(--ink)}
+  .pubbox .pb-planbtn .pp-u{font-size:11px;color:var(--dim)}
+  .pubbox .pb-cta{width:100%;justify-content:center;font-size:15px;padding:13px}
+  .pubbox .pb-note{font-size:12.5px;color:var(--soft);margin-top:10px}
+  .pubbox .pb-date{font-size:13px;color:var(--ink);margin-top:8px;font-weight:600}
+  .pubbox .pb-cancel{margin-top:12px}
   .empty{text-align:center;color:var(--dim);padding:40px 0;background:var(--panel);border:1px dashed var(--line);border-radius:16px}
 
   /* billing banner */
@@ -570,6 +593,22 @@
   <div class="delmsg" id="delMsg"></div>
 </div></div>
 
+<div class="pubmodal" id="pubModal" aria-hidden="true"><div class="pubbox" role="dialog" aria-modal="true" aria-labelledby="pubH">
+  <div class="pb-emoji">🎉</div>
+  <h3 id="pubH">Your guest companion is ready</h3>
+  <div class="pb-unit" id="pubUnit"></div>
+  <ul class="pb-list" id="pubList"></ul>
+  <div class="pb-free" id="pubFree">30 days free</div>
+  <div class="pb-sub" id="pubSub">No setup fee · Cancel anytime</div>
+  <div class="pb-planlbl" id="pubPlanLbl">Your plan</div>
+  <div class="pb-plans" id="pubPlanRow"></div>
+  <button class="btn btn-primary pb-cta" id="pubGo">Publish your guest companion</button>
+  <div class="pb-note" id="pubNote">30 days free · No charge today</div>
+  <div class="pb-date" id="pubDate"></div>
+  <button class="btn btn-ghost btn-sm pb-cancel" id="pubCancel">Not yet</button>
+  <div class="delmsg" id="pubMsg"></div>
+</div></div>
+
 <div class="delmodal" id="impModal" aria-hidden="true"><div class="delbox" role="dialog" aria-modal="true" aria-labelledby="impTitleH">
   <h3 id="impTitleH" data-i="impTitle">Import from a listing</h3>
   <p class="delwarn" data-i="impSub">Paste your Airbnb or Booking.com link — or the listing text — and we'll draft the apartment for you to review.</p>
@@ -978,15 +1017,52 @@ function wirePlans(){ document.querySelectorAll('#billing [data-plan]').forEach(
     startBilling(x.getAttribute('data-plan'),x);
   };
 }); }
-function startBilling(plan,btn){
+function startBilling(plan,btn,publishUnitId){
   var m=$('billMsg'); if(m)clearMsg(m);
-  if(btn){btn.disabled=true;btn.textContent='…';}
-  api('POST',{action:'billing_start',plan:plan,interval:billInterval},true).then(function(r){
+  var ot=btn?btn.textContent:''; if(btn){btn.disabled=true;btn.textContent='…';}
+  api('POST',{action:'billing_start',plan:plan,interval:billInterval,publishUnitId:publishUnitId||undefined},true).then(function(r){
     if(r.ok&&r.j.checkoutUrl){ location.href=r.j.checkoutUrl; return; }
-    if(btn){btn.disabled=false;}
+    if(btn){btn.disabled=false;btn.textContent=ot;}
     if(m)msg(m,(r.j&&r.j.error)||t('couldNotStart'),'err');
+    var pm=$('pubMsg'); if(pm&&$('pubModal')&&$('pubModal').classList.contains('on'))msg(pm,(r.j&&r.j.error)||t('couldNotStart'),'err');
   });
 }
+// ---------- Publish screen (card-at-publish) ----------
+var PUB_T={
+ en:{h:'Your guest companion is ready',apt:'Your apartment',f:['Digital welcome book','AI concierge','Local recommendations',"What's happening this week",'Plan my stay','7 languages'],free:'30 days free',sub:'No setup fee · Cancel anytime',plan:'Your plan',cta:'Publish your guest companion',note:'30 days free · No charge today',date:'Your first {price} payment will be on {date}.',cancel:'Not yet',need:'Just add your billing details for the invoice, then publish.',live:"\U0001f389 You're live — put your QR code in the apartment."},
+ fr:{h:'Votre companion voyageurs est prêt',apt:'Votre logement',f:['Livret d’accueil numérique','Concierge IA','Recommandations locales','Ce qui se passe cette semaine','Planifier le séjour','7 langues'],free:'30 jours gratuits',sub:'Sans frais d’installation · Annulable à tout moment',plan:'Votre formule',cta:'Publier votre companion',note:'30 jours gratuits · Aucun débit aujourd’hui',date:'Votre premier paiement de {price} aura lieu le {date}.',cancel:'Pas encore',need:'Ajoutez d’abord vos informations de facturation, puis publiez.',live:'\U0001f389 En ligne — placez votre QR code dans le logement.'},
+ nl:{h:'Je gastcompanion is klaar',apt:'Je appartement',f:['Digitaal welkomstboek','AI-concierge','Lokale aanbevelingen','Wat er deze week te doen is','Plan je verblijf','7 talen'],free:'30 dagen gratis',sub:'Geen installatiekosten · Altijd opzegbaar',plan:'Je abonnement',cta:'Publiceer je gastcompanion',note:'30 dagen gratis · Vandaag geen kosten',date:'Je eerste betaling van {price} vindt plaats op {date}.',cancel:'Nog niet',need:'Voeg eerst je factuurgegevens toe en publiceer dan.',live:'\U0001f389 Live — hang je QR-code op in het appartement.'}
+};
+function pt(k){var d=PUB_T[uiLang]||PUB_T.en;return d[k]!=null?d[k]:PUB_T.en[k];}
+var _pubPlan='solo';
+function pubPlanPrice(k){var p=(BILLING_PLANS&&BILLING_PLANS[k])||{},c=p.price_cents;if(c==null){c=({solo:1900,host:5900,pro:19900})[k]||1900;}var v=(c%100?(c/100).toFixed(2):c/100);return '€'+v;}
+function planForUnitCount(n){var caps=BILLING_CAPS||{solo:1,host:5,pro:20};if(n<=(caps.solo||1))return 'solo';if(n<=(caps.host||5))return 'host';return 'pro';}
+function renderPubPlans(){var row=$('pubPlanRow');if(!row)return;var keys=['solo','host','pro'],names={solo:'Solo',host:'Host',pro:'Pro'},caps=BILLING_CAPS||{solo:1,host:5,pro:20};
+  row.innerHTML=keys.map(function(k){var cap=caps[k]||({solo:1,host:5,pro:20})[k];return '<button type="button" class="pb-planbtn'+(k===_pubPlan?' on':'')+'" data-pubplan="'+k+'"><span class="pp-n">'+names[k]+'</span><span class="pp-p">'+pubPlanPrice(k)+'/mo</span><span class="pp-u">'+cap+' apt'+(cap>1?'s':'')+'</span></button>';}).join('');
+  row.querySelectorAll('[data-pubplan]').forEach(function(b){b.onclick=function(){_pubPlan=b.getAttribute('data-pubplan');renderPubPlans();refreshPubDate();};});}
+function refreshPubDate(){var d=new Date();d.setDate(d.getDate()+30);var ds=d.toLocaleDateString(uiLang==='en'?'en-GB':uiLang,{day:'numeric',month:'long',year:'numeric'});var el=$('pubDate');if(el)el.textContent=pt('date').replace('{price}',pubPlanPrice(_pubPlan)).replace('{date}',ds);}
+function openPubModal(){if(!editing)return;var d=PUB_T[uiLang]||PUB_T.en;
+  $('pubH').textContent=pt('h');$('pubUnit').textContent=editing.name||pt('apt');
+  var ul=$('pubList');if(ul)ul.innerHTML=(d.f||PUB_T.en.f).map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
+  $('pubFree').textContent=pt('free');$('pubSub').textContent=pt('sub');$('pubPlanLbl').textContent=pt('plan');$('pubGo').textContent=pt('cta');$('pubNote').textContent=pt('note');$('pubCancel').textContent=pt('cancel');
+  _pubPlan=planForUnitCount((lastUnits&&lastUnits.length)||1);renderPubPlans();refreshPubDate();
+  try{clearMsg($('pubMsg'));}catch(e){}
+  $('pubModal').classList.add('on');$('pubModal').setAttribute('aria-hidden','false');}
+function closePubModal(){var m=$('pubModal');if(!m)return;m.classList.remove('on');m.setAttribute('aria-hidden','true');}
+$('pubCancel').onclick=closePubModal;
+$('pubModal').onclick=function(e){if(e.target===$('pubModal'))closePubModal();};
+$('pubGo').onclick=function(){if(!editing)return;
+  if(!LEGAL.complete){closePubModal();msg($('edMsg'),pt('need'),'err');if(typeof setLegalOpen==='function')setLegalOpen(true);var c=$('legalCard')||$('billing');if(c&&c.scrollIntoView)c.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  startBilling(_pubPlan,$('pubGo'),editing.id);};
+// Return from Mollie with ?publish=<id>: wait for the mandate, then publish + go live.
+function handlePublishReturn(){var pid=new URLSearchParams(location.search).get('publish');if(!pid)return;
+  history.replaceState({},'',location.pathname);var tries=0;
+  (function poll(){api('POST',{action:'billing_status'},true).then(function(r){
+    var st=r.ok&&r.j&&r.j.billing&&r.j.billing.billing_status;
+    if(st==='trialing'||st==='active'){api('POST',{action:'publish',id:pid,published:true},true).then(function(pr){
+      if(pr.ok&&pr.j&&pr.j.unit){openEditor(pr.j.unit);try{renderPubBox(pr.j.unit);}catch(e){}loadUnits();try{$('pubBox').scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}msg($('edMsg'),pt('live'),'ok');}});return;}
+    if(++tries<12){setTimeout(poll,2500);}
+  });})();}
 function cancelBilling(){
   if(!confirm(t('cancelConfirm')))return;
   api('POST',{action:'billing_cancel'},true).then(function(){ loadBilling(); });
@@ -1003,7 +1079,7 @@ function cancelBilling(){
     });
     return;
   }
-  try{ var s=JSON.parse(localStorage.getItem('apt_sess')||'null'); if(s&&s.token){ token=s.token; owner=s.owner; enterApp(); } }catch(e){}
+  try{ var s=JSON.parse(localStorage.getItem('apt_sess')||'null'); if(s&&s.token){ token=s.token; owner=s.owner; enterApp(); handlePublishReturn(); } }catch(e){}
 })();
 
 // ---------- UNITS ----------
@@ -1878,7 +1954,7 @@ $('pubBtn').onclick=function(){
     return api('POST',{action:'publish',id:editing.id,published:true},true).then(function(r){
       if(!r.ok){
         updatePubBtn();
-        if(r.j&&r.j.code==='billing_required'){ msg($('edMsg'),t('needBilling'),'err'); var bb=$('billing'); if(bb&&bb.scrollIntoView)bb.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+        if(r.j&&r.j.code==='billing_required'){ openPubModal(); return; }
         if(r.j&&r.j.code==='plan_limit'){ return msg($('edMsg'),t('planLimit').replace('{n}',r.j.cap),'err'); }
         return msg($('edMsg'),(r.j&&r.j.error)||t('couldNotSave'),'err');
       }
