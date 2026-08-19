@@ -206,13 +206,13 @@
   .wk-railwrap:hover .wk-arrow.show{opacity:1}
   .wk-arrow:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
   @media(hover:none){.wk-arrow{display:none}}
-  .ev{display:flex;gap:16px;align-items:center;padding:15px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
+  .ev{display:flex;gap:0;align-items:stretch;padding:0;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
   .ev:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);border-color:rgba(20,16,30,.14);transform:translateY(-2px)}
   .ev:hover .t{color:var(--pink)}
   .thumb{width:84px;height:84px;border-radius:14px;flex:none;overflow:hidden;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff' fill-opacity='0.5'%3E%3Crect x='3' y='13' width='3' height='8' rx='1.5'/%3E%3Crect x='8' y='9' width='3' height='12' rx='1.5'/%3E%3Crect x='13' y='6' width='3' height='15' rx='1.5'/%3E%3Crect x='18' y='11' width='3' height='10' rx='1.5'/%3E%3C/svg%3E") center / 40px no-repeat, linear-gradient(135deg,var(--violet),var(--pink))}
   .thumb img{width:100%;height:100%;object-fit:cover;display:block}
   .thumb.hotelthumb{display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,rgba(255,61,139,.16),rgba(255,155,61,.13))}
-  .meta{min-width:0;display:flex;flex-direction:column;gap:5px}
+  .meta{min-width:0;display:flex;flex-direction:column;gap:5px;padding:13px 15px 13px 14px}
   .t{font-family:'Fraunces',serif;font-weight:600;font-size:20px;line-height:1.18;color:var(--ink);transition:color .15s;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .date{font-weight:700;font-size:12.5px;color:var(--cyan);letter-spacing:.02em}
   .venue{color:var(--soft);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -322,7 +322,7 @@
   /* concierge results — same card anatomy as beta.shou.be (image-top, seg pill, title, desc, meta) */
   .res{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:2px 0 4px;width:100%}
   .ev-res{align-items:stretch}
-  .ev-res .thumb{width:104px;height:auto;min-height:104px;align-self:stretch}
+  .ev-res .thumb{width:104px;height:auto;min-height:104px;align-self:stretch;border-radius:0}
   .ev-res .meta{gap:4px;justify-content:center}
   .ev-res .qpill{margin-bottom:1px}
   .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s,border-color .15s}
@@ -355,16 +355,16 @@
   .picks{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0 14px;align-items:start}
   @media(min-width:520px){ .picks{grid-template-columns:repeat(2,1fr)} }
   @media(min-width:760px){ .picks{grid-template-columns:repeat(3,1fr)} }
-  .pick{display:grid;grid-template-columns:1fr;gap:9px;align-items:start;padding:12px 13px;
-    border:1px solid var(--line);border-radius:14px;background:var(--card);text-decoration:none;color:inherit;
+  .pick{display:grid;grid-template-columns:1fr;gap:0;align-items:start;padding:0;overflow:hidden;
+    border:1px solid var(--line);border-radius:16px;background:var(--card);text-decoration:none;color:inherit;
     box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s,transform .15s}
-  .pick:hover{border-color:var(--cyan);box-shadow:0 8px 20px -10px rgba(20,16,30,.28);transform:translateY(-1px)}
+  .pick:hover{border-color:var(--cyan);box-shadow:0 8px 20px -10px rgba(20,16,30,.28);transform:translateY(-2px)}
   .pick:hover .pick-n{color:var(--cyan)}
   .pick{cursor:pointer}
-  .pick-ic{width:100%;height:72px;border-radius:10px;display:grid;place-items:center;font-size:28px;
-    background:var(--panel-soft);border:1px solid var(--line)}
-  .pick-ph{width:100%;height:96px;border-radius:10px;flex:none;object-fit:cover;display:block;
-    background:var(--panel-soft);border:1px solid var(--line)}
+  .pick-ic{width:100%;height:118px;border-radius:0;display:grid;place-items:center;font-size:28px;
+    background:var(--panel-soft)}
+  .pick-ph{width:100%;height:150px;border-radius:0;flex:none;object-fit:cover;display:block;
+    background:var(--panel-soft)}
   .pick-cu{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;
     color:var(--cyan);background:rgba(14,154,141,.10);border-radius:999px;padding:2px 8px;margin-bottom:3px}
   .pick-h{display:block;font-size:12px;color:var(--dim);margin-top:4px;line-height:1.4}
@@ -374,7 +374,7 @@
   .pick-src{display:block;font-size:10.5px;color:var(--dim);margin-top:5px}
   .pick-m a{color:var(--soft);font-weight:600;text-decoration:none}
   .pick-m a:hover{color:var(--cyan);text-decoration:underline}
-  .pick-b{min-width:0}
+  .pick-b{min-width:0;padding:11px 13px 13px}
   .pick-n{display:block;font-weight:700;font-size:15px;color:var(--ink);line-height:1.25}
   .pick-note{display:block;font-size:13.5px;color:var(--ink);line-height:1.45;margin-top:5px;
     padding:6px 10px;border-left:3px solid var(--cyan);background:var(--panel-soft);
@@ -385,6 +385,14 @@
   .pick-map{display:block;width:100%;height:220px;border-radius:14px;margin-top:9px;
     border:1px solid var(--line);background:var(--panel-soft);overflow:hidden}
   .pick-more{display:inline-block;margin-top:4px;font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none}
+  .exp-sub{color:var(--soft);font-size:13.5px;margin:-6px 0 12px}
+  .exp-card{flex:0 0 200px;scroll-snap-align:start;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+  .exp-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--pink) 35%,var(--line))}
+  .exp-img{display:block;height:118px;background:#ece8f0 center/cover no-repeat}
+  .exp-b{padding:11px 13px 13px;display:flex;flex-direction:column;gap:5px}
+  .exp-t{font-weight:600;font-size:14px;color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .exp-m{font-size:12px;color:var(--soft)}
+  .exp-p{font-size:13.5px;font-weight:700;color:var(--pink)}
   .at-sub{font-size:13px;color:var(--dim);margin:-4px 0 12px;line-height:1.4}
   /* the picks map (Leaflet) — rounded card, self-contained */
   .picks-map{display:block;width:100%;height:340px;border-radius:16px;border:1px solid var(--line);
@@ -1067,6 +1075,14 @@ function timelineHTML(){
 }
 
 let activeDay=null;
+var EXP_TITLE={en:'Experiences & tickets',fr:'Expériences & billets',nl:'Ervaringen & tickets',de:'Erlebnisse & Tickets',es:'Experiencias y entradas',it:'Esperienze e biglietti',uk:'Враження та квитки'};
+var EXP_SUB={en:'Top-rated tours nearby — browse & book on Viator',fr:'Visites les mieux notées à proximité — à réserver sur Viator',nl:'Best beoordeelde tours dichtbij — bekijk & boek op Viator',de:'Top-Touren in der Nähe — auf Viator ansehen & buchen',es:'Excursiones mejor valoradas cerca — reserva en Viator',it:'Tour più votati nelle vicinanze — scopri e prenota su Viator',uk:'Найкращі екскурсії поруч — перегляд і бронювання на Viator'};
+var EXP_FROM={en:'from',fr:'dès',nl:'vanaf',de:'ab',es:'desde',it:'da',uk:'від'};
+var viatorExp=[];
+function viatorHref(u){ return String(u==null?'':u).replace(/([?&])api_version=[^&]*(&|$)/,function(_,a,b){return b==='&'?a:(a==='?'?'?':'');}).replace(/[?&]$/,''); }
+function expCard(e){ var cur=e.currency==='EUR'?'€':(e.currency?e.currency+' ':'€'); var price=(e.fromPrice!=null)?('<span class="exp-p">'+esc((EXP_FROM[lang]||EXP_FROM.en)+' '+cur+e.fromPrice)+'</span>'):''; var meta=[]; if(e.rating)meta.push('★ '+(+e.rating).toFixed(1)+(e.reviews?' ('+e.reviews+')':'')); if(e.duration)meta.push(e.duration); return '<a class="exp-card" href="'+esc(viatorHref(e.url))+'" target="_blank" rel="noopener"><span class="exp-img"'+(e.image?(' style="background-image:url('+esc(e.image)+')"'):'')+'></span><span class="exp-b"><span class="exp-t">'+esc(e.title)+'</span>'+(meta.length?'<span class="exp-m">'+esc(meta.join(' · '))+'</span>':'')+price+'</span></a>'; }
+function experiencesSectionHTML(){ if(!viatorExp||!viatorExp.length)return ''; return '<h2 class="wk-h"><span class="wk-emoji">🎟️</span>'+esc(EXP_TITLE[lang]||EXP_TITLE.en)+'<span class="cnt">'+viatorExp.length+'</span></h2><div class="exp-sub">'+esc(EXP_SUB[lang]||EXP_SUB.en)+'</div><div class="wk-rail">'+viatorExp.map(expCard).join('')+'</div>'; }
+function loadExperiences(){ if(!HOTEL||HOTEL.lat==null||HOTEL.lng==null)return; fetch(API+'/viator?lat='+encodeURIComponent(HOTEL.lat)+'&lng='+encodeURIComponent(HOTEL.lng)+'&lang='+encodeURIComponent(lang)+'&campaign=hotel-experiences&count=6').then(function(r){return r.json();}).then(function(d){viatorExp=(d&&d.experiences)||[];renderWeek();}).catch(function(){}); }
 function renderWeek(){
   const wk=weekDays();
   // an event is in-window if it OCCURS on the picked day (or any of the next 7 days by default) —
@@ -1086,6 +1102,7 @@ function renderWeek(){
   // With DB picks (?slug=): the curated "Your picks" section + a Leaflet map
   // sits where "From your hotel" does. Without picks: the demo cards, unchanged.
   html+=PICKS?picksSectionHTML():section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
+  html+=experiencesSectionHTML();
   html+=section('🎶',t('music'),byCat('music'));
   html+=section('🎨',t('art'),byCat('exhibition'));
   html+=section('🎭',t('theatre'),byCat('theatre'));
@@ -1574,7 +1591,7 @@ function applyChrome(){
   try{cyclePlaceholder();}catch(e){}
 }
 document.getElementById('langSel').onchange=async e=>{
-  lang=e.target.value;applyChrome();
+  lang=e.target.value;applyChrome();loadExperiences();
   await loadCatalog();               // refreshes carousels + evById in the new language
   await retranslateChatCards();      // refreshes chat result cards in place
   if(mv.classList.contains('on'))showModal();  // re-render an open card detail too
@@ -1661,7 +1678,7 @@ async function loadPortal(){
     window.CONCIERGE_TONE=b.tone||null;
   }catch(e){ /* network error → leave the demo as-is */ }
 }
-async function boot(){ await loadPortal(); applyChrome(); loadCatalog(); }
+async function boot(){ await loadPortal(); applyChrome(); loadCatalog(); loadExperiences(); }
 boot();
 
 // Back-to-top: show after a screenful, smooth-scroll home on click.
