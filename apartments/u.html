@@ -252,10 +252,10 @@
   .pk-m{font-size:12.5px;color:var(--soft);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   @media(max-width:560px){.pt-arw{width:36px;height:36px}.pt-prefs{padding:12px 13px}.pt-lead{font-size:14px}}
   .pt-items .pick{flex-direction:row;align-items:center;gap:12px;padding:11px 12px}
-  .pt-items .pick-ph{width:82px;height:82px;flex:none;border-radius:11px}
-  .pt-items .pick-ic{width:82px;height:82px;flex:none}
+  .pt-items .pick-ph{width:82px;height:82px;flex:none;border-radius:12px}
+  .pt-items .pick-ic{width:82px;height:82px;flex:none;border-radius:12px}
   .pt-items{display:flex;flex-direction:column;gap:9px}
-  .pt-items .ev-res{padding:11px 12px;border-radius:13px}
+  .pt-items .ev-res{padding:0;border-radius:16px}
   .pt-items .ev-res .thumb{width:82px;min-height:82px}
   .pt-items .qdesc{-webkit-line-clamp:2}
   .pt-extras{margin-top:6px}
@@ -371,13 +371,13 @@
   .wk-railwrap:hover .wk-arrow.show{opacity:1}
   .wk-arrow:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
   @media(hover:none){.wk-arrow{display:none}}
-  .ev{display:flex;gap:16px;align-items:center;padding:15px 16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
+  .ev{display:flex;gap:0;align-items:stretch;padding:0;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s,transform .15s}
   .ev:hover{box-shadow:0 8px 22px rgba(20,16,30,.10);border-color:rgba(20,16,30,.14);transform:translateY(-2px)}
   .ev:hover .t{color:var(--pink)}
   .thumb{width:84px;height:84px;border-radius:12px;flex:none;overflow:hidden;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff' fill-opacity='0.5'%3E%3Crect x='3' y='13' width='3' height='8' rx='1.5'/%3E%3Crect x='8' y='9' width='3' height='12' rx='1.5'/%3E%3Crect x='13' y='6' width='3' height='15' rx='1.5'/%3E%3Crect x='18' y='11' width='3' height='10' rx='1.5'/%3E%3C/svg%3E") center / 40px no-repeat, linear-gradient(135deg,var(--violet),var(--pink))}
   .thumb img{width:100%;height:100%;object-fit:cover;display:block}
   .thumb.hotelthumb{display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,rgba(255,61,139,.16),rgba(255,155,61,.13))}
-  .meta{min-width:0;display:flex;flex-direction:column;gap:5px}
+  .meta{min-width:0;display:flex;flex-direction:column;gap:5px;padding:13px 15px 13px 14px}
   .t{font-family:'Fraunces',serif;font-weight:600;font-size:20px;line-height:1.18;color:var(--ink);transition:color .15s;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .date{font-weight:700;font-size:12.5px;color:var(--cyan);letter-spacing:.02em}
   .venue{color:var(--soft);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -390,7 +390,7 @@
   @keyframes sh{to{background-position:-200% 0}}
   .empty{text-align:center;color:var(--dim);padding:30px 0}
   .ev-res{align-items:stretch}
-  .ev-res .thumb{width:104px;height:auto;min-height:104px;align-self:stretch}
+  .ev-res .thumb{width:104px;height:auto;min-height:104px;align-self:stretch;border-radius:0}
   .ev-res .meta{gap:4px;justify-content:center}
   .ev-res .qpill{margin-bottom:1px}
   .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s,border-color .15s}
@@ -602,13 +602,15 @@
   .pick-n{font-weight:700;font-size:14.5px}
   .pick-t{font-size:13px;color:var(--soft)}
   .pick-more{display:inline-block;margin-top:4px;font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none}
-  /* Host's picks use the same card as Experiences: full-bleed image flush to
-     the card's 16px corner, no border, text in a padded body below. */
-  .hp .pick{padding:0;gap:0;overflow:hidden}
-  .hp .pick-ph,.hp .pick-ic{width:100%;border:none;border-radius:0}
-  .hp .pick-ph{height:150px}
-  .hp .pick-ic{height:118px}
-  .hp .pick-b{padding:11px 13px 13px}
+  /* Vertical pick cards (host's picks + concierge answers) use the Experiences
+     card: full-bleed image flush to the 16px corner, no border, padded body. */
+  .pick{padding:0;gap:0;overflow:hidden}
+  .pick-ph,.pick-ic{width:100%;border:none;border-radius:0}
+  .pick-ph{height:150px}
+  .pick-ic{height:118px}
+  .pick-b{padding:11px 13px 13px}
+  /* Plan-my-stay keeps the compact horizontal row (thumb-left, inset). */
+  .pt-items .pick-b{padding:0}
   .ans{display:flex;gap:12px;align-items:flex-start;margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
   .ans .k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
   .ans .v{font-size:14px;color:var(--ink);font-weight:500}
