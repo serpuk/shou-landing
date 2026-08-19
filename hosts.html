@@ -258,6 +258,8 @@
   .cmp .yes{color:var(--cyan);font-weight:800}
   .cmp .no{color:#c9c3d0;font-weight:700}
   .cmp .lim{color:var(--text-dim);font-size:12.5px;font-weight:600}
+  .gi-grid{display:grid;grid-template-columns:1fr;gap:20px}
+  @media(min-width:640px){ .gi-grid{grid-template-columns:1.5fr 1fr;align-items:center} }
 </style>
 </head>
 <body>
@@ -427,48 +429,27 @@
     <p>Every question your guests ask becomes a pattern you can act on — which topics, and which languages. No other guidebook tells you this.</p>
   </div>
 
-  <div style="max-width:620px;margin:0 auto;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:var(--shadow);overflow:hidden">
-    <div style="display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--panel-soft)">
-      <span style="width:9px;height:9px;border-radius:50%;background:#ff5f57"></span>
-      <span style="width:9px;height:9px;border-radius:50%;background:#febc2e"></span>
-      <span style="width:9px;height:9px;border-radius:50%;background:#28c840"></span>
-      <span style="margin-left:8px;font-size:12.5px;color:var(--text-soft)">Your dashboard — What your guests asked</span>
+  <div style="max-width:720px;margin:0 auto;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:var(--shadow);padding:20px 22px">
+    <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+      <b style="font-size:16px;color:var(--ink);font-family:'Fraunces'">What your guests asked</b>
       <span style="margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-soft);border:1px solid var(--line);border-radius:999px;padding:2px 8px">Example</span>
     </div>
+    <div style="font-size:13px;color:var(--text-soft);margin-top:3px">Last 30 days · counts only, never the questions themselves</div>
+    <div style="font-size:13.5px;color:var(--ink);font-weight:600;margin-top:14px">45 questions</div>
 
-    <div style="padding:18px 20px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-        <b style="font-size:15px;color:var(--ink)">Apartment 32</b>
-        <span style="font-size:12.5px;color:var(--text-soft)">48 questions · last 30 days</span>
+    <div class="gi-grid" style="margin-top:12px">
+      <div><div style="display:flex;align-items:center;gap:10px;margin:7px 0"><span style="width:92px;font-size:13.5px;color:var(--ink)">What’s on</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:100.0%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px;text-align:right">29</span></div><div style="display:flex;align-items:center;gap:10px;margin:7px 0"><span style="width:92px;font-size:13.5px;color:var(--ink)">Bars</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:27.6%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px;text-align:right">8</span></div><div style="display:flex;align-items:center;gap:10px;margin:7px 0"><span style="width:92px;font-size:13.5px;color:var(--ink)">Dinner</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:13.8%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px;text-align:right">4</span></div><div style="display:flex;align-items:center;gap:10px;margin:7px 0"><span style="width:92px;font-size:13.5px;color:var(--ink)">Pharmacy</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:3.4%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px;text-align:right">1</span></div><div style="display:flex;align-items:center;gap:10px;margin:7px 0"><span style="width:92px;font-size:13.5px;color:var(--ink)">Coffee</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:3.4%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px;text-align:right">1</span></div><div style="display:flex;align-items:center;gap:10px;margin:7px 0"><span style="width:92px;font-size:13.5px;color:var(--ink)">Check-out</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:3.4%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px;text-align:right">1</span></div><div style="display:flex;align-items:center;gap:10px;margin:7px 0"><span style="width:92px;font-size:13.5px;color:var(--ink)">Parking</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:3.4%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px;text-align:right">1</span></div></div>
+      <div style="text-align:center">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px">By language</div>
+        <div style="width:128px;height:128px;border-radius:50%;margin:0 auto;background:conic-gradient(#ff3d8b 0 68.9%,#c9a227 68.9% 82.2%,#ff9b3d 82.2% 95.6%,#3d7ea6 95.6% 100%)"></div>
+        <div style="display:inline-flex;flex-direction:column;gap:7px;margin-top:16px;text-align:left;font-size:13px;color:var(--ink)"><span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ff3d8b;margin-right:7px;vertical-align:middle"></span>English <b style="font-weight:600">69%</b></span><span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#c9a227;margin-right:7px;vertical-align:middle"></span>Українська <b style="font-weight:600">13%</b></span><span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ff9b3d;margin-right:7px;vertical-align:middle"></span>Français <b style="font-weight:600">13%</b></span><span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#3d7ea6;margin-right:7px;vertical-align:middle"></span>Español <b style="font-weight:600">4%</b></span></div>
       </div>
+    </div>
 
-      <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);margin:15px 0 8px">By topic</div>
-      <div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:120px;font-size:13.5px;color:var(--ink)">Things to do</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:100%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px">22</span></div>
-      <div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:120px;font-size:13.5px;color:var(--ink)">Parking</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:55%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px">12</span></div>
-      <div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:120px;font-size:13.5px;color:var(--ink)">Breakfast</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:36%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px">8</span></div>
-      <div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:120px;font-size:13.5px;color:var(--ink)">Groceries</span><div style="flex:1;height:9px;background:rgba(20,16,30,.08);border-radius:5px;overflow:hidden"><div style="height:100%;width:27%;background:linear-gradient(105deg,var(--pink),var(--orange))"></div></div><span style="font-size:12.5px;color:var(--text-soft);width:18px">6</span></div>
-
-      <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);margin:18px 0 8px">By language</div>
-      <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;border:1px solid var(--line)">
-        <div style="width:40%;background:#ff3d8b" title="English"></div>
-        <div style="width:25%;background:#ff9b3d" title="French"></div>
-        <div style="width:19%;background:#0e9a8d" title="Dutch"></div>
-        <div style="width:10%;background:#9b5cff" title="German"></div>
-        <div style="width:6%;background:#2f7d5b" title="Italian"></div>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:9px;font-size:12.5px;color:var(--text-soft)">
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ff3d8b;margin-right:5px;vertical-align:middle"></span>English 19</span>
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ff9b3d;margin-right:5px;vertical-align:middle"></span>French 12</span>
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#0e9a8d;margin-right:5px;vertical-align:middle"></span>Dutch 9</span>
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#9b5cff;margin-right:5px;vertical-align:middle"></span>German 5</span>
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#2f7d5b;margin-right:5px;vertical-align:middle"></span>Italian 3</span>
-      </div>
-
-      <div style="margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(255,155,61,.10);border:1px solid rgba(255,155,61,.35)">
-        <b style="font-size:13.5px;color:var(--ink)">⚠️ Guests asked about things your welcome book doesn’t cover</b>
-        <div style="font-size:13.5px;margin-top:3px;color:var(--ink)">Parking <span style="color:var(--text-soft)">(12×)</span></div>
-        <div style="color:var(--text-soft);font-size:12.5px;margin-top:5px">Add it once — and twelve guests stop asking.</div>
-      </div>
+    <div style="margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(255,155,61,.10);border:1px solid rgba(255,155,61,.35)">
+      <b style="font-size:13.5px;color:var(--ink)">⚠️ Guests asked about things your welcome book doesn’t cover</b>
+      <div style="font-size:13.5px;margin-top:3px;color:var(--ink)">Coffee <span style="color:var(--text-soft)">(1×)</span> · Parking <span style="color:var(--text-soft)">(1×)</span></div>
+      <div style="color:var(--text-soft);font-size:12.5px;margin-top:5px">Add these to your welcome book and guests will stop asking.</div>
     </div>
   </div>
 
