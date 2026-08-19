@@ -251,12 +251,12 @@
   .pk-n{font-weight:600;font-size:14.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .pk-m{font-size:12.5px;color:var(--soft);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   @media(max-width:560px){.pt-arw{width:36px;height:36px}.pt-prefs{padding:12px 13px}.pt-lead{font-size:14px}}
-  .pt-items .pick{flex-direction:row;align-items:center;gap:12px;padding:11px 12px}
-  .pt-items .pick-ph{width:82px;height:82px;flex:none;border-radius:12px}
-  .pt-items .pick-ic{width:82px;height:82px;flex:none;border-radius:12px}
+  .pt-items .pick{flex-direction:row;align-items:stretch;gap:0;padding:0}
+  .pt-items .pick-ph{width:90px;height:auto;min-height:90px;align-self:stretch;flex:none}
+  .pt-items .pick-ic{width:90px;height:auto;min-height:90px;align-self:stretch;flex:none}
   .pt-items{display:flex;flex-direction:column;gap:9px}
   .pt-items .ev-res{padding:0;border-radius:16px}
-  .pt-items .ev-res .thumb{width:82px;min-height:82px}
+  .pt-items .ev-res .thumb{width:90px;min-height:90px}
   .pt-items .qdesc{-webkit-line-clamp:2}
   .pt-extras{margin-top:6px}
   .pl-idea{display:flex;align-items:center;gap:11px;background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500}
@@ -609,8 +609,8 @@
   .pick-ph{height:150px}
   .pick-ic{height:118px}
   .pick-b{padding:11px 13px 13px}
-  /* Plan-my-stay keeps the compact horizontal row (thumb-left, inset). */
-  .pt-items .pick-b{padding:0}
+  /* Plan-my-stay stays a horizontal row (thumb-left), flush like every other card. */
+  .pt-items .pick-b{padding:13px 14px}
   .ans{display:flex;gap:12px;align-items:flex-start;margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
   .ans .k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
   .ans .v{font-size:14px;color:var(--ink);font-weight:500}
