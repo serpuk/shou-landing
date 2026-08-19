@@ -292,6 +292,8 @@
   .wx-nudge{display:inline-block;font-size:13px;color:var(--ink);background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:8px 12px;line-height:1.4}
   .xtra{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
   .xtra:hover{border-color:rgba(255,61,139,.35);transform:translateY(-1px)}
+  .xtra.svc{text-decoration:none;cursor:pointer}
+  .xtra.svc .xt-go{margin-left:auto;color:var(--pink);font-weight:800;font-size:15px;flex:none}
   .xt-ic{flex:none;font-size:22px;width:44px;height:44px;display:grid;place-items:center;background:var(--panel-soft);border-radius:12px;line-height:1}
   .xt-b{flex:1;min-width:0}
   .xt-l{font-weight:700;font-size:15px;color:var(--ink)}
@@ -841,6 +843,7 @@ function greeting(){
   var t=(U.branding&&U.branding.tone)||'';
   return chr({host:'gHost',concierge:'gConcierge',brief:'gBrief',playful:'gPlayful'}[t]||'sub');
 }
+var SVC_TITLE={en:'Recommended services',fr:'Services recommandés',nl:'Aanbevolen diensten',de:'Empfohlene Dienste',es:'Servicios recomendados',it:'Servizi consigliati',uk:'Рекомендовані послуги'};
 function addonIcon(label){var l=fold(label);
   if(/late|tardif|tard|laat|spat|tardi/.test(l))return '\u23f0';
   if(/early|anticip|vroeg|fruh|tempran/.test(l))return '\ud83c\udf05';
@@ -936,7 +939,14 @@ function bookHtml(){
     +'</div>'):'';
   var _bu=(U.content&&U.content.bookUrl)||'', _bm=(U.content&&U.content.bookMsg)||'';
   var bookd=(_bu&&/^https?:\/\//i.test(_bu))?('<div class="bookd"><div class="bd-ic">🔑</div><div class="bd-b"><div class="bd-t">'+esc(chr('bookT'))+'</div>'+(_bm?'<div class="bd-m">'+esc(_bm)+'</div>':'')+'</div><a class="bd-go" href="'+esc(_bu)+'" target="_blank" rel="noopener">'+esc(chr('bookGo'))+'</a></div>'):'';
-  SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
+  // Recommended services — the host's own partner/affiliate links (rent a car,
+  // bike, tours). Click-through (not request-by-email), rendered right after picks.
+  var _svcs=((U.content&&U.content.services)||[]).filter(function(s){return s&&s.label&&s.url&&/^https?:\/\//i.test(s.url);});
+  var services=_svcs.length?('<h2 class="wb-sec">'+esc(SVC_TITLE[curLang]||SVC_TITLE.en)+'</h2><div class="xtras">'
+    +_svcs.map(function(s){return '<a class="xtra svc" href="'+esc(s.url)+'" target="_blank" rel="noopener"><span class="xt-ic">'+addonIcon(s.label)+'</span><div class="xt-b"><div class="xt-l">'+esc(s.label)+'</div>'+(s.price?'<div class="xt-p">'+esc(s.price)+'</div>':'')+'</div><span class="xt-go" aria-hidden="true">\u2197</span></a>';}).join('')
+    +'</div>'):'';
+  if(_svcs.length){var _pi=ord.indexOf('picks');ord.splice(_pi>=0?_pi+1:ord.length,0,'services');}
+  SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; SEC_BLOCKS.services=services; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
 }
 
 // Theme is a fixed id from the owner's picker; anything unknown falls back to
