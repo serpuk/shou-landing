@@ -1078,11 +1078,11 @@ let activeDay=null;
 var EXP_TITLE={en:'Experiences & tickets',fr:'Expériences & billets',nl:'Ervaringen & tickets',de:'Erlebnisse & Tickets',es:'Experiencias y entradas',it:'Esperienze e biglietti',uk:'Враження та квитки'};
 var EXP_SUB={en:'Top-rated tours nearby — browse & book on Viator',fr:'Visites les mieux notées à proximité — à réserver sur Viator',nl:'Best beoordeelde tours dichtbij — bekijk & boek op Viator',de:'Top-Touren in der Nähe — auf Viator ansehen & buchen',es:'Excursiones mejor valoradas cerca — reserva en Viator',it:'Tour più votati nelle vicinanze — scopri e prenota su Viator',uk:'Найкращі екскурсії поруч — перегляд і бронювання на Viator'};
 var EXP_FROM={en:'from',fr:'dès',nl:'vanaf',de:'ab',es:'desde',it:'da',uk:'від'};
-var viatorExp=[];
+var viatorExp=[];var HSLUG='';
 function viatorHref(u){ return String(u==null?'':u).replace(/([?&])api_version=[^&]*(&|$)/,function(_,a,b){return b==='&'?a:(a==='?'?'?':'');}).replace(/[?&]$/,''); }
 function expCard(e){ var cur=e.currency==='EUR'?'€':(e.currency?e.currency+' ':'€'); var price=(e.fromPrice!=null)?('<span class="exp-p">'+esc((EXP_FROM[lang]||EXP_FROM.en)+' '+cur+e.fromPrice)+'</span>'):''; var meta=[]; if(e.rating)meta.push('★ '+(+e.rating).toFixed(1)+(e.reviews?' ('+e.reviews+')':'')); if(e.duration)meta.push(e.duration); return '<a class="exp-card" href="'+esc(viatorHref(e.url))+'" target="_blank" rel="noopener"><span class="exp-img"'+(e.image?(' style="background-image:url('+esc(e.image)+')"'):'')+'></span><span class="exp-b"><span class="exp-t">'+esc(e.title)+'</span>'+(meta.length?'<span class="exp-m">'+esc(meta.join(' · '))+'</span>':'')+price+'</span></a>'; }
 function experiencesSectionHTML(){ if(!viatorExp||!viatorExp.length)return ''; return '<h2 class="wk-h"><span class="wk-emoji">🎟️</span>'+esc(EXP_TITLE[lang]||EXP_TITLE.en)+'<span class="cnt">'+viatorExp.length+'</span></h2><div class="exp-sub">'+esc(EXP_SUB[lang]||EXP_SUB.en)+'</div><div class="wk-rail">'+viatorExp.map(expCard).join('')+'</div>'; }
-function loadExperiences(){ if(!HOTEL||HOTEL.lat==null||HOTEL.lng==null)return; fetch(API+'/viator?lat='+encodeURIComponent(HOTEL.lat)+'&lng='+encodeURIComponent(HOTEL.lng)+'&lang='+encodeURIComponent(lang)+'&campaign=hotel-experiences&count=6').then(function(r){return r.json();}).then(function(d){viatorExp=(d&&d.experiences)||[];renderWeek();}).catch(function(){}); }
+function loadExperiences(){ if(!HOTEL||HOTEL.lat==null||HOTEL.lng==null)return; fetch(API+'/viator?lat='+encodeURIComponent(HOTEL.lat)+'&lng='+encodeURIComponent(HOTEL.lng)+'&lang='+encodeURIComponent(lang)+'&campaign='+encodeURIComponent('hotel-'+(String(HSLUG||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,48)||'experiences'))+'&count=6').then(function(r){return r.json();}).then(function(d){viatorExp=(d&&d.experiences)||[];renderWeek();}).catch(function(){}); }
 function renderWeek(){
   const wk=weekDays();
   // an event is in-window if it OCCURS on the picked day (or any of the next 7 days by default) —
@@ -1613,7 +1613,7 @@ async function loadPortal(){
   // Until that hotel is actually set up, the guard below keeps the hardcoded
   // marketing demo, so the public sample never regresses to an empty page.
   const explicit=!!(qslug||pseg);
-  const slug=qslug||pseg||'sample-hotel';
+  const slug=qslug||pseg||'sample-hotel';HSLUG=slug;
   // Real hotel (explicit slug): drop the hardcoded /img/brussels-tonight.jpg demo
   // hero to a themed gradient RIGHT NOW — synchronously, before the branding
   // fetch — so the guest never sees the sample image flash in before this hotel's
