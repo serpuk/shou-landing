@@ -61,10 +61,6 @@
       "destination": "/apartments/sample.html"
     },
     {
-      "source": "/apartments/offer",
-      "destination": "/apartments/offer.html"
-    },
-    {
       "source": "/apartments/pricing",
       "destination": "/apartments/pricing.html"
     },
@@ -166,6 +162,11 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/apartments/offer",
+      "destination": "/hosts",
+      "permanent": true
+    },
     {
       "source": "/summer-festivals-belgium-2026",
       "destination": "/festivals-belgium",
