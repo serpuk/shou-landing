@@ -301,6 +301,15 @@
   .xtra:hover{border-color:rgba(255,61,139,.35);transform:translateY(-1px)}
   .xtra.svc{text-decoration:none;cursor:pointer}
   .xtra.svc .xt-go{margin-left:auto;color:var(--pink);font-weight:800;font-size:15px;flex:none}
+  .exp-sub{color:var(--soft);font-size:13.5px;margin:-6px 0 12px}
+  .exp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+  .exp-card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+  .exp-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--pink) 35%,var(--line))}
+  .exp-img{display:block;height:118px;background:#ece8f0 center/cover no-repeat}
+  .exp-b{padding:11px 13px 13px;display:flex;flex-direction:column;gap:5px}
+  .exp-t{font-weight:600;font-size:14px;color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .exp-m{font-size:12px;color:var(--soft)}
+  .exp-p{font-size:13.5px;font-weight:700;color:var(--pink)}
   .xt-ic{flex:none;font-size:22px;width:44px;height:44px;display:grid;place-items:center;background:var(--panel-soft);border-radius:12px;line-height:1}
   .xt-b{flex:1;min-width:0}
   .xt-l{font-weight:700;font-size:15px;color:var(--ink)}
@@ -866,7 +875,7 @@ function boot(){
     if(_sv&&LANGS.some(function(l){return l.c===_sv;}))curLang=_sv;
     else curLang=U.baseLang||'en';
   }catch(e){ curLang=U.baseLang||'en'; }
-  render(); loadEvents(); fetchWeather();
+  render(); loadEvents(); fetchWeather(); loadExperiences();
 }
 
 function poiValue(k){
@@ -881,6 +890,12 @@ function greeting(){
   return chr({host:'gHost',concierge:'gConcierge',brief:'gBrief',playful:'gPlayful'}[t]||'sub');
 }
 var SVC_TITLE={en:'Recommended services',fr:'Services recommandés',nl:'Aanbevolen diensten',de:'Empfohlene Dienste',es:'Servicios recomendados',it:'Servizi consigliati',uk:'Рекомендовані послуги'};
+var EXP_TITLE={en:'Experiences & tickets',fr:'Expériences & billets',nl:'Ervaringen & tickets',de:'Erlebnisse & Tickets',es:'Experiencias y entradas',it:'Esperienze e biglietti',uk:'Враження та квитки'};
+var EXP_SUB={en:'Top-rated tours nearby — booked on Viator',fr:'Visites les mieux notées à proximité — via Viator',nl:'Best beoordeelde uitstappen dichtbij — via Viator',de:'Top-Touren in der Nähe — über Viator',es:'Excursiones mejor valoradas cerca — vía Viator',it:'Tour più votati nelle vicinanze — via Viator',uk:'Найкращі екскурсії поруч — через Viator'};
+var EXP_FROM={en:'from',fr:'dès',nl:'vanaf',de:'ab',es:'desde',it:'da',uk:'від'};
+var viatorExp=null;
+function loadExperiences(){ if(!U||U.lat==null||U.lng==null)return; fetch(API+'/viator?lat='+encodeURIComponent(U.lat)+'&lng='+encodeURIComponent(U.lng)+'&lang='+encodeURIComponent(curLang)+'&campaign=apt-experiences&count=6').then(function(r){return r.json();}).then(function(d){viatorExp=(d&&d.experiences)||[];render();}).catch(function(){}); }
+function expCard(e){ var cur=e.currency==='EUR'?'€':(e.currency?e.currency+' ':'€'); var price=(e.fromPrice!=null)?('<span class="exp-p">'+esc((EXP_FROM[curLang]||EXP_FROM.en)+' '+cur+e.fromPrice)+'</span>'):''; var meta=[]; if(e.rating)meta.push('★ '+(+e.rating).toFixed(1)+(e.reviews?' ('+e.reviews+')':'')); if(e.duration)meta.push(e.duration); return '<a class="exp-card" href="'+esc(e.url)+'" target="_blank" rel="noopener"><span class="exp-img"'+(e.image?(' style="background-image:url('+esc(e.image)+')"'):'')+'></span><span class="exp-b"><span class="exp-t">'+esc(e.title)+'</span>'+(meta.length?'<span class="exp-m">'+esc(meta.join(' · '))+'</span>':'')+price+'</span></a>'; }
 var SVC_LEAD={en:'Your host recommends {x}:',fr:'Votre hôte recommande {x} :',nl:'Je gastheer raadt {x} aan:',de:'Dein Gastgeber empfiehlt {x}:',es:'Tu anfitrión recomienda {x}:',it:'Il tuo host consiglia {x}:',uk:'Ваш господар радить {x}:'};
 var SVC_STOP=['rent','rental','rentals','hire','book','get','the','and','your','our','for','with','near','best','good','app','online','city'];
 function svcMatch(q){var fq=_fq(q);var svcs=(U.content&&U.content.services)||[];for(var i=0;i<svcs.length;i++){var s=svcs[i];if(!s||!s.label||!s.url||!/^https?:\/\//i.test(s.url))continue;var kws=fold(s.label).split(/\s+/).filter(function(w){return w.length>=3&&SVC_STOP.indexOf(w)<0;});for(var j=0;j<kws.length;j++){if(fq.indexOf(' '+kws[j]+' ')>=0)return s;}}return null;}
@@ -968,7 +983,7 @@ function bookHtml(){
     address: addr?'<h2 class="wb-sec">'+esc(chr('addrSec'))+'</h2>'+addr:'',
     safety: safeCards?'<h2 class="wb-sec">'+esc(sec('safety'))+'</h2><div class="wb-grid">'+safeCards+'</div>':''
   };
-  var DEF_SEC=['apt','picks','building','address','safety','extras','services','bookd'], seen={}, ord=[];
+  var DEF_SEC=['apt','picks','building','address','safety','extras','services','experiences','bookd'], seen={}, ord=[];
   ((U.content&&Array.isArray(U.content.sectionOrder)?U.content.sectionOrder:[]).concat(DEF_SEC))
     .forEach(function(k){ if(DEF_SEC.indexOf(k)>=0 && !seen[k]){seen[k]=1;ord.push(k);} });
   var _ads=((U.content&&U.content.addons)||[]).filter(function(a){return a&&a.label;});
@@ -985,7 +1000,8 @@ function bookHtml(){
   var services=_svcs.length?('<h2 class="wb-sec">'+esc(SVC_TITLE[curLang]||SVC_TITLE.en)+'</h2><div class="xtras">'
     +_svcs.map(function(s){return '<a class="xtra svc" href="'+esc(s.url)+'" target="_blank" rel="noopener"><span class="xt-ic">'+addonIcon(s.label)+'</span><div class="xt-b"><div class="xt-l">'+esc(s.label)+'</div>'+(s.price?'<div class="xt-p">'+esc(s.price)+'</div>':'')+'</div><span class="xt-go" aria-hidden="true">\u2197</span></a>';}).join('')
     +'</div>'):'';
-  SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; SEC_BLOCKS.services=services; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
+  var experiences=(viatorExp&&viatorExp.length)?('<h2 class="wb-sec">'+esc(EXP_TITLE[curLang]||EXP_TITLE.en)+'</h2><div class="exp-sub">'+esc(EXP_SUB[curLang]||EXP_SUB.en)+'</div><div class="exp-grid">'+viatorExp.map(expCard).join('')+'</div>'):'';
+  SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; SEC_BLOCKS.services=services; SEC_BLOCKS.experiences=experiences; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
 }
 
 // Theme is a fixed id from the owner's picker; anything unknown falls back to
@@ -1073,7 +1089,7 @@ function render(){
     // re-translate its event cards in place — mirrors the hotels guest page.
     var _sv=''; var _m=document.getElementById('msgs'); if(_m)_sv=_m.innerHTML;
     render(); var _m2=document.getElementById('msgs'); if(_m2&&_sv)_m2.innerHTML=_sv;
-    loadEvents(); retranslateChatCards();};
+    loadEvents(); retranslateChatCards(); loadExperiences();};
   var chips=chipsForNow();
   document.getElementById('exs').innerHTML=chips.map(function(q){return '<button class="ex" data-q="'+esc(q)+'">'+esc(q)+'</button>';}).join('');
   try{ cyclePlaceholder(); }catch(e){}
