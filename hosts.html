@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guest companion for apartment hosts · shou</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff2e7e'/%3E%3Cstop offset='1' stop-color='%23ff9966'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='22' width='3' height='10' rx='1' fill='url(%23b)'/%3E%3Crect x='8' y='18' width='3' height='14' rx='1' fill='url(%23b)'/%3E%3Crect x='13' y='15' width='3' height='17' rx='1' fill='url(%23b)'/%3E%3Crect x='18' y='17' width='3' height='15' rx='1' fill='url(%23b)'/%3E%3Crect x='23' y='20' width='3' height='12' rx='1' fill='url(%23b)'/%3E%3Crect x='28' y='24' width='3' height='8' rx='1' fill='url(%23b)'/%3E%3C/svg%3E">
+<meta name="description" content="An AI guest companion for apartment hosts — Wi-Fi, check-out, the neighbourhood and what's on tonight, in every language, behind one QR code. Start free, first month free, no setup fee.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Give every guest their own local host · shou">
+<meta property="og:description" content="An AI guest companion for apartments. Start free — first month free, no demo, no setup fee.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shou.be/hosts">
+<meta property="og:image" content="https://shou.be/og-this-week.png">
+<link rel="canonical" href="https://shou.be/hosts">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..800;1,9..144,500..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15101b; --text:#1a1622; --text-soft:#5b5566; --text-dim:#8a8494;
+    --bg:#ffffff; --panel:#ffffff; --panel-soft:#faf8fc; --line:rgba(20,16,30,0.10);
+    --pink:#ff3d8b; --orange:#ff9b3d; --cyan:#0e9a8d; --violet:#9b5cff;
+    --grad:linear-gradient(105deg,var(--pink),var(--orange));
+    --grad-cool:linear-gradient(120deg,var(--violet),var(--pink));
+    --shadow:0 1px 3px rgba(20,16,30,.06);
+    --shadow-lift:0 14px 34px -14px rgba(20,16,30,.22);
+    --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative;line-height:1.6}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.015em;line-height:1.1;color:var(--ink)}
+  a{color:inherit}
+  .bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(760px 560px at 14% -8%, rgba(255,61,139,0.06), transparent 60%),
+      radial-gradient(720px 540px at 98% 0%, rgba(255,155,61,0.05), transparent 58%),
+      radial-gradient(900px 700px at 50% 122%, rgba(70,224,210,0.05), transparent 62%);}
+  .wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:0 24px}
+  section{position:relative;z-index:2;padding:58px 0}
+
+  nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:rgba(255,255,255,0.82);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1080px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{font-family:'Fraunces',serif;font-weight:700;font-size:26px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:-0.02em}
+  .brand small{font-family:'Inter';font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);-webkit-text-fill-color:var(--text-dim);margin-left:9px}
+  .nav-links{display:flex;align-items:center;gap:20px}
+  .nav-links a.txt{font-size:14px;font-weight:600;color:var(--text-soft);text-decoration:none}
+  .nav-links a.txt:hover{color:var(--pink)}
+  .nav-cta{display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:999px;text-decoration:none;transition:transform .15s,filter .2s;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(255,61,139,.5)}
+  .nav-cta:hover{transform:translateY(-1px);filter:brightness(1.05)}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:15.5px;padding:15px 26px;border-radius:14px;text-decoration:none;cursor:pointer;border:none;transition:transform .15s,filter .2s,border-color .2s}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 24px -10px rgba(255,61,139,.55)}
+  .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:rgba(255,61,139,0.55);color:var(--pink);transform:translateY(-1px)}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-soft);border:1px solid var(--line);border-radius:999px;padding:7px 15px;background:#fff}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--grad);animation:pulse 2.4s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,61,139,.5)}70%{box-shadow:0 0 0 8px rgba(255,61,139,0)}100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* HERO */
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;padding:56px 0 20px}
+  .hero h1{font-size:clamp(34px,5vw,54px);margin:20px 0 16px}
+  .hero .sub{color:var(--text-soft);font-size:18px;max-width:520px;margin-bottom:14px}
+  .hero .emo{color:var(--ink);font-size:18.5px;font-weight:500;max-width:520px;margin-bottom:26px}
+  .hero .emo b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero-note{color:var(--text-dim);font-size:13.5px;margin-top:16px}
+
+  /* Phone mockup */
+  .phone-stage{display:flex;justify-content:center;position:relative}
+  .phone-stage::before{content:'';position:absolute;inset:-6% -10%;background:radial-gradient(closest-side,rgba(155,92,255,.18),transparent 70%);z-index:-1}
+  .phone{width:290px;background:#0f0b16;border-radius:40px;padding:11px;box-shadow:0 30px 70px -24px rgba(20,16,30,.5);position:relative}
+  .phone::before{content:'';position:absolute;top:20px;left:50%;transform:translateX(-50%);width:96px;height:20px;background:#0f0b16;border-radius:0 0 14px 14px;z-index:3}
+  .screen{background:#f4f1f8;border-radius:30px;overflow:hidden;height:560px;display:flex;flex-direction:column}
+  .ph-head{background:#fff;padding:26px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+  .ph-logo{width:30px;height:30px;border-radius:9px;background:var(--grad-cool);display:grid;place-items:center;font-size:15px;flex:none}
+  .ph-htx b{font-family:'Fraunces';font-size:14px;color:var(--ink);display:block;line-height:1.1}
+  .ph-htx span{font-size:10px;color:var(--text-dim)}
+  .ph-body{padding:13px;overflow:hidden;display:flex;flex-direction:column;gap:9px}
+  .ph-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;box-shadow:var(--shadow)}
+  .ph-card .i{font-size:16px;flex:none}
+  .ph-card .k{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim)}
+  .ph-card .v{font-size:12px;color:var(--ink);font-weight:500;line-height:1.35}
+  .ph-chat{margin-top:2px;display:flex;flex-direction:column;gap:7px}
+  .ph-q{align-self:flex-end;background:var(--grad);color:#fff;font-size:11.5px;font-weight:500;padding:8px 12px;border-radius:13px;border-bottom-right-radius:4px;max-width:82%}
+  .ph-a{align-self:flex-start;background:#fff;border:1px solid var(--line);font-size:11.5px;color:var(--text);padding:8px 12px;border-radius:13px;border-bottom-left-radius:4px;max-width:86%;box-shadow:var(--shadow)}
+  .ph-a b{color:var(--ink)}
+  .ph-a .m{color:var(--cyan);font-weight:700}
+  /* hero photo */
+  .hero-visual{position:relative}
+  .hero-photo{width:100%;height:auto;border-radius:26px;aspect-ratio:5/4;object-fit:cover;box-shadow:0 26px 64px -26px rgba(20,16,30,.42);display:block}
+  .hf-chat{align-items:center;justify-content:center}
+  .hf-chat .phone{margin:0 auto}
+  /* lifestyle strip */
+  .life-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:0 auto}
+  .life{border-radius:18px;overflow:hidden;position:relative;box-shadow:var(--shadow-lift)}
+  .life img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .4s}
+  .life:hover img{transform:scale(1.04)}
+  .life .cap{position:absolute;left:0;right:0;bottom:0;padding:30px 16px 13px;color:#fff;font-family:'Fraunces',serif;font-weight:600;font-size:16px;background:linear-gradient(to top,rgba(20,16,30,.78),transparent)}
+  @media(max-width:680px){ .life-strip{grid-template-columns:1fr} }
+
+  /* Trust strip */
+  .trust{text-align:center}
+  .trust .lbl{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:16px}
+  .trust-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .trust-chip{font-size:14px;font-weight:600;color:var(--text-soft);background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 17px;box-shadow:var(--shadow)}
+  .trust-chip b{color:var(--cyan);margin-right:6px}
+
+  .sec-head{text-align:center;max-width:640px;margin:0 auto 40px}
+  .sec-head h2{font-size:clamp(28px,4.4vw,40px);margin-bottom:12px}
+  .sec-head p{color:var(--text-soft);font-size:17px}
+
+  /* Compare table */
+  .compare{max-width:720px;margin:0 auto;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);background:#fff}
+  .compare .crow{display:grid;grid-template-columns:1fr 1fr;align-items:center}
+  .compare .crow+.crow{border-top:1px solid var(--line)}
+  .compare .ch{background:var(--panel-soft);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .compare .cell{padding:15px 20px;font-size:15px}
+  .compare .cell.old{color:var(--text-dim)}
+  .compare .cell.old::before{content:'✕';color:#c9c3d0;font-weight:700;margin-right:10px}
+  .compare .cell.new{color:var(--ink);font-weight:600;border-left:1px solid var(--line);background:linear-gradient(90deg,rgba(255,61,139,.04),transparent)}
+  .compare .cell.new::before{content:'✓';color:var(--cyan);font-weight:800;margin-right:10px}
+  .compare .ch.old::before,.compare .ch.new::before{content:none}
+
+  /* Big concierge showcase */
+  .hero-feat{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:960px;margin:0 auto;background:linear-gradient(160deg,rgba(155,92,255,.07),rgba(255,61,139,.05));border:1px solid rgba(155,92,255,.22);border-radius:24px;overflow:hidden;box-shadow:var(--shadow-lift)}
+  .hf-text{padding:38px 34px}
+  .hf-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);border:1px solid rgba(155,92,255,.35);border-radius:999px;padding:5px 12px;background:#fff;margin-bottom:16px}
+  .hf-text h3{font-size:26px;margin-bottom:10px}
+  .hf-text p{color:var(--text-soft);font-size:15px}
+  .hf-chat{padding:30px 30px;background:rgba(255,255,255,.55);display:flex;flex-direction:column;gap:10px;justify-content:center}
+  .cbub{font-size:14px;line-height:1.4;padding:11px 15px;border-radius:15px;max-width:90%}
+  .cbub.q{align-self:flex-end;background:var(--grad);color:#fff;font-weight:500;border-bottom-right-radius:5px}
+  .cbub.a{align-self:flex-start;background:#fff;border:1px solid var(--line);color:var(--text);border-bottom-left-radius:5px;box-shadow:var(--shadow)}
+  .cbub.a b{color:var(--ink);font-family:'Fraunces';font-weight:600}
+  .cbub.a .meta{color:var(--cyan);font-weight:700;font-size:13px}
+
+  /* Feature grid */
+  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:1000px;margin:22px auto 0}
+  .feat{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 20px;box-shadow:var(--shadow)}
+  .feat .ic{font-size:26px;margin-bottom:11px}
+  .feat h3{font-size:16px;margin-bottom:6px}
+  .feat p{color:var(--text-soft);font-size:13.5px}
+
+  /* Why owners choose shou — Top 5 (tangible owner benefits) */
+  .reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:0 auto}
+  .reason{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 22px 20px;box-shadow:var(--shadow);overflow:hidden}
+  .reason .rn{position:absolute;top:12px;right:18px;font-family:'Fraunces',serif;font-weight:700;font-size:46px;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;opacity:.9}
+  .reason .ric{font-size:28px;margin-bottom:10px}
+  .reason h3{font-size:18px;margin-bottom:7px;padding-right:40px}
+  .reason p{color:var(--text-soft);font-size:14px}
+  .reason .rben{margin-top:13px;font-size:12.5px;font-weight:700;color:var(--cyan);display:inline-flex;align-items:center;gap:7px}
+  .reason .rben::before{content:'✓';font-weight:800}
+  .cap-strip{margin:26px auto 0;max-width:860px;text-align:center}
+  .cap-strip .cl{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px}
+  .cap-chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+  .cap-chips span{font-size:13px;font-weight:600;color:var(--text-soft);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;box-shadow:var(--shadow)}
+  @media(max-width:860px){ .reasons{grid-template-columns:1fr 1fr} }
+  @media(max-width:560px){ .reasons{grid-template-columns:1fr} }
+  /* "Where the revenue comes from" — example upsell plays (illustrative) */
+  .plays{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:0 auto}
+  .play{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .play .pic{font-size:26px;margin-bottom:10px}
+  .play .pmoment{font-size:12.5px;color:var(--text-dim);font-style:italic;margin-bottom:9px}
+  .play h3{font-size:17px;margin-bottom:6px}
+  .play p{color:var(--text-soft);font-size:14px;flex:1 0 auto}
+  .play .pben{margin-top:14px;font-size:12.5px;font-weight:700;color:var(--cyan);display:inline-flex;align-items:center;gap:7px}
+  .play .pben::before{content:'↑';font-weight:800}
+  @media(max-width:860px){ .plays{grid-template-columns:1fr 1fr} }
+  @media(max-width:560px){ .plays{grid-template-columns:1fr} }
+  .playnote{text-align:center;color:var(--text-dim);font-size:13px;margin:22px auto 0;max-width:640px}
+  /* concierge-upsell mockup (Extras surfaced in the chat) */
+  .upsell-demo{max-width:500px;margin:26px auto 4px;display:flex;flex-direction:column;gap:9px;background:var(--panel-soft);border:1px solid var(--line);border-radius:20px;padding:20px 22px;box-shadow:var(--shadow)}
+  .req-chip{display:inline-block;margin-top:8px;background:var(--grad);color:#fff;font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:999px}
+  .upsell-cap{text-align:center;color:var(--text-dim);font-size:12.5px;margin:12px auto 0;max-width:520px}
+
+  /* Ask flow (multilingual) */
+  .ask-flow{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .ask{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 18px;box-shadow:var(--shadow)}
+  /* Inline SVG flags — Windows renders regional-indicator emoji (🇩🇪) as bare
+     letters ("DE"), so the emoji version silently degraded there. */
+  .ask .flag{flex:none;line-height:0}
+  .ask .flag svg{width:30px;height:20px;border-radius:3px;box-shadow:0 1px 4px rgba(20,16,30,.22);display:block}
+  .ask .qa{min-width:0;flex:1}
+  .ask .q{font-size:15px;color:var(--ink);font-weight:600}
+  .ask .a{font-size:13.5px;color:var(--text-soft);margin-top:2px}
+  .ask .a b{color:var(--cyan);font-weight:700}
+  .ask .arr{color:var(--text-dim);font-size:18px;flex:none}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1000px;margin:0 auto}
+  .step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 20px;box-shadow:var(--shadow);position:relative}
+  .step .si{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(255,61,139,.12),rgba(255,155,61,.1));display:grid;place-items:center;margin-bottom:14px}
+  .step .si svg{width:22px;height:22px;stroke:var(--pink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .step .sn{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px}
+  .step h3{font-size:16px;margin-bottom:6px}
+  .step p{color:var(--text-soft);font-size:13.5px}
+
+  /* Scale */
+  .scale{max-width:820px;margin:0 auto;text-align:center}
+  .scale-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
+  .scale-chip{font-family:'Fraunces';font-weight:600;font-size:18px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 22px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px}
+  .scale-chip::before{content:'✓';color:var(--cyan);font-weight:800;font-size:16px}
+  .scale-chip .u{font-family:'Inter';font-size:13px;font-weight:500;color:var(--text-dim)}
+
+  /* Price banner */
+  .price-band{max-width:760px;margin:0 auto;text-align:center;background:linear-gradient(165deg,rgba(255,61,139,.08),rgba(255,155,61,.05));border:1px solid rgba(255,61,139,.28);border-radius:26px;padding:44px 30px;box-shadow:var(--shadow-lift)}
+  .price-band .from{font-size:14px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-soft)}
+  .price-band .big{font-family:'Fraunces';font-weight:700;font-size:clamp(64px,13vw,110px);line-height:1;margin:8px 0 4px}
+  .price-band .big .cur{font-size:.5em;vertical-align:top}
+  .price-band .permo{font-family:'Inter';font-size:22px;font-weight:500;color:var(--text-soft)}
+  .price-band .free{color:var(--cyan);font-weight:700;font-size:17px;margin-top:6px}
+  .price-band .sub{color:var(--text-soft);font-size:15px;margin:14px 0 24px}
+
+  /* Narrative closer */
+  .story{max-width:560px;margin:0 auto;text-align:center}
+  .story h2{font-size:clamp(26px,4vw,38px);margin-bottom:26px}
+  .story-flow{display:flex;flex-direction:column;align-items:center;gap:0}
+  .story-flow .s{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 22px;font-size:15.5px;color:var(--ink);font-weight:500;box-shadow:var(--shadow);width:100%;max-width:360px}
+  .story-flow .s b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
+  .story-flow .down{color:var(--text-dim);font-size:20px;line-height:1;padding:7px 0}
+  .story .punch{font-family:'Fraunces';font-weight:600;font-size:clamp(22px,3.6vw,30px);color:var(--ink);margin:30px 0 24px;line-height:1.25}
+
+  .cta{text-align:center;max-width:640px;margin:0 auto}
+  .cta h2{font-size:clamp(28px,4.4vw,44px);margin-bottom:14px}
+  .cta p{color:var(--text-soft);font-size:18px;margin-bottom:26px}
+
+  footer{position:relative;z-index:2;text-align:center;padding:40px 24px;color:var(--text-dim);font-size:13px;border-top:1px solid var(--line)}
+  footer a{color:var(--text-dim);text-decoration:none;border-bottom:1px solid var(--line)}
+  footer a:hover{color:var(--text-soft)}
+  .sep{margin:0 9px;opacity:.5}
+
+  @media(max-width:860px){
+    .hero{grid-template-columns:1fr;gap:34px;text-align:center}
+    .hero .sub,.hero .emo{margin-left:auto;margin-right:auto}
+    .hero-cta{justify-content:center}
+    .hero-feat{grid-template-columns:1fr}
+    .feat-grid{grid-template-columns:1fr 1fr}
+    .steps{grid-template-columns:1fr 1fr}
+    .nav-links a.txt{display:none}
+  }
+  @media(max-width:520px){ .feat-grid{grid-template-columns:1fr} .compare .cell{padding:13px 14px;font-size:14px} }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="https://shou.be">shou <small>for apartments</small></a>
+    <div class="nav-links">
+      <a class="txt" href="/apartments/examples">Examples</a>
+      <a class="txt" href="/apartments/pricing">Pricing</a>
+      <a class="nav-cta" href="/apartments/dashboard">Start free →</a>
+    </div>
+  </div>
+</nav>
+<!-- HERO -->
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>AI guest companion for apartments · first month free</span>
+      <h1>Give every guest <span class="grad-text">their own local host.</span></h1>
+      <p class="sub">An AI guest companion for your apartments — from Wi-Fi and check-out to what’s on tonight, all through one QR code.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="/apartments/dashboard">Start free — first month free →</a>
+        <a class="btn btn-ghost" href="/apartments/sample" target="_blank" rel="noopener">See a live example</a>
+      </div>
+      <p class="hero-note">No demo · No setup fee · No app · Cancel anytime</p>
+    </div>
+    <div class="hero-visual">
+      <img class="hero-photo" src="/apartments/img/apt1.jpg" alt="A guest arriving at a bright, modern serviced apartment">
+    </div>
+  </div>
+</div>
+
+<!-- AUDIENCE -->
+<section style="padding-top:24px"><div class="wrap trust">
+  <div class="lbl">Built for apartment hosts &amp; operators</div>
+  <div style="text-align:center;font-family:'Fraunces';font-size:clamp(20px,3vw,26px);font-weight:600;color:var(--ink);margin:4px 0 14px">1–500 apartments.</div>
+  <div class="trust-row">
+    <span class="trust-chip"><b>✓</b>Serviced apartments</span>
+    <span class="trust-chip"><b>✓</b>Airbnb hosts</span>
+    <span class="trust-chip"><b>✓</b>Holiday rentals</span>
+    <span class="trust-chip"><b>✓</b>Aparthotels</span>
+  </div>
+</div></section>
+
+<!-- PRODUCT DEMO -->
+<section style="padding-top:28px"><div class="wrap">
+  <div class="sec-head">
+    <h2>This is what your <span class="grad-text">guest sees</span></h2>
+    <p>One QR code opens a branded companion that just answers — in their language, with directions.</p>
+  </div>
+  <div class="hero-feat">
+    <div class="hf-text">
+      <span class="hf-badge">The concierge</span>
+      <h3>Guests just ask.</h3>
+      <p>No menus to dig through — they type a question in their own language and get a real answer, with directions. It's the difference between a document and a host.</p>
+    </div>
+    <div class="hf-chat">
+      <div class="phone"><div class="screen">
+        <div class="ph-head"><div class="ph-logo">🔑</div><div class="ph-htx"><b>Apartment 32</b><span>Guest companion · powered by shou</span></div></div>
+        <div class="ph-body">
+          <div class="ph-card"><span class="i">📶</span><div><div class="k">Wi-Fi</div><div class="v">BXL-Dansaert-32 · welcome2026</div></div></div>
+          <div class="ph-card"><span class="i">🚪</span><div><div class="k">Check-out</div><div class="v">By 11:00 · keys in the lockbox</div></div></div>
+          <div class="ph-chat">
+            <div class="ph-q">Where can we buy groceries?</div>
+            <div class="ph-a"><b>Delhaize Dansaert</b><br><span class="m">2-min walk · open until 21:00 · Directions ↗</span></div>
+            <div class="ph-q">Jazz tonight?</div>
+            <div class="ph-a">The Music Village — live 20:30 <span class="m">· 5-min walk</span></div>
+            <div class="ph-q">What can we do today?</div>
+            <div class="ph-a">☔ Rain until 3pm — a good day indoors. <b>MIMA museum</b><span class="m"> · 8-min walk</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:24px">
+    <a class="btn btn-primary" href="/apartments/sample" target="_blank" rel="noopener">Try the live guest companion →</a>
+  </div>
+</div></section>
+
+<!-- THREE REASONS -->
+<section style="padding-top:26px"><div class="wrap">
+  <div class="sec-head" style="max-width:680px">
+    <span class="eyebrow"><span class="dot"></span>For owners &amp; operators</span>
+    <h2 style="margin-top:15px">Three reasons hosts choose <span class="grad-text">shou</span></h2>
+  </div>
+  <div class="reasons">
+    <div class="reason">
+      <div class="rn">1</div><div class="ric">🤫</div>
+      <h3>Less guest messaging</h3>
+      <p>Guests self-serve 24/7 in seven languages — Wi-Fi, check-out, parking, the lot. No more answering the same questions at 11pm, on holiday, or for the tenth time this week.</p>
+      <div class="rben">Hours back, every week</div>
+    </div>
+    <div class="reason">
+      <div class="rn">2</div><div class="ric">⭐</div>
+      <h3>A better guest stay</h3>
+      <p>Local recommendations, live events, an AI concierge and a day-by-day planner — in the guest’s own language. A well-hosted stay means higher ratings and better OTA ranking.</p>
+      <div class="rben">Reviews that drive occupancy</div>
+    </div>
+    <div class="reason">
+      <div class="rn">3</div><div class="ric">💸</div>
+      <h3>More revenue</h3>
+      <p>Late check-out, early check-in, extras and your own partner tips sit right where guests are already looking — and turn “what’s nearby?” into upsells and direct rebookings.</p>
+      <div class="rben">Turn questions into income</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- KILLER FEATURE SET -->
+<section style="padding-top:26px"><div class="wrap">
+  <div class="sec-head" style="max-width:700px">
+    <span class="eyebrow"><span class="dot"></span>Not just a digital welcome book</span>
+    <h2 style="margin-top:15px">Everything your guest needs — <span class="grad-text">in one QR code</span></h2>
+    <p>Plenty of tools give you a digital welcome book. shou gives you that <b>and</b> a local concierge, live discovery and a stay planner — far harder for a host to compare to a PDF.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat"><div class="ic">📗</div><h3>Welcome book</h3><p>Wi-Fi, check-out, heating, washing machine, parking, house rules — always current.</p></div>
+    <div class="feat"><div class="ic">📍</div><h3>The neighbourhood</h3><p>Supermarket, bakery, pharmacy, tram, airport — each tappable to Google Maps.</p></div>
+    <div class="feat"><div class="ic">🎭</div><h3>What's on tonight</h3><p>Live concerts, exhibitions and family activities near the apartment — never stale.</p></div>
+    <div class="feat"><div class="ic">🌍</div><h3>Every language</h3><p>Write it once; guests read it in seven languages, automatically. Your brand throughout.</p></div>
+    <div class="feat"><div class="ic">🌦</div><h3>Weather-aware</h3><p>A 7-day forecast for the apartment — and recommendations that factor it in: indoors on a wet day, out when it's fine.</p></div>
+    <div class="feat"><div class="ic">🗺️</div><h3>Plan my stay</h3><p>One tap builds a day-by-day itinerary from what's on, the forecast and your picks — and offers early check-in, late check-out or luggage storage at exactly the right moment.</p></div>
+  </div>
+</div></section>
+<section style="background:var(--panel-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap">
+  <div class="sec-head">
+    <h2>What your guests actually ask</h2>
+    <p>Real questions, in their own language — answered without you lifting a finger.</p>
+  </div>
+  <div class="ask-flow">
+    <div class="ask"><span class="flag" role="img" aria-label="German"><svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg></span><div class="qa"><div class="q">„Wo kann man hier einkaufen?"</div><div class="a">→ <b>Delhaize Dansaert</b> · 2-min walk</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="English"><svg viewBox="0 0 60 30" preserveAspectRatio="none"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30 M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30 M60,0 0,30" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></svg></span><div class="qa"><div class="q">"How do we use the washing machine?"</div><div class="a">→ Under the counter · <b>Eco 40° ≈ 2 h</b></div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="French"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#002395"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#ED2939"/></svg></span><div class="qa"><div class="q">« Une bonne bière belge à proximité ? »</div><div class="a">→ <b>Le Cirio</b> · historic bar · 6-min walk</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="Ukrainian"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="1" y="0" fill="#0057B7"/><rect width="3" height="1" y="1" fill="#FFDD00"/></svg></span><div class="qa"><div class="q">«Куди піти сьогодні ввечері?»</div><div class="a">→ <b>tonight's concerts &amp; expos</b> · a short walk away</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="Spanish"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="2" fill="#AA151B"/><rect width="3" height="1" y=".5" fill="#F1BF00"/></svg></span><div class="qa"><div class="q">"¿Algo para hacer con niños mañana?"</div><div class="a">→ <b>live family events</b> near the apartment</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="Italian"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#008C45"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#CD212A"/></svg></span><div class="qa"><div class="q">"Dove posso parcheggiare?"</div><div class="a">→ <b>Interparking Dansaert</b> · 3-min walk</div></div><span class="arr">↗</span></div>
+    <div class="ask"><span class="flag" role="img" aria-label="Dutch"><svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="3" height="1" y="0" fill="#AE1C28"/><rect width="3" height=".667" y="0.667" fill="#fff"/><rect width="3" height=".667" y="1.333" fill="#21468B"/></svg></span><div class="qa"><div class="q">"Beste ontbijt in de buurt?"</div><div class="a">→ <b>Charli</b> · fresh croissants · 3-min walk</div></div><span class="arr">↗</span></div>
+  </div>
+</div></section>
+
+<!-- REVENUE -->
+<section style="padding-top:26px"><div class="wrap">
+  <div class="sec-head" style="max-width:680px">
+    <span class="eyebrow"><span class="dot"></span>New revenue, not just savings</span>
+    <h2 style="margin-top:15px">Turn guest questions into <span class="grad-text">revenue</span></h2>
+    <p>You list these as tappable <b>Extras</b> — and the concierge points guests to the right one when they ask. A guest requests in a tap, you get an email, and you arrange and charge your way, commission-free.</p>
+  </div>
+  <div class="upsell-demo" aria-hidden="true">
+    <div class="cbub q">Can I have a late check-out?</div>
+    <div class="cbub a">Check-out is by 11:00 — want to stay until 2pm?<br><span class="req-chip">Request · Late check-out · €20</span></div>
+    <div class="cbub q">Any chance of fresh towels?</div>
+    <div class="cbub a">The host offers <b>Fresh towels &amp; linen</b>.<br><span class="req-chip">Request · €30</span></div>
+  </div>
+  <p class="upsell-cap">The concierge only surfaces the Extras you've switched on — one tap sends the request straight to your inbox.</p>
+  <div class="plays">
+    <div class="play">
+      <div class="pic">⏰</div>
+      <div class="pmoment">"What time do we need to leave?"</div>
+      <h3>Offer a late check-out</h3>
+      <p>A "Late check-out — €20" extra sits on the guest page; they tap to request, you get an email — instead of the free late leave you'd usually wave through.</p>
+      <div class="pben">≈ €20 a stay</div>
+    </div>
+    <div class="play">
+      <div class="pic">🌅</div>
+      <div class="pmoment">"Can we drop our bags early?"</div>
+      <h3>Sell an early check-in</h3>
+      <p>Offer a guaranteed noon check-in for ~€15 when the place is ready — captured the moment they ask, not after a back-and-forth.</p>
+      <div class="pben">≈ €15 a stay</div>
+    </div>
+    <div class="play">
+      <div class="pic">🌙</div>
+      <div class="pmoment">"What's on this weekend?"</div>
+      <h3>Sell the extra night</h3>
+      <p>When the answer is "loads" and the calendar's open, an "Extra night?" extra nudges them to ask you about staying Sunday too — not re-search on an OTA.</p>
+      <div class="pben">A whole extra night</div>
+    </div>
+    <div class="play">
+      <div class="pic">🧺</div>
+      <div class="pmoment">Longer stays, around day four</div>
+      <h3>Add a mid-stay refresh</h3>
+      <p>List a mid-stay clean or fresh linen as a paid add-on; the guest taps to request it right when it's useful, and you sort it out.</p>
+      <div class="pben">Add-on income</div>
+    </div>
+    <div class="play">
+      <div class="pic">🍽</div>
+      <div class="pmoment">"Anything good nearby?"</div>
+      <h3>Earn on partner tips</h3>
+      <p>Your recommended bike rental, restaurant or walking tour — the ones that pay you a referral — sit right where every guest is already looking.</p>
+      <div class="pben">Referral income</div>
+    </div>
+    <div class="play">
+      <div class="pic">🔑</div>
+      <div class="pmoment">On their way out</div>
+      <h3>Win the direct rebooking</h3>
+      <p>"Loved it? Book direct next time" with your own code — so their next stay skips the OTA commission entirely.</p>
+      <div class="pben">Skip the OTA fee</div>
+    </div>
+  </div>
+  <p class="playnote">Illustrative — you set the offers and the prices. Guests request them in a tap; you get an email, then arrange and charge your way. shou takes no cut.</p>
+</div></section>
+<section><div class="wrap">
+  <div class="sec-head"><h2>Live in an afternoon — set up by you</h2><p>No demo call, no onboarding queue.</p></div>
+  <div class="steps">
+    <div class="step"><div class="si"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="sn">Step 1</div><h3>Start free</h3><p>Add a payment method — your first month is free, cancel anytime before it ends.</p></div>
+    <div class="step"><div class="si"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div><div class="sn">Step 2</div><h3>Add your apartment</h3><p>Paste your Airbnb or Booking.com link and we draft it for you — or type the details yourself. Edit anything, anytime.</p></div>
+    <div class="step"><div class="si"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div><div class="sn">Step 3</div><h3>Publish</h3><p>Get your branded page and a print-ready QR code for every apartment.</p></div>
+    <div class="step"><div class="si"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M20 20h.01M17 20h.01M20 17h.01"/></svg></div><div class="sn">Step 4</div><h3>Guests scan</h3><p>They open it on arrival — and stop asking you the same questions.</p></div>
+  </div>
+</div></section>
+
+<!-- PRICING -->
+<section style="padding-top:20px"><div class="wrap">
+  <div class="price-band">
+    <div class="from">From</div>
+    <div class="big"><span class="cur">€</span>19</div>
+    <div class="permo">per apartment / month</div>
+    <div class="free">First month free · cancel anytime</div>
+    <p class="sub">One flat fee — <b>unlimited guests</b>, no commission, no per-guest charge. + VAT.</p>
+    <p style="color:var(--text-soft);font-size:14px;max-width:580px;margin:2px auto 4px;line-height:1.55">One QR code gives every guest: <b>AI concierge</b> · <b>a day-by-day stay planner</b> · <b>live events</b> · local recommendations · 7 languages · your branded guide.</p>
+    <a class="btn btn-primary" href="/apartments/dashboard">Start free →</a>
+    <p style="color:var(--text-dim);font-size:13.5px;margin-top:16px">See the <a href="/apartments/pricing" style="color:var(--cyan);border-bottom:1px solid var(--line)">full pricing</a> for 5, 20 and 20+ apartments</p>
+  </div>
+</div></section>
+<!-- PRICING TIERS (compact) -->
+<section style="padding-top:4px"><div class="wrap">
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:720px;margin:0 auto">
+    <div style="flex:1;min-width:150px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px 18px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:13px;color:var(--text-soft);font-weight:600">Solo</div>
+      <div style="font-family:'Fraunces';font-size:30px;font-weight:600;color:var(--ink)">€19<span style="font-family:'Inter';font-size:14px;font-weight:500;color:var(--text-soft)">/mo</span></div>
+      <div style="font-size:12.5px;color:var(--text-soft)">1 apartment</div>
+    </div>
+    <div style="flex:1;min-width:150px;border:1px solid rgba(255,61,139,.32);border-radius:16px;background:linear-gradient(170deg,rgba(255,61,139,.08),rgba(255,155,61,.05));padding:16px 18px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:13px;color:var(--pink);font-weight:700">Host</div>
+      <div style="font-family:'Fraunces';font-size:30px;font-weight:600;color:var(--ink)">€59<span style="font-family:'Inter';font-size:14px;font-weight:500;color:var(--text-soft)">/mo</span></div>
+      <div style="font-size:12.5px;color:var(--text-soft)">up to 5 apartments</div>
+    </div>
+    <div style="flex:1;min-width:150px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px 18px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:13px;color:var(--text-soft);font-weight:600">Pro</div>
+      <div style="font-family:'Fraunces';font-size:30px;font-weight:600;color:var(--ink)">€199<span style="font-family:'Inter';font-size:14px;font-weight:500;color:var(--text-soft)">/mo</span></div>
+      <div style="font-size:12.5px;color:var(--text-soft)">up to 20 apartments</div>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--text-dim);font-size:13.5px;margin-top:14px">More than 20 apartments? <a href="/apartments/pricing" style="color:var(--cyan);border-bottom:1px solid var(--line)">See full pricing →</a> · + VAT · first month free</p>
+</div></section>
+<section style="padding-top:26px"><div class="wrap">
+  <div style="border:1px solid var(--line);border-radius:18px;background:#fff;padding:22px 24px;box-shadow:var(--shadow)">
+    <div style="display:flex;gap:12px 26px;flex-wrap:wrap;justify-content:center;font-size:14.5px;font-weight:600;color:var(--ink)">
+      <span>🇧🇪 Built in Belgium</span>
+      <span>🇪🇺 Hosted in Europe</span>
+      <span>📱 No app to install</span>
+      <span>🙈 No guest accounts, no tracking</span>
+      <span>↺ Cancel anytime</span>
+    </div>
+    <p style="text-align:center;color:var(--text-soft);font-size:13.5px;margin:12px 0 0">Your guests never download anything and never create an account — they scan a QR code and the guide opens in their browser.</p>
+  </div>
+</div></section>
+<!-- TESTIMONIAL — placeholder, intentionally empty until a real customer quote exists.
+     Drop the quote + attribution in and remove style="display:none".
+<section style="padding-top:26px"><div class="wrap">
+  <blockquote style="max-width:680px;margin:0 auto;text-align:center;border:1px solid var(--line);border-radius:18px;background:#fff;padding:28px 26px;box-shadow:var(--shadow)">
+    <div style="color:#ffb100;font-size:18px;letter-spacing:2px">★★★★★</div>
+    <p style="font-size:19px;font-weight:600;color:var(--ink);margin:10px 0 12px">"QUOTE HERE"</p>
+    <cite style="font-size:13.5px;color:var(--text-soft);font-style:normal">NAME — PROPERTY, CITY</cite>
+  </blockquote>
+</div></section>
+-->
+
+<!-- FINAL CTA -->
+<section><div class="wrap story">
+  <h2>Give your guests a better stay.<br>Give yourself fewer messages.</h2>
+  <p style="color:var(--text-soft);font-size:15px;margin:-4px 0 18px">Start in minutes — no demo, no setup fee, first month free.</p>
+  <a class="btn btn-primary" href="/apartments/dashboard">Start free — first month free →</a>
+</div></section>
+<footer>
+  <span>© 2026 ABSS Analytics · shou</span>
+  <span class="sep">·</span>
+  <a href="/apartments/pricing">Pricing</a>
+  <span class="sep">·</span>
+  <a href="/apartments/sample">Live sample</a>
+  <span class="sep">·</span>
+  <a href="https://shou.be">shou.be</a>
+  <span class="sep">·</span>
+  <a href="https://shou.be/privacy">Privacy</a>
+</footer>
+</body>
+</html>

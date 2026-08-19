@@ -93,6 +93,14 @@
       "destination": "/apartments/u.html?u=:slug"
     },
     {
+      "source": "/hosts",
+      "destination": "/hosts.html"
+    },
+    {
+      "source": "/for-hosts",
+      "destination": "/hosts.html"
+    },
+    {
       "source": "/e/:id",
       "destination": "https://shou-backend.vercel.app/api/share?id=:id"
     },
