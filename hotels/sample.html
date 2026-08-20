@@ -388,7 +388,8 @@
   .exp-sub{color:var(--soft);font-size:13.5px;margin:-6px 0 12px}
   .exp-card{flex:0 0 200px;scroll-snap-align:start;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
   .exp-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--pink) 35%,var(--line))}
-  .exp-img{display:block;height:118px;background:#ece8f0 center/cover no-repeat}
+  .exp-img{display:block;height:118px;background:#ece8f0 center/cover no-repeat;position:relative}
+  .exp-cred{position:absolute;right:5px;bottom:5px;font-size:9px;line-height:1.5;color:#fff;background:rgba(20,16,30,.5);padding:0 5px;border-radius:5px;font-weight:500;max-width:82%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .exp-b{padding:11px 13px 13px;display:flex;flex-direction:column;gap:5px}
   .exp-t{font-weight:600;font-size:14px;color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .exp-m{font-size:12px;color:var(--soft)}
@@ -1083,6 +1084,12 @@ function viatorHref(u){ return String(u==null?'':u).replace(/([?&])api_version=[
 function expCard(e){ var cur=e.currency==='EUR'?'€':(e.currency?e.currency+' ':'€'); var price=(e.fromPrice!=null)?('<span class="exp-p">'+esc((EXP_FROM[lang]||EXP_FROM.en)+' '+cur+e.fromPrice)+'</span>'):''; var meta=[]; if(e.rating)meta.push('★ '+(+e.rating).toFixed(1)+(e.reviews?' ('+e.reviews+')':'')); if(e.duration)meta.push(e.duration); return '<a class="exp-card" href="'+esc(viatorHref(e.url))+'" target="_blank" rel="noopener"><span class="exp-img"'+(e.image?(' style="background-image:url('+esc(e.image)+')"'):'')+'></span><span class="exp-b"><span class="exp-t">'+esc(e.title)+'</span>'+(meta.length?'<span class="exp-m">'+esc(meta.join(' · '))+'</span>':'')+price+'</span></a>'; }
 function experiencesSectionHTML(){ if(!viatorExp||!viatorExp.length)return ''; return '<h2 class="wk-h"><span class="wk-emoji">🎟️</span>'+esc(EXP_TITLE[lang]||EXP_TITLE.en)+'<span class="cnt">'+viatorExp.length+'</span></h2><div class="exp-sub">'+esc(EXP_SUB[lang]||EXP_SUB.en)+'</div><div class="wk-rail">'+viatorExp.map(expCard).join('')+'</div>'; }
 function loadExperiences(){ if(!HOTEL||HOTEL.lat==null||HOTEL.lng==null)return; fetch(API+'/viator?lat='+encodeURIComponent(HOTEL.lat)+'&lng='+encodeURIComponent(HOTEL.lng)+'&lang='+encodeURIComponent(lang)+'&campaign='+encodeURIComponent('hotel-'+(String(HSLUG||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,48)||'experiences'))+'&count=6').then(function(r){return r.json();}).then(function(d){viatorExp=(d&&d.experiences)||[];renderWeek();}).catch(function(){}); }
+var TIQ_TITLE={en:'Tickets & attractions',fr:'Billets & attractions',nl:'Tickets & attracties',de:'Tickets & Attraktionen',es:'Entradas y atracciones',it:'Biglietti e attrazioni',uk:'Квитки та визначні місця'};
+var TIQ_SUB={en:'Skip-the-line tickets nearby — book on Tiqets',fr:'Billets coupe-file à proximité — sur Tiqets',nl:'Skip-the-line tickets dichtbij — op Tiqets',de:'Skip-the-Line-Tickets in der Nähe — auf Tiqets',es:'Entradas sin colas cerca — en Tiqets',it:'Biglietti salta-fila nelle vicinanze — su Tiqets',uk:'Квитки без черги поруч — на Tiqets'};
+var tiqetsAttr=[];
+function loadTiqets(){ if(!HOTEL||HOTEL.lat==null||HOTEL.lng==null)return; fetch(API+'/tiqets?lat='+encodeURIComponent(HOTEL.lat)+'&lng='+encodeURIComponent(HOTEL.lng)+'&lang='+encodeURIComponent(lang)+'&count=6').then(function(r){return r.json();}).then(function(d){tiqetsAttr=(d&&d.attractions)||[];renderWeek();}).catch(function(){}); }
+function tiqCard(e){ var cur=e.currency==='EUR'?'€':(e.currency?e.currency+' ':'€'); var price=(e.fromPrice!=null)?('<span class="exp-p">'+esc((EXP_FROM[lang]||EXP_FROM.en)+' '+cur+e.fromPrice)+'</span>'):''; var meta=[]; if(e.rating)meta.push('★ '+(+e.rating).toFixed(1)+(e.reviews?' ('+e.reviews+')':'')); if(e.distance!=null)meta.push(e.distance+' km'); var cred=e.imageCredit?'<span class="exp-cred">© '+esc(e.imageCredit)+'</span>':''; return '<a class="exp-card" href="'+esc(e.url)+'" target="_blank" rel="noopener"><span class="exp-img"'+(e.image?(' style="background-image:url('+esc(e.image)+')"'):'')+' role="img" aria-label="'+esc(e.imageAlt||e.title||'')+'">'+cred+'</span><span class="exp-b"><span class="exp-t">'+esc(e.title)+'</span>'+(e.venue?'<span class="exp-m">'+esc(e.venue)+'</span>':'')+(meta.length?'<span class="exp-m">'+esc(meta.join(' · '))+'</span>':'')+price+'</span></a>'; }
+function ticketsSectionHTML(){ if(!tiqetsAttr||!tiqetsAttr.length)return ''; return '<h2 class="wk-h"><span class="wk-emoji">🎫</span>'+esc(TIQ_TITLE[lang]||TIQ_TITLE.en)+'<span class="cnt">'+tiqetsAttr.length+'</span></h2><div class="exp-sub">'+esc(TIQ_SUB[lang]||TIQ_SUB.en)+'</div><div class="wk-rail">'+tiqetsAttr.map(tiqCard).join('')+'</div>'; }
 function renderWeek(){
   const wk=weekDays();
   // an event is in-window if it OCCURS on the picked day (or any of the next 7 days by default) —
@@ -1103,6 +1110,7 @@ function renderWeek(){
   // sits where "From your hotel" does. Without picks: the demo cards, unchanged.
   html+=PICKS?picksSectionHTML():section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
   html+=experiencesSectionHTML();
+  html+=ticketsSectionHTML();
   html+=section('🎶',t('music'),byCat('music'));
   html+=section('🎨',t('art'),byCat('exhibition'));
   html+=section('🎭',t('theatre'),byCat('theatre'));
@@ -1591,7 +1599,7 @@ function applyChrome(){
   try{cyclePlaceholder();}catch(e){}
 }
 document.getElementById('langSel').onchange=async e=>{
-  lang=e.target.value;applyChrome();loadExperiences();
+  lang=e.target.value;applyChrome();loadExperiences();loadTiqets();
   await loadCatalog();               // refreshes carousels + evById in the new language
   await retranslateChatCards();      // refreshes chat result cards in place
   if(mv.classList.contains('on'))showModal();  // re-render an open card detail too
@@ -1678,7 +1686,7 @@ async function loadPortal(){
     window.CONCIERGE_TONE=b.tone||null;
   }catch(e){ /* network error → leave the demo as-is */ }
 }
-async function boot(){ await loadPortal(); applyChrome(); loadCatalog(); loadExperiences(); }
+async function boot(){ await loadPortal(); applyChrome(); loadCatalog(); loadExperiences(); loadTiqets(); }
 boot();
 
 // Back-to-top: show after a screenful, smooth-scroll home on click.
