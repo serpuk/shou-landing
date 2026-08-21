@@ -181,6 +181,14 @@
   .pl-who:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
   .pl-who.on{color:#fff;background:var(--grad);border-color:transparent;font-weight:700;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
   .pl-who.on .pl-emo{opacity:1}
+  /* Standalone planner (?view=plan): hide the site chrome, keep only the itinerary */
+  body.planner .welcome,body.planner .tease,body.planner .shop-entry,body.planner .tabs,body.planner footer,body.planner .totop{display:none!important}
+  body.planner main.wrap{padding-top:14px}
+  .pl-print{font:inherit;font-size:13px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;margin-left:10px}
+  .pl-print:hover{border-color:var(--pink);color:var(--pink)}
+  .pl-openplan{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:700;color:var(--pink);background:color-mix(in srgb,var(--pink) 8%,transparent);border:1.5px solid color-mix(in srgb,var(--pink) 30%,transparent);border-radius:999px;padding:8px 15px;cursor:pointer;margin:2px 0 14px}
+  .pl-openplan:hover{background:color-mix(in srgb,var(--pink) 14%,transparent)}
+  @media print{header .lang,.pl-print,.pl-openplan,.pt-prefs,.pt-lead{display:none!important}body.planner header{border:none;box-shadow:none}}
   .pl-nu{font-family:inherit;font-size:14.5px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:11px;min-width:42px;height:40px;padding:0 8px;cursor:pointer;transition:.15s}
   .pl-nu:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
   .pl-nu.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
@@ -752,7 +760,7 @@ var CHR={
 
 // Traveller-type labels, injected into every language's CHR.plan (guest picks
 // "who's travelling" in Plan-my-stay; it presets interests + flows to the AI).
-(function(){var W={whoQ:["Who's travelling?","Qui voyage ?","Wie reist er?","Wer reist?","¿Quién viaja?","Chi viaggia?","Хто подорожує?"],wCouple:['Couple','En couple','Koppel','Paar','Pareja','Coppia','Пара'],wFamily:['Family','En famille','Gezin','Familie','Familia','Famiglia','Родина'],wFriends:['Friends','Entre amis','Vrienden','Freunde','Amigos','Amici','Друзі'],wBusiness:['Business','Affaires','Zakelijk','Geschäftlich','Negocios','Lavoro','Робота'],wSolo:['Solo','Solo','Alleen','Solo','Solo','Da solo','Наодинці']};['en','fr','nl','de','es','it','uk'].forEach(function(l,i){if(CHR[l]&&CHR[l].plan){for(var k in W)CHR[l].plan[k]=W[k][i];}});})();
+(function(){var W={whoQ:["Who's travelling?","Qui voyage ?","Wie reist er?","Wer reist?","¿Quién viaja?","Chi viaggia?","Хто подорожує?"],wCouple:['Couple','En couple','Koppel','Paar','Pareja','Coppia','Пара'],wFamily:['Family','En famille','Gezin','Familie','Familia','Famiglia','Родина'],wFriends:['Friends','Entre amis','Vrienden','Freunde','Amigos','Amici','Друзі'],wBusiness:['Business','Affaires','Zakelijk','Geschäftlich','Negocios','Lavoro','Робота'],wSolo:['Solo','Solo','Alleen','Solo','Solo','Da solo','Наодинці'],openPlan:['Open planner ↗','Ouvrir le planificateur ↗','Planner openen ↗','Planer öffnen ↗','Abrir el planificador ↗','Apri il pianificatore ↗','Відкрити планер ↗'],printLbl:['Print','Imprimer','Afdrukken','Drucken','Imprimir','Stampa','Друк']};['en','fr','nl','de','es','it','uk'].forEach(function(l,i){if(CHR[l]&&CHR[l].plan){for(var k in W)CHR[l].plan[k]=W[k][i];}});})();
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function maps(q){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);}
 
@@ -1047,6 +1055,7 @@ function monogram(n){
 }
 function render(){
   applyTheme();
+  document.body.classList.toggle('planner',PLANNER);
   var hood=metaVal('hood')||'', radius=metaVal('radius')||chr('walkNear');
   // No coordinates → no events to show, so drop the tab rather than paint a dead one.
   var hasWeek=!!(U.lat&&U.lng);
@@ -1066,7 +1075,7 @@ function render(){
   var _BOOK=bookHtml();
   document.getElementById('root').innerHTML=
     '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow')).replace('shou','<b class="hpow-brand">shou</b>')+'</div></div>'+
-      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div></div></header>'+
+      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print" id="plPrint">'+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(greeting())+'</p></div>'+
       '<div class="hcard" style="'+photo+'"><div class="hc-ov"></div><div class="hc-body">'+
@@ -1104,7 +1113,8 @@ function render(){
   if(window._hasShop){var _tsB=document.getElementById('tShop');if(_tsB)_tsB.onclick=function(){setTab('shop');};var _seB=document.getElementById('shopEntry');if(_seB)_seB.onclick=function(){setTab('shop');};}
   document.getElementById('tAsk').onclick=function(){setTab('ask');};
   // Restore the tab the guest was on before this render (a language switch re-renders).
-  setTab(((curTab==='shop'&&!window._hasShop)||((curTab==='week'||curTab==='plan')&&!hasWeek))?'book':curTab);
+  setTab(PLANNER?(hasWeek?'plan':'book'):(((curTab==='shop'&&!window._hasShop)||((curTab==='week'||curTab==='plan')&&!hasWeek))?'book':curTab));
+  var _pp=document.getElementById('plPrint'); if(_pp)_pp.onclick=function(){try{window.print();}catch(e){}};
   paintWx();
   document.getElementById('cf').onsubmit=function(e){e.preventDefault();var v=document.getElementById('ci').value;document.getElementById('ci').value='';ask(v);};
   document.getElementById('langSel').onchange=function(e){curLang=e.target.value;try{localStorage.setItem('apt_guest_lang:'+slug,curLang);}catch(e2){}document.documentElement.lang=curLang;
@@ -1868,7 +1878,28 @@ var PLAN_WHO_MAP={couple:{food:true,cult:true,night:true,out:false,fam:false},fa
 // QR mid-stay brings back the agenda they curated.
 try{var _ps=JSON.parse(localStorage.getItem('apt_plan:'+slug)||'null');if(_ps&&typeof _ps==='object'){if(_ps.interests)PLAN.interests=_ps.interests;if(_ps.days)PLAN.days=_ps.days;if(_ps.sel)PLAN.sel=_ps.sel;if(_ps.view!=null)PLAN.view=_ps.view;if(_ps.who)PLAN.who=_ps.who;}}catch(e){}
 try{var _pt=todayISO();for(var _pk in PLAN.sel){var _pd=String(_pk).split(':')[0];if(/^\d{4}-\d{2}-\d{2}$/.test(_pd)&&_pd<_pt)delete PLAN.sel[_pk];}}catch(e){}
+// Standalone planner mode (?view=plan): the same page with only Plan-my-stay
+// shown. A shared/bookmarked link also carries the plan config + the per-day
+// selections so it reproduces anywhere (localStorage is per-device). URL wins.
+var PLANNER=(function(){try{return new URLSearchParams(location.search).get('view')==='plan';}catch(e){return false;}})();
+(function(){try{var _q=new URLSearchParams(location.search);
+  if(_q.get('who'))PLAN.who=_q.get('who');
+  var _dd=parseInt(_q.get('days'),10); if(_dd)PLAN.days=Math.min(Math.max(_dd,1),7);
+  var _ii=_q.get('int'); if(_ii!=null){var st={};_ii.split(',').forEach(function(k){if(k)st[k]=1;});['food','cult','night','out','fam'].forEach(function(k){PLAN.interests[k]=!!st[k];});}
+  var _ss=_q.get('sel'); if(_ss){var sm={a:'am',p:'pm',d:'dn',n:'nt'},_tt=todayISO();_ss.split('.').forEach(function(tok){var m=/^(\d+)([apdn])(\d+)$/.exec(tok);if(m)PLAN.sel[addDaysISO(_tt,+m[1])+':'+sm[m[2]]]=+m[3];});}
+}catch(e){}})();
 function planSave(){try{localStorage.setItem('apt_plan:'+slug,JSON.stringify({days:PLAN.days,view:PLAN.view,sel:PLAN.sel,who:PLAN.who,interests:PLAN.interests}));}catch(e){}}
+function daysBetween(a,b){try{return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);}catch(e){return -1;}}
+// Per-slot picks, keyed by DAY-INDEX (not absolute date) so a link opened on a
+// later day still lands its selections on the right day.
+function planEncodeSel(){var t=todayISO(),out=[];for(var k in PLAN.sel){var p=k.split(':'),di=daysBetween(t,p[0]),v=PLAN.sel[k];if(di>=0&&di<14&&v)out.push(di+String(p[1]||'').charAt(0)+v);}return out.join('.');}
+function plannerUrl(){var u=new URL(location.href);u.searchParams.set('view','plan');
+  if(PLAN.who)u.searchParams.set('who',PLAN.who);else u.searchParams.delete('who');
+  u.searchParams.set('int',['food','cult','night','out','fam'].filter(function(k){return PLAN.interests[k];}).join(','));
+  u.searchParams.set('days',PLAN.days);
+  var s=planEncodeSel();if(s)u.searchParams.set('sel',s);else u.searchParams.delete('sel');
+  u.searchParams.delete('pv');   // never leak the owner's preview token into a shared link
+  return u.toString();}
 var SHUF_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>';
 var ARW_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
 var ARW_R='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
@@ -1981,11 +2012,12 @@ function planControls(){
   var whoOrder=[['couple','💑'],['family','👪'],['friends','🎉'],['business','💼'],['solo','🧭']];
   var whoChips=whoOrder.map(function(o){return '<button type="button" class="pl-who'+(PLAN.who===o[0]?' on':'')+'" data-who="'+o[0]+'"><span class="pl-emo">'+o[1]+'</span><span class="pl-lab">'+esc(plt('w'+o[0].charAt(0).toUpperCase()+o[0].slice(1)))+'</span></button>';}).join('');
   var nums=[1,2,3,4,5,6,7].map(function(n){return '<button type="button" class="pl-nu'+(PLAN.days===n?' on':'')+'" data-days="'+n+'">'+n+'</button>';}).join('');
-  return '<div class="pt-lead">'+esc(plt('ask'))+'</div><div class="pt-prefs"><div class="pt-plabel">'+esc(plt('whoQ'))+'</div><div class="pt-prow">'+whoChips+'</div><div class="pt-plabel">'+esc(plt('interests'))+'</div><div class="pt-prow">'+chips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+nums+'</div></div>';
+  return '<div class="pt-lead">'+esc(plt('ask'))+'</div>'+(PLANNER?'':'<button type="button" class="pl-openplan">'+esc(plt('openPlan'))+'</button>')+'<div class="pt-prefs"><div class="pt-plabel">'+esc(plt('whoQ'))+'</div><div class="pt-prow">'+whoChips+'</div><div class="pt-plabel">'+esc(plt('interests'))+'</div><div class="pt-prow">'+chips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+nums+'</div></div>';
 }
 function wirePlan(host){
   host.querySelectorAll('.pl-chip').forEach(function(b){b.onclick=function(){var k=b.getAttribute('data-int');PLAN.interests[k]=!PLAN.interests[k];renderPlan();};});
   host.querySelectorAll('.pl-who').forEach(function(b){b.onclick=function(){var wsel=b.getAttribute('data-who');PLAN.who=(PLAN.who===wsel)?'':wsel;var pre=PLAN_WHO_MAP[PLAN.who];if(pre)PLAN.interests=Object.assign({},pre);renderPlan();};});
+  host.querySelectorAll('.pl-openplan').forEach(function(b){b.onclick=function(){try{window.open(plannerUrl(),'_blank','noopener');}catch(e){}};});
   host.querySelectorAll('.pl-nu').forEach(function(b){b.onclick=function(){PLAN.days=+b.getAttribute('data-days');if(PLAN.view!=='overview'&&+PLAN.view>=PLAN.days)PLAN.view=PLAN.days-1;renderPlan();};});
   host.querySelectorAll('[data-goask]').forEach(function(b){b.onclick=function(){setTab('ask');};});
   host.querySelectorAll('.pt-arw').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-k'),d=+b.getAttribute('data-d');PLAN.sel[k]=(PLAN.sel[k]||0)+d;renderPlan();};});
