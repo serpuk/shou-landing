@@ -1132,7 +1132,7 @@ function render(){
   var _BOOK=bookHtml();
   document.getElementById('root').innerHTML=
     '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow')).replace('shou','<b class="hpow-brand">shou</b>')+'</div></div>'+
-      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print pl-shareprimary" id="plShare">'+SHARE_IC+esc(plt('share'))+'</button><button type="button" class="pl-print" id="plPrint">'+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
+      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print pl-shareprimary" id="plShare">'+SHARE_IC+esc(plt('share'))+'</button><button type="button" class="pl-print" id="plPrint">'+PRINT_IC+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(greeting())+'</p></div>'+
       '<div class="hcard" style="'+photo+'"><div class="hc-ov"></div><div class="hc-body">'+
@@ -1973,6 +1973,7 @@ var SHUF_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 var ARW_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
 var ARW_R='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 var SHARE_IC='<svg class="pl-shico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v13"/><path d="M8 6l4-4 4 4"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/></svg>';
+var PRINT_IC='<svg class="pl-shico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>';
 function plt(k){var p=(CHR[curLang]&&CHR[curLang].plan)||CHR.en.plan;return (p&&p[k])||CHR.en.plan[k]||k;}
 function planLoc(){return LOCMAP[curLang]||'en-GB';}
 function planHasN(p){return p&&p.n;}
