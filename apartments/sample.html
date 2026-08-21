@@ -195,7 +195,26 @@
   .pl-print:hover{border-color:var(--pink);color:var(--pink)}
   .pl-openplan{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:700;color:var(--pink);background:color-mix(in srgb,var(--pink) 8%,transparent);border:1.5px solid color-mix(in srgb,var(--pink) 30%,transparent);border-radius:999px;padding:8px 15px;cursor:pointer;margin:2px 0 14px}
   .pl-openplan:hover{background:color-mix(in srgb,var(--pink) 14%,transparent)}
-  @media print{header .lang,.pl-print,.pl-openplan,.pt-prefs,.pt-lead{display:none!important}body.planner header{border:none;box-shadow:none}}
+  @media print{header .lang,.pl-print,.pl-openplan,.pl-actions,.pt-prefs,.pt-lead{display:none!important}body.planner header{border:none;box-shadow:none}}
+  .pt-prefs.pl-cfg{padding:6px}
+  .pl-cfghead{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:none;font:inherit;padding:9px 10px;border-radius:12px;cursor:pointer}
+  .pl-cfghead:hover{background:var(--bg)}
+  .pl-cfgsum{flex:1;font-size:14.5px;color:var(--ink);line-height:1.45}
+  .pl-cfgtog{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--soft);white-space:nowrap}
+  .pl-caret{display:inline-block;transition:transform .15s;font-size:10px}
+  .pl-cfghead.open .pl-caret,.pl-tunetog.open .pl-caret{transform:rotate(180deg)}
+  .pl-cfgbody{padding:2px 10px 8px}
+  .pl-cfgbody .pt-plabel:first-child{margin-top:4px}
+  .pl-step{display:inline-flex;align-items:center;gap:16px;border:1.5px solid var(--line);border-radius:999px;padding:5px 8px}
+  .pl-step button{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);background:transparent;color:var(--ink);font-size:18px;line-height:1;cursor:pointer;padding:0;font-family:inherit}
+  .pl-step button:hover:not([disabled]){border-color:var(--pink);color:var(--pink)}
+  .pl-step button[disabled]{opacity:.35;cursor:default}
+  .pl-stepn{min-width:72px;text-align:center;font-weight:700;font-size:14.5px;color:var(--ink)}
+  .pl-tunetog{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;font:inherit;font-size:13px;font-weight:700;color:var(--pink);cursor:pointer;padding:8px 0 2px;margin-top:8px}
+  .pl-actions{display:flex;gap:8px;max-width:560px;margin:0 auto 10px}
+  .pl-actions .pl-openplan{margin:0}
+  .pl-share{font:inherit;font-size:13px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer}
+  .pl-share:hover{border-color:var(--pink);color:var(--pink)}
   .pl-nu{font-family:inherit;font-size:14.5px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:11px;min-width:42px;height:40px;padding:0 8px;cursor:pointer;transition:.15s}
   .pl-nu:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
   .pl-nu.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
@@ -767,7 +786,7 @@ var CHR={
 
 // Traveller-type labels, injected into every language's CHR.plan (guest picks
 // "who's travelling" in Plan-my-stay; it presets interests + flows to the AI).
-(function(){var W={whoQ:["Who's travelling?","Qui voyage ?","Wie reist er?","Wer reist?","¿Quién viaja?","Chi viaggia?","Хто подорожує?"],wCouple:['Couple','En couple','Koppel','Paar','Pareja','Coppia','Пара'],wFamily:['Family','En famille','Gezin','Familie','Familia','Famiglia','Родина'],wFriends:['Friends','Entre amis','Vrienden','Freunde','Amigos','Amici','Друзі'],wBusiness:['Business','Affaires','Zakelijk','Geschäftlich','Negocios','Lavoro','Робота'],wSolo:['Solo','Solo','Alleen','Solo','Solo','Da solo','Наодинці'],openPlan:['Open planner ↗','Ouvrir le planificateur ↗','Planner openen ↗','Planer öffnen ↗','Abrir el planificador ↗','Apri il pianificatore ↗','Відкрити планер ↗'],printLbl:['Print','Imprimer','Afdrukken','Drucken','Imprimir','Stampa','Друк']};['en','fr','nl','de','es','it','uk'].forEach(function(l,i){if(CHR[l]&&CHR[l].plan){for(var k in W)CHR[l].plan[k]=W[k][i];}});})();
+(function(){var W={whoQ:["Who's travelling?","Qui voyage ?","Wie reist er?","Wer reist?","¿Quién viaja?","Chi viaggia?","Хто подорожує?"],wCouple:['Couple','En couple','Koppel','Paar','Pareja','Coppia','Пара'],wFamily:['Family','En famille','Gezin','Familie','Familia','Famiglia','Родина'],wFriends:['Friends','Entre amis','Vrienden','Freunde','Amigos','Amici','Друзі'],wBusiness:['Business','Affaires','Zakelijk','Geschäftlich','Negocios','Lavoro','Робота'],wSolo:['Solo','Solo','Alleen','Solo','Solo','Da solo','Наодинці'],openPlan:['Open planner ↗','Ouvrir le planificateur ↗','Planner openen ↗','Planer öffnen ↗','Abrir el planificador ↗','Apri il pianificatore ↗','Відкрити планер ↗'],printLbl:['Print','Imprimer','Afdrukken','Drucken','Imprimir','Stampa','Друк'],iFam:['Kids','Enfants','Kinderen','Kinder','Niños','Bambini','Діти'],adjust:['Adjust','Modifier','Aanpassen','Ändern','Ajustar','Modifica','Змінити'],done:['Done','Terminé','Klaar','Fertig','Listo','Fatto','Готово'],tune:['Fine-tune what you’re into','Affiner vos envies','Verfijn je interesses','Interessen anpassen','Afina tus intereses','Affina i tuoi interessi','Уточнити вподобання'],nDay:['1 day','1 jour','1 dag','1 Tag','1 día','1 giorno','1 день'],nDays:['{n} days','{n} jours','{n} dagen','{n} Tage','{n} días','{n} giorni','{n} дн.'],share:['Share','Partager','Delen','Teilen','Compartir','Condividi','Поділитися'],copied:['Link copied','Lien copié','Link gekopieerd','Link kopiert','Enlace copiado','Link copiato','Скопійовано']};['en','fr','nl','de','es','it','uk'].forEach(function(l,i){if(CHR[l]&&CHR[l].plan){for(var k in W)CHR[l].plan[k]=W[k][i];}});})();
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function maps(q){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);}
 
@@ -1110,7 +1129,7 @@ function render(){
   var _BOOK=bookHtml();
   document.getElementById('root').innerHTML=
     '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow')).replace('shou','<b class="hpow-brand">shou</b>')+'</div></div>'+
-      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print" id="plPrint">'+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
+      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print" id="plShare">'+esc(plt('share'))+'</button><button type="button" class="pl-print" id="plPrint">'+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(greeting())+'</p></div>'+
       '<div class="hcard" style="'+photo+'"><div class="hc-ov"></div><div class="hc-body">'+
@@ -1150,6 +1169,7 @@ function render(){
   // Restore the tab the guest was on before this render (a language switch re-renders).
   setTab(PLANNER?(hasWeek?'plan':'book'):(((curTab==='shop'&&!window._hasShop)||((curTab==='week'||curTab==='plan')&&!hasWeek))?'book':curTab));
   var _pp=document.getElementById('plPrint'); if(_pp)_pp.onclick=function(){try{window.print();}catch(e){}};
+  var _psh=document.getElementById('plShare'); if(_psh)_psh.onclick=function(){doSharePlan(_psh);};
   paintWx();
   document.getElementById('cf').onsubmit=function(e){e.preventDefault();var v=document.getElementById('ci').value;document.getElementById('ci').value='';ask(v);};
   document.getElementById('langSel').onchange=function(e){curLang=e.target.value;try{localStorage.setItem('apt_guest_lang:'+slug,curLang);}catch(e2){}document.documentElement.lang=curLang;
@@ -1906,12 +1926,12 @@ const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''
    optional Extras at the bottom of the arrival / checkout day. Each card carries
    an action today (event link or a Request that emails the host); a future
    paid/affiliate 'book' action drops into the same slot. ------------------- */
-var PLAN={days:3,view:'overview',sel:{},who:'',interests:{food:true,cult:true,night:true,out:true,fam:false}};
+var PLAN={days:3,view:'overview',sel:{},who:'',cfgOpen:false,intOpen:false,interests:{food:true,cult:true,night:true,out:true,fam:false}};
 // Each traveller type presets the interest chips (the guest can still fine-tune).
 var PLAN_WHO_MAP={couple:{food:true,cult:true,night:true,out:false,fam:false},family:{food:true,cult:false,night:false,out:true,fam:true},friends:{food:true,cult:false,night:true,out:true,fam:false},business:{food:true,cult:true,night:false,out:false,fam:false},solo:{food:true,cult:true,night:false,out:true,fam:false}};
 // The guest's choices persist on their own device (per unit), so re-scanning the
 // QR mid-stay brings back the agenda they curated.
-try{var _ps=JSON.parse(localStorage.getItem('apt_plan:'+slug)||'null');if(_ps&&typeof _ps==='object'){if(_ps.interests)PLAN.interests=_ps.interests;if(_ps.days)PLAN.days=_ps.days;if(_ps.sel)PLAN.sel=_ps.sel;if(_ps.view!=null)PLAN.view=_ps.view;if(_ps.who)PLAN.who=_ps.who;}}catch(e){}
+try{var _ps=JSON.parse(localStorage.getItem('apt_plan:'+slug)||'null');if(_ps&&typeof _ps==='object'){if(_ps.interests)PLAN.interests=_ps.interests;if(_ps.days)PLAN.days=_ps.days;if(_ps.sel)PLAN.sel=_ps.sel;if(_ps.view!=null)PLAN.view=_ps.view;if(_ps.who)PLAN.who=_ps.who;if(_ps.cfgOpen!=null)PLAN.cfgOpen=!!_ps.cfgOpen;if(_ps.intOpen!=null)PLAN.intOpen=!!_ps.intOpen;}}catch(e){}
 try{var _pt=todayISO();for(var _pk in PLAN.sel){var _pd=String(_pk).split(':')[0];if(/^\d{4}-\d{2}-\d{2}$/.test(_pd)&&_pd<_pt)delete PLAN.sel[_pk];}}catch(e){}
 // Standalone planner mode (?view=plan): the same page with only Plan-my-stay
 // shown. A shared/bookmarked link also carries the plan config + the per-day
@@ -1923,7 +1943,7 @@ var PLANNER=(function(){try{return new URLSearchParams(location.search).get('vie
   var _ii=_q.get('int'); if(_ii!=null){var st={};_ii.split(',').forEach(function(k){if(k)st[k]=1;});['food','cult','night','out','fam'].forEach(function(k){PLAN.interests[k]=!!st[k];});}
   var _ss=_q.get('sel'); if(_ss){var sm={a:'am',p:'pm',d:'dn',n:'nt'},_tt=todayISO();_ss.split('.').forEach(function(tok){var m=/^(\d+)([apdn])(\d+)$/.exec(tok);if(m)PLAN.sel[addDaysISO(_tt,+m[1])+':'+sm[m[2]]]=+m[3];});}
 }catch(e){}})();
-function planSave(){try{localStorage.setItem('apt_plan:'+slug,JSON.stringify({days:PLAN.days,view:PLAN.view,sel:PLAN.sel,who:PLAN.who,interests:PLAN.interests}));}catch(e){}}
+function planSave(){try{localStorage.setItem('apt_plan:'+slug,JSON.stringify({days:PLAN.days,view:PLAN.view,sel:PLAN.sel,who:PLAN.who,cfgOpen:PLAN.cfgOpen,intOpen:PLAN.intOpen,interests:PLAN.interests}));}catch(e){}}
 function daysBetween(a,b){try{return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);}catch(e){return -1;}}
 // Per-slot picks, keyed by DAY-INDEX (not absolute date) so a link opened on a
 // later day still lands its selections on the right day.
@@ -1935,6 +1955,17 @@ function plannerUrl(){var u=new URL(location.href);u.searchParams.set('view','pl
   var s=planEncodeSel();if(s)u.searchParams.set('sel',s);else u.searchParams.delete('sel');
   u.searchParams.delete('pv');   // never leak the owner's preview token into a shared link
   return u.toString();}
+// Native share sheet (send the planner anywhere: WhatsApp, Messages, email…);
+// desktop browsers without it fall back to copy-link, then a last-resort prompt.
+function doSharePlan(b){
+  var url=plannerUrl(), title=((U&&U.name)?U.name+' — ':'')+plt('tab');
+  if(navigator.share){navigator.share({title:title,url:url}).catch(function(){});return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){
+      if(b){var o=b.textContent;b.textContent=plt('copied');setTimeout(function(){b.textContent=o;},1600);}
+    }).catch(function(){try{window.prompt('',url);}catch(e){}});
+  }else{try{window.prompt('',url);}catch(e){}}
+}
 var SHUF_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>';
 var ARW_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
 var ARW_R='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
@@ -2043,19 +2074,36 @@ function planTabsHtml(){
     t+='<button type="button" class="pt-tab'+(String(PLAN.view)===String(i)?' on':'')+'" data-view="'+i+'">'+esc(wd)+'</button>';}
   return '<div class="pt-tabs">'+t+'</div>';
 }
+// Compact controls: a one-line summary that expands on tap. Interests sit behind
+// a "fine-tune" toggle since the traveller type already presets them.
+function planSummaryLine(){
+  var parts=[];
+  if(PLAN.who)parts.push(plt('w'+PLAN.who.charAt(0).toUpperCase()+PLAN.who.slice(1)));
+  var ints=[['food','iFood'],['cult','iCult'],['night','iNight'],['out','iOut'],['fam','iFam']].filter(function(o){return PLAN.interests[o[0]];}).map(function(o){return plt(o[1]);});
+  if(ints.length)parts.push(ints.join(', '));
+  parts.push(PLAN.days===1?plt('nDay'):plt('nDays').replace('{n}',PLAN.days));
+  return esc(parts.join('  ·  '));
+}
 function planControls(){
   var order=[['food','🍽️','iFood'],['cult','🎨','iCult'],['night','🎶','iNight'],['out','🌳','iOut'],['fam','🧸','iFam']];
   var chips=order.map(function(o){return '<button type="button" class="pl-chip'+(PLAN.interests[o[0]]?' on':'')+'" data-int="'+o[0]+'"><span class="pl-emo">'+o[1]+'</span><span class="pl-lab">'+esc(plt(o[2]))+'</span><span class="pl-ck">✓</span></button>';}).join('');
   var whoOrder=[['couple','💑'],['family','👪'],['friends','🎉'],['business','💼'],['solo','🧭']];
   var whoChips=whoOrder.map(function(o){return '<button type="button" class="pl-who'+(PLAN.who===o[0]?' on':'')+'" data-who="'+o[0]+'"><span class="pl-emo">'+o[1]+'</span><span class="pl-lab">'+esc(plt('w'+o[0].charAt(0).toUpperCase()+o[0].slice(1)))+'</span></button>';}).join('');
-  var nums=[1,2,3,4,5,6,7].map(function(n){return '<button type="button" class="pl-nu'+(PLAN.days===n?' on':'')+'" data-days="'+n+'">'+n+'</button>';}).join('');
-  return '<div class="pt-lead">'+esc(plt('ask'))+'</div>'+(PLANNER?'':'<button type="button" class="pl-openplan">'+esc(plt('openPlan'))+'</button>')+'<div class="pt-prefs"><div class="pt-plabel">'+esc(plt('whoQ'))+'</div><div class="pt-prow">'+whoChips+'</div><div class="pt-plabel">'+esc(plt('interests'))+'</div><div class="pt-prow">'+chips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+nums+'</div></div>';
+  var stepper='<div class="pl-step"><button type="button" data-dstep="-1" aria-label="'+esc(plt('prev'))+'"'+(PLAN.days<=1?' disabled':'')+'>−</button><span class="pl-stepn">'+esc(PLAN.days===1?plt('nDay'):plt('nDays').replace('{n}',PLAN.days))+'</span><button type="button" data-dstep="1" aria-label="'+esc(plt('next'))+'"'+(PLAN.days>=7?' disabled':'')+'>+</button></div>';
+  var openBtn=(PLANNER?'':'<div class="pl-actions"><button type="button" class="pl-openplan">'+esc(plt('openPlan'))+'</button><button type="button" class="pl-share">'+esc(plt('share'))+'</button></div>');
+  var caret='<span class="pl-caret">▾</span>';
+  var head='<button type="button" class="pl-cfghead'+(PLAN.cfgOpen?' open':'')+'" data-cfg="1"><span class="pl-cfgsum">'+planSummaryLine()+'</span><span class="pl-cfgtog">'+esc(plt(PLAN.cfgOpen?'done':'adjust'))+caret+'</span></button>';
+  var body=PLAN.cfgOpen?('<div class="pl-cfgbody"><div class="pt-plabel">'+esc(plt('whoQ'))+'</div><div class="pt-prow">'+whoChips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+stepper+'</div><button type="button" class="pl-tunetog'+(PLAN.intOpen?' open':'')+'" data-inttog="1">'+esc(plt('tune'))+caret+'</button>'+(PLAN.intOpen?'<div class="pt-prow pl-introw">'+chips+'</div>':'')+'</div>'):'';
+  return openBtn+'<div class="pt-prefs pl-cfg">'+head+body+'</div>';
 }
 function wirePlan(host){
   host.querySelectorAll('.pl-chip').forEach(function(b){b.onclick=function(){var k=b.getAttribute('data-int');PLAN.interests[k]=!PLAN.interests[k];renderPlan();};});
   host.querySelectorAll('.pl-who').forEach(function(b){b.onclick=function(){var wsel=b.getAttribute('data-who');PLAN.who=(PLAN.who===wsel)?'':wsel;var pre=PLAN_WHO_MAP[PLAN.who];if(pre)PLAN.interests=Object.assign({},pre);renderPlan();};});
   host.querySelectorAll('.pl-openplan').forEach(function(b){b.onclick=function(){try{window.open(plannerUrl(),'_blank','noopener');}catch(e){}};});
-  host.querySelectorAll('.pl-nu').forEach(function(b){b.onclick=function(){PLAN.days=+b.getAttribute('data-days');if(PLAN.view!=='overview'&&+PLAN.view>=PLAN.days)PLAN.view=PLAN.days-1;renderPlan();};});
+  host.querySelectorAll('.pl-share').forEach(function(b){b.onclick=function(){doSharePlan(b);};});
+  host.querySelectorAll('.pl-cfghead').forEach(function(b){b.onclick=function(){PLAN.cfgOpen=!PLAN.cfgOpen;planSave();renderPlan();};});
+  host.querySelectorAll('.pl-tunetog').forEach(function(b){b.onclick=function(){PLAN.intOpen=!PLAN.intOpen;planSave();renderPlan();};});
+  host.querySelectorAll('.pl-step button[data-dstep]').forEach(function(b){b.onclick=function(){var d=+b.getAttribute('data-dstep');PLAN.days=Math.min(Math.max(PLAN.days+d,1),7);if(PLAN.view!=='overview'&&+PLAN.view>=PLAN.days)PLAN.view=PLAN.days-1;renderPlan();};});
   host.querySelectorAll('[data-goask]').forEach(function(b){b.onclick=function(){setTab('ask');};});
   host.querySelectorAll('.pt-arw').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-k'),d=+b.getAttribute('data-d');PLAN.sel[k]=(PLAN.sel[k]||0)+d;renderPlan();};});
   host.querySelectorAll('.pt-pos[data-pick]').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();openSlotPicker(b.getAttribute('data-pick'));};});
