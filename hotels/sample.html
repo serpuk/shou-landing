@@ -1110,8 +1110,8 @@ function renderWeek(){
   // sits where "From your hotel" does. Without picks: the demo cards, unchanged.
   html+=PICKS?picksSectionHTML():section('🏨',t('fromHotel'),HOTEL_CARDS().map(hotelCard));
   html+=experiencesSectionHTML();
-  html+=ticketsSectionHTML();
   html+=section('🎶',t('music'),byCat('music'));
+  html+=ticketsSectionHTML();
   html+=section('🎨',t('art'),byCat('exhibition'));
   html+=section('🎭',t('theatre'),byCat('theatre'));
   document.getElementById('week').innerHTML=html||`<p class="empty">—</p>`;
