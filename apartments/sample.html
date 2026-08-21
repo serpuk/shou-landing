@@ -216,6 +216,8 @@
   .pl-share{font:inherit;font-size:13px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer}
   .pl-share:hover{border-color:var(--pink);color:var(--pink)}
   .pl-shico{width:15px;height:15px;vertical-align:-2.5px;margin-right:5px}
+  .pl-print.pl-shareprimary{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
+  .pl-print.pl-shareprimary:hover{filter:brightness(1.04)}
   .pl-nu{font-family:inherit;font-size:14.5px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:11px;min-width:42px;height:40px;padding:0 8px;cursor:pointer;transition:.15s}
   .pl-nu:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
   .pl-nu.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
@@ -1130,7 +1132,7 @@ function render(){
   var _BOOK=bookHtml();
   document.getElementById('root').innerHTML=
     '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow')).replace('shou','<b class="hpow-brand">shou</b>')+'</div></div>'+
-      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print" id="plShare">'+SHARE_IC+esc(plt('share'))+'</button><button type="button" class="pl-print" id="plPrint">'+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
+      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print pl-shareprimary" id="plShare">'+SHARE_IC+esc(plt('share'))+'</button><button type="button" class="pl-print" id="plPrint">'+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(greeting())+'</p></div>'+
       '<div class="hcard" style="'+photo+'"><div class="hc-ov"></div><div class="hc-body">'+
