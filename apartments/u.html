@@ -305,6 +305,15 @@
   .exp-t{font-weight:600;font-size:14px;color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .exp-m{font-size:12px;color:var(--soft)}
   .exp-p{font-size:13.5px;font-weight:700;color:var(--pink)}
+  .shop-entry{display:flex;align-items:center;gap:12px;width:100%;max-width:640px;margin:14px auto 0;background:color-mix(in srgb,var(--pink) 7%,var(--card));border:1px solid color-mix(in srgb,var(--pink) 22%,var(--line));border-radius:16px;padding:13px 16px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+  .shop-entry:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--pink) 40%,var(--line))}
+  .shop-entry .se-ic{font-size:22px;flex:none}
+  .shop-entry .se-b{display:flex;flex-direction:column;min-width:0;flex:1}
+  .shop-entry .se-t{font-weight:700;font-size:15px;color:var(--ink)}
+  .shop-entry .se-m{font-size:12.5px;color:var(--soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .shop-entry .se-go{color:var(--pink);font-weight:800;font-size:14px;flex:none;white-space:nowrap}
+  .shop-group{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px}
+  .shop-intro{color:var(--soft);font-size:14px;margin:2px 0 6px}
   .xt-ic{flex:none;font-size:22px;width:44px;height:44px;display:grid;place-items:center;background:var(--panel-soft);border-radius:12px;line-height:1}
   .xt-b{flex:1;min-width:0}
   .xt-l{font-weight:700;font-size:15px;color:var(--ink)}
@@ -867,6 +876,7 @@ var SVC_TITLE={en:'Recommended services',fr:'Services recommandés',nl:'Aanbevol
 var EXP_TITLE={en:'Experiences & tours',fr:'Expériences & excursions',nl:'Ervaringen & tours',de:'Erlebnisse & Touren',es:'Experiencias y tours',it:'Esperienze e tour',uk:'Враження та тури'};
 var EXP_SUB={en:'Top-rated tours nearby — browse & book on Viator',fr:'Visites les mieux notées à proximité — à réserver sur Viator',nl:'Best beoordeelde tours dichtbij — bekijk & boek op Viator',de:'Top-Touren in der Nähe — auf Viator ansehen & buchen',es:'Excursiones mejor valoradas cerca — reserva en Viator',it:'Tour più votati nelle vicinanze — scopri e prenota su Viator',uk:'Найкращі екскурсії поруч — перегляд і бронювання на Viator'};
 var EXP_FROM={en:'from',fr:'dès',nl:'vanaf',de:'ab',es:'desde',it:'da',uk:'від'};
+var SHOP_L={en:{tab:'Enhance your stay',intro:'Everything to add, book or arrange for your stay — in one place.',host:'From your host',book:'Book nearby',entryT:'Enhance your stay',entryM:'Add-ons, services, tours & tickets',go:'Browse'},fr:{tab:'Sublimez votre séjour',intro:'Tout à ajouter, réserver ou organiser pour votre séjour — au même endroit.',host:'De votre hôte',book:'À réserver à proximité',entryT:'Sublimez votre séjour',entryM:'Extras, services, visites & billets',go:'Découvrir'},nl:{tab:'Verrijk je verblijf',intro:'Alles om aan je verblijf toe te voegen of te boeken — op één plek.',host:'Van je host',book:'Boek in de buurt',entryT:'Verrijk je verblijf',entryM:'Extra’s, diensten, tours & tickets',go:'Bekijk'},de:{tab:'Aufenthalt aufwerten',intro:'Alles zum Hinzubuchen und Organisieren für Ihren Aufenthalt — an einem Ort.',host:'Von Ihrem Gastgeber',book:'In der Nähe buchen',entryT:'Aufenthalt aufwerten',entryM:'Extras, Services, Touren & Tickets',go:'Ansehen'},es:{tab:'Mejora tu estancia',intro:'Todo para añadir, reservar u organizar tu estancia — en un solo lugar.',host:'De tu anfitrión',book:'Reserva cerca',entryT:'Mejora tu estancia',entryM:'Extras, servicios, tours y entradas',go:'Explorar'},it:{tab:'Arricchisci il soggiorno',intro:'Tutto da aggiungere o prenotare per il tuo soggiorno — in un posto.',host:'Dal tuo host',book:'Prenota nelle vicinanze',entryT:'Arricchisci il soggiorno',entryM:'Extra, servizi, tour e biglietti',go:'Esplora'},uk:{tab:'Покращте відпочинок',intro:'Усе, що можна додати чи забронювати — в одному місці.',host:'Від господаря',book:'Бронювання поруч',entryT:'Покращте відпочинок',entryM:'Додатки, послуги, тури та квитки',go:'Перегляд'}};
 var viatorExp=null;
 var TIQ_TITLE={en:'Tickets & attractions',fr:'Billets & attractions',nl:'Tickets & attracties',de:'Tickets & Attraktionen',es:'Entradas y atracciones',it:'Biglietti e attrazioni',uk:'Квитки та визначні місця'};
 var TIQ_SUB={en:'Skip-the-line tickets nearby — book on Tiqets',fr:'Billets coupe-file à proximité — sur Tiqets',nl:'Skip-the-line tickets dichtbij — op Tiqets',de:'Skip-the-Line-Tickets in der Nähe — auf Tiqets',es:'Entradas sin colas cerca — en Tiqets',it:'Biglietti salta-fila nelle vicinanze — su Tiqets',uk:'Квитки без черги поруч — на Tiqets'};
@@ -985,6 +995,7 @@ function bookHtml(){
   // loadExperiences into viatorExp; link-out, attribution already in each url).
   var experiences=(!(U.content&&U.content.expOn===false)&&viatorExp&&viatorExp.length)?('<h2 class="wb-sec">'+esc(EXP_TITLE[curLang]||EXP_TITLE.en)+'</h2><div class="exp-sub">'+esc(EXP_SUB[curLang]||EXP_SUB.en)+'</div><div class="exp-grid">'+viatorExp.slice(0,Math.min(Math.max((U.content&&+U.content.expCount)||6,1),12)).map(expCard).join('')+'</div>'):'';
   var tickets=(!(U.content&&U.content.tiqOn===false)&&tiqetsAttr&&tiqetsAttr.length)?('<h2 class="wb-sec">'+esc(TIQ_TITLE[curLang]||TIQ_TITLE.en)+'</h2><div class="exp-sub">'+esc(TIQ_SUB[curLang]||TIQ_SUB.en)+'</div><div class="exp-grid">'+tiqetsAttr.slice(0,Math.min(Math.max((U.content&&+U.content.tiqCount)||6,1),12)).map(tiqCard).join('')+'</div>'):'';
+  var _shVia=(viatorExp&&viatorExp.length)?('<h2 class="wb-sec">'+esc(EXP_TITLE[curLang]||EXP_TITLE.en)+'</h2><div class="exp-sub">'+esc(EXP_SUB[curLang]||EXP_SUB.en)+'</div><div class="exp-grid">'+viatorExp.map(expCard).join('')+'</div>'):''; var _shTiq=(tiqetsAttr&&tiqetsAttr.length)?('<h2 class="wb-sec">'+esc(TIQ_TITLE[curLang]||TIQ_TITLE.en)+'</h2><div class="exp-sub">'+esc(TIQ_SUB[curLang]||TIQ_SUB.en)+'</div><div class="exp-grid">'+tiqetsAttr.map(tiqCard).join('')+'</div>'):''; var _shL=SHOP_L[curLang]||SHOP_L.en; var _shHost=(extras||services)?('<div class="shop-group">'+esc(_shL.host)+'</div>'+extras+services):''; var _shBook=(_shVia||_shTiq)?('<div class="shop-group">'+esc(_shL.book)+'</div>'+_shVia+_shTiq):''; window._hasShop=!!(_shHost||_shBook); window._SHOP=window._hasShop?('<p class="shop-intro">'+esc(_shL.intro)+'</p>'+_shHost+_shBook):'';
   SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; SEC_BLOCKS.services=services; SEC_BLOCKS.experiences=experiences; SEC_BLOCKS.tickets=tickets; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
 }
 
@@ -1025,6 +1036,7 @@ function render(){
   var hlogoSt='';
   // SVG, because an <option> can't contain markup and emoji flags break on Windows.
   var langOpts=LANGS.map(function(l){return '<option value="'+l.c+'"'+(l.c===curLang?' selected':'')+'>'+l.n+'</option>';}).join('');
+  var _BOOK=bookHtml();
   document.getElementById('root').innerHTML=
     '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow')).replace('shou','<b class="hpow-brand">shou</b>')+'</div></div>'+
       '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div></div></header>'+
@@ -1046,14 +1058,14 @@ function render(){
         chipsForNow().slice(0,3).map(function(c){
           return '<button type="button" class="tq" data-q="'+esc(c)+'">'+esc(c)+'</button>';}).join('')+
       '</div></div>'+
-      '<div class="tabs"><button class="tab on" id="tBook"><span class="tab-dot"></span>'+esc(chr('book'))+'</button>'+
+      (window._hasShop?'<button type="button" class="shop-entry" id="shopEntry"><span class="se-ic">✨</span><span class="se-b"><span class="se-t">'+esc((SHOP_L[curLang]||SHOP_L.en).entryT)+'</span><span class="se-m">'+esc((SHOP_L[curLang]||SHOP_L.en).entryM)+'</span></span><span class="se-go">'+esc((SHOP_L[curLang]||SHOP_L.en).go)+' →</span></button>':'')+'<div class="tabs"><button class="tab on" id="tBook"><span class="tab-dot"></span>'+esc(chr('book'))+'</button>'+
       (hasWeek?'<button class="tab" id="tWeek"><span class="tab-dot"></span>'+esc(chr('week'))+'</button>':'')+
       (hasWeek?'<button class="tab" id="tPlan"><span class="tab-dot"></span>'+esc(plt('tab'))+'</button>':'')+
-      '<button class="tab" id="tAsk"><span class="tab-dot"></span>'+esc(chr('ask'))+'</button></div>'+
-      '<div class="subpage mint" id="subpage"><div id="book" class="on">'+bookHtml()+'</div>'+
+      (window._hasShop?'<button class="tab" id="tShop"><span class="tab-dot"></span>'+esc((SHOP_L[curLang]||SHOP_L.en).tab)+'</button>':'')+'<button class="tab" id="tAsk"><span class="tab-dot"></span>'+esc(chr('ask'))+'</button></div>'+
+      '<div class="subpage mint" id="subpage"><div id="book" class="on">'+_BOOK+'</div>'+
       (hasWeek?'<div id="week"><div class="empty">…</div></div>':'')+
       (hasWeek?'<div id="plan"><div class="empty">…</div></div>':'')+
-      '<div id="ask"><div class="chat"><p class="chat-intro">'+esc(chr('intro'))+'</p>'+
+      (window._hasShop?'<div id="shop">'+window._SHOP+'</div>':'')+'<div id="ask"><div class="chat"><p class="chat-intro">'+esc(chr('intro'))+'</p>'+
         '<div class="msgs" id="msgs"></div><div class="exs" id="exs"></div>'+
         '<form class="chatform" id="cf"><input id="ci" placeholder="'+esc(chr('ph'))+'" autocomplete="off"><button type="submit">'+esc(chr('ask'))+'</button></form>'+
       '</div></div></div></main>'+
@@ -1062,9 +1074,10 @@ function render(){
   document.getElementById('tBook').onclick=function(){setTab('book');};
   if(hasWeek)document.getElementById('tWeek').onclick=function(){setTab('week');};
   if(hasWeek)document.getElementById('tPlan').onclick=function(){setTab('plan');};
+  if(window._hasShop){var _tsB=document.getElementById('tShop');if(_tsB)_tsB.onclick=function(){setTab('shop');};var _seB=document.getElementById('shopEntry');if(_seB)_seB.onclick=function(){setTab('shop');};}
   document.getElementById('tAsk').onclick=function(){setTab('ask');};
   // Restore the tab the guest was on before this render (a language switch re-renders).
-  setTab(((curTab==='week'||curTab==='plan')&&!hasWeek)?'book':curTab);
+  setTab(((curTab==='shop'&&!window._hasShop)||((curTab==='week'||curTab==='plan')&&!hasWeek))?'book':curTab);
   paintWx();
   document.getElementById('cf').onsubmit=function(e){e.preventDefault();var v=document.getElementById('ci').value;document.getElementById('ci').value='';ask(v);};
   document.getElementById('langSel').onchange=function(e){curLang=e.target.value;try{localStorage.setItem('apt_guest_lang:'+slug,curLang);}catch(e2){}document.documentElement.lang=curLang;
@@ -1123,12 +1136,12 @@ function setupTopBtn(){
 
 // Remembered so a re-render (e.g. switching language, which rebuilds the whole
 // page) can restore the tab the guest was on instead of snapping back to Welcome.
-var curTab=(function(){try{var _t=localStorage.getItem('apt_tab:'+slug);return (_t==='book'||_t==='week'||_t==='plan'||_t==='ask')?_t:'book';}catch(e){return 'book';}})();
+var curTab=(function(){try{var _t=localStorage.getItem('apt_tab:'+slug);return (_t==='book'||_t==='week'||_t==='plan'||_t==='shop'||_t==='ask')?_t:'book';}catch(e){return 'book';}})();
 function setTab(n){
   curTab=n;
   try{localStorage.setItem('apt_tab:'+slug,n);}catch(e){}
   // 'week' is absent when the unit has no coordinates — both lookups can be null.
-  ['book','week','plan','ask'].forEach(function(x){var p=document.getElementById(x),t=document.getElementById(({book:'tBook',week:'tWeek',plan:'tPlan',ask:'tAsk'})[x]);
+  ['book','week','plan','shop','ask'].forEach(function(x){var p=document.getElementById(x),t=document.getElementById(({book:'tBook',week:'tWeek',plan:'tPlan',shop:'tShop',ask:'tAsk'})[x]);
     if(p)p.classList.toggle('on',x===n);if(t)t.classList.toggle('on',x===n);});
   var sp=document.getElementById('subpage');sp.className='subpage';
   // A hidden panel measures zero, so the rails can only be sized once the tab is
