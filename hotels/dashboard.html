@@ -136,7 +136,7 @@
   .tones{display:flex;gap:9px;flex-wrap:wrap}
   .themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px}
   .th{border:2px solid var(--line);border-radius:18px;padding:0;cursor:pointer;background:#fff;
-    overflow:hidden;font:inherit;text-align:left;display:block;position:relative;
+    overflow:hidden;font:inherit;text-align:left;display:flex;flex-direction:column;position:relative;
     transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease,border-color .15s ease}
   .th:hover{transform:translateY(-4px);box-shadow:0 16px 34px -14px rgba(20,16,30,.34)}
   .th.on{border-color:var(--pink);border-width:3px;transform:translateY(-8px);
@@ -146,13 +146,23 @@
   .th[disabled]:hover{transform:none;box-shadow:none}
   /* a miniature of the real guest page — every box needs an explicit display
      because the card lives inside a <button> and is built from spans. */
-  .th .mini{display:flex;flex-direction:column;position:relative;overflow:hidden;height:196px}
+  /* mini is content-height; the white body (flex:1) soaks up any grid stretch */
+  .th .mini{display:flex;flex-direction:column;position:relative;overflow:hidden;flex:none}
   .th .m-hero{display:block;position:relative;height:78px;flex:none;overflow:hidden}
   .th .m-hero img{width:100%;height:100%;object-fit:cover;display:block}
   .th .m-tint{position:absolute;inset:0}
   .th .m-name{position:absolute;left:9px;bottom:7px;right:9px;color:#fff;font-size:12px;font-weight:700;
     line-height:1.15;text-shadow:0 1px 6px rgba(0,0,0,.5);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .th .m-body{display:block;padding:8px 9px;flex:1;min-height:0}
+  .th .m-body{display:block;padding:2px 9px 14px;flex:none;min-height:0}
+  /* readable guest tabs + theme-coloured header — the palette, not a shared photo,
+     is what tells the themes apart (mirrors apartments/dashboard) */
+  .th .m-tabs{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+  .th .m-tabs i{font-style:normal;font-size:11px;font-weight:600;line-height:1;border-radius:999px;padding:5px 10px}
+  .th .m-head{display:flex;align-items:center;gap:10px;padding:34px 12px 12px;flex:none}
+  .th .m-logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:17px;flex:none}
+  .th .m-id{min-width:0}
+  .th .m-nm{display:block;font-weight:700;font-size:13.5px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .th .m-sub{display:block;font-size:10.5px;opacity:.62;margin-top:1px}
   .th .m-chips{display:flex;gap:3px;margin-bottom:7px}
   .th .m-chips i{display:block;height:11px;border-radius:999px;flex:1}
   .th .m-ev{display:flex;gap:5px;align-items:center;border-radius:6px;padding:4px 5px;margin-bottom:4px}
@@ -164,7 +174,7 @@
   .th .m-chat{display:flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;margin-top:6px}
   .th .m-chat u{width:12px;height:12px;border-radius:50%;flex:none;text-decoration:none}
   .th .m-chat b{display:block;height:4px;border-radius:2px;width:58%}
-  .th .body{display:block;padding:11px 12px 12px;border-top:1px solid rgba(20,16,30,.10);background:#fff}
+  .th .body{display:block;padding:11px 12px 12px;border-top:1px solid rgba(20,16,30,.10);background:#fff;flex:1}
   .th .nm{display:flex;align-items:center;gap:6px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25}
   .th .out{display:block;font-size:11.5px;color:var(--soft);line-height:1.4;margin-top:4px}
   .th .chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
@@ -174,7 +184,8 @@
   .th .acts .state{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.03em;color:var(--dim)}
   .th.on .acts .state{color:var(--pink)}
   .th .badge{position:absolute;top:8px;left:8px;z-index:2;font-size:9.5px;font-weight:800;letter-spacing:.02em;
-    padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.94);color:#15101b;box-shadow:0 2px 8px rgba(20,16,30,.22)}
+    padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.94);color:#15101b;box-shadow:0 2px 8px rgba(20,16,30,.22);
+    display:inline-block;max-width:calc(100% - 16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   @media(max-width:520px){ .themes{grid-template-columns:1fr} }
   .tn{border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 14px;font:inherit;font-size:13.5px;font-weight:600;color:var(--soft);cursor:pointer}
   .tn.on{border-color:var(--pink);color:var(--pink);background:rgba(255,61,139,.06)}
@@ -1079,23 +1090,31 @@ function renderTheme(){                                // apt dashboard L1007-10
   var own=photoUrl();
   var mine=(DATA&&DATA.hotel&&DATA.hotel.name)||'';
   $('themeRow').innerHTML=THEME_OPTS.map(function(o){
-    var hero=own||(THEME_MOOD+o.mood);
-    var ev='background:'+o.card+';border:1px solid '+o.line;
-    var evRow='<span class="m-ev" style="'+ev+'"><u style="background-image:url(\''+hero+'\')"></u>'
-      +'<span><b style="background:'+o.ink+'"></b><s style="background:'+o.soft+'"></s></span></span>';
+    var sampleName=(o.sample||'').replace(/^Welcome to\s+/i,'')||o.nm;
+    var nm=mine||sampleName;
+    var mono=esc((nm.trim().charAt(0)||'H').toUpperCase());
+    // theme palette is the card: theme-coloured header (accent monogram + name)
+    // + the four guest tabs named in words, all tinted to the theme, so each
+    // theme reads as distinct at a glance. The real photo shows in the live page.
+    var chipS='color:'+o.ink+';background:color-mix(in srgb,'+o.ink+' 9%,transparent);border:1px solid color-mix(in srgb,'+o.ink+' 20%,transparent)';
     return '<button type="button" class="th'+(o.id===themeSel?' on':'')+'" data-id="'+o.id+'"'
       +' aria-pressed="'+(o.id===themeSel?'true':'false')+'">'
       +'<span class="badge">'+esc(o.badge)+'</span>'
       +'<span class="mini" style="background:'+o.bg+'">'
-        +'<span class="m-hero"><img src="'+esc(hero)+'" alt="" decoding="async">'
-          +'<span class="m-tint" style="background:linear-gradient(to top,rgba(0,0,0,.62),rgba(0,0,0,.05) 62%)"></span>'
-          +'<span class="m-name" style="font-family:'+o.font+'">'+esc(mine||o.sample)+'</span></span>'
+        +'<span class="m-head">'
+          +'<span class="m-logo" style="background:'+o.grad+'">'+mono+'</span>'
+          +'<span class="m-id">'
+            +'<span class="m-nm" style="font-family:'+o.font+';color:'+o.ink+'">'+esc(nm)+'</span>'
+            +'<span class="m-sub" style="color:'+o.ink+'">Your guest companion</span>'
+          +'</span>'
+        +'</span>'
         +'<span class="m-body">'
-          +'<span class="m-chips"><i style="background:'+o.grad+'"></i>'
-            +'<i style="background:'+o.panel+'"></i><i style="background:'+o.panel+'"></i></span>'
-          +evRow+evRow
-          +'<span class="m-chat" style="background:'+o.panel+'"><u style="background:'+o.grad+'"></u>'
-            +'<b style="background:'+o.soft+'"></b></span>'
+          +'<span class="m-tabs">'
+            +'<i style="'+chipS+'">Wi-Fi</i>'
+            +'<i style="'+chipS+'">Check-out</i>'
+            +'<i style="'+chipS+'">What’s on</i>'
+            +'<i style="'+chipS+'">Plan my stay</i>'
+          +'</span>'
         +'</span>'
       +'</span>'
       +'<span class="body"><span class="nm">'+o.e+' '+esc(o.nm)+'</span>'
