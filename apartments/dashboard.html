@@ -302,7 +302,8 @@
   .th .m-tabs{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
   .th .m-tabs i{font-style:normal;font-size:11px;font-weight:600;line-height:1;border-radius:999px;padding:5px 10px}
   /* theme-coloured header — the palette, not a shared photo, is what tells the themes apart */
-  .th .m-head{display:flex;align-items:center;gap:10px;padding:14px 12px 12px;flex:none}
+  /* top padding clears the absolutely-positioned badge so it never overlaps the name */
+  .th .m-head{display:flex;align-items:center;gap:10px;padding:34px 12px 12px;flex:none}
   .th .m-logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:17px;flex:none}
   .th .m-id{min-width:0}
   .th .m-nm{display:block;font-weight:700;font-size:13.5px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -325,7 +326,8 @@
   .th .acts .state{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.03em;color:var(--dim,#8a8494)}
   .th.on .acts .state{color:var(--pink)}
   .th .badge{position:absolute;top:8px;left:8px;z-index:2;font-size:9.5px;font-weight:800;letter-spacing:.02em;
-    padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.94);color:#15101b;box-shadow:0 2px 8px rgba(20,16,30,.22)}
+    padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.94);color:#15101b;box-shadow:0 2px 8px rgba(20,16,30,.22);
+    display:inline-block;max-width:calc(100% - 16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   @media(max-width:520px){ .themes{grid-template-columns:1fr} }
   .sug{font:inherit;display:flex;flex-direction:column;gap:2px;text-align:left;cursor:pointer;
     background:linear-gradient(105deg,rgba(155,92,255,.10),rgba(255,61,139,.09));
