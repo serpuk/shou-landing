@@ -2030,7 +2030,9 @@ function planTimelineHtml(day,i){
   var head='<div class="pt-dhead"><div><div class="pt-dtitle">'+esc(dtitle)+'</div><div class="pt-dsub">'+esc(dsub)+'</div></div>'+(day.wx?'<span class="pt-dwx">'+wxIcon(day.wx.code)+'<b>'+day.wx.hi+'°</b></span>':'')+'</div>';
   var tip='<div class="pt-tip" id="planSummary" data-sig="">'+esc(day.wx?(day.wet?plt('wetTip'):plt('fairTip')):'')+'</div>';
   var body=day.slots.length?day.slots.map(function(s,idx){return planSlotHtml(s,i,idx+1);}).join(''):'<div class="pl-free">'+esc(plt('freeDay'))+'</div><button type="button" class="pl-asklink" data-goask="1">'+esc(chr('ask'))+' →</button>';
-  var extras=day.extras?'<div class="pt-extras"><div class="pt-sec">'+esc(chr('extrasSec'))+'</div><div class="xtras">'+day.extras+'</div></div>':'';
+  // The standalone planner (?view=plan) is a clean, shareable/printable itinerary,
+  // so the stay-stage add-on upsell is dropped there — it stays in the in-app Plan tab.
+  var extras=(day.extras&&!PLANNER)?'<div class="pt-extras"><div class="pt-sec">'+esc(chr('extrasSec'))+'</div><div class="xtras">'+day.extras+'</div></div>':'';
   var main='<div class="pt-daymain"><div class="pt-timeline">'+body+'</div>'+extras+'</div>';
   var mapcol=day.slots.length?'<div class="pt-mapcol"><div class="pt-map" id="planDayMap"></div></div>':'';
   return head+tip+'<div class="pt-daywrap">'+main+mapcol+'</div>';
