@@ -1148,6 +1148,7 @@ function setTab(n){
   // actually on screen — wiring them at render time attaches nothing.
   if(n==='week'&&typeof setupArrows==='function')setupArrows();
   if(n==='plan'&&typeof renderPlan==='function')renderPlan();
+  setTimeout(function(){try{if(typeof _maps==='object'&&_maps)Object.keys(_maps).forEach(function(k){var e=document.getElementById(k);if(e&&e.offsetParent!==null&&_maps[k])_maps[k].invalidateSize();});}catch(e){}},80);
 }
 
 // ---- events ----
