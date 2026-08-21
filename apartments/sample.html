@@ -183,6 +183,11 @@
   .pl-chip.on{color:#fff;background:var(--grad);border-color:transparent;font-weight:700;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
   .pl-chip.on .pl-emo{opacity:1}
   .pl-chip.on .pl-ck{display:inline}
+  .pl-who{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:.15s}
+  .pl-who .pl-emo{opacity:.55;transition:opacity .15s}
+  .pl-who:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
+  .pl-who.on{color:#fff;background:var(--grad);border-color:transparent;font-weight:700;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
+  .pl-who.on .pl-emo{opacity:1}
   .pl-nu{font-family:inherit;font-size:14.5px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:11px;min-width:42px;height:40px;padding:0 8px;cursor:pointer;transition:.15s}
   .pl-nu:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
   .pl-nu.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
@@ -752,6 +757,9 @@ var CHR={
   uk:{otherSec:'Також поруч',pkOpen:'Відкрити',pkTDinner:'Ресторан',pkTCoffee:'Кава',pkTBar:'Бар',pkAll:'Шукати все поруч у Google Maps',pkVia:'Фото та оцінка через Google',pkCall:'Подзвонити',pkSite:'Сайт',pkHours:'Години',pkWalk:'{n} хв пішки',pkDir:'Маршрут',pkMap:'Ваша квартира та район',filterLbl:'Фільтр за днем',allDays:'Усі дні',tickets:'Квитки',dir:'Маршрут',mDate:'Дата',mVenue:'Місце',mTickets:'Квитки ↗',mDir:'Маршрут ↗',mClose:'Закрити',walk:'хв пішки',festival:'Фестивалі',family:'Родина',pickSec:'Рекомендації господаря',addrSec:'Де ви',dirs:'Маршрут ↗',teaseT:'Запитайте мене про що завгодно',teaseS:'Ваша квартира, район або що відбувається сьогодні.',gHost:'Почувайтеся як удома. Wi-Fi, час виїзду та мої улюблені місця поруч — тут, а про решту просто запитайте.',gConcierge:'Вітаємо. Усе для вашого перебування тут — Wi-Fi, виїзд і наші рекомендації поруч. Запитуйте, якщо потрібно ще щось.',gBrief:'Wi-Fi, виїзд, місця поруч і що відбувається цього тижня. Решту — запитайте.',gPlayful:'Ви на місці! Wi-Fi, виїзд, найкращі місця за рогом — а про решту просто запитайте.',walkNear:'Усе поруч',addonLead:'Господар пропонує «{x}» — торкніться, щоб запитати:',bookLead:'Повертаєтесь? Наступного разу бронюйте напряму:',bookT:'Повертаєтесь? Бронюйте напряму',bookGo:'Забронювати',extrasSec:'Додатково',reqBtn:'Запит',reqTitle:'Запит: {x}',reqSend:'Надіслати запит',reqSending:'Надсилаємо запит господарю…',reqSent:'Надіслано — господар зв’яжеться з вами.',reqFail:'Не вдалося надіслати — спробуйте ще раз або зверніться до господаря.',reqNamePh:'Ваше ім’я',reqContactPh:'Телефон або e-mail (необов’язково)',reqNotePh:'Щось додати? (необов’язково)',hostpick1:'Рекомендація господаря:',hostpicks:'Кілька рекомендацій від господаря:',pow:'Помічник гостя · powered by shou',eyebrow:'Ваш помічник гостя',welcomeH:'Усе для вашого перебування.',sub:'Wi-Fi, виїзд і район — а також що відбувається поруч, будь-коли.',book:'Довідник гостя',wxToday:'Сьогодні',wxClear:'Ясно',wxCloud:'Хмарно',wxRain:'Дощ',wxSnow:'Сніг',wxStorm:'Гроза',wxNext:'Найближчі дні',recentH:'Останні запити',wxTipWet:'Волога погода — гарний день для критих місць. Запитайте мене про кафе чи музеї поруч.',wxTipFair:'Гарна погода — чудовий день для прогулянки. Погляньте, що є цього тижня.',week:'Цього тижня',ask:'Запитати консьєржа',intro:'Запитайте мене про що завгодно — вашу квартиру, район чи що подивитися поруч.',here:'Ось:',seemap:'Подивитися на карті',nearby:'Кілька місць поруч:',near:'Цього тижня поруч із вами',music:'Жива музика',art:'Мистецтво та виставки',theatre:'Театр',none:'Нічого не знайдено — спробуйте інше запитання.',noevents:'Цього тижня поруч нічого немає.',errH:'Цей довідник гостя недоступний',errP:'Цифровий довідник гостя для цієї квартири призупинено або ще не опубліковано. Якщо ви зупинилися тут, запитайте у господаря Wi-Fi, деталі заїзду та місцеву інформацію.',thinking:'Хвилинку…',ph:'Який пароль від Wi-Fi?',toTop:'Нагору',send:'Запитати',nowb:'Господар ще не додав цю інформацію.',nowbBtn:'Відкрити довідник гостя',chips:{breakfast:'Де смачно поснідати поруч?',coffee:'Де випити гарної кави?',today:'Що цікавого сьогодні?',kids:'Чим зайнятися з дітьми?',free:'Безкоштовні заняття сьогодні?',art:'Виставки й мистецтво цього тижня?',walk:'Гарна прогулянка поруч?',surprise:'Здивуй мене сьогодні ввечері',dinner:'Де смачно повечеряти поруч?',bar:'Куди місцеві ходять випити?',music:'Жива музика сьогодні ввечері?',week:'Що відбувається в районі цього тижня?',weekend:'Що цікавого на вихідних?',concert:'Найближчі концерти?'},plan:{tab:'Спланувати відпочинок',lead:'План на кожен день на основі подій, погоди та порад господаря. Торкніться того, що вам до вподоби.',howlong:'Наскільки довго?',dayN:'День',morning:'Ранок',afternoon:'Пообіддя',evening:'Вечеря',settle:'Після заїзду',before:'Перед від’їздом',walkCap:'Прогулянка районом',wetTip:'Можливий дощ — спершу заняття в приміщенні.',fairTip:'Гарна погода — чудовий день для прогулянок.',freeDay:'Нічого запланованого цього дня — запитайте консьєржа про ідеї.',iFood:'Їжа',iCult:'Культура',iNight:'Розваги',iOut:'Надворі',iFam:'Родина',overview:'Огляд',weather:'Погода',yourDays:'Ваші дні',ideas:'ідей',interests:'Мене цікавить',tonight:'Увечері',prev:'Назад',next:'Далі',options:'варіантів',another:'Обрати інше',ask:'Скажіть, що вам до вподоби, і я спланую ваші дні.'}},
 };
 
+// Traveller-type labels, injected into every language's CHR.plan (guest picks
+// "who's travelling" in Plan-my-stay; it presets interests + flows to the AI).
+(function(){var W={whoQ:["Who's travelling?","Qui voyage ?","Wie reist er?","Wer reist?","¿Quién viaja?","Chi viaggia?","Хто подорожує?"],wCouple:['Couple','En couple','Koppel','Paar','Pareja','Coppia','Пара'],wFamily:['Family','En famille','Gezin','Familie','Familia','Famiglia','Родина'],wFriends:['Friends','Entre amis','Vrienden','Freunde','Amigos','Amici','Друзі'],wBusiness:['Business','Affaires','Zakelijk','Geschäftlich','Negocios','Lavoro','Робота'],wSolo:['Solo','Solo','Alleen','Solo','Solo','Da solo','Наодинці']};['en','fr','nl','de','es','it','uk'].forEach(function(l,i){if(CHR[l]&&CHR[l].plan){for(var k in W)CHR[l].plan[k]=W[k][i];}});})();
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function maps(q){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);}
 
@@ -1888,12 +1896,14 @@ const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''
    optional Extras at the bottom of the arrival / checkout day. Each card carries
    an action today (event link or a Request that emails the host); a future
    paid/affiliate 'book' action drops into the same slot. ------------------- */
-var PLAN={days:3,view:'overview',sel:{},interests:{food:true,cult:true,night:true,out:true,fam:false}};
+var PLAN={days:3,view:'overview',sel:{},who:'',interests:{food:true,cult:true,night:true,out:true,fam:false}};
+// Each traveller type presets the interest chips (the guest can still fine-tune).
+var PLAN_WHO_MAP={couple:{food:true,cult:true,night:true,out:false,fam:false},family:{food:true,cult:false,night:false,out:true,fam:true},friends:{food:true,cult:false,night:true,out:true,fam:false},business:{food:true,cult:true,night:false,out:false,fam:false},solo:{food:true,cult:true,night:false,out:true,fam:false}};
 // The guest's choices persist on their own device (per unit), so re-scanning the
 // QR mid-stay brings back the agenda they curated.
-try{var _ps=JSON.parse(localStorage.getItem('apt_plan:'+slug)||'null');if(_ps&&typeof _ps==='object'){if(_ps.interests)PLAN.interests=_ps.interests;if(_ps.days)PLAN.days=_ps.days;if(_ps.sel)PLAN.sel=_ps.sel;if(_ps.view!=null)PLAN.view=_ps.view;}}catch(e){}
+try{var _ps=JSON.parse(localStorage.getItem('apt_plan:'+slug)||'null');if(_ps&&typeof _ps==='object'){if(_ps.interests)PLAN.interests=_ps.interests;if(_ps.days)PLAN.days=_ps.days;if(_ps.sel)PLAN.sel=_ps.sel;if(_ps.view!=null)PLAN.view=_ps.view;if(_ps.who)PLAN.who=_ps.who;}}catch(e){}
 try{var _pt=todayISO();for(var _pk in PLAN.sel){var _pd=String(_pk).split(':')[0];if(/^\d{4}-\d{2}-\d{2}$/.test(_pd)&&_pd<_pt)delete PLAN.sel[_pk];}}catch(e){}
-function planSave(){try{localStorage.setItem('apt_plan:'+slug,JSON.stringify({days:PLAN.days,view:PLAN.view,sel:PLAN.sel,interests:PLAN.interests}));}catch(e){}}
+function planSave(){try{localStorage.setItem('apt_plan:'+slug,JSON.stringify({days:PLAN.days,view:PLAN.view,sel:PLAN.sel,who:PLAN.who,interests:PLAN.interests}));}catch(e){}}
 var SHUF_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>';
 var ARW_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
 var ARW_R='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
@@ -2003,11 +2013,14 @@ function planTabsHtml(){
 function planControls(){
   var order=[['food','🍽️','iFood'],['cult','🎨','iCult'],['night','🎶','iNight'],['out','🌳','iOut'],['fam','🧸','iFam']];
   var chips=order.map(function(o){return '<button type="button" class="pl-chip'+(PLAN.interests[o[0]]?' on':'')+'" data-int="'+o[0]+'"><span class="pl-emo">'+o[1]+'</span><span class="pl-lab">'+esc(plt(o[2]))+'</span><span class="pl-ck">✓</span></button>';}).join('');
+  var whoOrder=[['couple','💑'],['family','👪'],['friends','🎉'],['business','💼'],['solo','🧭']];
+  var whoChips=whoOrder.map(function(o){return '<button type="button" class="pl-who'+(PLAN.who===o[0]?' on':'')+'" data-who="'+o[0]+'"><span class="pl-emo">'+o[1]+'</span><span class="pl-lab">'+esc(plt('w'+o[0].charAt(0).toUpperCase()+o[0].slice(1)))+'</span></button>';}).join('');
   var nums=[1,2,3,4,5,6,7].map(function(n){return '<button type="button" class="pl-nu'+(PLAN.days===n?' on':'')+'" data-days="'+n+'">'+n+'</button>';}).join('');
-  return '<div class="pt-lead">'+esc(plt('ask'))+'</div><div class="pt-prefs"><div class="pt-plabel">'+esc(plt('interests'))+'</div><div class="pt-prow">'+chips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+nums+'</div></div>';
+  return '<div class="pt-lead">'+esc(plt('ask'))+'</div><div class="pt-prefs"><div class="pt-plabel">'+esc(plt('whoQ'))+'</div><div class="pt-prow">'+whoChips+'</div><div class="pt-plabel">'+esc(plt('interests'))+'</div><div class="pt-prow">'+chips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+nums+'</div></div>';
 }
 function wirePlan(host){
   host.querySelectorAll('.pl-chip').forEach(function(b){b.onclick=function(){var k=b.getAttribute('data-int');PLAN.interests[k]=!PLAN.interests[k];renderPlan();};});
+  host.querySelectorAll('.pl-who').forEach(function(b){b.onclick=function(){var wsel=b.getAttribute('data-who');PLAN.who=(PLAN.who===wsel)?'':wsel;var pre=PLAN_WHO_MAP[PLAN.who];if(pre)PLAN.interests=Object.assign({},pre);renderPlan();};});
   host.querySelectorAll('.pl-nu').forEach(function(b){b.onclick=function(){PLAN.days=+b.getAttribute('data-days');if(PLAN.view!=='overview'&&+PLAN.view>=PLAN.days)PLAN.view=PLAN.days-1;renderPlan();};});
   host.querySelectorAll('[data-goask]').forEach(function(b){b.onclick=function(){setTab('ask');};});
   host.querySelectorAll('.pt-arw').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-k'),d=+b.getAttribute('data-d');PLAN.sel[k]=(PLAN.sel[k]||0)+d;renderPlan();};});
@@ -2037,7 +2050,7 @@ function planFetchSummary(day,i){
   if(PLAN.interests.food){var pk=(U.content&&U.content.picks)||{};counts.food=((pk.coffee||[]).length+(pk.dinner||[]).length+(pk.bar||[]).length);}
   for(var kk in counts){if(counts[kk]>0)has=true;}
   if(!has)return;
-  var sig=curLang+'|'+((U.branding&&U.branding.tone)||'')+'|'+day.iso+'|'+['food','cult','night','out','fam'].filter(function(k){return PLAN.interests[k];}).join('');
+  var sig=curLang+'|'+((U.branding&&U.branding.tone)||'')+'|'+PLAN.who+'|'+day.iso+'|'+['food','cult','night','out','fam'].filter(function(k){return PLAN.interests[k];}).join('');
   el.setAttribute('data-sig',sig);
   if(planSummaryCache[sig]!==undefined){if(planSummaryCache[sig]){el.textContent=planSummaryCache[sig];el.classList.add('ready');}return;}
   clearTimeout(planSummaryT);
@@ -2046,7 +2059,7 @@ function planFetchSummary(day,i){
     var wx=day.wx?(wxLabel(day.wx.code)+' '+day.wx.hi+'°'):'';
     var area=(U.content&&U.content.hood)||U.building||'';
     var tally={},city='',bn=0;catalog.forEach(function(e){if(e&&e.city&&occursOn(e,iso)){tally[e.city]=(tally[e.city]||0)+1;if(tally[e.city]>bn){bn=tally[e.city];city=e.city;}}});
-    fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'plan_summary',lang:curLang,tone:((U.branding&&U.branding.tone)||null),day:dow,area:area,city:city,weather:wx,counts:counts})})
+    fetch(API+'/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'plan_summary',lang:curLang,tone:((U.branding&&U.branding.tone)||null),who:PLAN.who||null,day:dow,area:area,city:city,weather:wx,counts:counts})})
     .then(function(r){return r.json();}).then(function(d){
       var sum=(d&&d.summary)||'';planSummaryCache[sig]=sum;
       var cur=document.getElementById('planSummary');
@@ -2379,7 +2392,7 @@ function ask(q){
       if(pickMsg){
         pickMsg.className='msg ai wide';
         aiLeadSwap(pickMsg.querySelector('.lead-ln'),
-          {kind:kind,lang:curLang,query:q,hotel:(U.name||''),
+          {kind:kind,lang:curLang,query:q,hotel:(U.name||''),who:PLAN.who||'',
            picks:list.slice(0,6).map(function(x){return {name:x.p.n,cat:(lbl(x.c)||x.c),dist:x.p.dist,rating:x.p.grating};})},
           pickLead(kind,cls.id));
       }
@@ -2395,7 +2408,7 @@ function ask(q){
     // (tone + AI); plain POIs keep the neutral "nearest options" line.
     if(cls.t==='rec'){
       var fm=addMsg('ai','<div class="lead-ln"></div>'+fbody);
-      if(fm)aiLeadSwap(fm.querySelector('.lead-ln'),{kind:'maps',lang:curLang,query:q,hotel:(U.name||''),mapsLabel:(lbl(cls.id)||cls.id)},pickLead('maps',cls.id));
+      if(fm)aiLeadSwap(fm.querySelector('.lead-ln'),{kind:'maps',lang:curLang,query:q,hotel:(U.name||''),who:PLAN.who||'',mapsLabel:(lbl(cls.id)||cls.id)},pickLead('maps',cls.id));
     } else {
       addMsg('ai',esc(chr('nearby'))+fbody);
     }
