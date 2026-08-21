@@ -296,6 +296,7 @@
   .xtra.svc .xt-go{margin-left:auto;color:var(--pink);font-weight:800;font-size:15px;flex:none}
   .exp-sub{color:var(--soft);font-size:13.5px;margin:-6px 0 12px}
   .exp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+  .wk-rail .exp-card{flex:0 0 200px;scroll-snap-align:start}
   .exp-card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
   .exp-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--pink) 35%,var(--line))}
   .exp-img{display:block;height:118px;background:#ece8f0 center/cover no-repeat;position:relative}
@@ -871,9 +872,9 @@ var TIQ_TITLE={en:'Tickets & attractions',fr:'Billets & attractions',nl:'Tickets
 var TIQ_SUB={en:'Skip-the-line tickets nearby — book on Tiqets',fr:'Billets coupe-file à proximité — sur Tiqets',nl:'Skip-the-line tickets dichtbij — op Tiqets',de:'Skip-the-Line-Tickets in der Nähe — auf Tiqets',es:'Entradas sin colas cerca — en Tiqets',it:'Biglietti salta-fila nelle vicinanze — su Tiqets',uk:'Квитки без черги поруч — на Tiqets'};
 var tiqetsAttr=[];
 function _rw(){if(typeof catalog!=='undefined'&&catalog&&catalog.length&&typeof renderWeek==='function')renderWeek();}
-function loadTiqets(){ if(!U||U.lat==null||U.lng==null)return; var _C=U.content||{}; if(_C.tiqOn===false){tiqetsAttr=[];render();_rw();return;} var _n=Math.min(Math.max((+_C.tiqCount)||6,1),12); fetch(API+'/tiqets?lat='+encodeURIComponent(U.lat)+'&lng='+encodeURIComponent(U.lng)+'&lang='+encodeURIComponent(curLang)+'&campaign='+encodeURIComponent('apt-'+(String((U&&U.slug)||slug||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,48)||'attractions'))+'&count='+_n).then(function(r){return r.json();}).then(function(d){tiqetsAttr=(d&&d.attractions)||[];render();_rw();}).catch(function(){}); }
+function loadTiqets(){ if(!U||U.lat==null||U.lng==null)return; var _C=U.content||{}; var _n=Math.min(Math.max((+_C.tiqCount)||6,1),12); fetch(API+'/tiqets?lat='+encodeURIComponent(U.lat)+'&lng='+encodeURIComponent(U.lng)+'&lang='+encodeURIComponent(curLang)+'&campaign='+encodeURIComponent('apt-'+(String((U&&U.slug)||slug||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,48)||'attractions'))+'&count='+_n).then(function(r){return r.json();}).then(function(d){tiqetsAttr=(d&&d.attractions)||[];render();_rw();}).catch(function(){}); }
 function tiqCard(e){ var cur=e.currency==='EUR'?'€':(e.currency?e.currency+' ':'€'); var price=(e.fromPrice!=null)?('<span class="exp-p">'+esc((EXP_FROM[curLang]||EXP_FROM.en)+' '+cur+e.fromPrice)+'</span>'):''; var meta=[]; if(e.rating)meta.push('★ '+(+e.rating).toFixed(1)+(e.reviews?' ('+e.reviews+')':'')); if(e.distance!=null)meta.push(e.distance+' km'); var cred=e.imageCredit?'<span class="exp-cred">© '+esc(e.imageCredit)+'</span>':''; return '<a class="exp-card" href="'+esc(e.url)+'" target="_blank" rel="noopener"><span class="exp-img"'+(e.image?(' style="background-image:url('+esc(e.image)+')"'):'')+' role="img" aria-label="'+esc(e.imageAlt||e.title||'')+'">'+cred+'</span><span class="exp-b"><span class="exp-t">'+esc(e.title)+'</span>'+(e.venue?'<span class="exp-m">'+esc(e.venue)+'</span>':'')+(meta.length?'<span class="exp-m">'+esc(meta.join(' · '))+'</span>':'')+price+'</span></a>'; }
-function loadExperiences(){ if(!U||U.lat==null||U.lng==null)return; var _C=U.content||{}; if(_C.expOn===false){viatorExp=[];render();_rw();return;} var _n=Math.min(Math.max((+_C.expCount)||6,1),12); fetch(API+'/viator?lat='+encodeURIComponent(U.lat)+'&lng='+encodeURIComponent(U.lng)+'&lang='+encodeURIComponent(curLang)+'&campaign='+encodeURIComponent('apt-'+(String((U&&U.slug)||slug||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,48)||'experiences'))+'&count='+_n).then(function(r){return r.json();}).then(function(d){viatorExp=(d&&d.experiences)||[];render();_rw();}).catch(function(){}); }
+function loadExperiences(){ if(!U||U.lat==null||U.lng==null)return; var _C=U.content||{}; var _n=Math.min(Math.max((+_C.expCount)||6,1),12); fetch(API+'/viator?lat='+encodeURIComponent(U.lat)+'&lng='+encodeURIComponent(U.lng)+'&lang='+encodeURIComponent(curLang)+'&campaign='+encodeURIComponent('apt-'+(String((U&&U.slug)||slug||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,48)||'experiences'))+'&count='+_n).then(function(r){return r.json();}).then(function(d){viatorExp=(d&&d.experiences)||[];render();_rw();}).catch(function(){}); }
 function viatorHref(u){ return String(u==null?'':u).replace(/([?&])api_version=[^&]*(&|$)/,function(_,a,b){return b==='&'?a:(a==='?'?'?':'');}).replace(/[?&]$/,''); }
 function expCard(e){ var cur=e.currency==='EUR'?'€':(e.currency?e.currency+' ':'€'); var price=(e.fromPrice!=null)?('<span class="exp-p">'+esc((EXP_FROM[curLang]||EXP_FROM.en)+' '+cur+e.fromPrice)+'</span>'):''; var meta=[]; if(e.rating)meta.push('★ '+(+e.rating).toFixed(1)+(e.reviews?' ('+e.reviews+')':'')); if(e.duration)meta.push(e.duration); return '<a class="exp-card" href="'+esc(viatorHref(e.url))+'" target="_blank" rel="noopener"><span class="exp-img"'+(e.image?(' style="background-image:url('+esc(e.image)+')"'):'')+'></span><span class="exp-b"><span class="exp-t">'+esc(e.title)+'</span>'+(meta.length?'<span class="exp-m">'+esc(meta.join(' · '))+'</span>':'')+price+'</span></a>'; }
 var SVC_LEAD={en:'Your host recommends {x}:',fr:'Votre hôte recommande {x} :',nl:'Je gastheer raadt {x} aan:',de:'Dein Gastgeber empfiehlt {x}:',es:'Tu anfitrión recomienda {x}:',it:'Il tuo host consiglia {x}:',uk:'Ваш господар радить {x}:'};
@@ -982,8 +983,8 @@ function bookHtml(){
     +'</div>'):'';
   // Experiences & tickets — shou-provided Viator affiliate tours (loaded async by
   // loadExperiences into viatorExp; link-out, attribution already in each url).
-  var experiences=(viatorExp&&viatorExp.length)?('<h2 class="wb-sec">'+esc(EXP_TITLE[curLang]||EXP_TITLE.en)+'</h2><div class="exp-sub">'+esc(EXP_SUB[curLang]||EXP_SUB.en)+'</div><div class="exp-grid">'+viatorExp.map(expCard).join('')+'</div>'):'';
-  var tickets=(tiqetsAttr&&tiqetsAttr.length)?('<h2 class="wb-sec">'+esc(TIQ_TITLE[curLang]||TIQ_TITLE.en)+'</h2><div class="exp-sub">'+esc(TIQ_SUB[curLang]||TIQ_SUB.en)+'</div><div class="exp-grid">'+tiqetsAttr.map(tiqCard).join('')+'</div>'):'';
+  var experiences=(!(U.content&&U.content.expOn===false)&&viatorExp&&viatorExp.length)?('<h2 class="wb-sec">'+esc(EXP_TITLE[curLang]||EXP_TITLE.en)+'</h2><div class="exp-sub">'+esc(EXP_SUB[curLang]||EXP_SUB.en)+'</div><div class="exp-grid">'+viatorExp.map(expCard).join('')+'</div>'):'';
+  var tickets=(!(U.content&&U.content.tiqOn===false)&&tiqetsAttr&&tiqetsAttr.length)?('<h2 class="wb-sec">'+esc(TIQ_TITLE[curLang]||TIQ_TITLE.en)+'</h2><div class="exp-sub">'+esc(TIQ_SUB[curLang]||TIQ_SUB.en)+'</div><div class="exp-grid">'+tiqetsAttr.map(tiqCard).join('')+'</div>'):'';
   SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; SEC_BLOCKS.services=services; SEC_BLOCKS.experiences=experiences; SEC_BLOCKS.tickets=tickets; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
 }
 
@@ -1516,8 +1517,8 @@ function renderWeek(){
   // themed: up to 20 of that category occurring in the window — soonest first
   const byCat=c=>catalog.filter(e=>e.categorySlug===c&&inWindow(e)).sort(byShown).slice(0,20).map(e=>evCard(e,showDateFor(e)));
   let html=timelineHTML();
-  html+=section('📍',chr('near'),near);
-  html+=section('🎶',chr('music'),byCat('music'));
+  html+=section('📍',chr('near'),near);html+=section('🎟️',EXP_TITLE[curLang]||EXP_TITLE.en,(viatorExp||[]).map(expCard));
+  html+=section('🎶',chr('music'),byCat('music'));html+=section('🎫',TIQ_TITLE[curLang]||TIQ_TITLE.en,(tiqetsAttr||[]).map(tiqCard));
   html+=section('🎨',chr('art'),byCat('exhibition'));
   html+=section('🎭',chr('theatre'),byCat('theatre'));
   document.getElementById('week').innerHTML=html||`<p class="empty">—</p>`;
