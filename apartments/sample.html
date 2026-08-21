@@ -321,6 +321,13 @@
   .shop-entry .se-go{color:var(--pink);font-weight:800;font-size:14px;flex:none;white-space:nowrap}
   .shop-group{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px}
   .shop-intro{color:var(--soft);font-size:14px;margin:2px 0 6px}
+  .vids{display:flex;flex-direction:column;gap:12px;margin:2px 0 6px}
+  .vid-t{font-weight:600;font-size:14px;color:var(--ink)}
+  .vid-embed{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000}
+  .vid-embed iframe,.vid-embed video{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+  .spot-embed{border-radius:14px;overflow:hidden;margin:2px 0 6px}
+  .spot-embed iframe{width:100%;height:152px;border:0;display:block}
+  .depart{font-size:14px;color:var(--ink);line-height:1.5;background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:2px 0 6px}
   .xt-ic{flex:none;font-size:22px;width:44px;height:44px;display:grid;place-items:center;background:var(--panel-soft);border-radius:12px;line-height:1}
   .xt-b{flex:1;min-width:0}
   .xt-l{font-weight:700;font-size:15px;color:var(--ink)}
@@ -913,6 +920,9 @@ var SVC_TITLE={en:'Recommended services',fr:'Services recommandés',nl:'Aanbevol
 var EXP_TITLE={en:'Experiences & tours',fr:'Expériences & excursions',nl:'Ervaringen & tours',de:'Erlebnisse & Touren',es:'Experiencias y tours',it:'Esperienze e tour',uk:'Враження та тури'};
 var EXP_SUB={en:'Top-rated tours nearby — browse & book on Viator',fr:'Visites les mieux notées à proximité — à réserver sur Viator',nl:'Best beoordeelde tours dichtbij — bekijk & boek op Viator',de:'Top-Touren in der Nähe — auf Viator ansehen & buchen',es:'Excursiones mejor valoradas cerca — reserva en Viator',it:'Tour più votati nelle vicinanze — scopri e prenota su Viator',uk:'Найкращі екскурсії поруч — перегляд і бронювання на Viator'};
 var EXP_FROM={en:'from',fr:'dès',nl:'vanaf',de:'ab',es:'desde',it:'da',uk:'від'};
+var MEDIA_L={en:{video:'Video guide',departure:'Before you leave',playlist:'The playlist'},fr:{video:'Guide vidéo',departure:'Avant de partir',playlist:'La playlist'},nl:{video:'Videogids',departure:'Voordat je vertrekt',playlist:'De playlist'},de:{video:'Video-Guide',departure:'Vor der Abreise',playlist:'Die Playlist'},es:{video:'Guía en vídeo',departure:'Antes de salir',playlist:'La lista'},it:{video:'Guida video',departure:'Prima di partire',playlist:'La playlist'},uk:{video:'Відеогід',departure:'Перед від’їздом',playlist:'Плейлист'}};
+function videoEmbed(url){var u=String(url||'').trim();if(!u)return '';var yt=u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/);if(yt)return '<div class="vid-embed"><iframe src="https://www.youtube.com/embed/'+yt[1]+'" title="video" loading="lazy" allowfullscreen frameborder="0"></iframe></div>';var vm=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);if(vm)return '<div class="vid-embed"><iframe src="https://player.vimeo.com/video/'+vm[1]+'" title="video" loading="lazy" allowfullscreen frameborder="0"></iframe></div>';if(/\.(mp4|webm|mov)(\?|$)/i.test(u))return '<div class="vid-embed"><video src="'+esc(u)+'" controls preload="metadata"></video></div>';return '';}
+function spotifyEmbed(url){var m=String(url||'').match(/open\.spotify\.com\/(?:embed\/)?(playlist|album|track|artist|show|episode)\/(\w+)/);if(!m)return '';return '<div class="spot-embed"><iframe src="https://open.spotify.com/embed/'+m[1]+'/'+m[2]+'" title="Spotify" loading="lazy" frameborder="0" allow="encrypted-media"></iframe></div>';}
 var SHOP_L={en:{tab:'Enhance your stay',intro:'Everything to add, book or arrange for your stay — in one place.',host:'From your host',book:'Book nearby',entryT:'Enhance your stay',entryM:'Add-ons, services, tours & tickets',go:'Browse'},fr:{tab:'Sublimez votre séjour',intro:'Tout à ajouter, réserver ou organiser pour votre séjour — au même endroit.',host:'De votre hôte',book:'À réserver à proximité',entryT:'Sublimez votre séjour',entryM:'Extras, services, visites & billets',go:'Découvrir'},nl:{tab:'Verrijk je verblijf',intro:'Alles om aan je verblijf toe te voegen of te boeken — op één plek.',host:'Van je host',book:'Boek in de buurt',entryT:'Verrijk je verblijf',entryM:'Extra’s, diensten, tours & tickets',go:'Bekijk'},de:{tab:'Aufenthalt aufwerten',intro:'Alles zum Hinzubuchen und Organisieren für Ihren Aufenthalt — an einem Ort.',host:'Von Ihrem Gastgeber',book:'In der Nähe buchen',entryT:'Aufenthalt aufwerten',entryM:'Extras, Services, Touren & Tickets',go:'Ansehen'},es:{tab:'Mejora tu estancia',intro:'Todo para añadir, reservar u organizar tu estancia — en un solo lugar.',host:'De tu anfitrión',book:'Reserva cerca',entryT:'Mejora tu estancia',entryM:'Extras, servicios, tours y entradas',go:'Explorar'},it:{tab:'Arricchisci il soggiorno',intro:'Tutto da aggiungere o prenotare per il tuo soggiorno — in un posto.',host:'Dal tuo host',book:'Prenota nelle vicinanze',entryT:'Arricchisci il soggiorno',entryM:'Extra, servizi, tour e biglietti',go:'Esplora'},uk:{tab:'Покращте відпочинок',intro:'Усе, що можна додати чи забронювати — в одному місці.',host:'Від господаря',book:'Бронювання поруч',entryT:'Покращте відпочинок',entryM:'Додатки, послуги, тури та квитки',go:'Перегляд'}};
 var viatorExp=null;
 var TIQ_TITLE={en:'Tickets & attractions',fr:'Billets & attractions',nl:'Tickets & attracties',de:'Tickets & Attraktionen',es:'Entradas y atracciones',it:'Biglietti e attrazioni',uk:'Квитки та визначні місця'};
@@ -1011,7 +1021,7 @@ function bookHtml(){
     address: addr?'<h2 class="wb-sec">'+esc(chr('addrSec'))+'</h2>'+addr:'',
     safety: safeCards?'<h2 class="wb-sec">'+esc(sec('safety'))+'</h2><div class="wb-grid">'+safeCards+'</div>':''
   };
-  var DEF_SEC=['apt','picks','building','address','safety','extras','services','experiences','tickets','bookd'], seen={}, ord=[];
+  var DEF_SEC=['apt','video','picks','building','address','safety','departure','extras','services','experiences','tickets','playlist','bookd'], seen={}, ord=[];
   ((U.content&&Array.isArray(U.content.sectionOrder)?U.content.sectionOrder:[]).concat(DEF_SEC))
     .forEach(function(k){ if(DEF_SEC.indexOf(k)>=0 && !seen[k]){seen[k]=1;ord.push(k);} });
   var _ads=((U.content&&U.content.addons)||[]).filter(function(a){return a&&a.label;});
@@ -1030,8 +1040,15 @@ function bookHtml(){
     +'</div>'):'';
   var experiences=(!(U.content&&U.content.expOn===false)&&viatorExp&&viatorExp.length)?('<h2 class="wb-sec">'+esc(EXP_TITLE[curLang]||EXP_TITLE.en)+'</h2><div class="exp-sub">'+esc(EXP_SUB[curLang]||EXP_SUB.en)+'</div><div class="exp-grid">'+viatorExp.slice(0,Math.min(Math.max((U.content&&+U.content.expCount)||6,1),12)).map(expCard).join('')+'</div>'):'';
   var tickets=(!(U.content&&U.content.tiqOn===false)&&tiqetsAttr&&tiqetsAttr.length)?('<h2 class="wb-sec">'+esc(TIQ_TITLE[curLang]||TIQ_TITLE.en)+'</h2><div class="exp-sub">'+esc(TIQ_SUB[curLang]||TIQ_SUB.en)+'</div><div class="exp-grid">'+tiqetsAttr.slice(0,Math.min(Math.max((U.content&&+U.content.tiqCount)||6,1),12)).map(tiqCard).join('')+'</div>'):'';
+  var _mL=MEDIA_L[curLang]||MEDIA_L.en;
+  var _vids=((U.content&&U.content.videos)||[]).filter(function(v){return v&&v.url;});
+  var videos=_vids.length?('<h2 class="wb-sec">'+esc(_mL.video)+'</h2><div class="vids">'+_vids.map(function(v){var em=videoEmbed(v.url);return em?((v.title?'<div class="vid-t">'+esc(v.title)+'</div>':'')+em):'';}).join('')+'</div>'):'';
+  var _dep=(U.content&&U.content.departure)||'';
+  var departure=_dep?('<h2 class="wb-sec">'+esc(_mL.departure)+'</h2><div class="depart">'+esc(_dep).replace(/\n/g,'<br>')+'</div>'):'';
+  var _plyE=spotifyEmbed((U.content&&U.content.playlist)||'');
+  var playlist=_plyE?('<h2 class="wb-sec">'+esc(_mL.playlist)+'</h2>'+_plyE):'';
   var _shVia=(viatorExp&&viatorExp.length)?('<h2 class="wb-sec">'+esc(EXP_TITLE[curLang]||EXP_TITLE.en)+'</h2><div class="exp-sub">'+esc(EXP_SUB[curLang]||EXP_SUB.en)+'</div><div class="exp-grid">'+viatorExp.map(expCard).join('')+'</div>'):''; var _shTiq=(tiqetsAttr&&tiqetsAttr.length)?('<h2 class="wb-sec">'+esc(TIQ_TITLE[curLang]||TIQ_TITLE.en)+'</h2><div class="exp-sub">'+esc(TIQ_SUB[curLang]||TIQ_SUB.en)+'</div><div class="exp-grid">'+tiqetsAttr.map(tiqCard).join('')+'</div>'):''; var _shL=SHOP_L[curLang]||SHOP_L.en; var _shHost=(extras||services)?('<div class="shop-group">'+esc(_shL.host)+'</div>'+extras+services):''; var _shBook=(_shVia||_shTiq)?('<div class="shop-group">'+esc(_shL.book)+'</div>'+_shVia+_shTiq):''; window._hasShop=!!(_shHost||_shBook); window._SHOP=window._hasShop?('<p class="shop-intro">'+esc(_shL.intro)+'</p>'+_shHost+_shBook):'';
-  SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; SEC_BLOCKS.services=services; SEC_BLOCKS.experiences=experiences; SEC_BLOCKS.tickets=tickets; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
+  SEC_BLOCKS.extras=extras; SEC_BLOCKS.bookd=bookd; SEC_BLOCKS.services=services; SEC_BLOCKS.experiences=experiences; SEC_BLOCKS.tickets=tickets; SEC_BLOCKS.video=videos; SEC_BLOCKS.departure=departure; SEC_BLOCKS.playlist=playlist; return wxStripHtml()+ord.map(function(k){return SEC_BLOCKS[k];}).join('');
 }
 
 // Theme is a fixed id from the owner's picker; anything unknown falls back to
