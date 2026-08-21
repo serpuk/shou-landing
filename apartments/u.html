@@ -2269,6 +2269,20 @@ function ask(q){
   if((U.content&&U.content.bookUrl)&&/^https?:/i.test(U.content.bookUrl)&&isBookDirectQ(q)){var _bm=addMsg('ai',esc(chr('bookLead')));var _ba=document.createElement('a');_ba.className='ex';_ba.href=U.content.bookUrl;_ba.target='_blank';_ba.rel='noopener';_ba.textContent=chr('bookGo');_ba.style.marginTop='8px';_ba.style.display='inline-block';_bm.appendChild(_ba);asking=false;return;}
   var _svc=svcMatch(q);if(_svc){var _sm=addMsg('ai',esc((SVC_LEAD[curLang]||SVC_LEAD.en).replace('{x}',_svc.label))+(_svc.price?' '+esc(_svc.price):''));var _sa=document.createElement('a');_sa.className='ex';_sa.href=_svc.url;_sa.target='_blank';_sa.rel='noopener';_sa.textContent=chr('pkOpen')+' \u2197';_sa.style.marginTop='8px';_sa.style.display='inline-block';_sm.appendChild(_sa);asking=false;return;}
   var _ad=matchAddon(q); if(_ad){addonReply(_ad);asking=false;return;}
+  // "Before you leave": a checkout/leave question wants the host's departure
+  // checklist (content.departure), not just the hour — so surface the notes
+  // (with the check-out time above them, if set). The keyword table folds
+  // leave/departure into the 'checkout' intent, so this catches both. Falls
+  // through to the plain field answer below when the host set no departure notes.
+  if(cls&&cls.id==='checkout'&&String((U.content&&U.content.departure)||'').trim()){
+    var _dep2=String((U.content&&U.content.departure)||'').trim(), _co2=String(w.checkout||'').trim();
+    var _dh=esc(chr('here'));
+    if(_co2)_dh+='<div class="ans"><span class="wb-ic">'+ICON.checkout+'</span><div><div class="k">'+esc(lbl('checkout'))+'</div><div class="v">'+esc(wval('checkout'))+'</div></div></div>';
+    _dh+='<div class="ans"><span class="wb-ic">🧳</span><div><div class="k">'+esc((MEDIA_L[curLang]||MEDIA_L.en).departure)+'</div><div class="v">'+esc(_dep2).replace(/\n/g,'<br>')+'</div></div></div>';
+    var _dmsg=addMsg('ai',_dh);
+    var _rad=relatedAddon('checkout'); if(_rad&&_dmsg){var _rll=txAddon(_rad.label);var _rbb=document.createElement('button');_rbb.className='ex';_rbb.type='button';_rbb.textContent=chr('reqBtn')+' — '+_rll+(_rad.price?' ('+_rad.price+')':'');_rbb.style.marginTop='8px';_rbb.addEventListener('click',function(){openReqModal(_rll,_rad.price||'',_rad.label);});_dmsg.appendChild(_rbb);}
+    asking=false;return;
+  }
   if(cls&&cls.t==='wb'&&String(w[cls.id]||'').trim()){
     var _wm=addMsg('ai',esc(chr('here'))+'<div class="ans"><span class="wb-ic">'+ICON[cls.id]+'</span><div><div class="k">'+esc(lbl(cls.id))+'</div><div class="v">'+esc(wval(cls.id))+'</div></div></div>');
     var _ra=relatedAddon(cls.id); if(_ra&&_wm){var _rl=txAddon(_ra.label);var _rb=document.createElement('button');_rb.className='ex';_rb.type='button';_rb.textContent=chr('reqBtn')+' — '+_rl+(_ra.price?' ('+_ra.price+')':'');_rb.style.marginTop='8px';_rb.addEventListener('click',function(){openReqModal(_rl,_ra.price||'',_ra.label);});_wm.appendChild(_rb);}
