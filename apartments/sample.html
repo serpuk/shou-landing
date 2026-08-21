@@ -215,6 +215,7 @@
   .pl-actions .pl-openplan{margin:0}
   .pl-share{font:inherit;font-size:13px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer}
   .pl-share:hover{border-color:var(--pink);color:var(--pink)}
+  .pl-shico{width:15px;height:15px;vertical-align:-2.5px;margin-right:5px}
   .pl-nu{font-family:inherit;font-size:14.5px;font-weight:700;color:var(--soft);background:transparent;border:1.5px solid var(--line);border-radius:11px;min-width:42px;height:40px;padding:0 8px;cursor:pointer;transition:.15s}
   .pl-nu:hover{border-color:color-mix(in srgb,var(--ink) 34%,var(--line));color:var(--ink)}
   .pl-nu.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 6px 15px -6px color-mix(in srgb,var(--pink) 65%,transparent)}
@@ -1129,7 +1130,7 @@ function render(){
   var _BOOK=bookHtml();
   document.getElementById('root').innerHTML=
     '<header><div class="bar"><div class="hlogo'+hlogoCls+'"'+hlogoSt+'>'+hlogoIn+'</div><div><div class="hname">'+esc(U.name||'Apartment')+'</div><div class="hpow">'+esc(chr('pow')).replace('shou','<b class="hpow-brand">shou</b>')+'</div></div>'+
-      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print" id="plShare">'+esc(plt('share'))+'</button><button type="button" class="pl-print" id="plPrint">'+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
+      '<div class="lang"><span class="langflag" id="langFlag" role="img" aria-hidden="true">'+flagSvg(curLang)+'</span><select id="langSel" aria-label="Language">'+langOpts+'</select></div>'+(PLANNER?'<button type="button" class="pl-print" id="plShare">'+SHARE_IC+esc(plt('share'))+'</button><button type="button" class="pl-print" id="plPrint">'+esc(plt('printLbl'))+'</button>':'')+'</div></header>'+
     '<main class="wrap"><section class="welcome"><div>'+
       '<span class="eyebrow">'+esc(chr('eyebrow'))+'</span><h1>'+esc(chr('welcomeH'))+'</h1><p>'+esc(greeting())+'</p></div>'+
       '<div class="hcard" style="'+photo+'"><div class="hc-ov"></div><div class="hc-body">'+
@@ -1962,13 +1963,14 @@ function doSharePlan(b){
   if(navigator.share){navigator.share({title:title,url:url}).catch(function(){});return;}
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(url).then(function(){
-      if(b){var o=b.textContent;b.textContent=plt('copied');setTimeout(function(){b.textContent=o;},1600);}
+      if(b){var o=b.innerHTML;b.textContent=plt('copied');setTimeout(function(){b.innerHTML=o;},1600);}
     }).catch(function(){try{window.prompt('',url);}catch(e){}});
   }else{try{window.prompt('',url);}catch(e){}}
 }
 var SHUF_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>';
 var ARW_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
 var ARW_R='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+var SHARE_IC='<svg class="pl-shico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v13"/><path d="M8 6l4-4 4 4"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/></svg>';
 function plt(k){var p=(CHR[curLang]&&CHR[curLang].plan)||CHR.en.plan;return (p&&p[k])||CHR.en.plan[k]||k;}
 function planLoc(){return LOCMAP[curLang]||'en-GB';}
 function planHasN(p){return p&&p.n;}
@@ -2090,10 +2092,10 @@ function planControls(){
   var whoOrder=[['couple','💑'],['family','👪'],['friends','🎉'],['business','💼'],['solo','🧭']];
   var whoChips=whoOrder.map(function(o){return '<button type="button" class="pl-who'+(PLAN.who===o[0]?' on':'')+'" data-who="'+o[0]+'"><span class="pl-emo">'+o[1]+'</span><span class="pl-lab">'+esc(plt('w'+o[0].charAt(0).toUpperCase()+o[0].slice(1)))+'</span></button>';}).join('');
   var stepper='<div class="pl-step"><button type="button" data-dstep="-1" aria-label="'+esc(plt('prev'))+'"'+(PLAN.days<=1?' disabled':'')+'>−</button><span class="pl-stepn">'+esc(PLAN.days===1?plt('nDay'):plt('nDays').replace('{n}',PLAN.days))+'</span><button type="button" data-dstep="1" aria-label="'+esc(plt('next'))+'"'+(PLAN.days>=7?' disabled':'')+'>+</button></div>';
-  var openBtn=(PLANNER?'':'<div class="pl-actions"><button type="button" class="pl-openplan">'+esc(plt('openPlan'))+'</button><button type="button" class="pl-share">'+esc(plt('share'))+'</button></div>');
+  var openBtn=(PLANNER?'':'<div class="pl-actions"><button type="button" class="pl-openplan">'+esc(plt('openPlan'))+'</button><button type="button" class="pl-share">'+SHARE_IC+esc(plt('share'))+'</button></div>');
   var caret='<span class="pl-caret">▾</span>';
   var head='<button type="button" class="pl-cfghead'+(PLAN.cfgOpen?' open':'')+'" data-cfg="1"><span class="pl-cfgsum">'+planSummaryLine()+'</span><span class="pl-cfgtog">'+esc(plt(PLAN.cfgOpen?'done':'adjust'))+caret+'</span></button>';
-  var body=PLAN.cfgOpen?('<div class="pl-cfgbody"><div class="pt-plabel">'+esc(plt('whoQ'))+'</div><div class="pt-prow">'+whoChips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+stepper+'</div><button type="button" class="pl-tunetog'+(PLAN.intOpen?' open':'')+'" data-inttog="1">'+esc(plt('tune'))+caret+'</button>'+(PLAN.intOpen?'<div class="pt-prow pl-introw">'+chips+'</div>':'')+'</div>'):'';
+  var body=PLAN.cfgOpen?('<div class="pl-cfgbody"><div class="pt-plabel">'+esc(plt('whoQ'))+'</div><div class="pt-prow">'+whoChips+'</div><div class="pt-plabel">'+esc(plt('interests'))+'</div><div class="pt-prow">'+chips+'</div><div class="pt-plabel">'+esc(plt('howlong'))+'</div><div class="pt-prow">'+stepper+'</div></div>'):'';
   return openBtn+'<div class="pt-prefs pl-cfg">'+head+body+'</div>';
 }
 function wirePlan(host){
@@ -2102,7 +2104,6 @@ function wirePlan(host){
   host.querySelectorAll('.pl-openplan').forEach(function(b){b.onclick=function(){try{window.open(plannerUrl(),'_blank','noopener');}catch(e){}};});
   host.querySelectorAll('.pl-share').forEach(function(b){b.onclick=function(){doSharePlan(b);};});
   host.querySelectorAll('.pl-cfghead').forEach(function(b){b.onclick=function(){PLAN.cfgOpen=!PLAN.cfgOpen;planSave();renderPlan();};});
-  host.querySelectorAll('.pl-tunetog').forEach(function(b){b.onclick=function(){PLAN.intOpen=!PLAN.intOpen;planSave();renderPlan();};});
   host.querySelectorAll('.pl-step button[data-dstep]').forEach(function(b){b.onclick=function(){var d=+b.getAttribute('data-dstep');PLAN.days=Math.min(Math.max(PLAN.days+d,1),7);if(PLAN.view!=='overview'&&+PLAN.view>=PLAN.days)PLAN.view=PLAN.days-1;renderPlan();};});
   host.querySelectorAll('[data-goask]').forEach(function(b){b.onclick=function(){setTab('ask');};});
   host.querySelectorAll('.pt-arw').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-k'),d=+b.getAttribute('data-d');PLAN.sel[k]=(PLAN.sel[k]||0)+d;renderPlan();};});
