@@ -841,6 +841,8 @@ function metaVal(k){var c=U.content||{};var base=c[k];if(curLang===(U.baseLang||
 // key 'addon:<label>'; shown in the guest's language, but the BASE label is what
 // we send to the backend (validation + the owner's own-language email).
 function txAddon(lbl){lbl=lbl||'';if(curLang===(U.baseLang||'en'))return lbl;var t=(U.content&&U.content.i18n&&U.content.i18n[curLang])||{};return t['addon:'+lbl]||lbl;}
+// Video-clip titles are host free text, translated on save under 'vidt:<title>'.
+function txVid(t){t=t||'';if(curLang===(U.baseLang||'en'))return t;var x=(U.content&&U.content.i18n&&U.content.i18n[curLang])||{};return x['vidt:'+t]||t;}
 
 // The unit never loads on the .catch below, so the browser's language is the only
 // signal that screen has. Bounded to CHR's seven codes; the success path overwrites
@@ -1007,8 +1009,8 @@ function bookHtml(){
   var tickets=(!(U.content&&U.content.tiqOn===false)&&tiqetsAttr&&tiqetsAttr.length)?('<h2 class="wb-sec">'+esc(TIQ_TITLE[curLang]||TIQ_TITLE.en)+'</h2><div class="exp-sub">'+esc(TIQ_SUB[curLang]||TIQ_SUB.en)+'</div><div class="exp-grid">'+tiqetsAttr.slice(0,Math.min(Math.max((U.content&&+U.content.tiqCount)||6,1),12)).map(tiqCard).join('')+'</div>'):'';
   var _mL=MEDIA_L[curLang]||MEDIA_L.en;
   var _vids=((U.content&&U.content.videos)||[]).filter(function(v){return v&&v.url;});
-  var videos=_vids.length?('<h2 class="wb-sec">'+esc(_mL.video)+'</h2><div class="vids">'+_vids.map(function(v){var em=videoEmbed(v.url);return em?((v.title?'<div class="vid-t">'+esc(v.title)+'</div>':'')+em):'';}).join('')+'</div>'):'';
-  var _dep=(U.content&&U.content.departure)||'';
+  var videos=_vids.length?('<h2 class="wb-sec">'+esc(_mL.video)+'</h2><div class="vids">'+_vids.map(function(v){var em=videoEmbed(v.url);return em?((v.title?'<div class="vid-t">'+esc(txVid(v.title))+'</div>':'')+em):'';}).join('')+'</div>'):'';
+  var _dep=metaVal('departure')||'';
   var departure=_dep?('<h2 class="wb-sec">'+esc(_mL.departure)+'</h2><div class="depart">'+esc(_dep).replace(/\n/g,'<br>')+'</div>'):'';
   var _plyE=spotifyEmbed((U.content&&U.content.playlist)||'');
   var playlist=_plyE?('<h2 class="wb-sec">'+esc(_mL.playlist)+'</h2>'+_plyE):'';
@@ -2275,7 +2277,7 @@ function ask(q){
   // leave/departure into the 'checkout' intent, so this catches both. Falls
   // through to the plain field answer below when the host set no departure notes.
   if(cls&&cls.id==='checkout'&&String((U.content&&U.content.departure)||'').trim()){
-    var _dep2=String((U.content&&U.content.departure)||'').trim(), _co2=String(w.checkout||'').trim();
+    var _dep2=String(metaVal('departure')||'').trim(), _co2=String(w.checkout||'').trim();
     var _dh=esc(chr('here'));
     if(_co2)_dh+='<div class="ans"><span class="wb-ic">'+ICON.checkout+'</span><div><div class="k">'+esc(lbl('checkout'))+'</div><div class="v">'+esc(wval('checkout'))+'</div></div></div>';
     _dh+='<div class="ans"><span class="wb-ic">🧳</span><div><div class="k">'+esc((MEDIA_L[curLang]||MEDIA_L.en).departure)+'</div><div class="v">'+esc(_dep2).replace(/\n/g,'<br>')+'</div></div></div>';
